@@ -2,41 +2,34 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, CheckCircle, AlertTriangle, Box, Truck, Edit3 } from 'lucide-react';
+import { api } from '../../lib/api';
+import { usePermission } from '../../hooks/usePermission';
 
 export default function ReturnDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { can } = usePermission();
   const [inspectModalOpen, setInspectModalOpen] = useState(false);
   const [inspectionData, setInspectionData] = useState({});
 
   const { data: returnData, isLoading } = useQuery({
     queryKey: ['return', id],
     queryFn: async () => {
-      const res = await fetch(`/api/v1/returns/${id}`);
-      if (!res.ok) throw new Error('Failed to fetch return details');
-      return res.json();
+      return api.get(`/returns/${id}`);
     }
   });
 
   const receiveMutation = useMutation({
     mutationFn: async () => {
-      const res = await fetch(`/api/v1/returns/${id}/receive`, { method: 'POST' });
-      if (!res.ok) throw new Error('Failed to receive return');
-      return res.json();
+      return api.post(`/returns/${id}/receive`);
     },
     onSuccess: () => queryClient.invalidateQueries(['return', id])
   });
 
   const inspectMutation = useMutation({
     mutationFn: async (dispositions) => {
-      const res = await fetch(`/api/v1/returns/${id}/inspect`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ itemsDisposition: dispositions })
-      });
-      if (!res.ok) throw new Error('Failed to inspect return');
-      return res.json();
+      return api.post(`/returns/${id}/inspect`, { itemsDisposition: dispositions });
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['return', id]);
@@ -46,9 +39,7 @@ export default function ReturnDetail() {
 
   const completeMutation = useMutation({
     mutationFn: async () => {
-      const res = await fetch(`/api/v1/returns/${id}/complete`, { method: 'POST' });
-      if (!res.ok) throw new Error('Failed to complete return');
-      return res.json();
+      return api.post(`/returns/${id}/complete`);
     },
     onSuccess: () => queryClient.invalidateQueries(['return', id])
   });
@@ -118,8 +109,8 @@ export default function ReturnDetail() {
         </div>
         
         <div style={{ display: 'flex', gap: '12px' }}>
-          {ret.status === 'REQUESTED' && (
-            <button 
+          {ret.status === 'REQUESTED' && can('return:receive') && (
+            <button
               className="btn-primary"
               onClick={() => receiveMutation.mutate()}
               disabled={receiveMutation.isPending}
@@ -128,9 +119,9 @@ export default function ReturnDetail() {
               Mark as Received
             </button>
           )}
-          
-          {(ret.status === 'RECEIVED' || ret.status === 'INSPECTED') && (
-            <button 
+
+          {(ret.status === 'RECEIVED' || ret.status === 'INSPECTED') && can('return:inspect') && (
+            <button
               className="btn-secondary"
               onClick={() => {
                 const initialData = {};
@@ -144,8 +135,8 @@ export default function ReturnDetail() {
             </button>
           )}
 
-          {ret.status === 'INSPECTED' && (
-            <button 
+          {ret.status === 'INSPECTED' && can('return:complete') && (
+            <button
               className="btn-primary"
               onClick={() => completeMutation.mutate()}
               disabled={completeMutation.isPending || !canComplete}

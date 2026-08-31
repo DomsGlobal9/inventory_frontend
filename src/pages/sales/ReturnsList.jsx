@@ -1,6 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../../lib/api';
 
 export default function ReturnsList() {
   const navigate = useNavigate();
@@ -8,9 +9,7 @@ export default function ReturnsList() {
   const { data: returnsData, isLoading } = useQuery({
     queryKey: ['returns'],
     queryFn: async () => {
-      const res = await fetch('/api/v1/returns');
-      if (!res.ok) throw new Error('Failed to fetch returns');
-      return res.json();
+      return api.get('/returns');
     }
   });
 

@@ -1,25 +1,17 @@
 import React, { useState } from 'react';
 import { useCustomers } from '../../hooks/useCustomers';
-import { Plus, Search, Filter, ArrowRight } from 'lucide-react';
+import { Search, Filter, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import CustomerModal from '../../components/sales/CustomerModal';
 
 export default function Customers() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
 
   const { data: customers, isLoading } = useCustomers({
     search: searchTerm,
     status: statusFilter
   });
-
-  const handleOpenModal = (customer = null) => {
-    setSelectedCustomer(customer);
-    setIsModalOpen(true);
-  };
 
   const getStatusBadge = (status) => {
     const styles = {
@@ -47,9 +39,6 @@ export default function Customers() {
           <h1 style={{ fontSize: '32px', marginBottom: '8px', color: 'var(--text-primary)' }}>Customers</h1>
           <p style={{ color: 'var(--text-secondary)' }}>Manage your customer database and view order history.</p>
         </div>
-        <button className="btn-primary" onClick={() => handleOpenModal()} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Plus size={18} /> Add Customer
-        </button>
       </div>
 
       {/* Filters section */}
@@ -124,16 +113,9 @@ export default function Customers() {
                       <button 
                         className="btn-secondary" 
                         onClick={() => navigate(`/customers/${customer.id}`)}
-                        style={{ padding: '6px 12px', fontSize: '13px', marginRight: '8px' }}
-                      >
-                        View
-                      </button>
-                      <button 
-                        className="btn-secondary" 
-                        onClick={() => handleOpenModal(customer)}
                         style={{ padding: '6px 12px', fontSize: '13px' }}
                       >
-                        Edit
+                        View
                       </button>
                     </td>
                   </tr>
@@ -144,11 +126,6 @@ export default function Customers() {
         </div>
       </div>
 
-      <CustomerModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        customer={selectedCustomer} 
-      />
     </div>
   );
 }

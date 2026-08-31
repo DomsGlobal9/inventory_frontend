@@ -1,42 +1,24 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useSalesOrderDetails, useAddOrderItem, useRemoveOrderItem, useConfirmOrder, useCancelOrder } from '../../hooks/useSalesOrders';
+import { useSalesOrderDetails, useConfirmOrder, useCancelOrder } from '../../hooks/useSalesOrders';
 import { useCreateDispatch } from '../../hooks/useDispatches';
-import { ArrowLeft, Trash2, Plus, Search, Loader2, CheckCircle, XCircle, Truck } from 'lucide-react';
-import { useInventoryVariants } from '../../hooks/useInventory';
+import { ArrowLeft, Loader2, CheckCircle, XCircle, Truck } from 'lucide-react';
+import { usePermission } from '../../hooks/usePermission';
 
 export default function SalesOrderDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { can } = usePermission();
   const { data: order, isLoading } = useSalesOrderDetails(id);
-  const addMutation = useAddOrderItem();
-  const removeMutation = useRemoveOrderItem();
   const confirmMutation = useConfirmOrder();
   const cancelMutation = useCancelOrder();
   const dispatchMutation = useCreateDispatch();
 
-  const [isAddingItem, setIsAddingItem] = useState(false);
   const [isDispatching, setIsDispatching] = useState(false);
   const [dispatchQuantities, setDispatchQuantities] = useState({});
-  const [searchTerm, setSearchTerm] = useState('');
-  
-  // Basic search for variants, using useInventory which already fetches variants with pagination
-  // In a real app we'd have a specific autocomplete hook
-  const { data: inventoryData } = useInventoryVariants({ search: searchTerm });
-  const variants = inventoryData?.variants || [];
 
   if (isLoading) return <div style={{ padding: '48px', textAlign: 'center' }}>Loading order details...</div>;
   if (!order) return <div style={{ padding: '48px', textAlign: 'center', color: 'red' }}>Order not found</div>;
-
-  const handleAddItem = (variantId) => {
-    addMutation.mutate({ orderId: id, data: { variantId, quantity: 1 } }, {
-      onSuccess: () => setIsAddingItem(false)
-    });
-  };
-
-  const handleRemoveItem = (itemId) => {
-    removeMutation.mutate({ orderId: id, itemId });
-  };
 
   const handleConfirmOrder = () => {
     if (window.confirm("Are you sure you want to confirm this order? This will reserve inventory stock.")) {
@@ -106,54 +88,7 @@ export default function SalesOrderDetail() {
           <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
             <div style={{ padding: '24px', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>Line Items</h3>
-              {order.status === 'DRAFT' && (
-                <button className="btn-secondary" onClick={() => setIsAddingItem(true)} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Plus size={16} /> Add Product
-                </button>
-              )}
             </div>
-
-            {/* Add Item Panel */}
-            {isAddingItem && (
-              <div style={{ padding: '24px', borderBottom: '1px solid var(--border-light)', backgroundColor: 'var(--surface-hover)' }}>
-                <div style={{ position: 'relative', marginBottom: '16px' }}>
-                  <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                  <input 
-                    type="text" 
-                    placeholder="Search SKU or Product Name..." 
-                    className="input-field" 
-                    style={{ paddingLeft: '44px', width: '100%', background: 'var(--surface)' }}
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    autoFocus
-                  />
-                </div>
-                <div style={{ maxHeight: '250px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {variants.map(v => {
-                    const availableQty = v.quantity - v.reservedQty;
-                    return (
-                      <div key={v.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: 'var(--surface)', border: '1px solid var(--border-light)', borderRadius: '8px' }}>
-                        <div>
-                          <div style={{ fontWeight: '500' }}>{v.sku}</div>
-                          <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{v.productTitle} | Price: ${Number(v.sellingPrice || 0).toFixed(2)} | Avail: {availableQty}</div>
-                        </div>
-                        <button 
-                          className="btn-secondary" 
-                          onClick={() => handleAddItem(v.id)}
-                          disabled={addMutation.isPending || availableQty <= 0}
-                          style={{ padding: '4px 12px' }}
-                        >
-                          {addMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : 'Add 1 Qty'}
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-                <div style={{ marginTop: '16px', textAlign: 'right' }}>
-                  <button className="btn-secondary" onClick={() => setIsAddingItem(false)}>Close</button>
-                </div>
-              </div>
-            )}
 
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
               <thead>
@@ -206,15 +141,6 @@ export default function SalesOrderDetail() {
                       <td style={{ padding: '16px 24px', textAlign: 'right', color: 'var(--text-secondary)' }}>${Number(item.unitPrice).toFixed(2)}</td>
                       <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '500' }}>${Number(item.totalPrice).toFixed(2)}</td>
                       <td style={{ padding: '16px 24px', textAlign: 'center' }}>
-                        {order.status === 'DRAFT' && (
-                          <button 
-                            onClick={() => handleRemoveItem(item.id)}
-                            style={{ background: 'transparent', border: 'none', color: 'var(--error)', cursor: 'pointer', display: 'flex' }}
-                            disabled={removeMutation.isPending}
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        )}
                       </td>
                     </tr>
                   );
@@ -254,18 +180,17 @@ export default function SalesOrderDetail() {
 
             {order.status === 'DRAFT' && (
               <div style={{ marginTop: '32px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <button 
-                  className="btn-primary" 
-                  style={{ width: '100%', padding: '12px', fontSize: '15px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}
-                  onClick={handleConfirmOrder}
-                  disabled={confirmMutation.isPending || order.items?.length === 0}
-                >
-                  {confirmMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle size={18} />}
-                  Confirm Order
-                </button>
-                <button className="btn-secondary" style={{ width: '100%', padding: '12px', fontSize: '15px' }} onClick={() => navigate('/orders')}>
-                  Save Draft
-                </button>
+                {can('sales_order:confirm') && (
+                  <button
+                    className="btn-primary"
+                    style={{ width: '100%', padding: '12px', fontSize: '15px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}
+                    onClick={handleConfirmOrder}
+                    disabled={confirmMutation.isPending || order.items?.length === 0}
+                  >
+                    {confirmMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle size={18} />}
+                    Confirm Order
+                  </button>
+                )}
                 <p style={{ margin: '8px 0 0', fontSize: '12px', textAlign: 'center', color: 'var(--text-muted)' }}>
                   Confirming will reserve stock in the warehouse.
                 </p>
@@ -274,23 +199,27 @@ export default function SalesOrderDetail() {
 
             {(order.status === 'CONFIRMED' || order.status === 'PARTIALLY_DISPATCHED') && (
               <div style={{ marginTop: '32px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <button 
-                  className="btn-primary" 
-                  style={{ width: '100%', padding: '12px', fontSize: '15px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}
-                  onClick={handleOpenDispatch}
-                >
-                  <Truck size={18} />
-                  Create Dispatch
-                </button>
-                <button 
-                  className="btn-secondary" 
-                  style={{ width: '100%', padding: '12px', fontSize: '15px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', color: 'var(--error)', borderColor: 'var(--error)' }}
-                  onClick={handleCancelOrder}
-                  disabled={cancelMutation.isPending}
-                >
-                  {cancelMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : <XCircle size={18} />}
-                  Cancel Order
-                </button>
+                {can('dispatch:create') && (
+                  <button
+                    className="btn-primary"
+                    style={{ width: '100%', padding: '12px', fontSize: '15px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}
+                    onClick={handleOpenDispatch}
+                  >
+                    <Truck size={18} />
+                    Create Dispatch
+                  </button>
+                )}
+                {can('sales_order:cancel') && (
+                  <button
+                    className="btn-secondary"
+                    style={{ width: '100%', padding: '12px', fontSize: '15px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', color: 'var(--error)', borderColor: 'var(--error)' }}
+                    onClick={handleCancelOrder}
+                    disabled={cancelMutation.isPending}
+                  >
+                    {cancelMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : <XCircle size={18} />}
+                    Cancel Order
+                  </button>
+                )}
                 <p style={{ margin: '8px 0 0', fontSize: '12px', textAlign: 'center', color: 'var(--text-muted)' }}>
                   Dispatching will deduct physical inventory and recognize revenue.
                 </p>

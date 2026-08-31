@@ -2,16 +2,17 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { useCustomerDetails } from '../../hooks/useCustomers';
-import { useCreateSalesOrder } from '../../hooks/useSalesOrders';
 import { ArrowLeft, Mail, Phone, MapPin, Building, FileText, ShoppingBag, Truck, Loader2, X } from 'lucide-react';
+import { api } from '../../lib/api';
+import { usePermission } from '../../hooks/usePermission';
 
 export default function CustomerDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { can } = usePermission();
   const { data: customer, isLoading, error } = useCustomerDetails(id);
-  const createOrderMutation = useCreateSalesOrder();
-  
+
   const [activeTab, setActiveTab] = useState('orders');
   const [returnModalOpen, setReturnModalOpen] = useState(false);
   const [selectedDispatch, setSelectedDispatch] = useState(null);
@@ -19,13 +20,7 @@ export default function CustomerDetail() {
 
   const returnMutation = useMutation({
     mutationFn: async ({ salesOrderId, items, notes }) => {
-      const res = await fetch('/api/v1/returns', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ salesOrderId, items, notes })
-      });
-      if (!res.ok) throw new Error('Failed to create return');
-      return res.json();
+      return api.post('/returns', { salesOrderId, items, notes });
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['customer', id]);
@@ -60,14 +55,6 @@ export default function CustomerDetail() {
   if (error || !customer) {
     return <div style={{ padding: '48px', textAlign: 'center', color: 'red' }}>Error loading customer details</div>;
   }
-
-  const handleCreateOrder = () => {
-    createOrderMutation.mutate({ customerId: id }, {
-      onSuccess: (newOrder) => {
-        navigate(`/orders/${newOrder.id}`);
-      }
-    });
-  };
 
   return (
     <div style={{ maxWidth: '1400px', margin: '0 auto', paddingTop: '24px', flex: 1, minHeight: 0, overflowY: 'auto', paddingBottom: '64px', width: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -150,20 +137,9 @@ export default function CustomerDetail() {
 
           <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
             <div style={{ padding: '24px', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '600' }}>
-                {activeTab === 'orders' ? 'Recent Orders' : 'Recent Dispatches'}
+              <h3 style={{ margin: 0, fontSize: '18px', color: 'var(--text-primary)' }}>
+                {activeTab === 'orders' ? 'Sales Orders' : 'Dispatches'}
               </h3>
-              {activeTab === 'orders' && (
-                <button 
-                  className="btn-primary" 
-                  onClick={handleCreateOrder}
-                  disabled={createOrderMutation.isPending}
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                >
-                  {createOrderMutation.isPending && <Loader2 size={16} className="animate-spin" />}
-                  Create Order
-                </button>
-              )}
             </div>
             
             {activeTab === 'orders' && (
@@ -253,16 +229,18 @@ export default function CustomerDetail() {
                             </span>
                           </td>
                           <td style={{ padding: '16px 24px', textAlign: 'right' }}>
-                            <button 
-                              className="btn-secondary"
-                              style={{ padding: '4px 12px', fontSize: '12px' }}
-                              onClick={() => {
-                                setSelectedDispatch(dispatch);
-                                setReturnModalOpen(true);
-                              }}
-                            >
-                              Return
-                            </button>
+                            {can('return:create') && (
+                              <button
+                                className="btn-secondary"
+                                style={{ padding: '4px 12px', fontSize: '12px' }}
+                                onClick={() => {
+                                  setSelectedDispatch(dispatch);
+                                  setReturnModalOpen(true);
+                                }}
+                              >
+                                Return
+                              </button>
+                            )}
                           </td>
                         </tr>
                       ))}

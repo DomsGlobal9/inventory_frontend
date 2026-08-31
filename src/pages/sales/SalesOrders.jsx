@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSalesOrders } from '../../hooks/useSalesOrders';
-import { Plus, Search, Filter } from 'lucide-react';
+import { Search, Filter } from 'lucide-react';
 
 export default function SalesOrders() {
   const navigate = useNavigate();
@@ -29,15 +29,12 @@ export default function SalesOrders() {
   return (
     <div style={{ maxWidth: '1400px', margin: '0 auto', paddingTop: '24px', flex: 1, minHeight: 0, overflowY: 'auto', paddingBottom: '64px', width: '100%', display: 'flex', flexDirection: 'column' }}>
       
-      {/* Header */}
+      {/* Header section */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
         <div>
           <h1 style={{ fontSize: '32px', marginBottom: '8px', color: 'var(--text-primary)' }}>Sales Orders</h1>
           <p style={{ color: 'var(--text-secondary)' }}>Manage draft orders, view confirmed sales, and track fulfillments.</p>
         </div>
-        <button className="btn-primary" onClick={() => navigate('/orders/new')} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Plus size={18} /> Create Order
-        </button>
       </div>
 
       {/* Filters */}

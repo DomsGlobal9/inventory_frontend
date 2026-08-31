@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Settings as SettingsIcon, Tag, Palette, Scissors, Layers, Hexagon, Grid, ShoppingBag, Store, Users, CreditCard, Key } from 'lucide-react';
+import { Settings as SettingsIcon, Tag, Palette, Scissors, Layers, Hexagon, Grid, ShoppingBag, Store, Users, CreditCard, Key, User as UserIcon, Mail, Shield } from 'lucide-react';
 import CatalogManager from '../components/CatalogManager';
+import { useAuth } from '../context/AuthContext';
 
 const SETTINGS_DOMAINS = [
   { id: 'GENERAL', label: 'General Info', icon: Store },
@@ -21,7 +22,8 @@ const CATALOG_TABS = [
 ];
 
 export default function Settings() {
-  const [activeDomain, setActiveDomain] = useState('CATALOG');
+  const { user } = useAuth();
+  const [activeDomain, setActiveDomain] = useState('GENERAL');
   const [activeCatalogTab, setActiveCatalogTab] = useState('SIZE');
   
   const activeCatalogInfo = CATALOG_TABS.find(t => t.id === activeCatalogTab);
@@ -47,7 +49,10 @@ export default function Settings() {
           padding: '16px 0',
           display: 'flex',
           flexDirection: 'column',
-          gap: '4px'
+          gap: '4px',
+          position: 'sticky',
+          top: '0',
+          alignSelf: 'flex-start'
         }}>
           <style>{`
             .settings-sidebar { width: 280px; }
@@ -142,7 +147,40 @@ export default function Settings() {
             </div>
           )}
 
-          {activeDomain !== 'CATALOG' && (
+          {activeDomain === 'GENERAL' && (
+            <div style={{ background: 'var(--bg-surface)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '32px' }}>
+              <div style={{ marginBottom: '32px' }}>
+                <h2 style={{ fontSize: '24px', marginBottom: '8px', color: 'var(--text-primary)' }}>Profile Information</h2>
+                <p style={{ color: 'var(--text-secondary)' }}>Manage your personal account details and access level.</p>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '600px' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', padding: '16px', border: '1px solid var(--border-light)', borderRadius: '12px', background: 'var(--bg-input)' }}>
+                  <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--bg-dark)' }}>
+                    <UserIcon size={24} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>{user?.name || 'Unknown User'}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', fontSize: '14px', marginBottom: '8px' }}>
+                      <Mail size={14} /> {user?.email || 'No email provided'}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px' }}>
+                      <Shield size={14} color="var(--primary-color)" />
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        {(user?.roles || ['USER']).map(role => (
+                          <span key={role} className="badge" style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', fontSize: '11px', padding: '2px 8px' }}>
+                            {role}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeDomain !== 'CATALOG' && activeDomain !== 'GENERAL' && (
             <div style={{ background: 'var(--bg-surface)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '48px', textAlign: 'center' }}>
               <div style={{ color: 'var(--text-secondary)', marginBottom: '16px' }}>
                 {(() => {

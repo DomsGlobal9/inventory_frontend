@@ -12,8 +12,9 @@ export default function LowStockWidget() {
   if (isError) return <ErrorCard message="Failed to load stock alerts." height="400px" />;
 
   // Combine outOfStock and lowStock, take top 10
-  const outOfStock = alertsData?.data?.outOfStock || [];
-  const lowStock = alertsData?.data?.lowStock || [];
+  const allAlerts = alertsData?.alerts || [];
+  const outOfStock = allAlerts.filter(a => a.type === 'OUT_OF_STOCK');
+  const lowStock = allAlerts.filter(a => a.type === 'LOW_STOCK');
   const criticalItems = [...outOfStock, ...lowStock].slice(0, 10);
 
   return (

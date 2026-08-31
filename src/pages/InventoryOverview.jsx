@@ -7,9 +7,11 @@ import PageLoader from '../components/PageLoader';
 import StockInModal from '../components/inventory/StockInModal';
 import StockOutModal from '../components/inventory/StockOutModal';
 import AdjustModal from '../components/inventory/AdjustModal';
+import { usePermission } from '../hooks/usePermission';
 
 export default function InventoryOverview() {
   const navigate = useNavigate();
+  const { can } = usePermission();
   const [filters, setFilters] = useState({
     search: '',
     status: '',
@@ -144,15 +146,21 @@ export default function InventoryOverview() {
                   <td style={{ textAlign: 'right', fontWeight: '500' }}>₹{variant.inventoryValue?.toFixed(2)}</td>
                   <td>
                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                      <button className="btn-secondary" style={{ padding: '4px 8px', fontSize: '12px', display: 'flex', gap: '4px' }} onClick={() => setModalState({ type: 'IN', variant })}>
-                        <Plus size={14} /> Receive
-                      </button>
-                      <button className="btn-secondary" style={{ padding: '4px 8px', fontSize: '12px', display: 'flex', gap: '4px' }} onClick={() => setModalState({ type: 'OUT', variant })}>
-                        <Minus size={14} /> Issue
-                      </button>
-                      <button className="btn-secondary" style={{ padding: '4px 8px', fontSize: '12px', display: 'flex', gap: '4px' }} onClick={() => setModalState({ type: 'ADJUST', variant })}>
-                        <Settings2 size={14} /> Adjust
-                      </button>
+                      {can('inventory:receive') && (
+                        <button className="btn-secondary" style={{ padding: '4px 8px', fontSize: '12px', display: 'flex', gap: '4px' }} onClick={() => setModalState({ type: 'IN', variant })}>
+                          <Plus size={14} /> Receive
+                        </button>
+                      )}
+                      {can('inventory:adjust') && (
+                        <button className="btn-secondary" style={{ padding: '4px 8px', fontSize: '12px', display: 'flex', gap: '4px' }} onClick={() => setModalState({ type: 'OUT', variant })}>
+                          <Minus size={14} /> Issue
+                        </button>
+                      )}
+                      {can('inventory:adjust') && (
+                        <button className="btn-secondary" style={{ padding: '4px 8px', fontSize: '12px', display: 'flex', gap: '4px' }} onClick={() => setModalState({ type: 'ADJUST', variant })}>
+                          <Settings2 size={14} /> Adjust
+                        </button>
+                      )}
                       <button className="btn-secondary" style={{ padding: '4px 8px', fontSize: '12px', display: 'flex', gap: '4px' }} onClick={() => navigate(`/inventory/ledger?variantId=${variant.variantId}`)}>
                         <History size={14} /> Ledger
                       </button>

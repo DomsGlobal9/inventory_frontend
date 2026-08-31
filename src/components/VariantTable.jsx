@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, Loader2, AlertCircle, Download, AlertTriangle, X, Copy, CheckCircle2, Printer } from 'lucide-react';
+import { Plus, Trash2, Loader2, AlertCircle, Download, AlertTriangle, X, Copy, CheckCircle2, Printer, Info, Settings } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Barcode from 'react-barcode';
 import { pdf } from '@react-pdf/renderer';
 import { LabelDocument } from './LabelDocument';
+import { LocationSettingsModal } from './LocationSettingsModal';
 import { useVariants, useBulkCreateVariants, useDeleteVariant } from '../hooks/useVariants';
 import { useCatalogData } from '../hooks/useCatalogConfig';
 
@@ -18,6 +19,8 @@ export default function VariantTable({ productId, productName }) {
   const [deleteTarget, setDeleteTarget] = useState(null); // { id, sku }
   const [selectedVariants, setSelectedVariants] = useState([]); // array of variant ids
   const [isPrinting, setIsPrinting] = useState(false);
+  const [stockBreakdownVariant, setStockBreakdownVariant] = useState(null); // stores the variant object
+  const [locationSettingsVariant, setLocationSettingsVariant] = useState(null); // stores the variant object
 
   const { sizes: SIZES, colors: COLORS_PALETTE } = useCatalogData();
 
@@ -69,8 +72,9 @@ export default function VariantTable({ productId, productName }) {
   };
 
   const getStatus = (v) => {
-    if (v.quantity === 0) return { label: 'Out of Stock', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' };
-    if (v.quantity <= v.reorderLevel) return { label: 'Low Stock', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' };
+    const qty = v.totalQuantity !== undefined ? v.totalQuantity : v.quantity;
+    if (qty === 0) return { label: 'Out of Stock', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' };
+    if (qty <= v.reorderLevel) return { label: 'Low Stock', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' };
     return { label: 'In Stock', color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' };
   };
 
@@ -80,7 +84,7 @@ export default function VariantTable({ productId, productName }) {
         SKU: v.sku,
         Size: v.size || '-',
         Color: v.colorName || '-',
-        Quantity: v.quantity,
+        Quantity: v.totalQuantity !== undefined ? v.totalQuantity : v.quantity,
         ReorderLevel: v.reorderLevel,
         PriceOverride: v.priceOverride || '',
         Status: getStatus(v).label
@@ -261,9 +265,9 @@ export default function VariantTable({ productId, productName }) {
                 <th>Barcode</th>
                 <th>Size</th>
                 <th>Color</th>
-                <th>Quantity</th>
+                <th>Total Stock</th>
                 <th>Status</th>
-                <th style={{ textAlign: 'right' }}>Actions</th>
+                <th style={{ textAlign: 'right' }}>Settings & Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -314,7 +318,18 @@ export default function VariantTable({ productId, productName }) {
                         {v.colorName}
                       </div>
                     </td>
-                    <td style={{ fontWeight: '500' }}>{v.quantity}</td>
+                    <td style={{ fontWeight: '500' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        {v.totalQuantity !== undefined ? v.totalQuantity : v.quantity}
+                        <button 
+                          onClick={() => setStockBreakdownVariant(v)}
+                          style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '2px', color: 'var(--text-muted)' }}
+                          title="View Stock Breakdown"
+                        >
+                          <Info size={14} />
+                        </button>
+                      </div>
+                    </td>
                     <td>
                       <span style={{ 
                         padding: '4px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: '600', textTransform: 'uppercase',
@@ -334,8 +349,16 @@ export default function VariantTable({ productId, productName }) {
                           <Printer size={16} />
                         </button>
                         <button 
+                          onClick={() => setLocationSettingsVariant(v)}
+                          style={{ color: 'var(--text-secondary)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px' }}
+                          title="Location Settings"
+                        >
+                          <Settings size={16} />
+                        </button>
+                        <button 
                           onClick={() => setDeleteTarget({ id: v.id, sku: v.sku })}
                           style={{ color: 'var(--accent-danger)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px' }}
+                          title="Delete Variant"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -349,6 +372,19 @@ export default function VariantTable({ productId, productName }) {
         </div>
       )}
     </div>
+
+    {/* Location Settings Modal */}
+    {locationSettingsVariant && (
+      <LocationSettingsModal 
+        variant={locationSettingsVariant}
+        onClose={() => setLocationSettingsVariant(null)}
+        onSaveSuccess={() => {
+          // If we want to refresh variant table data after saving:
+          // We can let the parent query refetch, or we just close the modal.
+          // Since useVariants is used, we can just invalidate it if we imported queryClient.
+        }}
+      />
+    )}
 
     {/* Delete Confirmation Modal */}
     {deleteTarget && (
@@ -445,8 +481,60 @@ export default function VariantTable({ productId, productName }) {
             </div>
           </div>
         </motion.div>
+    {/* Stock Breakdown Modal */}
+    {stockBreakdownVariant && (
+      <>
+        <div
+          onClick={() => setStockBreakdownVariant(null)}
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 999, backdropFilter: 'blur(4px)' }}
+        />
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '400px', backgroundColor: 'var(--bg-panel)', border: '1px solid var(--border-light)', borderRadius: '12px', zIndex: 1000, overflow: 'hidden' }}
+        >
+          <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 style={{ margin: 0, fontSize: '16px' }}>Stock Breakdown</h3>
+            <button onClick={() => setStockBreakdownVariant(null)} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}><X size={18} /></button>
+          </div>
+          <div style={{ padding: '20px 24px' }}>
+            <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Variant</span>
+              <span style={{ fontFamily: 'var(--font-mono)', fontWeight: '600' }}>{stockBreakdownVariant.sku}</span>
+            </div>
+            
+            <div style={{ background: 'var(--bg-input)', borderRadius: '8px', padding: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid var(--border-light)' }}>
+                <span style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Location</span>
+                <span style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Qty</span>
+              </div>
+              
+              {stockBreakdownVariant.stockByLocation?.length > 0 ? (
+                stockBreakdownVariant.stockByLocation.map((loc, i) => (
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < stockBreakdownVariant.stockByLocation.length - 1 ? '1px solid var(--border-light)' : 'none' }}>
+                    <span style={{ fontSize: '14px', color: 'var(--text-primary)' }}>{loc.name}</span>
+                    <span style={{ fontSize: '14px', fontWeight: 500 }}>{loc.quantity}</span>
+                  </div>
+                ))
+              ) : (
+                <div style={{ padding: '12px 0', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
+                  No stock in any location
+                </div>
+              )}
+            </div>
+            
+            <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'space-between', padding: '0 16px' }}>
+              <span style={{ fontWeight: 600 }}>Total</span>
+              <span style={{ fontWeight: 600 }}>{stockBreakdownVariant.totalQuantity || 0}</span>
+            </div>
+          </div>
+        </motion.div>
+      </>
+    )}
       </>
     )}
     </>
   );
 }
+

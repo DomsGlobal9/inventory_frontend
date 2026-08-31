@@ -15,8 +15,9 @@ export default function AlertCenter() {
     return <PageLoader text="Loading Alerts..." />;
   }
 
-  const outOfStock = data?.data?.outOfStock || [];
-  const lowStock = data?.data?.lowStock || [];
+  const allAlerts = data?.alerts || [];
+  const outOfStock = allAlerts.filter(a => a.type === 'OUT_OF_STOCK');
+  const lowStock = allAlerts.filter(a => a.type === 'LOW_STOCK');
 
   const container = {
     hidden: { opacity: 0 },
@@ -132,7 +133,6 @@ export default function AlertCenter() {
                     </button>
                     <button 
                       className="btn-primary" 
-                      style={{ background: 'var(--text-primary)', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '8px', fontWeight: 500, fontSize: '13px', cursor: 'pointer' }}
                       onClick={() => navigate('/inventory/purchase-orders/new', { 
                         state: { 
                           variantId: v.id, 

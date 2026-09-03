@@ -1,7 +1,9 @@
 // Deliberately raw fetch, not the `api` axios instance: this must still work when axios
 // itself, React, or the rest of the app is the thing that's broken. Never throws, never
 // awaited by callers -- a failed error report must not become a second error.
-const ENDPOINT = (import.meta.env.VITE_API_URL || 'http://localhost:4006/api/v1') + '/client-errors';
+import { API_BASE_URL } from './config';
+
+const ENDPOINT = `${API_BASE_URL}/client-errors`;
 
 // A crash loop (e.g. a render error that retriggers on every re-render attempt) must not
 // turn into a flood of identical reports -- cap it per page load.

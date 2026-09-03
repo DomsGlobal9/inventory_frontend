@@ -3,6 +3,7 @@ import { AlertCircle, CheckCircle, X, Image as ImageIcon, StopCircle, Eye } from
 import { useProduct } from "../context/ProductContext";
 import { api } from "../lib/api";
 import ImageLightbox from "./ImageLightbox";
+import { API_BASE_URL } from '../lib/config';
 
 const VIEW_ORDER = ["front", "left", "right", "back"];
 const VIEW_LABELS = {
@@ -323,7 +324,7 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete }) {
 
     try {
       const payload = await buildPayload();
-      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:4006/api/v1';
+      const apiBase = API_BASE_URL;
       const response = await fetch(`${apiBase}/catalog-tryon/generate-catalog`, {
         method: 'POST',
         credentials: 'include',

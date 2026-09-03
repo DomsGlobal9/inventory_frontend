@@ -189,7 +189,13 @@ export default function OnboardingPage() {
                 
                 <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <AlertTriangle size={12} color="var(--accent-gold)" />
-                  This password is shown once — it won't be retrievable again.
+                  {/* This used to read "shown once -- it won't be retrievable again", which was
+                      simply untrue: onboardClient stores an encrypted copy (passwordEncrypted)
+                      precisely so it can be re-shared, and the console's Clients > view password
+                      decrypts it. Telling an admin the credential is gone forever when the system
+                      deliberately keeps it recoverable is both misleading and understates where
+                      the credential still lives. */}
+                  Share this with the client. You can view it again later from Clients &rarr; this client &rarr; view password.
                 </p>
                 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>

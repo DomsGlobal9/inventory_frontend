@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import toast from 'react-hot-toast';
+import { invalidateDerivedViews, patchInventoryRows } from '../lib/invalidate';
 
 export function useInventoryVariants(filters) {
   const queryObj = Object.fromEntries(
@@ -49,10 +50,13 @@ export function useStockIn() {
       const response = await api.post('/inventory/stock-in', data);
       return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (result, variables) => {
+      // Update the visible row from the response first so it changes immediately; the
+      // invalidation below then reconciles against the server.
+      patchInventoryRows(queryClient, variables, result);
       queryClient.invalidateQueries({ queryKey: ['inventory-variants'] });
       queryClient.invalidateQueries({ queryKey: ['inventory-transactions'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      invalidateDerivedViews(queryClient); // Dashboard + reports + inventory rollups
       toast.success('Stock added successfully');
     },
     onError: (error) => {
@@ -68,10 +72,13 @@ export function useStockOut() {
       const response = await api.post('/inventory/stock-out', data);
       return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (result, variables) => {
+      // Update the visible row from the response first so it changes immediately; the
+      // invalidation below then reconciles against the server.
+      patchInventoryRows(queryClient, variables, result);
       queryClient.invalidateQueries({ queryKey: ['inventory-variants'] });
       queryClient.invalidateQueries({ queryKey: ['inventory-transactions'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      invalidateDerivedViews(queryClient); // Dashboard + reports + inventory rollups
       toast.success('Stock deducted successfully');
     },
     onError: (error) => {
@@ -87,10 +94,13 @@ export function useAdjustment() {
       const response = await api.post('/inventory/adjustment', data);
       return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (result, variables) => {
+      // Update the visible row from the response first so it changes immediately; the
+      // invalidation below then reconciles against the server.
+      patchInventoryRows(queryClient, variables, result);
       queryClient.invalidateQueries({ queryKey: ['inventory-variants'] });
       queryClient.invalidateQueries({ queryKey: ['inventory-transactions'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      invalidateDerivedViews(queryClient); // Dashboard + reports + inventory rollups
       toast.success('Stock adjusted successfully');
     },
     onError: (error) => {

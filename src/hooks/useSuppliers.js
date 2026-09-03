@@ -51,6 +51,9 @@ export const useUpdateSupplier = () => {
       toast.success('Supplier updated successfully');
       queryClient.invalidateQueries({ queryKey: ['suppliers'] });
       queryClient.invalidateQueries({ queryKey: ['suppliers', variables.id] });
+      // SupplierDetails.jsx queries ['supplier', id] (singular). Invalidating only the
+      // plural key refreshed the list but never the detail page you were looking at.
+      queryClient.invalidateQueries({ queryKey: ['supplier', variables.id] });
     },
     onError: (error) => {
       toast.error(error?.message || 'Failed to update supplier');

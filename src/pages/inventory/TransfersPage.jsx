@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
+import { invalidateDerivedViews } from '../../lib/invalidate';
 import toast from 'react-hot-toast';
 import { useLocationContext } from '../../contexts/LocationContext';
 import { usePermission } from '../../hooks/usePermission';
 import { ArrowRight, Plus, Trash2 } from 'lucide-react';
 
 export default function TransfersPage() {
+  const queryClient = useQueryClient();
   const { locations } = useLocationContext();
   const { can } = usePermission();
   const [formData, setFormData] = useState({
@@ -96,6 +99,10 @@ export default function TransfersPage() {
         ...formData,
         items: items.map(item => ({ ...item, quantity: parseInt(item.quantity) || 0 }))
       });
+      // This page posted directly with api.post and never touched the query cache, so a
+      // transfer left the Inventory Overview, the ledger and the dashboard showing
+      // pre-transfer quantities until a manual reload.
+      invalidateDerivedViews(queryClient);
       toast.success('Stock transferred successfully');
       setFormData({ originLocationId: '', destinationLocationId: '', notes: '' });
       setItems([]);

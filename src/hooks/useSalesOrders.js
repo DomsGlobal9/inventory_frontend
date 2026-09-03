@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { api } from '../lib/api';
+import { invalidateDerivedViews } from '../lib/invalidate';
 
 // api.ts's interceptor rejects with the already-unwrapped response body, so the server's
 // message lives at `error.message` -- NOT `error.response.data.message`, which is always
@@ -65,6 +66,7 @@ export const useAddOrderItem = () => {
     onSuccess: (_, { orderId }) => {
       queryClient.invalidateQueries({ queryKey: ['sales-orders', orderId] });
       queryClient.invalidateQueries({ queryKey: ['sales-orders'] });
+      invalidateDerivedViews(queryClient); // order totals feed the dashboard figures
     },
     onError: showError('Could not add the item to this order.')
   });
@@ -79,6 +81,7 @@ export const useRemoveOrderItem = () => {
     onSuccess: (_, { orderId }) => {
       queryClient.invalidateQueries({ queryKey: ['sales-orders', orderId] });
       queryClient.invalidateQueries({ queryKey: ['sales-orders'] });
+      invalidateDerivedViews(queryClient); // order totals feed the dashboard figures
     },
     onError: showError('Could not remove the item.')
   });
@@ -94,6 +97,7 @@ export const useConfirmOrder = () => {
       toast.success('Order confirmed. Stock is now reserved.');
       queryClient.invalidateQueries({ queryKey: ['sales-orders', orderId] });
       queryClient.invalidateQueries({ queryKey: ['sales-orders'] });
+      invalidateDerivedViews(queryClient); // confirm/cancel moves reserved stock
     },
     // The common failure here is "Insufficient stock for variant X. Requested: 5,
     // Available: 2" thrown by reserveStock -- exactly the message the warehouse user
@@ -112,6 +116,7 @@ export const useCancelOrder = () => {
       toast.success('Order cancelled. Reserved stock released.');
       queryClient.invalidateQueries({ queryKey: ['sales-orders', orderId] });
       queryClient.invalidateQueries({ queryKey: ['sales-orders'] });
+      invalidateDerivedViews(queryClient); // confirm/cancel moves reserved stock
     },
     onError: showError('Could not cancel the order.')
   });

@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { api } from '../lib/api';
+import { invalidateDerivedViews } from '../lib/invalidate';
 
 export const useCreateDispatch = () => {
   const queryClient = useQueryClient();
@@ -12,6 +13,7 @@ export const useCreateDispatch = () => {
       toast.success('Dispatch created. Stock has been shipped out.');
       queryClient.invalidateQueries({ queryKey: ['sales-orders', variables.salesOrderId] });
       queryClient.invalidateQueries({ queryKey: ['sales-orders'] });
+      invalidateDerivedViews(queryClient); // dispatch reduces physical stock
     },
     // e.g. "Cannot dispatch 5. Only 2 reserved remaining." from dispatchReservation --
     // api.ts already unwrapped the body, so the message is on `error` itself.

@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import toast from 'react-hot-toast';
+import { invalidateDerivedViews } from '../lib/invalidate';
 
 export function useTransactions(filters) {
   // Clean empty filters
@@ -34,7 +35,7 @@ export function useCreateTransaction(productId) {
         queryClient.invalidateQueries({ queryKey: ['variants', productId] });
         queryClient.invalidateQueries({ queryKey: ['product', productId] });
       }
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      invalidateDerivedViews(queryClient); // Dashboard + reports + inventory rollups
       toast.success('Transaction recorded successfully');
     },
     onError: (error) => {

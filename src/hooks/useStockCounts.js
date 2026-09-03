@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { api } from '../lib/api';
+import { invalidateDerivedViews } from '../lib/invalidate';
 
 export const useStockCounts = () => {
   return useQuery({
@@ -85,7 +86,7 @@ export const useCompleteStockCount = () => {
       toast.success('Stock count completed successfully');
       queryClient.invalidateQueries({ queryKey: ['stock-counts'] });
       queryClient.invalidateQueries({ queryKey: ['stock-counts', variables.id] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      invalidateDerivedViews(queryClient); // Dashboard + reports + inventory rollups
       queryClient.invalidateQueries({ queryKey: ['inventory'] });
     },
     onError: (error) => {

@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, CheckCircle, AlertTriangle, Box, Truck, Edit3 } from 'lucide-react';
 import { api } from '../../lib/api';
 import { usePermission } from '../../hooks/usePermission';
+import { invalidateDerivedViews } from '../../lib/invalidate';
 
 export default function ReturnDetail() {
   const { id } = useParams();
@@ -20,11 +21,19 @@ export default function ReturnDetail() {
     }
   });
 
+  // ReturnsList queries ['returns'] (plural) and a completed return restocks
+  // inventory -- invalidating only ['return', id] left both stale.
+  const refreshReturn = () => {
+    queryClient.invalidateQueries({ queryKey: ['return', id] });
+    queryClient.invalidateQueries({ queryKey: ['returns'] });
+    invalidateDerivedViews(queryClient);
+  };
+
   const receiveMutation = useMutation({
     mutationFn: async () => {
       return api.post(`/returns/${id}/receive`);
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['return', id] })
+    onSuccess: () => refreshReturn()
   });
 
   const inspectMutation = useMutation({
@@ -32,7 +41,7 @@ export default function ReturnDetail() {
       return api.post(`/returns/${id}/inspect`, { itemsDisposition: dispositions });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['return', id] });
+      refreshReturn();
       setInspectModalOpen(false);
     }
   });
@@ -41,7 +50,7 @@ export default function ReturnDetail() {
     mutationFn: async () => {
       return api.post(`/returns/${id}/complete`);
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['return', id] })
+    onSuccess: () => refreshReturn()
   });
 
   if (isLoading) return <div style={{ padding: '24px' }}>Loading...</div>;

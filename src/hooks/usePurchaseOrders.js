@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { api } from '../lib/api';
+import { invalidateDerivedViews } from '../lib/invalidate';
 
 export const usePurchaseOrders = () => {
   return useQuery({
@@ -70,7 +71,7 @@ export const useReceiveGoods = () => {
       queryClient.invalidateQueries({ queryKey: ['purchase-orders'] });
       queryClient.invalidateQueries({ queryKey: ['purchase-orders', variables.id] });
       queryClient.invalidateQueries({ queryKey: ['inventory'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      invalidateDerivedViews(queryClient); // Dashboard + reports + inventory rollups
     },
     onError: (error) => {
       toast.error(error?.message || 'Failed to receive goods');

@@ -4,8 +4,12 @@ import { useAuth } from '../context/AuthContext';
 import { LocationProvider } from '../contexts/LocationContext';
 
 export default function ProtectedRoute({ requiredRole, requiredPermission }) {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, isLoading } = useAuth();
   const location = useLocation();
+
+  if (isLoading) {
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'var(--text-secondary)' }}>Verifying session...</div>;
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;

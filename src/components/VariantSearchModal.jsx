@@ -29,6 +29,8 @@ export default function VariantSearchModal({ isOpen, onClose, onSelect }) {
   }, [isOpen]);
 
   useEffect(() => {
+    let ignore = false;
+    
     async function search() {
       if (!debouncedQuery) {
         setResults([]);
@@ -36,18 +38,26 @@ export default function VariantSearchModal({ isOpen, onClose, onSelect }) {
       }
       setIsSearching(true);
       try {
-        const res = await api.get(`/variants/search?q=${debouncedQuery}&page=1&limit=20`);
-        setResults(res.data?.items || []);
+        const res = await api.get('/variants/search', {
+          params: { q: debouncedQuery, page: 1, limit: 20 }
+        });
+        if (!ignore) {
+          setResults(res.data?.items || []);
+        }
       } catch (err) {
-        console.error("Search failed:", err);
+        if (!ignore) console.error("Search failed:", err);
       } finally {
-        setIsSearching(false);
+        if (!ignore) setIsSearching(false);
       }
     }
     
     if (isOpen) {
       search();
     }
+    
+    return () => {
+      ignore = true;
+    };
   }, [debouncedQuery, isOpen]);
 
   if (!isOpen) return null;
@@ -107,7 +117,7 @@ export default function VariantSearchModal({ isOpen, onClose, onSelect }) {
           <div style={{ padding: '0', overflowY: 'auto', flex: 1 }}>
             {isSearching && (
               <div style={{ padding: '32px', display: 'flex', justifyContent: 'center', color: 'var(--text-muted)' }}>
-                <Loader2 size={24} className="spin" />
+                <Loader2 size={24} className="animate-spin" />
               </div>
             )}
             

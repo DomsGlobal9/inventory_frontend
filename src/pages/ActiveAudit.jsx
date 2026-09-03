@@ -1,27 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
 import { ArrowLeft, Save, CheckCircle, Search, AlertTriangle } from 'lucide-react';
 import { useStockCount, useStartStockCount, useUpdateStockCountItem, useCompleteStockCount } from '../hooks/useStockCounts';
 import PageLoader from '../components/PageLoader';
 import ConfirmModal from '../components/ConfirmModal';
+import { useAuth } from '../context/AuthContext';
 
 export default function ActiveAudit() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { data, isLoading } = useStockCount(id);
   const startMutation = useStartStockCount();
   const updateMutation = useUpdateStockCountItem();
   const completeMutation = useCompleteStockCount();
 
   const [searchQuery, setSearchQuery] = useState('');
+  // One <input> per audit row, so a scan can drop the cursor straight into the count box.
+  const countInputRefs = useRef({});
   const [localCounts, setLocalCounts] = useState({});
   const [confirmState, setConfirmState] = useState({ isOpen: false });
 
   useEffect(() => {
-    if (data?.data?.items) {
+    if (data?.items) {
       const counts = {};
-      data.data.items.forEach(item => {
+      data.items.forEach(item => {
         counts[item.id] = item.countedQty ?? '';
       });
       setLocalCounts(counts);
@@ -45,9 +50,16 @@ export default function ActiveAudit() {
 
   const handleSaveItem = async (itemId) => {
     const value = localCounts[itemId];
-    if (value === '' || value === null) return;
+    const original = data?.items?.find(i => i.id === itemId)?.countedQty ?? '';
+    if (value === original) return; // unchanged -- don't fire a needless save
+
+    // Clearing a count is a real, meaningful action -- it puts the item back to "not
+    // yet counted" (countedQty: null on the server, which completeCount already treats
+    // specially). Previously this just returned here with nothing saved, leaving the
+    // input showing blank while the server still held the old count.
+    const countedQty = value === '' ? null : Number(value);
     try {
-      await updateMutation.mutateAsync({ countId: id, itemId, countedQty: Number(value) });
+      await updateMutation.mutateAsync({ countId: id, itemId, countedQty });
     } catch (error) {
       console.error(error);
     }
@@ -61,7 +73,7 @@ export default function ActiveAudit() {
       confirmText: 'Complete Audit',
       onConfirm: async () => {
         try {
-          await completeMutation.mutateAsync({ id, completedBy: 'Admin' });
+          await completeMutation.mutateAsync({ id, completedBy: user?.name || user?.id });
           navigate('/inventory/audits');
         } catch (error) {
           console.error(error);
@@ -72,7 +84,7 @@ export default function ActiveAudit() {
 
   if (isLoading) return <PageLoader text="Loading Audit..." />;
 
-  const audit = data?.data;
+  const audit = data;
   if (!audit) return <div style={{ padding: '32px' }}>Audit not found</div>;
 
   const filteredItems = audit.items?.filter(item => 
@@ -80,6 +92,29 @@ export default function ActiveAudit() {
     item.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.barcode?.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
+
+  // Hardware scanners type the code and then send Enter. Without handling that Enter the
+  // scanned code stayed in the box, so the NEXT scan appended to it -- producing a
+  // concatenated string that matched nothing and silently stalled the whole count.
+  // On Enter: if the scan narrowed to exactly one row, clear the box and put the cursor
+  // in that row's count field, ready for the quantity. That is the whole scan-count loop.
+  const handleScanKey = (e) => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    const scanned = searchQuery.trim();
+    if (!scanned) return;
+
+    if (filteredItems.length === 1) {
+      const match = filteredItems[0];
+      setSearchQuery('');
+      // The row re-renders unfiltered, so wait a tick before reaching for its input.
+      setTimeout(() => countInputRefs.current[match.id]?.focus(), 0);
+    } else if (filteredItems.length === 0) {
+      toast.error(`No item in this audit matches "${scanned}".`);
+    } else {
+      toast(`${filteredItems.length} items match "${scanned}" -- pick one below.`);
+    }
+  };
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', flexDirection: 'column', gap: '24px', height: '100%', minHeight: 0 }}>
@@ -149,6 +184,7 @@ export default function ActiveAudit() {
               placeholder="Scan barcode or search SKU..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={handleScanKey}
               disabled={audit.status !== 'IN_PROGRESS'}
             />
           </div>
@@ -201,6 +237,7 @@ export default function ActiveAudit() {
                       <input 
                         type="number"
                         min="0"
+                        ref={(el) => { countInputRefs.current[item.id] = el; }}
                         value={counted}
                         onChange={(e) => handleCountChange(item.id, e.target.value)}
                         onBlur={() => handleSaveItem(item.id)}

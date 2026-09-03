@@ -1,18 +1,71 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FileText, Plus, Search, MoreVertical, Building2, Calendar, Package } from 'lucide-react';
+import { FileText, Plus, Search, MoreVertical, Building2, Calendar, Package, Truck } from 'lucide-react';
 import { usePurchaseOrders } from '../hooks/usePurchaseOrders';
 import PageLoader from '../components/PageLoader';
+import Suppliers from './Suppliers';
+import { usePermission } from '../hooks/usePermission';
 
 export default function PurchaseOrders() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { can } = usePermission();
+  const activeTab = location.pathname.startsWith('/inventory/suppliers') ? 'suppliers' : 'orders';
+  const canSeeSuppliers = can('supplier:view');
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', height: '100%', minHeight: 0 }}>
+      <div style={{ display: 'flex', gap: '4px', borderBottom: '1px solid var(--border-light)', flexShrink: 0 }}>
+        <button
+          onClick={() => navigate('/inventory/purchase-orders')}
+          className="btn-tab"
+          style={{
+            display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px',
+            border: 'none', background: 'none', cursor: 'pointer',
+            fontSize: '14px', fontWeight: activeTab === 'orders' ? '600' : '500',
+            color: activeTab === 'orders' ? 'var(--text-primary)' : 'var(--text-secondary)',
+            borderBottom: activeTab === 'orders' ? '2px solid var(--accent-gold)' : '2px solid transparent',
+            marginBottom: '-1px'
+          }}
+        >
+          <FileText size={16} />
+          Orders
+        </button>
+        {canSeeSuppliers && (
+          <button
+            onClick={() => navigate('/inventory/suppliers')}
+            className="btn-tab"
+            style={{
+              display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px',
+              border: 'none', background: 'none', cursor: 'pointer',
+              fontSize: '14px', fontWeight: activeTab === 'suppliers' ? '600' : '500',
+              color: activeTab === 'suppliers' ? 'var(--text-primary)' : 'var(--text-secondary)',
+              borderBottom: activeTab === 'suppliers' ? '2px solid var(--accent-gold)' : '2px solid transparent',
+              marginBottom: '-1px'
+            }}
+          >
+            <Truck size={16} />
+            Suppliers
+          </button>
+        )}
+      </div>
+
+      <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+        {activeTab === 'suppliers' && canSeeSuppliers ? <Suppliers /> : <PurchaseOrdersList />}
+      </div>
+    </div>
+  );
+}
+
+function PurchaseOrdersList() {
   const navigate = useNavigate();
   const { data: pos = [], isLoading } = usePurchaseOrders();
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredPOs = pos.filter(po => 
-    po.poNumber.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    po.supplier?.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredPOs = pos.filter(po =>
+    (po.poNumber || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (po.supplier?.name || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getStatusColor = (status) => {

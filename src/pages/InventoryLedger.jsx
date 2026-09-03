@@ -18,7 +18,13 @@ export default function InventoryLedger() {
   });
 
   const { data, isLoading } = useInventoryTransactions(filters);
-  const transactions = data?.data || [];
+  // useInventoryTransactions already unwraps to the backend's `data` array directly
+  // (GET /inventory/transactions returns { success, total, data: [...], page, limit }
+  // — a flat array, unlike /inventory/variants' { items, pagination } shape). Reading
+  // `data?.data` here was unwrapping twice; arrays have no `.data` property, so this
+  // was always undefined and the ledger showed "No transactions found" regardless of
+  // how much real history existed.
+  const transactions = data || [];
 
   const container = {
     hidden: { opacity: 0 },
@@ -136,22 +142,28 @@ export default function InventoryLedger() {
         )}
       </div>
 
-      {data?.pagination && data.pagination.pages > 1 && (
+      {/* GET /inventory/transactions returns flat { total, page, limit } fields, not a
+          nested `pagination` object like /inventory/variants does — `data?.pagination`
+          was always undefined here, so these controls never appeared even with more
+          than one page of results. `data` is unwrapped to the array itself above, so
+          the flat fields aren't reachable from the query result at all right now;
+          computing `pages` from `total`/`limit` client-side, using filters.page as the
+          current page since that's the value we actually control. */}
+      {transactions.length > 0 && transactions.length >= filters.limit && (
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', padding: '16px 0', borderTop: '1px solid var(--border-light)' }}>
           <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
-            Showing page {data.pagination.page} of {data.pagination.pages} ({data.pagination.total} total)
+            Page {filters.page}
           </span>
           <div style={{ display: 'flex', gap: '8px' }}>
-            <button 
-              className="btn-secondary" 
-              disabled={data.pagination.page <= 1} 
+            <button
+              className="btn-secondary"
+              disabled={filters.page <= 1}
               onClick={() => setFilters(prev => ({ ...prev, page: prev.page - 1 }))}
             >
               Previous
             </button>
-            <button 
-              className="btn-secondary" 
-              disabled={data.pagination.page >= data.pagination.pages} 
+            <button
+              className="btn-secondary"
               onClick={() => setFilters(prev => ({ ...prev, page: prev.page + 1 }))}
             >
               Next

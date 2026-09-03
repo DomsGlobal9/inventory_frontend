@@ -1,5 +1,4 @@
-:root {
-  /* Minimal, high-contrast palette inspired by top-tier SaaS */
+:root[data-theme='dark'] {
   --bg-dark: #000000;
   --bg-card: #0a0a0a;
   --bg-input: #111111;
@@ -12,8 +11,36 @@
   --text-secondary: #a1a1aa;
   --text-muted: #52525b;
   
+  /* Alias for primary accent */
+  --primary-color: var(--text-primary);
+  
   --accent-gold: #e2c171;
   --accent-gold-hover: #fcd34d;
+  --accent-danger: #ef4444;
+  --accent-success: #10b981;
+  
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+}
+
+:root[data-theme='light'] {
+  --bg-dark: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-input: #f1f5f9;
+  --bg-hover: #e2e8f0;
+  
+  --border-light: rgba(0, 0, 0, 0.1);
+  --border-focus: rgba(0, 0, 0, 0.2);
+  
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+  
+  /* Alias for primary accent */
+  --primary-color: var(--text-primary);
+  
+  --accent-gold: #b48600;
+  --accent-gold-hover: #d97706;
   --accent-danger: #ef4444;
   --accent-success: #10b981;
   
@@ -38,6 +65,9 @@ html, body, #root {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+html[data-theme='light'] { color-scheme: light; }
+html[data-theme='dark'] { color-scheme: dark; }
 
 a {
   color: inherit;
@@ -76,6 +106,13 @@ button {
   box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.5);
 }
 
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
+}
+
 .btn-primary {
   background-color: var(--text-primary);
   color: var(--bg-dark);
@@ -112,7 +149,7 @@ button {
 }
 
 /* Forms */
-.input-field {
+.input-field, .input {
   width: 100%;
   background-color: var(--bg-input);
   border: 1px solid var(--border-light);
@@ -124,17 +161,22 @@ button {
   outline: none;
 }
 
-.input-field:focus {
+.input-field:focus, .input:focus {
   border-color: var(--border-focus);
   box-shadow: 0 0 0 1px var(--border-focus);
 }
 
-.input-label {
+.input-label, .form-group label {
   display: block;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--text-secondary);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
 }
 
 /* Layout Core */
@@ -281,8 +323,11 @@ tr:hover td {
     left: 0;
     top: 0;
     bottom: 0;
+    background: var(--bg-body);
+    box-shadow: 2px 0 12px rgba(0,0,0,0.1);
     transform: translateX(-100%);
     transition: transform 0.3s ease;
+    padding-bottom: env(safe-area-inset-bottom);
   }
   
   .sidebar.open {
@@ -299,10 +344,12 @@ tr:hover td {
   
   .top-nav {
     padding: 0 16px;
+    padding-top: env(safe-area-inset-top);
   }
   
   .main-content {
     padding: 16px 12px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
     overflow-y: auto !important;
   }
   
@@ -315,6 +362,7 @@ tr:hover td {
   /* React Layout Utilities */
   .mobile-col {
     flex-direction: column !important;
+    align-items: stretch !important;
   }
   
   .mobile-col > * {
@@ -332,14 +380,70 @@ tr:hover td {
     grid-template-columns: 1fr !important;
   }
 
+  /* Only use 2-col above 480px, otherwise stack to 1 */
   .mobile-2-col-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-columns: 1fr !important;
   }
   
-  .mobile-table-wrapper {
+  @media (min-width: 481px) {
+    .mobile-2-col-grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+    }
+  }
+
+  /* Table Scroll Wrapper */
+  .table-container {
     width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    padding-bottom: 8px; /* Room for scrollbar */
+  }
+
+  /* Sticky First Column for Tables */
+  .table-container table th:first-child,
+  .table-container table td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: var(--bg-surface);
+    border-right: 1px solid var(--border-light);
+  }
+
+  /* Pagination Wrap */
+  .mobile-pagination {
+    flex-direction: column !important;
+    gap: 12px !important;
+    align-items: center !important;
+  }
+
+  /* Sticky Footer for Mobile Modals / Wizards */
+  .mobile-sticky-footer {
+    position: sticky;
+    bottom: 0;
+    background: var(--bg-surface);
+    padding: 16px;
+    margin: 16px -16px -16px -16px;
+    border-top: 1px solid var(--border-light);
+    z-index: 10;
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
+  }
+
+  /* Horizontal Tab Bar (e.g. Settings) */
+  .mobile-tab-bar {
+    display: flex;
+    flex-direction: row !important;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+  }
+  .mobile-tab-bar::-webkit-scrollbar {
+    height: 4px;
+  }
+  .mobile-tab-bar button {
+    width: auto !important;
+    flex: 0 0 auto;
   }
 
   .mobile-no-scroll {
@@ -349,3 +453,4 @@ tr:hover td {
     height: auto !important;
   }
 }
+

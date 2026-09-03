@@ -5,6 +5,7 @@ import { useCustomerDetails } from '../../hooks/useCustomers';
 import { ArrowLeft, Mail, Phone, MapPin, Building, FileText, ShoppingBag, Truck, Loader2, X } from 'lucide-react';
 import { api } from '../../lib/api';
 import { usePermission } from '../../hooks/usePermission';
+import { formatINR } from '../../utils/formatUtils';
 
 export default function CustomerDetail() {
   const { id } = useParams();
@@ -23,7 +24,7 @@ export default function CustomerDetail() {
       return api.post('/returns', { salesOrderId, items, notes });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['customer', id]);
+      queryClient.invalidateQueries({ queryKey: ['customer', id] });
       setReturnModalOpen(false);
       setSelectedDispatch(null);
       setReturnNotes('');
@@ -168,7 +169,7 @@ export default function CustomerDetail() {
                             {order.status}
                           </span>
                         </td>
-                        <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '500' }}>${Number(order.total).toFixed(2)}</td>
+                        <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '500' }}>{formatINR(Number(order.total))}</td>
                         <td style={{ padding: '16px 24px', textAlign: 'right' }}>
                           <button 
                             className="btn-secondary"
@@ -190,9 +191,8 @@ export default function CustomerDetail() {
             )}
 
             {activeTab === 'dispatches' && (
-              // For dispatches, we extract them from the customer's salesOrders since the customer API includes them
-              // Or if not included, we just display a coming soon message or fetch them.
-              // Let's assume customer.salesOrders[i].dispatches exists.
+              // Derived from the customer's salesOrders -- getCustomerById nests
+              // dispatches under each salesOrder specifically so this works.
               (() => {
                 const allDispatches = customer.salesOrders?.flatMap(o => (o.dispatches || []).map(d => ({ ...d, orderNumber: o.orderNumber }))) || [];
                 

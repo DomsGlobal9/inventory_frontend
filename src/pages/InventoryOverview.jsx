@@ -174,7 +174,7 @@ export default function InventoryOverview() {
       </div>
 
       {data?.pagination && data.pagination.pages > 1 && (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', padding: '16px 0', borderTop: '1px solid var(--border-light)' }}>
+        <div className="mobile-pagination" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', padding: '16px 0', borderTop: '1px solid var(--border-light)' }}>
           <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
             Showing page {data.pagination.page} of {data.pagination.pages} ({data.pagination.total} total)
           </span>

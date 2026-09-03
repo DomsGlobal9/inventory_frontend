@@ -18,6 +18,17 @@ export const useProduct = (id: string) => {
   });
 };
 
+// The backend's Zod validation failures come back as { message: "Validation failed",
+// errors: [{ path: ["title"], message: "Title is required" }, ...] } -- the generic
+// top-level `message` alone told the user nothing actionable. Surface the specific
+// field errors instead.
+function describeError(error: any, fallback: string): string {
+  if (Array.isArray(error?.errors) && error.errors.length > 0) {
+    return error.errors.map((e: any) => e.message).filter(Boolean).join('; ');
+  }
+  return error?.message || fallback;
+}
+
 export const useCreateProduct = () => {
   const queryClient = useQueryClient();
 
@@ -28,7 +39,7 @@ export const useCreateProduct = () => {
       toast.success('Product created successfully');
     },
     onError: (error: any) => {
-      toast.error(error.message || 'Failed to create product');
+      toast.error(describeError(error, 'Failed to create product'));
     }
   });
 };
@@ -44,7 +55,7 @@ export const useUpdateProduct = () => {
       toast.success('Product updated successfully');
     },
     onError: (error: any) => {
-      toast.error(error.message || 'Failed to update product');
+      toast.error(describeError(error, 'Failed to update product'));
     }
   });
 };

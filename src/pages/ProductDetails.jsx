@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Package, Box, History, Image as ImageIcon, Copy, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { QRCodeSVG } from 'qrcode.react';
@@ -20,7 +20,11 @@ import ConfirmModal from '../components/ConfirmModal';
 export default function ProductDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('overview');
+  // A barcode scan deep-links here as /products/:id?tab=variants&variant=<id>, so the tab
+  // opens on the scanned variant instead of dumping the user on Overview to hunt for it.
+  const [searchParams] = useSearchParams();
+  const scannedVariantId = searchParams.get('variant');
+  const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') || 'overview');
   const [isStockModalOpen, setIsStockModalOpen] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
   
@@ -77,7 +81,7 @@ export default function ProductDetails() {
           requireTypeToConfirm: 'CONFIRM',
           onConfirm: () => {
             hardDeleteMutation.mutate(id, {
-              onSuccess: () => navigate('/inventory/products')
+              onSuccess: () => navigate('/products')
             });
           }
         });
@@ -101,7 +105,7 @@ export default function ProductDetails() {
       {/* Header */}
       <motion.div variants={item} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, gap: '16px', flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <button className="btn-secondary" onClick={() => navigate('/inventory/products')} style={{ padding: '8px' }}>
+          <button className="btn-secondary" onClick={() => navigate('/products')} style={{ padding: '8px' }}>
             <ArrowLeft size={16} />
           </button>
           <div>
@@ -335,7 +339,7 @@ export default function ProductDetails() {
             )}
             
             {activeTab === 'variants' && (
-              <VariantTable productId={product.id} productName={product.title} />
+              <VariantTable productId={product.id} productName={product.title} highlightVariantId={scannedVariantId} />
             )}
 
             {activeTab === 'images' && (

@@ -4,6 +4,7 @@ import { useSalesOrderDetails, useConfirmOrder, useCancelOrder } from '../../hoo
 import { useCreateDispatch } from '../../hooks/useDispatches';
 import { ArrowLeft, Loader2, CheckCircle, XCircle, Truck } from 'lucide-react';
 import { usePermission } from '../../hooks/usePermission';
+import { formatINR } from '../../utils/formatUtils';
 
 export default function SalesOrderDetail() {
   const { id } = useParams();
@@ -32,10 +33,15 @@ export default function SalesOrderDetail() {
     }
   };
 
+  // What's left to ship on a line. Every quantity shown on this page used to be the full
+  // ordered qty regardless of what had already gone out, so after a partial dispatch the
+  // page invited the user to ship the whole order a second time -- and the backend
+  // rejected it with "Cannot dispatch N. Only M reserved remaining."
+  const remainingQty = (item) => Math.max(0, (item.quantity || 0) - (item.fulfilledQty || 0));
+
   const handleOpenDispatch = () => {
-    // Initialize dispatch quantities to 0
     const initialQs = {};
-    order.items.forEach(item => {
+    (order.items || []).forEach(item => {
       initialQs[item.id] = 0;
     });
     setDispatchQuantities(initialQs);
@@ -46,7 +52,8 @@ export default function SalesOrderDetail() {
     const itemsToDispatch = [];
     Object.keys(dispatchQuantities).forEach(itemId => {
       const qty = parseInt(dispatchQuantities[itemId]);
-      if (qty > 0) {
+      const item = (order.items || []).find(i => i.id === itemId);
+      if (qty > 0 && item && qty <= remainingQty(item)) {
         itemsToDispatch.push({ salesOrderItemId: itemId, quantity: qty });
       }
     });
@@ -128,18 +135,15 @@ export default function SalesOrderDetail() {
                       {order.status !== 'DRAFT' && (
                         <>
                           <td style={{ padding: '16px 24px', textAlign: 'right', color: 'var(--warning)', fontWeight: '500' }}>
-                            {/* In a real app we'd compute exact current reserved from the reservation records, 
-                                but since Sprint 4 is simplified, if it's not DRAFT and not DISPATCHED, it's reserved */}
-                            {item.quantity}
+                            {remainingQty(item)}
                           </td>
                           <td style={{ padding: '16px 24px', textAlign: 'right', color: 'var(--success)', fontWeight: '500' }}>
-                            {/* We can compute this from dispatches. We'll leave it simple for the UI mockup */}
-                            --
+                            {item.fulfilledQty || 0}
                           </td>
                         </>
                       )}
-                      <td style={{ padding: '16px 24px', textAlign: 'right', color: 'var(--text-secondary)' }}>${Number(item.unitPrice).toFixed(2)}</td>
-                      <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '500' }}>${Number(item.totalPrice).toFixed(2)}</td>
+                      <td style={{ padding: '16px 24px', textAlign: 'right', color: 'var(--text-secondary)' }}>{formatINR(Number(item.unitPrice))}</td>
+                      <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '500' }}>{formatINR(Number(item.totalPrice))}</td>
                       <td style={{ padding: '16px 24px', textAlign: 'center' }}>
                       </td>
                     </tr>
@@ -158,24 +162,24 @@ export default function SalesOrderDetail() {
             
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', color: 'var(--text-secondary)' }}>
               <span>Subtotal ({order.items?.length} items)</span>
-              <span>${Number(order.subtotal).toFixed(2)}</span>
+              <span>{formatINR(Number(order.subtotal))}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', color: 'var(--text-secondary)' }}>
               <span>Discount</span>
-              <span>-${Number(order.discountAmount).toFixed(2)}</span>
+              <span>-{formatINR(Number(order.discountAmount))}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', color: 'var(--text-secondary)' }}>
               <span>Tax</span>
-              <span>+${Number(order.taxAmount).toFixed(2)}</span>
+              <span>+{formatINR(Number(order.taxAmount))}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px', color: 'var(--text-secondary)' }}>
               <span>Shipping</span>
-              <span>+${Number(order.shippingAmount).toFixed(2)}</span>
+              <span>+{formatINR(Number(order.shippingAmount))}</span>
             </div>
-            
+
             <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '16px', borderTop: '1px solid var(--border-light)', fontWeight: '600', fontSize: '18px' }}>
               <span>Grand Total</span>
-              <span>${Number(order.total).toFixed(2)}</span>
+              <span>{formatINR(Number(order.total))}</span>
             </div>
 
             {order.status === 'DRAFT' && (
@@ -245,7 +249,7 @@ export default function SalesOrderDetail() {
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border-light)' }}>
                   <th style={{ padding: '8px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px' }}>SKU</th>
-                  <th style={{ padding: '8px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px', textAlign: 'right' }}>ORDERED</th>
+                  <th style={{ padding: '8px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px', textAlign: 'right' }}>REMAINING</th>
                   <th style={{ padding: '8px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px', textAlign: 'right' }}>DISPATCH NOW</th>
                 </tr>
               </thead>
@@ -253,16 +257,27 @@ export default function SalesOrderDetail() {
                 {order.items.map(item => (
                   <tr key={item.id} style={{ borderBottom: '1px solid var(--border-light)' }}>
                     <td style={{ padding: '12px 8px' }}>{item.variant?.sku}</td>
-                    <td style={{ padding: '12px 8px', textAlign: 'right' }}>{item.quantity}</td>
+                    <td style={{ padding: '12px 8px', textAlign: 'right' }}>
+                      {remainingQty(item)}
+                      {item.fulfilledQty > 0 && (
+                        <span style={{ color: 'var(--text-secondary)', fontSize: '12px', marginLeft: '6px' }}>
+                          ({item.fulfilledQty} already sent)
+                        </span>
+                      )}
+                    </td>
                     <td style={{ padding: '12px 8px', textAlign: 'right' }}>
                       <input 
                         type="number" 
                         min="0"
-                        max={item.quantity} // In a real app, max is (ordered - already dispatched)
+                        max={remainingQty(item)}
+                        disabled={remainingQty(item) === 0}
                         className="input-field"
                         style={{ width: '80px', textAlign: 'right', padding: '6px' }}
                         value={dispatchQuantities[item.id] !== undefined ? dispatchQuantities[item.id] : ''}
-                        onChange={(e) => setDispatchQuantities({ ...dispatchQuantities, [item.id]: e.target.value })}
+                        onChange={(e) => {
+                          const capped = Math.min(Number(e.target.value || 0), remainingQty(item));
+                          setDispatchQuantities({ ...dispatchQuantities, [item.id]: e.target.value === '' ? '' : capped });
+                        }}
                       />
                     </td>
                   </tr>

@@ -2,9 +2,16 @@ import React, { useState } from 'react';
 import { Plus, Edit2, Trash2, Check, X, Loader2, Save, RotateCcw, Lock, ChevronDown, Search } from 'lucide-react';
 import { useCatalogItems, useAddCatalogItem, useUpdateCatalogItem, useDeleteCatalogItem } from '../hooks/useCatalogSettings';
 import ConfirmModal from './ConfirmModal';
+import { useAuth } from '../context/AuthContext';
 
 export default function CatalogManager({ type }) {
   const { data: response, isLoading } = useCatalogItems();
+  // Every write route on this screen is guarded by `admin:catalog` server-side. Roles
+  // without it (SALES, WAREHOUSE) were still shown Add New, and every chip was a live
+  // edit button opening a modal whose Save/Disable/Delete could only ever 403 -- so the
+  // catalog looked editable to people who can only read it.
+  const { hasPermission } = useAuth();
+  const canManageCatalog = hasPermission('admin:catalog');
   const addMutation = useAddCatalogItem();
   const updateMutation = useUpdateCatalogItem();
   const deleteMutation = useDeleteCatalogItem();
@@ -67,8 +74,11 @@ export default function CatalogManager({ type }) {
       value: finalValue,
     };
 
-    if (type === 'DRESS_TYPE' && formData.category) {
-      payload.category = formData.category;
+    if (type === 'DRESS_TYPE') {
+      // Send the key even when empty. Guarding on truthiness meant clearing the category
+      // just omitted it from the payload, so the old value was left untouched and a
+      // mis-categorised dress type could never be moved back to uncategorised.
+      payload.category = formData.category || null;
     }
 
     if (type === 'COLOR') {
@@ -170,13 +180,15 @@ export default function CatalogManager({ type }) {
   const renderChip = (item) => (
     <button
       key={item.id}
-      onClick={() => handleEditStart(item)}
+      onClick={canManageCatalog ? () => handleEditStart(item) : undefined}
+      disabled={!canManageCatalog}
+      title={canManageCatalog ? undefined : 'You do not have permission to edit the catalog'}
       style={{
         display: 'inline-flex',
         alignItems: 'center',
         gap: '8px',
         padding: '6px 12px',
-        background: item.isActive ? 'var(--bg-body)' : 'transparent',
+        background: item.isActive ? 'var(--bg-input)' : 'transparent',
         border: `1px solid ${item.isActive ? 'var(--border-light)' : 'rgba(255,255,255,0.1)'}`,
         borderRadius: '24px',
         color: item.isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
@@ -210,12 +222,12 @@ export default function CatalogManager({ type }) {
             style={{ 
               width: '100%', padding: '10px 12px 10px 36px', 
               border: '1px solid var(--border-light)', borderRadius: '8px', 
-              background: 'var(--bg-body)', color: 'var(--text-primary)',
+              background: 'var(--bg-input)', color: 'var(--text-primary)',
               fontSize: '14px'
             }}
           />
         </div>
-        <button 
+        {canManageCatalog && <button 
           onClick={handleAddStart}
           style={{ 
             display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 20px', 
@@ -223,7 +235,7 @@ export default function CatalogManager({ type }) {
             fontSize: '14px', cursor: 'pointer', fontWeight: 500, flexShrink: 0
           }}>
           <Plus size={16} /> Add New
-        </button>
+        </button>}
       </div>
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'flex-start' }}>
@@ -259,7 +271,7 @@ export default function CatalogManager({ type }) {
           display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999
         }}>
           <div style={{
-            background: 'var(--bg-surface)', width: '100%', maxWidth: '400px',
+            background: 'var(--bg-card)', width: '100%', maxWidth: '400px',
             borderRadius: '16px', border: '1px solid var(--border-light)',
             boxShadow: '0 24px 48px rgba(0,0,0,0.2)', padding: '24px',
             display: 'flex', flexDirection: 'column', gap: '20px'
@@ -282,7 +294,7 @@ export default function CatalogManager({ type }) {
                   value={formData.label} 
                   onChange={e => setFormData({...formData, label: e.target.value})} 
                   placeholder={placeholders.label}
-                  style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-light)', borderRadius: '8px', background: 'var(--bg-body)', color: 'var(--text-primary)' }}
+                  style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-light)', borderRadius: '8px', background: 'var(--bg-input)', color: 'var(--text-primary)' }}
                 />
               </div>
 
@@ -294,7 +306,7 @@ export default function CatalogManager({ type }) {
                     value={formData.value} 
                     onChange={e => setFormData({...formData, value: e.target.value})} 
                     placeholder={placeholders.value + " (Auto-generates)"}
-                    style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-light)', borderRadius: '8px', background: 'var(--bg-body)', color: 'var(--text-primary)' }}
+                    style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-light)', borderRadius: '8px', background: 'var(--bg-input)', color: 'var(--text-primary)' }}
                   />
                 </div>
               )}
@@ -313,7 +325,7 @@ export default function CatalogManager({ type }) {
                       type="text" 
                       value={formData.hex} 
                       onChange={e => setFormData({...formData, hex: e.target.value})} 
-                      style={{ flex: 1, padding: '10px 12px', border: '1px solid var(--border-light)', borderRadius: '8px', background: 'var(--bg-body)', color: 'var(--text-primary)' }}
+                      style={{ flex: 1, padding: '10px 12px', border: '1px solid var(--border-light)', borderRadius: '8px', background: 'var(--bg-input)', color: 'var(--text-primary)' }}
                     />
                   </div>
                 </div>
@@ -326,7 +338,7 @@ export default function CatalogManager({ type }) {
                     onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
                     style={{ 
                       width: '100%', padding: '10px 12px', border: '1px solid var(--border-light)', 
-                      borderRadius: '8px', background: 'var(--bg-body)', color: 'var(--text-primary)',
+                      borderRadius: '8px', background: 'var(--bg-input)', color: 'var(--text-primary)',
                       cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center'
                     }}
                   >
@@ -342,7 +354,7 @@ export default function CatalogManager({ type }) {
                   {categoryDropdownOpen && (
                     <div style={{
                       position: 'absolute', top: '100%', left: 0, right: 0, marginTop: '4px',
-                      background: 'var(--bg-surface)', border: '1px solid var(--border-light)',
+                      background: 'var(--bg-card)', border: '1px solid var(--border-light)',
                       borderRadius: '8px', overflow: 'hidden', zIndex: 10,
                       boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                     }}>
@@ -360,7 +372,7 @@ export default function CatalogManager({ type }) {
                           }}
                           style={{
                             padding: '10px 12px', cursor: 'pointer', fontSize: '14px',
-                            background: formData.category === opt.val ? 'var(--bg-body)' : 'transparent',
+                            background: formData.category === opt.val ? 'var(--bg-hover)' : 'transparent',
                             color: formData.category === opt.val ? 'var(--primary-color)' : 'var(--text-primary)',
                             borderBottom: opt.val === '' ? '1px solid var(--border-light)' : 'none'
                           }}

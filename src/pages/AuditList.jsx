@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
 import { ClipboardList, Plus, ChevronRight, Clock, CheckCircle2 } from 'lucide-react';
 import { useStockCounts, useCreateStockCount } from '../hooks/useStockCounts';
 import PageLoader from '../components/PageLoader';
+import { useAuth } from '../context/AuthContext';
 
 export default function AuditList() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { data, isLoading } = useStockCounts();
   const createMutation = useCreateStockCount();
   const [isCreating, setIsCreating] = useState(false);
@@ -17,11 +20,16 @@ export default function AuditList() {
       const month = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
       const result = await createMutation.mutateAsync({
         name: `${month} Full Count`,
-        createdBy: 'Admin' // In real app, from user context
+        createdBy: user?.name || user?.id
       });
-      navigate(`/inventory/audits/${result.data.id}`);
+      // `result` is already the created stock count: api.ts unwraps the HTTP body to
+      // { success, data }, and useCreateStockCount returns `.data` on top of that. Reading
+      // `result.data.id` threw a TypeError that this catch swallowed into console.error --
+      // so the audit was created and listed, but the app never navigated into it.
+      navigate(`/inventory/audits/${result.id}`);
     } catch (error) {
       console.error("Failed to create audit:", error);
+      toast.error(error?.message || 'Could not open the new audit.');
     } finally {
       setIsCreating(false);
     }
@@ -51,7 +59,7 @@ export default function AuditList() {
           disabled={isCreating}
           style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
         >
-          {isCreating ? <Clock size={16} className="spin" /> : <Plus size={16} />} 
+          {isCreating ? <Clock size={16} className="animate-spin" /> : <Plus size={16} />} 
           New Audit
         </button>
       </motion.div>
@@ -60,7 +68,7 @@ export default function AuditList() {
       <motion.div variants={item} className="table-container mobile-no-scroll" style={{ flex: 1, overflowY: 'auto' }}>
         {isLoading ? (
           <PageLoader text="Loading audits..." />
-        ) : data?.data?.length === 0 ? (
+        ) : data?.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '64px', color: 'var(--text-muted)' }}>
             <ClipboardList size={48} style={{ opacity: 0.2, marginBottom: '16px' }} />
             <h3>No Audits Found</h3>
@@ -79,7 +87,7 @@ export default function AuditList() {
               </tr>
             </thead>
             <tbody>
-              {data?.data?.map(audit => (
+              {data?.map(audit => (
                 <tr 
                   key={audit.id} 
                   style={{ borderBottom: '1px solid var(--border-light)', cursor: 'pointer' }}

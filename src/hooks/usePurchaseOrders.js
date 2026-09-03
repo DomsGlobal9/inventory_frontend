@@ -32,10 +32,10 @@ export const useCreatePurchaseOrder = () => {
     },
     onSuccess: () => {
       toast.success('Purchase Order created successfully');
-      queryClient.invalidateQueries(['purchase-orders']);
+      queryClient.invalidateQueries({ queryKey: ['purchase-orders'] });
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || 'Failed to create Purchase Order');
+      toast.error(error?.message || 'Failed to create Purchase Order');
     }
   });
 };
@@ -49,11 +49,11 @@ export const useUpdatePurchaseOrderStatus = () => {
     },
     onSuccess: (_, variables) => {
       toast.success('PO status updated');
-      queryClient.invalidateQueries(['purchase-orders']);
-      queryClient.invalidateQueries(['purchase-orders', variables.id]);
+      queryClient.invalidateQueries({ queryKey: ['purchase-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['purchase-orders', variables.id] });
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || 'Failed to update PO status');
+      toast.error(error?.message || 'Failed to update PO status');
     }
   });
 };
@@ -67,13 +67,13 @@ export const useReceiveGoods = () => {
     },
     onSuccess: (_, variables) => {
       toast.success('Goods received successfully');
-      queryClient.invalidateQueries(['purchase-orders']);
-      queryClient.invalidateQueries(['purchase-orders', variables.id]);
-      queryClient.invalidateQueries(['inventory']);
-      queryClient.invalidateQueries(['dashboard']);
+      queryClient.invalidateQueries({ queryKey: ['purchase-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['purchase-orders', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['inventory'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || 'Failed to receive goods');
+      toast.error(error?.message || 'Failed to receive goods');
     }
   });
 };

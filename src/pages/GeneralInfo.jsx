@@ -127,7 +127,7 @@ export default function GeneralInfo() {
       </div>
       
       {/* Footer Actions */}
-      <div style={{ 
+      <div className="mobile-sticky-footer" style={{ 
         display: 'flex', 
         justifyContent: 'flex-end',
         paddingTop: '24px',

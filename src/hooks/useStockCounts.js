@@ -32,10 +32,10 @@ export const useCreateStockCount = () => {
     },
     onSuccess: () => {
       toast.success('Stock count created successfully');
-      queryClient.invalidateQueries(['stock-counts']);
+      queryClient.invalidateQueries({ queryKey: ['stock-counts'] });
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || 'Failed to create stock count');
+      toast.error(error?.message || 'Failed to create stock count');
     }
   });
 };
@@ -49,11 +49,11 @@ export const useStartStockCount = () => {
     },
     onSuccess: (_, id) => {
       toast.success('Stock count started');
-      queryClient.invalidateQueries(['stock-counts']);
-      queryClient.invalidateQueries(['stock-counts', id]);
+      queryClient.invalidateQueries({ queryKey: ['stock-counts'] });
+      queryClient.invalidateQueries({ queryKey: ['stock-counts', id] });
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || 'Failed to start stock count');
+      toast.error(error?.message || 'Failed to start stock count');
     }
   });
 };
@@ -69,7 +69,7 @@ export const useUpdateStockCountItem = () => {
       // Let's omit it for rapid scanning, or maybe just a subtle success isn't bad.
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || 'Failed to update count item');
+      toast.error(error?.message || 'Failed to update count item');
     }
   });
 };
@@ -83,13 +83,13 @@ export const useCompleteStockCount = () => {
     },
     onSuccess: (_, variables) => {
       toast.success('Stock count completed successfully');
-      queryClient.invalidateQueries(['stock-counts']);
-      queryClient.invalidateQueries(['stock-counts', variables.id]);
-      queryClient.invalidateQueries(['dashboard']);
-      queryClient.invalidateQueries(['inventory']);
+      queryClient.invalidateQueries({ queryKey: ['stock-counts'] });
+      queryClient.invalidateQueries({ queryKey: ['stock-counts', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['inventory'] });
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || 'Failed to complete stock count');
+      toast.error(error?.message || 'Failed to complete stock count');
     }
   });
 };

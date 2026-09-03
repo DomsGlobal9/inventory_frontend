@@ -24,7 +24,7 @@ export default function ReturnDetail() {
     mutationFn: async () => {
       return api.post(`/returns/${id}/receive`);
     },
-    onSuccess: () => queryClient.invalidateQueries(['return', id])
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['return', id] })
   });
 
   const inspectMutation = useMutation({
@@ -32,7 +32,7 @@ export default function ReturnDetail() {
       return api.post(`/returns/${id}/inspect`, { itemsDisposition: dispositions });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['return', id]);
+      queryClient.invalidateQueries({ queryKey: ['return', id] });
       setInspectModalOpen(false);
     }
   });
@@ -41,7 +41,7 @@ export default function ReturnDetail() {
     mutationFn: async () => {
       return api.post(`/returns/${id}/complete`);
     },
-    onSuccess: () => queryClient.invalidateQueries(['return', id])
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['return', id] })
   });
 
   if (isLoading) return <div style={{ padding: '24px' }}>Loading...</div>;
@@ -69,15 +69,24 @@ export default function ReturnDetail() {
     }
   };
 
+  // Inspection is a one-shot decision: once it's saved the return moves to INSPECTED and
+  // can't be re-inspected, so every line must be decided here. Sending only the rows the
+  // user happened to touch left the rest PENDING, which completeReturn then refuses --
+  // stranding the return with no way forward except rejecting it.
+  const inspectableItems = ret.items || [];
+  const allItemsDecided = inspectableItems.length > 0
+    && inspectableItems.every(item => !!inspectionData[item.id]);
+
   const handleInspectSubmit = () => {
-    const dispositions = Object.keys(inspectionData).map(itemId => ({
-      salesReturnItemId: itemId,
-      disposition: inspectionData[itemId]
+    if (!allItemsDecided) return;
+    const dispositions = inspectableItems.map(item => ({
+      salesReturnItemId: item.id,
+      disposition: inspectionData[item.id]
     }));
     inspectMutation.mutate(dispositions);
   };
 
-  const canComplete = ret.status === 'INSPECTED' && ret.items.every(item => item.disposition !== 'PENDING');
+  const canComplete = ret.status === 'INSPECTED' && (ret.items || []).every(item => item.disposition !== 'PENDING');
 
   return (
     <div style={{ maxWidth: '1400px', margin: '0 auto', paddingTop: '24px', flex: 1, minHeight: 0, overflowY: 'auto', paddingBottom: '64px', width: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -104,7 +113,7 @@ export default function ReturnDetail() {
             </span>
           </div>
           <p style={{ color: 'var(--text-secondary)', margin: 0 }}>
-            Order {ret.salesOrder.orderNumber} • Customer: {ret.salesOrder.customer.name}
+            Order {ret.salesOrder?.orderNumber} • Customer: {ret.salesOrder?.customer?.name}
           </p>
         </div>
         
@@ -171,9 +180,9 @@ export default function ReturnDetail() {
                         <Box size={20} color="var(--text-secondary)" />
                       </div>
                       <div>
-                        <div style={{ fontWeight: 500 }}>{item.dispatchItem.salesOrderItem.variant.product.name}</div>
+                        <div style={{ fontWeight: 500 }}>{item.dispatchItem?.salesOrderItem?.variant?.product?.title}</div>
                         <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-                          SKU: {item.dispatchItem.salesOrderItem.variant.sku}
+                          SKU: {item.dispatchItem?.salesOrderItem?.variant?.sku}
                         </div>
                       </div>
                     </div>
@@ -225,16 +234,18 @@ export default function ReturnDetail() {
               {ret.items.map(item => (
                 <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', border: '1px solid var(--border-color)', borderRadius: '6px' }}>
                   <div>
-                    <div style={{ fontWeight: 500 }}>{item.dispatchItem.salesOrderItem.variant.sku}</div>
+                    <div style={{ fontWeight: 500 }}>{item.dispatchItem?.salesOrderItem?.variant?.sku}</div>
                     <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Qty: {item.quantity}</div>
                   </div>
                   <select 
                     className="input-field" 
                     style={{ width: '150px' }}
-                    value={inspectionData[item.id] || 'PENDING'}
+                    value={inspectionData[item.id] || ''}
                     onChange={(e) => setInspectionData({ ...inspectionData, [item.id]: e.target.value })}
                   >
-                    <option value="PENDING">Pending</option>
+                    {/* No "Pending" option: picking it saved a disposition the rest of the
+                        workflow treats as undecided, permanently blocking completion. */}
+                    <option value="" disabled>Choose…</option>
                     <option value="RESTOCK">Restock (Add to Inventory)</option>
                     <option value="DAMAGED">Damaged</option>
                     <option value="SCRAP">Scrap</option>
@@ -248,7 +259,8 @@ export default function ReturnDetail() {
               <button 
                 className="btn-primary" 
                 onClick={handleInspectSubmit}
-                disabled={inspectMutation.isPending}
+                disabled={inspectMutation.isPending || !allItemsDecided}
+                title={allItemsDecided ? undefined : 'Choose a disposition for every returned item first'}
               >
                 Save Dispositions
               </button>

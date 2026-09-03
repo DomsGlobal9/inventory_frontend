@@ -6,20 +6,14 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // Required to send HttpOnly cookies
 });
 
-const STORAGE_KEY = 'scaleezy_auth';
+// Must match AuthContext.jsx's STORAGE_KEY — this used to be a different string
+// ('scaleezy_auth'), so the 401 handler below was clearing a localStorage key nobody
+// ever wrote to, leaving the real stored user behind until the next session check.
+const STORAGE_KEY = 'scaleezy_auth_user';
 export const LOCATION_STORAGE_KEY = 'scaleezy_location_id';
-
-function getStoredToken(): string | null {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw)?.token || null;
-  } catch {
-    return null;
-  }
-}
 
 export function getStoredLocationId(): string | null {
   return localStorage.getItem(LOCATION_STORAGE_KEY);
@@ -27,18 +21,11 @@ export function getStoredLocationId(): string | null {
 
 api.interceptors.request.use(
   (config) => {
-    const clientId = import.meta.env.VITE_CLIENT_ID;
-    if (clientId) {
-      config.headers['x-client-id'] = clientId;
-    }
     const locationId = getStoredLocationId();
     if (locationId) {
       config.headers['x-location-id'] = locationId;
     }
-    const token = getStoredToken();
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
-    }
+    // Token and ClientID are now securely managed by cookies and the Auth Layer!
     return config;
   },
   (error) => Promise.reject(error)
@@ -52,8 +39,15 @@ api.interceptors.response.use(
     return response.data;
   },
   (error) => {
-    if (error.response?.status === 401 && getStoredToken()) {
-      // Token was rejected/expired — drop it and send the user back to login.
+    if (error.response?.status === 401) {
+      // The Platform Admin console is a completely separate auth realm (its own cookie,
+      // its own login page) -- a 401 there (e.g. an unauthenticated session check on
+      // mount) must never bounce the visitor into the client-facing /login page, and
+      // must never clear the unrelated client auth storage key.
+      if (window.location.pathname.startsWith('/platformconsole')) {
+        return Promise.reject(error.response?.data || error);
+      }
+      // Session was rejected/expired — send the user back to login.
       localStorage.removeItem(STORAGE_KEY);
       if (!window.location.pathname.startsWith('/login')) {
         window.location.href = '/login';

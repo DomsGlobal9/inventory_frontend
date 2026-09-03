@@ -32,10 +32,10 @@ export const useCreateSupplier = () => {
     },
     onSuccess: () => {
       toast.success('Supplier created successfully');
-      queryClient.invalidateQueries(['suppliers']);
+      queryClient.invalidateQueries({ queryKey: ['suppliers'] });
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || 'Failed to create supplier');
+      toast.error(error?.message || 'Failed to create supplier');
     }
   });
 };
@@ -49,11 +49,11 @@ export const useUpdateSupplier = () => {
     },
     onSuccess: (_, variables) => {
       toast.success('Supplier updated successfully');
-      queryClient.invalidateQueries(['suppliers']);
-      queryClient.invalidateQueries(['suppliers', variables.id]);
+      queryClient.invalidateQueries({ queryKey: ['suppliers'] });
+      queryClient.invalidateQueries({ queryKey: ['suppliers', variables.id] });
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || 'Failed to update supplier');
+      toast.error(error?.message || 'Failed to update supplier');
     }
   });
 };

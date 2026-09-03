@@ -31,7 +31,8 @@ export const useBulkCreateVariants = (productId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (variants: any[]) => bulkCreateVariants(productId, variants),
+    mutationFn: ({ variants, applyToAllLocations = false }: { variants: any[]; applyToAllLocations?: boolean }) =>
+      bulkCreateVariants(productId, variants, applyToAllLocations),
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.variants(productId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.product(productId) });

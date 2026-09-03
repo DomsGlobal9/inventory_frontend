@@ -1,22 +1,27 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Bell, Settings, User, Menu, Loader2, LogOut, CheckCheck } from 'lucide-react';
-import { useQueryClient } from '@tanstack/react-query';
+import { Search, Bell, Settings, User, Menu, Loader2, LogOut, CheckCheck, Sun, Moon, Pin, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { api } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { useLocationContext } from '../contexts/LocationContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { MapPin } from 'lucide-react';
-import { useAlerts } from '../hooks/useAlerts';
+import { useAlerts, useMarkAlertRead, useMarkAllAlertsRead, useTogglePinAlert, useDeleteAlert } from '../hooks/useAlerts';
 
 export default function TopNav({ onMenuClick }) {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const { user, logout } = useAuth();
   const [query, setQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { locations, currentLocation, setCurrentLocationId } = useLocationContext();
   const { data: alertData } = useAlerts();
+  const markAlertRead = useMarkAlertRead();
+  const markAllAlertsRead = useMarkAllAlertsRead();
+  const togglePinAlert = useTogglePinAlert();
+  const deleteAlert = useDeleteAlert();
+  const { theme, toggleTheme } = useTheme();
 
   const [showNotification, setShowNotification] = useState(false);
   const [isAlertMenuOpen, setIsAlertMenuOpen] = useState(false);
@@ -74,24 +79,32 @@ export default function TopNav({ onMenuClick }) {
       setIsSearching(true);
       try {
         const response = await api.get(`/search?q=${encodeURIComponent(query.trim())}`);
-        const data = response.data?.data;
+        const data = response.data;
         
-        if (data) {
-          // If we found a variant, navigate to variant tab
-          if (data.variants && data.variants.length > 0) {
-            navigate(data.variants[0].url);
-            setQuery(''); // Clear after successful scan
-          } 
-          // Else if we found a product, navigate to product
-          else if (data.products && data.products.length > 0) {
-            navigate(data.products[0].url);
-            setQuery(''); // Clear after successful scan
-          }
-          // Note: V2 would show a dropdown for multiple fuzzy results. 
-          // For V1 hardware scanner support, jumping to the first exact match is best.
+        const scanned = query.trim();
+
+        // If we found a variant, jump straight to it on the Variants tab
+        if (data?.variants?.length > 0) {
+          navigate(data.variants[0].url);
+          setQuery(''); // Clear so the next scan doesn't concatenate onto this one
         }
+        // Else if we found a product, open the product
+        else if (data?.products?.length > 0) {
+          navigate(data.products[0].url);
+          setQuery('');
+        }
+        // Nothing matched. This used to do absolutely nothing -- the barcode just sat in
+        // the box, so a scan of an unknown/mislabelled item was indistinguishable from the
+        // scanner not firing at all. The query is deliberately LEFT in place so it can be
+        // corrected rather than retyped.
+        else {
+          toast.error(`Nothing found for "${scanned}". Check the barcode or SKU.`);
+        }
+        // Note: V2 would show a dropdown for multiple fuzzy results. 
+        // For V1 hardware scanner support, jumping to the first exact match is best.
       } catch (error) {
         console.error('Search failed', error);
+        toast.error(error?.message || 'Search failed. Please try again.');
       } finally {
         setIsSearching(false);
       }
@@ -236,13 +249,10 @@ export default function TopNav({ onMenuClick }) {
               <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>Recent Alerts</span>
                 {alertData?.unreadCount > 0 && (
-                  <button 
-                    onClick={async (e) => {
+                  <button
+                    onClick={(e) => {
                       e.stopPropagation();
-                      try {
-                        await api.patch('/inventory/alerts/read-all');
-                        queryClient.invalidateQueries(['inventory', 'alerts']);
-                      } catch (err) {}
+                      markAllAlertsRead.mutate();
                     }}
                     style={{ background: 'none', border: 'none', color: 'var(--accent-primary)', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 500 }}
                   >
@@ -253,22 +263,45 @@ export default function TopNav({ onMenuClick }) {
               <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
                 {alertData?.alerts?.length > 0 ? (
                   alertData.alerts.slice(0, 5).map(alert => (
-                    <div 
+                    <div
                       key={alert.id}
-                      onClick={() => { setIsAlertMenuOpen(false); navigate('/inventory/alerts'); }}
+                      onClick={() => {
+                        if (!alert.isRead) markAlertRead.mutate(alert.id);
+                        setIsAlertMenuOpen(false);
+                        navigate('/inventory/alerts');
+                      }}
                       style={{
                         padding: '12px 16px', borderBottom: '1px solid var(--border-light)',
-                        cursor: 'pointer', background: !alert.isRead ? 'rgba(239, 68, 68, 0.05)' : 'transparent',
+                        cursor: 'pointer', background: alert.isPinned ? 'rgba(212, 175, 55, 0.08)' : (!alert.isRead ? 'rgba(239, 68, 68, 0.05)' : 'transparent'),
                         transition: 'background 0.2s'
                       }}
                       onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
-                      onMouseOut={(e) => e.currentTarget.style.backgroundColor = !alert.isRead ? 'rgba(239, 68, 68, 0.05)' : 'transparent'}
+                      onMouseOut={(e) => e.currentTarget.style.backgroundColor = alert.isPinned ? 'rgba(212, 175, 55, 0.08)' : (!alert.isRead ? 'rgba(239, 68, 68, 0.05)' : 'transparent')}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                        <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-primary)' }}>{alert.productTitle}</span>
-                        <span style={{ fontSize: '11px', color: alert.type === 'OUT_OF_STOCK' ? 'var(--accent-danger)' : 'var(--accent-gold)' }}>
-                          {alert.type === 'OUT_OF_STOCK' ? 'OUT OF STOCK' : 'LOW STOCK'}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px', gap: '8px' }}>
+                        <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          {alert.isPinned && <Pin size={11} style={{ color: 'var(--accent-gold)', flexShrink: 0 }} fill="var(--accent-gold)" />}
+                          {alert.productTitle}
                         </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                          <span style={{ fontSize: '11px', color: alert.type === 'OUT_OF_STOCK' ? 'var(--accent-danger)' : 'var(--accent-gold)' }}>
+                            {alert.type === 'OUT_OF_STOCK' ? 'OUT OF STOCK' : 'LOW STOCK'}
+                          </span>
+                          <button
+                            title={alert.isPinned ? 'Unpin' : 'Pin'}
+                            onClick={(e) => { e.stopPropagation(); togglePinAlert.mutate(alert.id); }}
+                            style={{ background: 'none', border: 'none', padding: '2px', cursor: 'pointer', color: alert.isPinned ? 'var(--accent-gold)' : 'var(--text-muted)', display: 'flex' }}
+                          >
+                            <Pin size={13} fill={alert.isPinned ? 'var(--accent-gold)' : 'none'} />
+                          </button>
+                          <button
+                            title="Dismiss"
+                            onClick={(e) => { e.stopPropagation(); deleteAlert.mutate(alert.id); }}
+                            style={{ background: 'none', border: 'none', padding: '2px', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex' }}
+                          >
+                            <X size={13} />
+                          </button>
+                        </div>
                       </div>
                       <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-secondary)' }}>{alert.message}</p>
                     </div>
@@ -288,74 +321,9 @@ export default function TopNav({ onMenuClick }) {
             </div>
           )}
         </div>
-        <button className="btn-icon"><Settings size={20} /></button>
-        <div style={{ position: 'relative' }}>
-          <button
-            onClick={() => setMenuOpen((v) => !v)}
-            style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: '50%',
-              backgroundColor: 'var(--text-primary)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginLeft: '8px',
-              color: 'var(--bg-dark)',
-              border: 'none',
-              cursor: 'pointer',
-            }}
-            title={user?.name}
-          >
-            <User size={18} />
-          </button>
-          {menuOpen && (
-            <>
-              <div
-                onClick={() => setMenuOpen(false)}
-                style={{ position: 'fixed', inset: 0, zIndex: 10 }}
-              />
-              <div className="card" style={{
-                position: 'absolute',
-                right: 0,
-                top: '48px',
-                width: '160px',
-                padding: '8px',
-                zIndex: 20,
-                boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                border: '1px solid var(--border-light)'
-              }}>
-                <button
-                  onClick={() => { setMenuOpen(false); navigate('/settings'); }}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '8px', width: '100%',
-                    padding: '10px 12px', background: 'none', border: 'none', cursor: 'pointer',
-                    color: 'var(--text-primary)', fontSize: '14px', borderRadius: '6px',
-                    textAlign: 'left'
-                  }}
-                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-input)'}
-                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                >
-                  <Settings size={16} /> Settings
-                </button>
-                <div style={{ height: '1px', background: 'var(--border-light)', margin: '4px 0' }} />
-                <button
-                  onClick={handleLogout}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '8px', width: '100%',
-                    padding: '10px 12px', background: 'none', border: 'none', cursor: 'pointer',
-                    color: 'var(--danger-color, #ef4444)', fontSize: '14px', borderRadius: '6px',
-                    textAlign: 'left'
-                  }}
-                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)'}
-                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                >
-                  <LogOut size={16} /> Sign out
-                </button>
-              </div>
-            </>
-          )}
-        </div>
+        <button className="btn-icon" onClick={toggleTheme}>
+          {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+        </button>
       </div>
     </nav>
   );

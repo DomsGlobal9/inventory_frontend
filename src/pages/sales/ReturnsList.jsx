@@ -68,8 +68,8 @@ export default function ReturnsList() {
                   className="table-row-hover"
                 >
                   <td style={{ padding: '16px 24px', fontWeight: 500 }}>{ret.returnNumber}</td>
-                  <td style={{ padding: '16px 24px', color: 'var(--text-secondary)' }}>{ret.salesOrder.orderNumber}</td>
-                  <td style={{ padding: '16px 24px' }}>{ret.salesOrder.customer.name}</td>
+                  <td style={{ padding: '16px 24px', color: 'var(--text-secondary)' }}>{ret.salesOrder?.orderNumber}</td>
+                  <td style={{ padding: '16px 24px' }}>{ret.salesOrder?.customer?.name}</td>
                   <td style={{ padding: '16px 24px', color: 'var(--text-secondary)' }}>
                     {new Date(ret.createdAt).toLocaleDateString()}
                   </td>

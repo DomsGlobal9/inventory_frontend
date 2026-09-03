@@ -14,9 +14,9 @@ export default function Suppliers() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [newSupplier, setNewSupplier] = useState({ name: '', email: '', phone: '', address: '' });
 
-  const filteredSuppliers = suppliers.filter(s => 
-    s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    s.supplierCode.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredSuppliers = suppliers.filter(s =>
+    (s.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (s.supplierCode || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleAddSupplier = async (e) => {

@@ -1,6 +1,18 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { ProductProvider } from './context/ProductContext';
+import { PlatformAdminProvider } from './context/PlatformAdminContext';
+import AdminProtectedRoute from './components/AdminProtectedRoute';
+import AdminConsoleLayout from './layouts/AdminConsoleLayout';
+import AdminLogin from './pages/admin/AdminLogin';
+import ClientsPage from './pages/admin/ClientsPage';
+import ClientOverviewPage from './pages/admin/ClientOverviewPage';
+import UsersPage from './pages/admin/UsersPage';
+import OnboardingPage from './pages/admin/OnboardingPage';
+import InventoryHealthPage from './pages/admin/InventoryHealthPage';
+import AuditLogPage from './pages/admin/AuditLogPage';
+import ClientErrorsPage from './pages/admin/ClientErrorsPage';
+import SupportTicketsPage from './pages/admin/SupportTicketsPage';
 import MainLayout from './layouts/MainLayout';
 import WizardLayout from './layouts/WizardLayout';
 import Dashboard from './pages/Dashboard';
@@ -19,7 +31,6 @@ import InventoryLedger from './pages/InventoryLedger';
 import AlertCenter from './pages/AlertCenter';
 import AuditList from './pages/AuditList';
 import ActiveAudit from './pages/ActiveAudit';
-import Suppliers from './pages/Suppliers';
 import SupplierDetails from './pages/SupplierDetails';
 import PurchaseOrders from './pages/PurchaseOrders';
 import PurchaseOrderDetails from './pages/PurchaseOrderDetails';
@@ -39,6 +50,26 @@ function App() {
       <Router>
         <Routes>
         <Route path="/login" element={<Login />} />
+
+        {/* Platform Admin console: entirely separate auth realm (its own cookie, its own
+            login), scoped under its own PlatformAdminProvider so normal client sessions
+            never pay for an unused /auth/admin/session check on every page load. */}
+        <Route element={<PlatformAdminProvider><Outlet /></PlatformAdminProvider>}>
+          <Route path="/platformconsole/login" element={<AdminLogin />} />
+          <Route path="/platformconsole" element={<AdminProtectedRoute />}>
+            <Route element={<AdminConsoleLayout />}>
+              <Route index element={<Navigate to="/platformconsole/clients" replace />} />
+              <Route path="clients" element={<ClientsPage />} />
+              <Route path="clients/:clientId" element={<ClientOverviewPage />} />
+              <Route path="users" element={<UsersPage />} />
+              <Route path="onboarding" element={<OnboardingPage />} />
+              <Route path="health" element={<InventoryHealthPage />} />
+              <Route path="errors" element={<ClientErrorsPage />} />
+              <Route path="support" element={<SupportTicketsPage />} />
+              <Route path="audit-log" element={<AuditLogPage />} />
+            </Route>
+          </Route>
+        </Route>
 
         <Route element={<ProtectedRoute />}>
         <Route element={<MainLayout />}>
@@ -73,7 +104,7 @@ function App() {
           <Route path="/inventory/alerts" element={<AlertCenter />} />
           <Route path="/inventory/audits" element={<AuditList />} />
           <Route path="/inventory/audits/:id" element={<ActiveAudit />} />
-          <Route path="/inventory/suppliers" element={<Suppliers />} />
+          <Route path="/inventory/suppliers" element={<PurchaseOrders />} />
           <Route path="/inventory/suppliers/:id" element={<SupplierDetails />} />
           <Route path="/inventory/purchase-orders" element={<PurchaseOrders />} />
           <Route path="/inventory/purchase-orders/:id" element={<PurchaseOrderDetails />} />

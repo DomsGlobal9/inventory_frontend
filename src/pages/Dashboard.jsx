@@ -12,10 +12,12 @@ import SupplierSpendChart from '../components/dashboard/SupplierSpendChart';
 import StockMovementChart from '../components/dashboard/StockMovementChart';
 import { Plus } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useProduct } from '../context/ProductContext';
 
 export default function Dashboard() {
   const { data, isLoading, isError } = useDashboardSummary();
   const navigate = useNavigate();
+  const { resetProductData } = useProduct();
   const [searchParams, setSearchParams] = useSearchParams();
   
   const activeTab = searchParams.get('tab') || 'overview';
@@ -57,16 +59,16 @@ export default function Dashboard() {
       </motion.div>
 
       <motion.div variants={item} style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-        <button className="btn btn-primary" onClick={() => navigate('/products/new')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px' }}>
+        <button className="btn btn-primary" onClick={() => { resetProductData(); navigate('/add/general'); }} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px' }}>
           <Plus size={16} /> Product
         </button>
         <button className="btn btn-secondary" onClick={() => navigate('/inventory')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px' }}>
           <Plus size={16} /> Stock In
         </button>
-        <button className="btn btn-secondary" onClick={() => navigate('/purchase-orders/new')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px' }}>
+        <button className="btn btn-secondary" onClick={() => navigate('/inventory/purchase-orders/new')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px' }}>
           <Plus size={16} /> Purchase Order
         </button>
-        <button className="btn btn-secondary" onClick={() => navigate('/suppliers')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px' }}>
+        <button className="btn btn-secondary" onClick={() => navigate('/inventory/suppliers')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px' }}>
           <Plus size={16} /> Supplier
         </button>
       </motion.div>

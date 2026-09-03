@@ -5,6 +5,11 @@ import { Toaster } from 'react-hot-toast';
 import './index.css';
 import App from './App.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
+import { ThemeProvider } from './contexts/ThemeContext.jsx';
+import ErrorBoundary from './components/ErrorBoundary.jsx';
+import { installGlobalErrorReporting } from './lib/errorReporter.js';
+
+installGlobalErrorReporting();
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -17,11 +22,15 @@ const queryClient = new QueryClient({
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <App />
-        <Toaster position="bottom-right" />
-      </AuthProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <AuthProvider>
+            <App />
+            <Toaster position="bottom-right" />
+          </AuthProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   </StrictMode>,
 );

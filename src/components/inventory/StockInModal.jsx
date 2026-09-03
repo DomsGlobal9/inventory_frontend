@@ -54,7 +54,7 @@ export default function StockInModal({ variant, onClose }) {
         exit={{ opacity: 0, scale: 0.95, y: '-40%', x: '-50%' }}
         style={{
           position: 'fixed', top: '50%', left: '50%', width: '90%', maxWidth: '500px',
-          backgroundColor: 'var(--bg-dark)', border: '1px solid var(--border-light)', borderRadius: '12px',
+          backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '12px',
           zIndex: 1000, overflow: 'hidden', display: 'flex', flexDirection: 'column'
         }}
       >
@@ -68,7 +68,7 @@ export default function StockInModal({ variant, onClose }) {
 
         <form onSubmit={handleSubmit} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', overflowY: 'auto', maxHeight: '60vh' }}>
           
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <div className="mobile-stack-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <div className="form-group">
               <label className="form-label">Quantity</label>
               <input type="number" required min="1" className="input-field" value={formData.quantity} onChange={e => setFormData({...formData, quantity: e.target.value})} placeholder="e.g. 10" />
@@ -88,7 +88,7 @@ export default function StockInModal({ variant, onClose }) {
             </select>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <div className="mobile-stack-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <div className="form-group">
               <label className="form-label">Reference Type</label>
               <input type="text" className="input-field" value={formData.referenceType} onChange={e => setFormData({...formData, referenceType: e.target.value})} placeholder="e.g. PURCHASE_ORDER" />
@@ -104,7 +104,7 @@ export default function StockInModal({ variant, onClose }) {
             <textarea className="input-field" rows="2" value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})} placeholder="Optional notes..."></textarea>
           </div>
 
-          <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '16px', display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '8px' }}>
+          <div className="mobile-sticky-footer" style={{ borderTop: '1px solid var(--border-light)', paddingTop: '16px', display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '8px' }}>
             <button type="button" className="btn-secondary" onClick={onClose}>Cancel</button>
             <button type="submit" className="btn-primary" disabled={stockInMutation.isPending} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               {stockInMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}

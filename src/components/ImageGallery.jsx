@@ -12,7 +12,7 @@ export default function ImageGallery({ productId }) {
   const deleteMutation = useDeleteImage(productId);
   const updateMutation = useUpdateImage(productId);
 
-  const images = data?.data || [];
+  const images = data || [];
   const [confirmState, setConfirmState] = useState({ isOpen: false });
 
   const handleFileChange = async (e) => {

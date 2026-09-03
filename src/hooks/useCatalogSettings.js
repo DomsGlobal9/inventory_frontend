@@ -27,7 +27,7 @@ export function useAddCatalogItem() {
       queryClient.invalidateQueries({ queryKey: ['catalog-config'] }); // Invalidate product creation config too
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || 'Failed to add catalog item');
+      toast.error(error?.message || 'Failed to add catalog item');
     }
   });
 }
@@ -46,7 +46,7 @@ export function useUpdateCatalogItem() {
       queryClient.invalidateQueries({ queryKey: ['catalog-config'] });
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || 'Failed to update catalog item');
+      toast.error(error?.message || 'Failed to update catalog item');
     }
   });
 }
@@ -65,7 +65,7 @@ export function useDeleteCatalogItem() {
       queryClient.invalidateQueries({ queryKey: ['catalog-config'] });
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || 'Failed to delete catalog item');
+      toast.error(error?.message || 'Failed to delete catalog item');
     }
   });
 }

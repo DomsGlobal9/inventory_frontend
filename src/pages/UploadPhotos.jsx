@@ -22,7 +22,7 @@ export default function UploadPhotos() {
   };
 
   return (
-    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '24px', paddingBottom: '100px' }}>
+    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Top Navigation */}
       <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
         <button 
@@ -35,38 +35,26 @@ export default function UploadPhotos() {
         </button>
       </div>
 
-      <div style={{ display: 'flex', gap: '32px' }}>
       {/* Main Upload Section */}
-      <div style={{ flex: 1 }}>
-        <GarmentPhotoshootUploader onGenerationComplete={() => {}} />
-      </div>
+      <GarmentPhotoshootUploader onGenerationComplete={() => {}} />
 
-
-
-      {/* Fixed Bottom Actions for this view */}
-      <div style={{ 
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        backgroundColor: 'var(--bg-dark)',
-        borderTop: '1px solid var(--border-light)',
-        padding: '16px 48px',
-        display: 'flex',
-        justifyContent: 'center',
-        zIndex: 10
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%', maxWidth: '1400px' }}>
-          <button 
-            className="btn-primary" 
-            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-            onClick={() => navigate('/preview')}
-          >
-            REVIEW & PUBLISH PRODUCT
-            <CheckCircle size={16} />
-          </button>
-        </div>
-      </div>
+      {/* Bottom Actions */}
+      <div className="mobile-sticky-footer"
+        style={{
+          borderTop: '1px solid var(--border-light)',
+          paddingTop: '16px',
+          display: 'flex',
+          justifyContent: 'flex-end'
+        }}
+      >
+        <button
+          className="btn-primary"
+          style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+          onClick={() => navigate('/preview')}
+        >
+          REVIEW & PUBLISH PRODUCT
+          <CheckCircle size={16} />
+        </button>
       </div>
     </div>
   );

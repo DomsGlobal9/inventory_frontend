@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, ArrowLeft } from 'lucide-react';
 import { useProduct } from '../context/ProductContext';
 import { useCatalogData } from '../hooks/useCatalogConfig';
+
+const FREE_SIZE = 'Free Size';
 
 export default function Measurements() {
   const navigate = useNavigate();
@@ -10,6 +12,19 @@ export default function Measurements() {
   const [activeColor, setActiveColor] = useState(null);
   const [showSizeChart, setShowSizeChart] = useState(false);
   const { sizes: SIZES, colors: COLORS_PALETTE } = useCatalogData();
+
+  // Sarees drape rather than fit to a size chart -- they're sold as one size.
+  // Force the selection to Free Size while this product is a saree, and clear it
+  // back out if the user backs up and switches to a sized dress type.
+  const isSaree = productData.dressType?.toLowerCase() === 'saree';
+  useEffect(() => {
+    if (isSaree && productData.selectedSizes.join() !== FREE_SIZE) {
+      updateProductData('selectedSizes', [FREE_SIZE]);
+    } else if (!isSaree && productData.selectedSizes.join() === FREE_SIZE) {
+      updateProductData('selectedSizes', []);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSaree]);
 
   // Handlers for Sizes
   const toggleSize = (size) => {
@@ -121,7 +136,7 @@ export default function Measurements() {
         {/* ROW 1: Price and Sizes */}
         <div className="mobile-col" style={{ display: 'flex', gap: '32px' }}>
           <div style={{ width: '200px' }}>
-            <label className="input-label">Base Price (USD)</label>
+            <label className="input-label">Base Price (₹)</label>
             <input 
               type="number" 
               className="input-field" 
@@ -134,37 +149,56 @@ export default function Measurements() {
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <label className="input-label" style={{ marginBottom: 0 }}>Available Sizes</label>
-              <button 
-                onClick={() => setShowSizeChart(true)}
-                style={{ fontSize: '12px', color: 'var(--accent-gold)', borderBottom: '1px solid var(--accent-gold)' }}
-              >
-                Size chart ?
-              </button>
+              {!isSaree && (
+                <button
+                  onClick={() => setShowSizeChart(true)}
+                  style={{ fontSize: '12px', color: 'var(--accent-gold)', borderBottom: '1px solid var(--accent-gold)' }}
+                >
+                  Size chart ?
+                </button>
+              )}
             </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
-              {SIZES.map(size => {
-                const selected = productData.selectedSizes.includes(size);
-                return (
-                  <button 
-                    key={size}
-                    onClick={() => toggleSize(size)}
-                    style={{ 
-                      width: '40px', height: '40px', 
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', 
-                      border: `1px solid ${selected ? 'var(--text-primary)' : 'var(--border-light)'}`,
-                      borderRadius: '4px',
-                      background: selected ? 'var(--text-primary)' : 'transparent',
-                      color: selected ? 'var(--bg-dark)' : 'var(--text-primary)',
-                      fontSize: '13px',
-                      fontWeight: '500',
-                      transition: 'all 0.2s'
-                    }}
-                  >
-                    {size}
-                  </button>
-                );
-              })}
-            </div>
+            {isSaree ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
+                <div style={{
+                  padding: '10px 20px',
+                  border: '1px solid var(--text-primary)',
+                  borderRadius: '4px',
+                  background: 'var(--text-primary)',
+                  color: 'var(--bg-dark)',
+                  fontSize: '13px',
+                  fontWeight: '500'
+                }}>
+                  {FREE_SIZE}
+                </div>
+                <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Sarees are sold as one size</span>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
+                {SIZES.map(size => {
+                  const selected = productData.selectedSizes.includes(size);
+                  return (
+                    <button
+                      key={size}
+                      onClick={() => toggleSize(size)}
+                      style={{
+                        width: '40px', height: '40px',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        border: `1px solid ${selected ? 'var(--text-primary)' : 'var(--border-light)'}`,
+                        borderRadius: '4px',
+                        background: selected ? 'var(--text-primary)' : 'transparent',
+                        color: selected ? 'var(--bg-dark)' : 'var(--text-primary)',
+                        fontSize: '13px',
+                        fontWeight: '500',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      {size}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
 
@@ -297,7 +331,7 @@ export default function Measurements() {
       </div>
       
       {/* Footer Actions */}
-      <div style={{ 
+      <div className="mobile-sticky-footer" style={{ 
         display: 'flex', 
         justifyContent: 'flex-end',
         paddingTop: '16px',

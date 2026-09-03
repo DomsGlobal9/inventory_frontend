@@ -51,7 +51,7 @@ export function LocationSettingsModal({ variant, onClose, onSaveSuccess }) {
       toast.success('Location settings updated');
       if (onSaveSuccess) onSaveSuccess();
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Failed to update settings');
+      toast.error(err?.message || 'Failed to update settings');
     } finally {
       setSavingId(null);
     }
@@ -64,10 +64,10 @@ export function LocationSettingsModal({ variant, onClose, onSaveSuccess }) {
         style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 999, backdropFilter: 'blur(4px)' }}
       />
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '500px', backgroundColor: 'var(--bg-panel)', border: '1px solid var(--border-light)', borderRadius: '12px', zIndex: 1000, overflow: 'hidden' }}
+        initial={{ opacity: 0, scale: 0.95, x: '-50%', y: '-50%' }}
+        animate={{ opacity: 1, scale: 1, x: '-50%', y: '-50%' }}
+        exit={{ opacity: 0, scale: 0.95, x: '-50%', y: '-50%' }}
+        style={{ position: 'fixed', top: '50%', left: '50%', width: '500px', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '12px', zIndex: 1000, overflow: 'hidden' }}
       >
         <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>

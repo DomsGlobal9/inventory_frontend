@@ -1,46 +1,89 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { api } from '../lib/api';
 
-const STORAGE_KEY = 'scaleezy_auth';
-const CLIENT_ID = import.meta.env.VITE_CLIENT_ID;
+const STORAGE_KEY = 'scaleezy_auth_user';
 
 const AuthContext = createContext(null);
 
-function readStoredAuth() {
+function readStoredUser() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw);
+    return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
   }
 }
 
 export function AuthProvider({ children }) {
-  const [auth, setAuth] = useState(readStoredAuth);
+  const [user, setUser] = useState(readStoredUser);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const login = useCallback(async (email, password) => {
-    const response = await api.post('/auth/login', { email, password, clientId: CLIENT_ID });
-    const { token, user } = response.data;
-    const nextAuth = { token, user };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(nextAuth));
-    setAuth(nextAuth);
-    return user;
+  const checkSession = useCallback(async () => {
+    try {
+      const res = await api.get('/auth/session');
+      if (res.authenticated && res.user) {
+        setUser(res.user);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(res.user));
+      } else {
+        setUser(null);
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    } catch (e) {
+      setUser(null);
+      localStorage.removeItem(STORAGE_KEY);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  const logout = useCallback(() => {
+  useEffect(() => {
+    checkSession();
+  }, [checkSession]);
+
+  const login = useCallback(async (email, password, clientId) => {
+    // Just like any normal SaaS login: email + password, no workspace ID needed from
+    // the visitor. `clientId` is only ever passed on the rare retry where the backend
+    // reported the same email/password pair matches more than one workspace and the
+    // visitor picked which one (see `requiresWorkspaceSelection` below).
+    const response = await api.post('/auth/login', { email, password, ...(clientId ? { clientId } : {}) });
+
+    if (response.requiresWorkspaceSelection) {
+      return { requiresWorkspaceSelection: true, workspaces: response.workspaces };
+    }
+
+    const userData = response.data.user;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
+    setUser(userData);
+    return userData;
+  }, []);
+
+  const logout = useCallback(async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch (e) {
+      // Ignore network errors on logout
+    }
     localStorage.removeItem(STORAGE_KEY);
-    setAuth(null);
+    setUser(null);
   }, []);
 
   const value = {
-    token: auth?.token || null,
-    user: auth?.user || null,
-    roles: auth?.user?.roles || [],
-    permissions: auth?.user?.permissions || [],
-    isAuthenticated: !!auth?.token,
+    user,
+    roles: user?.roles || [],
+    permissions: user?.permissions || [],
+    // Single source of truth for "can this user do X", so screens stop showing buttons
+    // that the backend will only reject. SUPER_ADMIN is treated as holding everything,
+    // matching how requirePermission resolves it server-side.
+    hasPermission: (permission) =>
+      (user?.roles || []).includes('SUPER_ADMIN') || (user?.permissions || []).includes(permission),
+    isAuthenticated: !!user,
+    isLoading,
     login,
     logout,
+    // Re-reads /auth/session and updates both state and localStorage. Without this,
+    // saving a new profile name toasted "saved" while the header, the avatar initials
+    // and Settings all kept rendering the old name until a full page reload.
+    refreshUser: checkSession,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -52,11 +95,3 @@ export function useAuth() {
   return ctx;
 }
 
-// Non-hook accessors so lib/api.ts (outside React) can read/clear the token.
-export function getStoredToken() {
-  return readStoredAuth()?.token || null;
-}
-
-export function clearStoredAuth() {
-  localStorage.removeItem(STORAGE_KEY);
-}

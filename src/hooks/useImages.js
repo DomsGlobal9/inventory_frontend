@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
-import { supabase } from '../lib/supabaseClient';
+import { uploadImageFile } from '../services/image.service';
 import toast from 'react-hot-toast';
 
 // GET images for a product
@@ -22,44 +22,7 @@ export function useUploadImage(productId) {
 
   return useMutation({
     mutationFn: async ({ file, isPrimary = false, altText = '' }) => {
-      // 1. Upload to Supabase Storage
-      // Structure: inventory-images/{clientId}/{productId}/{timestamp}_{filename}
-      const timestamp = Date.now();
-      const fileName = `${timestamp}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-      const storagePath = `${clientId}/${productId}/${fileName}`;
-      
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('inventory-images')
-        .upload(storagePath, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
-
-      if (uploadError) {
-        console.error("Supabase Upload Error:", uploadError);
-        throw new Error(uploadError.message || "Failed to upload image to storage");
-      }
-
-      // 2. Get Public URL
-      const { data: publicUrlData } = supabase.storage
-        .from('inventory-images')
-        .getPublicUrl(storagePath);
-
-      const url = publicUrlData.publicUrl;
-
-      // 3. Save Metadata to Backend
-      const payload = {
-        url,
-        storagePath,
-        fileName: file.name,
-        fileSize: file.size,
-        altText: altText || file.name,
-        isPrimary,
-        imageType: 'GALLERY', // default
-        orderIndex: 0
-      };
-
-      const response = await api.post(`/products/${productId}/images`, payload);
+      const response = await uploadImageFile(productId, clientId, file, { isPrimary, altText, imageType: 'GALLERY' });
       return response.data;
     },
     onSuccess: () => {
@@ -78,7 +41,8 @@ export function useUpdateImage(productId) {
 
   return useMutation({
     mutationFn: async ({ imageId, data }) => {
-      const response = await api.patch(`/images/${imageId}`, data);
+      // Mounted under product.routes.ts as /products/images/:id, not a top-level /images route.
+      const response = await api.patch(`/products/images/${imageId}`, data);
       return response.data;
     },
     onSuccess: () => {
@@ -96,7 +60,7 @@ export function useDeleteImage(productId) {
 
   return useMutation({
     mutationFn: async (imageId) => {
-      const response = await api.delete(`/images/${imageId}`);
+      const response = await api.delete(`/products/images/${imageId}`);
       return response.data;
     },
     onSuccess: () => {

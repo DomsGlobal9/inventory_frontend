@@ -38,7 +38,7 @@ export function useCreateTransaction(productId) {
       toast.success('Transaction recorded successfully');
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || 'Failed to record transaction');
+      toast.error(error?.message || 'Failed to record transaction');
     }
   });
 }

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSalesOrders } from '../../hooks/useSalesOrders';
 import { Search, Filter } from 'lucide-react';
+import { formatINR } from '../../utils/formatUtils';
 
 export default function SalesOrders() {
   const navigate = useNavigate();
@@ -27,10 +28,10 @@ export default function SalesOrders() {
   };
 
   return (
-    <div style={{ maxWidth: '1400px', margin: '0 auto', paddingTop: '24px', flex: 1, minHeight: 0, overflowY: 'auto', paddingBottom: '64px', width: '100%', display: 'flex', flexDirection: 'column' }}>
+    <div className="mobile-no-scroll" style={{ display: 'flex', flexDirection: 'column', gap: '24px', height: '100%', paddingTop: '24px', paddingBottom: '24px' }}>
       
       {/* Header section */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
         <div>
           <h1 style={{ fontSize: '32px', marginBottom: '8px', color: 'var(--text-primary)' }}>Sales Orders</h1>
           <p style={{ color: 'var(--text-secondary)' }}>Manage draft orders, view confirmed sales, and track fulfillments.</p>
@@ -38,7 +39,7 @@ export default function SalesOrders() {
       </div>
 
       {/* Filters */}
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
+      <div style={{ display: 'flex', gap: '16px', flexShrink: 0 }}>
         <div style={{ position: 'relative', width: '200px' }}>
           <Filter size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
           <select 
@@ -57,7 +58,7 @@ export default function SalesOrders() {
       </div>
 
       {/* Table */}
-      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="table-container mobile-no-scroll" style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border-light)', backgroundColor: 'var(--surface-hover)' }}>
@@ -83,7 +84,7 @@ export default function SalesOrders() {
                     <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Created {new Date(order.createdAt).toLocaleDateString()}</div>
                   </td>
                   <td style={{ padding: '16px 24px', textAlign: 'center' }}>{order.items?.length || 0}</td>
-                  <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '500' }}>${Number(order.total).toFixed(2)}</td>
+                  <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '500' }}>{formatINR(Number(order.total))}</td>
                   <td style={{ padding: '16px 24px' }}>{getStatusBadge(order.status)}</td>
                   <td style={{ padding: '16px 24px', textAlign: 'right' }}>
                     <button 

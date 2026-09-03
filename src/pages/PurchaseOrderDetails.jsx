@@ -3,7 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { usePurchaseOrder, useCreatePurchaseOrder, useUpdatePurchaseOrderStatus, useReceiveGoods } from '../hooks/usePurchaseOrders';
 import { useSuppliers } from '../hooks/useSuppliers';
-import { ArrowLeft, CheckCircle2, Box, Truck, Plus, Save, Download } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Box, Truck, Plus, Save, Download, Loader2 } from 'lucide-react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import toast from 'react-hot-toast';
 import PurchaseOrderPDF from '../components/PurchaseOrderPDF';
@@ -57,7 +57,10 @@ export default function PurchaseOrderDetails() {
     if (po && !isNew) {
       setFormData({
         supplierId: po.supplierId,
-        items: po.items.map(i => ({ ...i }))
+        // sellingPrice lives on the nested variant, not on the PO item itself -- promote
+        // it to the top level so getMarginWarning (which only reads item.sellingPrice)
+        // works the same way for a reopened Draft PO as it does for a brand-new one.
+        items: po.items.map(i => ({ ...i, sellingPrice: i.variant?.sellingPrice ? Number(i.variant.sellingPrice) : null }))
       });
       
       const initialRec = {};
@@ -145,6 +148,7 @@ export default function PurchaseOrderDetails() {
           size: variant.size,
           orderedQty: variant.orderedQty,
           unitPrice: variant.unitPrice,
+          sellingPrice: variant.sellingPrice,
           variant: { product: { title: variant.productTitle } }
         });
       }
@@ -154,6 +158,18 @@ export default function PurchaseOrderDetails() {
   };
 
   const grandTotal = formData.items.reduce((sum, item) => sum + (item.orderedQty * item.unitPrice), 0);
+
+  // Approximates the margin this cost would leave against what the item actually sells
+  // for -- not a full moving-average blend (that only happens for real once the PO is
+  // received), just an early warning so the merchant isn't surprised after the fact.
+  const getMarginWarning = (item) => {
+    if (!item.sellingPrice) return null; // nothing to compare against yet
+    const margin = ((item.sellingPrice - item.unitPrice) / item.sellingPrice) * 100;
+    if (margin < 0) return { text: `This costs more than the ₹${item.sellingPrice} selling price`, color: 'var(--accent-danger)' };
+    if (margin < 15) return { text: `Only ~${margin.toFixed(0)}% margin at this cost`, color: 'var(--accent-danger)' };
+    if (margin < 30) return { text: `~${margin.toFixed(0)}% margin at this cost`, color: 'var(--accent-warning, #f59e0b)' };
+    return null; // healthy margin, no need to call it out
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -250,7 +266,12 @@ export default function PurchaseOrderDetails() {
               <Truck size={18} style={{ color: 'var(--text-secondary)' }} />
               Supplier Details
             </h2>
-            {isNew || po?.status === 'DRAFT' ? (
+            {/* Editable only while the PO is unsaved. There is no update endpoint for an
+                existing PO -- the Save button below renders for `isNew` alone -- so on a
+                saved DRAFT this dropdown accepted a new supplier, changed nothing, and
+                quietly reverted on the next refresh. The line items already follow this
+                same isNew-only rule. */}
+            {isNew ? (
               <div>
                 <select 
                   className="input-field"
@@ -310,23 +331,42 @@ export default function PurchaseOrderDetails() {
                       </td>
                       <td style={{ padding: '16px 0', textAlign: 'right' }}>
                         {isNew ? (
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px' }}>
-                            <span style={{ color: 'var(--text-muted)' }}>₹</span>
-                            <input 
-                              type="number"
-                              min="0"
-                              className="input-field"
-                              style={{ width: '80px', textAlign: 'right', padding: '6px 8px' }}
-                              value={item.unitPrice}
-                              onChange={e => {
-                                const newItems = [...formData.items];
-                                newItems[idx].unitPrice = parseFloat(e.target.value) || 0;
-                                setFormData({...formData, items: newItems});
-                              }}
-                            />
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px' }}>
+                              <span style={{ color: 'var(--text-muted)' }}>₹</span>
+                              <input
+                                type="number"
+                                min="0"
+                                className="input-field"
+                                style={{ width: '80px', textAlign: 'right', padding: '6px 8px' }}
+                                value={item.unitPrice}
+                                onChange={e => {
+                                  const newItems = [...formData.items];
+                                  newItems[idx].unitPrice = parseFloat(e.target.value) || 0;
+                                  setFormData({...formData, items: newItems});
+                                }}
+                              />
+                            </div>
+                            {(() => {
+                              const warning = getMarginWarning(item);
+                              return warning ? (
+                                <span style={{ fontSize: '11px', color: warning.color, whiteSpace: 'nowrap' }}>{warning.text}</span>
+                              ) : null;
+                            })()}
                           </div>
                         ) : (
-                          <span style={{ color: 'var(--text-primary)' }}>₹{Number(item.unitPrice).toLocaleString()}</span>
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                            <span style={{ color: 'var(--text-primary)' }}>₹{Number(item.unitPrice).toLocaleString()}</span>
+                            {/* Previously only shown while creating a new PO -- a merchant
+                                reopening a saved Draft to review it before sending or
+                                confirming had no way to see this at all. */}
+                            {(() => {
+                              const warning = getMarginWarning(item);
+                              return warning ? (
+                                <span style={{ fontSize: '11px', color: warning.color, whiteSpace: 'nowrap' }}>{warning.text}</span>
+                              ) : null;
+                            })()}
+                          </div>
                         )}
                       </td>
                       <td style={{ padding: '16px 0', textAlign: 'right' }}>
@@ -404,11 +444,16 @@ export default function PurchaseOrderDetails() {
             <div className="glass-panel" style={{ padding: '24px' }}>
               <button 
                 onClick={handleCreate}
+                disabled={createPO.isPending}
                 className="btn-primary"
-                style={{ width: '100%', padding: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '14px' }}
+                style={{ 
+                  width: '100%', padding: '12px', display: 'flex', alignItems: 'center', 
+                  justifyContent: 'center', gap: '8px', fontSize: '14px',
+                  opacity: createPO.isPending ? 0.7 : 1, cursor: createPO.isPending ? 'not-allowed' : 'pointer'
+                }}
               >
-                <Save size={18} />
-                Create PO
+                {createPO.isPending ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+                {createPO.isPending ? 'Creating PO...' : 'Create PO'}
               </button>
             </div>
           )}

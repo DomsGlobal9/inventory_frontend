@@ -56,7 +56,7 @@ export function useStockIn() {
       toast.success('Stock added successfully');
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || 'Failed to add stock');
+      toast.error(error?.message || 'Failed to add stock');
     }
   });
 }
@@ -75,7 +75,7 @@ export function useStockOut() {
       toast.success('Stock deducted successfully');
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || 'Failed to deduct stock');
+      toast.error(error?.message || 'Failed to deduct stock');
     }
   });
 }
@@ -94,7 +94,7 @@ export function useAdjustment() {
       toast.success('Stock adjusted successfully');
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || 'Failed to adjust stock');
+      toast.error(error?.message || 'Failed to adjust stock');
     }
   });
 }

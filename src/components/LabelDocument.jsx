@@ -1,6 +1,7 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet, Image, Font } from '@react-pdf/renderer';
 import { generateBarcodeDataUrl } from '../utils/barcodeUtils';
+import { resolveVariantPrice, formatRupeesForPrint } from '../utils/priceUtils';
 
 // Register standard fonts if needed, or use default Helvetica
 Font.register({
@@ -60,20 +61,27 @@ const styles = StyleSheet.create({
 });
 
 // Create Document Component
-export const LabelDocument = ({ variants, productName }) => {
+export const LabelDocument = ({ variants, productName, clientId, locationId }) => {
   return (
-    <Document 
+    <Document
       title={`Labels_${productName || 'Variants'}.pdf`}
-      creator="ScaleEzy API Gateway" 
-      subject={JSON.stringify({ clientId: "villy-internal", generatedAt: new Date().toISOString() })} // Metadata requested by user
+      creator="ScaleEzy API Gateway"
+      subject={JSON.stringify({ clientId: clientId || 'unknown', generatedAt: new Date().toISOString() })} // Metadata requested by user
     >
-      {variants.map((variant) => (
+      {variants.map((variant) => {
+        // Was: `variant.priceOverride || variant.product?.basePrice || 'N/A'`.
+        // Both operands were always undefined -- `priceOverride` lives on
+        // VariantLocationProfile, not on ProductVariant, and `product` wasn't included in
+        // the variants payload -- so EVERY label printed "Rs.N/A". It also never looked at
+        // sellingPrice, which is the field the Variants pricing UI actually writes.
+        const price = formatRupeesForPrint(resolveVariantPrice(variant, locationId));
+        return (
         <Page key={variant.id} size={[141.73, 70.86]} style={styles.page}>
           
           {/* Header: Title and Price */}
           <View style={styles.headerRow}>
             <Text style={styles.title}>{productName}</Text>
-            <Text style={styles.price}>Rs.{variant.priceOverride || variant.product?.basePrice || 'N/A'}</Text>
+            <Text style={styles.price}>{price || 'No price'}</Text>
           </View>
           
           {/* Subheader: SKU */}
@@ -89,7 +97,8 @@ export const LabelDocument = ({ variants, productName }) => {
           <Text style={styles.barcodeText}>{variant.barcode}</Text>
           
         </Page>
-      ))}
+        );
+      })}
     </Document>
   );
 };

@@ -22,8 +22,12 @@ export function AuthProvider({ children }) {
     try {
       const res = await api.get('/auth/session');
       if (res.authenticated && res.user) {
-        setUser(res.user);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(res.user));
+        // /auth/session returns the tenant separately as client.id; it used to be thrown
+        // away, leaving the app with no idea which tenant it was acting for. Fold it into
+        // the stored user so there is exactly one place to read it from.
+        const hydrated = { ...res.user, clientId: res.user.clientId ?? res.client?.id ?? null };
+        setUser(hydrated);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(hydrated));
       } else {
         setUser(null);
         localStorage.removeItem(STORAGE_KEY);
@@ -69,6 +73,9 @@ export function AuthProvider({ children }) {
 
   const value = {
     user,
+    // The authenticated tenant. Anything that scopes data by tenant must read it from
+    // here -- never from a build-time constant, which is identical for every customer.
+    clientId: user?.clientId || null,
     roles: user?.roles || [],
     permissions: user?.permissions || [],
     // Single source of truth for "can this user do X", so screens stop showing buttons

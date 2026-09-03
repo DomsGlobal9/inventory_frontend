@@ -18,11 +18,10 @@ export function useImages(productId) {
 // UPLOAD image to Supabase and POST to backend
 export function useUploadImage(productId) {
   const queryClient = useQueryClient();
-  const clientId = import.meta.env.VITE_CLIENT_ID || 'demo-client'; // Using the same tenant logic
-
   return useMutation({
     mutationFn: async ({ file, isPrimary = false, altText = '' }) => {
-      const response = await uploadImageFile(productId, clientId, file, { isPrimary, altText, imageType: 'GALLERY' });
+      // No tenant is passed: the server derives the storage path from the session's JWT.
+      const response = await uploadImageFile(productId, file, { isPrimary, altText, imageType: 'GALLERY' });
       return response.data;
     },
     onSuccess: () => {

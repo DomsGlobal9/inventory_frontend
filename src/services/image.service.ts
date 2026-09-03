@@ -1,32 +1,58 @@
-import { supabase } from '../lib/supabaseClient';
+import axios from 'axios';
 import { api } from '../lib/api';
 
-// Structure: inventory-images/{clientId}/{productId}/{timestamp}_{filename}
-// Matches the bucket/path convention the backend's image.service.ts expects when
-// cleaning up storage on delete -- keep them in sync if this ever changes.
-export async function uploadImageFile(productId: string, clientId: string, file: File, opts: {
+/**
+ * Product image upload.
+ *
+ * The storage path is decided by the SERVER, not here. This used to build
+ * `${clientId}/${productId}/${file}` in the browser and write straight to Supabase with
+ * the anon key -- which put the tenant boundary in the client's hands. The anon key
+ * carries no identity, so no storage policy could check it either: any client could name
+ * another boutique's folder and write into it.
+ *
+ * Now the flow is:
+ *   1. ask the backend to prepare an upload  (it derives the path from the JWT's tenant)
+ *   2. PUT the bytes to the signed URL it returns (single-use, scoped to that exact path)
+ *   3. register the image, echoing back the path the SERVER generated
+ *
+ * The frontend never sees or supplies a clientId, which is why uploadImageFile no longer
+ * takes one -- and because the signed URL is already fully authorised, the upload is a
+ * plain PUT. That removes the last reason for this app to hold Supabase credentials at
+ * all: VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are no longer needed, so the anon key
+ * is no longer published in the JavaScript bundle.
+ */
+export async function uploadImageFile(productId: string, file: File, opts: {
   isPrimary?: boolean;
   altText?: string;
   imageType?: 'COVER' | 'GALLERY' | 'RAW_UPLOAD';
   orderIndex?: number;
 } = {}) {
-  const timestamp = Date.now();
-  const fileName = `${timestamp}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-  const storagePath = `${clientId}/${productId}/${fileName}`;
+  // 1. Server computes the path and signs a one-time upload for it.
+  const prepared: any = await api.post(`/products/${productId}/images/upload-url`, {
+    fileName: file.name
+  });
+  const { storagePath, signedUrl, publicUrl } = prepared?.data ?? prepared;
 
-  const { error: uploadError } = await supabase.storage
-    .from('inventory-images')
-    .upload(storagePath, file, { cacheControl: '3600', upsert: false });
-
-  if (uploadError) {
-    throw new Error(uploadError.message || 'Failed to upload image to storage');
+  if (!storagePath || !signedUrl) {
+    throw new Error('Could not prepare the upload. Please try again.');
   }
 
-  const { data: publicUrlData } = supabase.storage.from('inventory-images').getPublicUrl(storagePath);
-  const url = publicUrlData.publicUrl;
+  // 2. The signed URL carries its own authorisation for this one path, so this is a plain
+  //    PUT with no credentials attached. `api` is deliberately not used here: it points at
+  //    our own backend and would attach session cookies to a third-party origin.
+  const putResponse = await axios.put(signedUrl, file, {
+    headers: { 'Content-Type': file.type || 'application/octet-stream' },
+    validateStatus: () => true
+  });
 
-  const payload = {
-    url,
+  if (putResponse.status < 200 || putResponse.status >= 300) {
+    throw new Error(`Failed to upload image to storage (HTTP ${putResponse.status})`);
+  }
+
+  // 3. Register it. storagePath is the server's own value round-tripped; addImage
+  //    additionally rejects any path outside this tenant + product prefix.
+  return api.post(`/products/${productId}/images`, {
+    url: publicUrl,
     storagePath,
     fileName: file.name,
     fileSize: file.size,
@@ -34,9 +60,7 @@ export async function uploadImageFile(productId: string, clientId: string, file:
     isPrimary: opts.isPrimary || false,
     imageType: opts.imageType || 'GALLERY',
     orderIndex: opts.orderIndex ?? 0
-  };
-
-  return api.post(`/products/${productId}/images`, payload);
+  });
 }
 
 // Converts a base64 data: URL (e.g. from the Catalog Try-On generator) into a File

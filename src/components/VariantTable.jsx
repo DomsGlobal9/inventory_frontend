@@ -9,8 +9,11 @@ import { LocationSettingsModal } from './LocationSettingsModal';
 import { useVariants, useBulkCreateVariants, useDeleteVariant, useUpdateVariant } from '../hooks/useVariants';
 import { useCatalogData } from '../hooks/useCatalogConfig';
 import { useLocationContext } from '../contexts/LocationContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function VariantTable({ productId, productName, highlightVariantId }) {
+  // Stamped into the barcode-label PDF metadata; must be the real tenant.
+  const { clientId } = useAuth();
   const { data, isLoading, isError } = useVariants(productId);
   const deleteMutation = useDeleteVariant(productId);
   const bulkCreateMutation = useBulkCreateVariants(productId);
@@ -308,7 +311,7 @@ export default function VariantTable({ productId, productName, highlightVariantI
         <LabelDocument
           variants={variantsToPrint}
           productName={productName}
-          clientId={import.meta.env.VITE_CLIENT_ID}
+          clientId={clientId}
           // Labels are physically applied at a location, so they must carry that
           // location's price when it overrides the variant's own.
           locationId={currentLocation?.id}

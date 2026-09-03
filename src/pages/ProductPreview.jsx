@@ -99,7 +99,7 @@ export default function ProductPreview() {
     // product's Images tab. Runs after the product exists so images can be scoped
     // under its productId in storage.
     const persistImages = async (productId) => {
-      const clientId = import.meta.env.VITE_CLIENT_ID || 'demo-client';
+      // No tenant here either -- the server owns the storage path.
       let orderIndex = 0;
 
       const generatedViews = productData.generatedGarmentViews || {};
@@ -108,7 +108,7 @@ export default function ProductPreview() {
         if (!dataUrl || !dataUrl.startsWith('data:')) continue;
         try {
           const file = dataUrlToFile(dataUrl, `${viewKey}.jpg`);
-          await uploadImageFile(productId, clientId, file, {
+          await uploadImageFile(productId, file, {
             isPrimary: orderIndex === 0,
             altText: `${productData.title} - ${viewKey} view`,
             imageType: 'GALLERY',
@@ -126,7 +126,7 @@ export default function ProductPreview() {
       const sourceFiles = Object.values(productData.sourceUploadFiles || {}).filter(Boolean);
       for (const file of sourceFiles) {
         try {
-          await uploadImageFile(productId, clientId, file, {
+          await uploadImageFile(productId, file, {
             isPrimary: orderIndex === 0,
             altText: hadGeneratedViews ? `${productData.title} - flat lay reference` : productData.title,
             imageType: hadGeneratedViews ? 'RAW_UPLOAD' : 'GALLERY',

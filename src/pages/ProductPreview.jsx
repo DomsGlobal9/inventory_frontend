@@ -20,6 +20,12 @@ export default function ProductPreview() {
   const { currentLocation } = useLocationContext();
   const [applyToAllLocations, setApplyToAllLocations] = useState(false);
   const [lightboxSrc, setLightboxSrc] = useState(null);
+  // Covers the WHOLE publish sequence, not just the create request. createMutation.isPending
+  // flips back to false the moment the product POST resolves, but the flow then goes on to
+  // create variants and upload every image -- around 20s in practice -- and during that
+  // window the button went live again with the product already created. A second click
+  // there produces a duplicate product.
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const createMutation = useCreateProduct();
   const updateMutation = useUpdateProduct();
@@ -62,7 +68,7 @@ export default function ProductPreview() {
   ];
   const canPublish = checklist.every(item => item.done);
 
-  const handlePublish = async () => {
+  const handlePublish = async ({ publish }) => {
     // `isPublished` is what product.mapper.ts reads to decide ACTIVE vs DRAFT, and nothing
     // in the app ever set it -- so every product created through this wizard was written as
     // DRAFT no matter what, and there is no other UI anywhere that can activate one
@@ -70,7 +76,11 @@ export default function ProductPreview() {
     // dashboard's "Active Products" card sitting permanently at 0 while the catalog filled
     // up. This button is the publish action -- reaching it means the checklist passed -- so
     // say so explicitly rather than relying on a flag that is never written.
-    const payload = { ...mapProductFormToApiPayload(productData), status: 'ACTIVE' };
+    const payload = {
+      ...mapProductFormToApiPayload(productData),
+      status: publish ? 'ACTIVE' : 'DRAFT'
+    };
+    setIsSubmitting(true);
 
     // Build variant payload from sizes x colors x units.
     // Takes the product code the BACKEND assigned, not the one in `payload`: the backend
@@ -156,10 +166,11 @@ export default function ProductPreview() {
         { id: productData.id, data: payload },
         {
           onSuccess: async () => {
-            await persistImages(productData.id);
+            try { await persistImages(productData.id); } finally { setIsSubmitting(false); }
             resetProductData();
             navigate('/products');
-          }
+          },
+          onError: () => setIsSubmitting(false)
         }
       );
     } else {
@@ -185,14 +196,21 @@ export default function ProductPreview() {
             await persistImages(newProductId);
           }
 
+          setIsSubmitting(false);
           resetProductData();
           navigate('/products');
-        }
+        },
+        onError: () => setIsSubmitting(false)
       });
     }
   };
 
-  const isPending = createMutation.isPending || updateMutation.isPending;
+  const isPending = isSubmitting || createMutation.isPending || updateMutation.isPending;
+  // A draft is a save-point, not a finished listing -- the whole reason to save one is that
+  // the product ISN'T ready yet. So it only needs enough to identify the product, matching
+  // how Shopify/Zoho let you park an incomplete item; the full checklist still gates
+  // Publish, which is what actually makes it sellable.
+  const canSaveDraft = Boolean(productData.title?.trim()) && Boolean(productData.category);
 
   const EyeOverlay = ({ src, alt }) => (
     <button
@@ -380,13 +398,30 @@ export default function ProductPreview() {
           <button
             className="btn-primary"
             style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}
-            onClick={handlePublish}
+            onClick={() => handlePublish({ publish: true })}
             disabled={isPending || !canPublish}
             title={!canPublish ? 'Complete the checklist above to publish' : undefined}
           >
             {isPending ? <Loader2 size={16} className="animate-spin" /> : null}
-            {isPending ? 'PUBLISHING...' : (productData.id ? 'UPDATE PRODUCT' : 'PUBLISH PRODUCT')}
+            {isPending ? 'SAVING...' : (productData.id ? 'UPDATE PRODUCT' : 'PUBLISH PRODUCT')}
           </button>
+
+          {/* Publishing was previously the only way out of this screen, so a product that
+              wasn't ready yet had to be either forced live or abandoned. Every inventory
+              tool of this kind (Shopify, Zoho, Katana) pairs the two: park it as a draft
+              now, publish when it's actually ready. Draft is also what the catalog already
+              models -- ProductStatus.DRAFT exists and is excluded from Active Products. */}
+          {!productData.id && (
+            <button
+              className="btn-secondary"
+              style={{ width: '100%', marginTop: '12px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}
+              onClick={() => handlePublish({ publish: false })}
+              disabled={isPending || !canSaveDraft}
+              title={!canSaveDraft ? 'Add a product name and category first' : 'Save without publishing -- it stays out of your active catalogue'}
+            >
+              SAVE AS DRAFT
+            </button>
+          )}
           
           <p style={{ textAlign: 'center', fontSize: '10px', color: 'var(--text-muted)', marginTop: '16px' }}>
             LAST SAVED: JUST NOW

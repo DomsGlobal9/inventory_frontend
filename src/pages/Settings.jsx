@@ -13,9 +13,12 @@ const SETTINGS_DOMAINS = [
   { id: 'CATALOG', label: 'Catalog Configuration', icon: Grid },
   { id: 'LOCATIONS', label: 'Stock Locations', icon: MapPin },
   { id: 'USERS', label: 'Team & Users', icon: Users },
-  { id: 'BILLING', label: 'Billing & Subscriptions', icon: CreditCard },
-  { id: 'API', label: 'API Credentials', icon: Key },
   { id: 'SUPPORT', label: 'Help & Support', icon: LifeBuoy },
+  // BILLING and API were shipped as navigable tabs whose only content was "This section is
+  // under construction", which reads to a paying customer as an unfinished product. Neither
+  // has an implementation behind it, and billing belongs to the platform tier rather than
+  // this module, so the entries are withdrawn until there is something real to show --
+  // restore them here alongside a body in the switch below.
 ];
 
 const CATALOG_TABS = [

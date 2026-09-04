@@ -408,15 +408,23 @@ function ReasonPanel({ title, icon: Icon, tone, lines, totalUnits, totalValue })
   );
 }
 
+/**
+ * The panel around these tables clips its overflow to keep its rounded corners, so a table
+ * wider than the panel loses its right-hand columns outright rather than scrolling to them --
+ * on a phone the location breakdown simply ended after "Net change". The scroll container
+ * belongs here, inside the clip.
+ */
 function SimpleTable({ head, rows }) {
   return (
+    <div style={{ overflowX: 'auto' }}>
     <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
       <thead>
         <tr>
           {head.map((h, i) => (
             <th key={h} style={{
               padding: '10px 20px', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em',
-              color: 'var(--text-muted)', fontWeight: 600, textAlign: i === 0 ? 'left' : 'right'
+              color: 'var(--text-muted)', fontWeight: 600, textAlign: i === 0 ? 'left' : 'right',
+              whiteSpace: 'nowrap'
             }}>{h}</th>
           ))}
         </tr>
@@ -435,5 +443,6 @@ function SimpleTable({ head, rows }) {
         ))}
       </tbody>
     </table>
+    </div>
   );
 }

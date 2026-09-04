@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, ArrowLeft } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useProduct } from '../context/ProductContext';
 import { useCatalogData } from '../hooks/useCatalogConfig';
 
@@ -341,7 +342,25 @@ export default function Measurements() {
         <button 
           className="btn-primary" 
           style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-          onClick={() => navigate('/add/upload')}
+          onClick={() => {
+            // Same gap as step 1: this advanced with no sizes, no colours and an empty
+            // stock matrix, despite the matrix being labelled required. Publishing is
+            // blocked at the preview either way, so the only thing the silence bought was
+            // a wasted trip through the photo step.
+            if (!productData.selectedSizes?.length) {
+              toast.error('Select at least one size before continuing.');
+              return;
+            }
+            if (!productData.selectedColors?.length) {
+              toast.error('Select at least one colour before continuing.');
+              return;
+            }
+            if (!(Number(productData.price) > 0)) {
+              toast.error('Set a base price before continuing.');
+              return;
+            }
+            navigate('/add/upload');
+          }}
         >
           CONTINUE TO UPLOAD
           <ChevronRight size={16} />

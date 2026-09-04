@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useProduct } from '../context/ProductContext';
 import { useCatalogData } from '../hooks/useCatalogConfig';
 import Dropdown from '../components/Dropdown';
@@ -137,7 +138,21 @@ export default function GeneralInfo() {
         <button 
           className="btn-primary" 
           style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-          onClick={() => navigate('/add/measurements')}
+          onClick={() => {
+            // Step 1 used to advance unconditionally. Title and category are both required
+            // by the backend's createProductSchema, so an empty name meant the user filled
+            // in sizes, colours, stock and photos across two more steps before the publish
+            // call came back 400 -- all of that work discarded for something knowable here.
+            if (!productData.title?.trim()) {
+              toast.error('Give the product a name before continuing.');
+              return;
+            }
+            if (!productData.category) {
+              toast.error('Choose a product category before continuing.');
+              return;
+            }
+            navigate('/add/measurements');
+          }}
         >
           CONTINUE
           <ChevronRight size={16} />

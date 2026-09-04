@@ -77,6 +77,11 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           
           <Route path="/add" element={<WizardLayout title="Add Your Product" subtitle="Create a new product and configure its details before publishing." />}>
+            {/* Without this, a bare /add matched the layout with no child to fill its
+                outlet: the wizard chrome rendered with an empty body and no way forward.
+                Reachable by refreshing or bookmarking on /add, since the "Add Product"
+                button navigates straight to /add/general and hides the gap. */}
+            <Route index element={<Navigate to="/add/general" replace />} />
             <Route path="general" element={<GeneralInfo />} />
             <Route path="measurements" element={<Measurements />} />
           </Route>

@@ -63,7 +63,14 @@ export default function ProductPreview() {
   const canPublish = checklist.every(item => item.done);
 
   const handlePublish = async () => {
-    const payload = mapProductFormToApiPayload(productData);
+    // `isPublished` is what product.mapper.ts reads to decide ACTIVE vs DRAFT, and nothing
+    // in the app ever set it -- so every product created through this wizard was written as
+    // DRAFT no matter what, and there is no other UI anywhere that can activate one
+    // (ProductDetails offers only Archive/Restore/Trash). The visible symptom was the
+    // dashboard's "Active Products" card sitting permanently at 0 while the catalog filled
+    // up. This button is the publish action -- reaching it means the checklist passed -- so
+    // say so explicitly rather than relying on a flag that is never written.
+    const payload = { ...mapProductFormToApiPayload(productData), status: 'ACTIVE' };
 
     // Build variant payload from sizes x colors x units.
     // Takes the product code the BACKEND assigned, not the one in `payload`: the backend

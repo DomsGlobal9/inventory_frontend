@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, ShoppingBag, Box, Users, Settings, Package, Truck, FileText, ArrowLeftRight, MapPin, LogOut, User, BookOpen, BarChart3 } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Box, Users, Settings, Package, Truck, FileText, ArrowLeftRight, LogOut, User, BookOpen, BarChart3 } from 'lucide-react';
 import { usePermission } from '../hooks/usePermission';
 import { useAuth } from '../context/AuthContext';
 

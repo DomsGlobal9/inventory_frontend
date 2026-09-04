@@ -445,7 +445,7 @@ export default function Signup() {
                 background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.02) 100%)',
                 borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center',
                 margin: '0 0 16px 0', color: '#e2c171',
-                boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.2), 0 8px 24px -4px rgba(0,0,0,0.5)',
+                boxShadow: 'var(--shadow-panel)',
                 border: '1px solid rgba(255,255,255,0.1)'
               }}>
                 {submitted ? <CheckCircle2 size={24} strokeWidth={1.5} /> : <Package size={24} strokeWidth={1.5} />}

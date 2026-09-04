@@ -89,7 +89,7 @@ export default function Login() {
         WebkitBackdropFilter: 'blur(32px)',
         borderRadius: '24px',
         border: '1px solid rgba(255, 255, 255, 0.06)',
-        boxShadow: '0 32px 64px -12px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+        boxShadow: 'var(--shadow-panel)',
         animation: 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
       }}>
         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
@@ -103,7 +103,7 @@ export default function Login() {
             justifyContent: 'center',
             margin: '0 auto 24px',
             color: '#e2c171',
-            boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.2), 0 8px 24px -4px rgba(0,0,0,0.5)',
+            boxShadow: 'var(--shadow-panel)',
             border: '1px solid rgba(255,255,255,0.1)'
           }}>
             <Package size={32} strokeWidth={1.5} />

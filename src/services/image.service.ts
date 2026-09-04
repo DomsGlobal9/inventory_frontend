@@ -42,7 +42,13 @@ export async function uploadImageFile(productId: string, file: File, opts: {
   //    our own backend and would attach session cookies to a third-party origin.
   const putResponse = await axios.put(signedUrl, file, {
     headers: { 'Content-Type': file.type || 'application/octet-stream' },
-    validateStatus: () => true
+    validateStatus: () => true,
+    // This is a plain axios call, so it does not inherit the shared client's timeout and
+    // had none of its own -- an upload that stalled against storage never settled, and the
+    // publish sequence awaiting it hung for ever with the product already created.
+    // Longer than the API timeout because this is bytes over the wire on whatever
+    // connection the shop has, not a JSON round trip.
+    timeout: 120000
   });
 
   if (putResponse.status < 200 || putResponse.status >= 300) {

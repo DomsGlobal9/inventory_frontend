@@ -37,7 +37,7 @@ export default function ImageLightbox({ src, alt, onClose }) {
             style={{
               maxWidth: '100%', maxHeight: '100%',
               objectFit: 'contain', borderRadius: '8px',
-              boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+              boxShadow: 'var(--shadow-panel)',
               cursor: 'default'
             }}
           />

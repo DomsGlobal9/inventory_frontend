@@ -273,7 +273,7 @@ export default function CatalogManager({ type }) {
           <div style={{
             background: 'var(--bg-card)', width: '100%', maxWidth: '400px',
             borderRadius: '16px', border: '1px solid var(--border-light)',
-            boxShadow: '0 24px 48px rgba(0,0,0,0.2)', padding: '24px',
+            boxShadow: 'var(--shadow-modal)', padding: '24px',
             display: 'flex', flexDirection: 'column', gap: '20px'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

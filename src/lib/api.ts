@@ -8,6 +8,18 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
   withCredentials: true, // Required to send HttpOnly cookies
+  // No timeout was set, so axios defaulted to none and every request in the app could hang
+  // for ever. That is not theoretical: publishing a product created the product, then awaited
+  // an image upload that never settled, leaving the button spinning "SAVING..." on a page the
+  // user could not leave -- with the success toast already shown and the only apparent escape
+  // being to press publish again and create a duplicate.
+  //
+  // Deliberately generous rather than tight. This backend averages well over a second per
+  // round trip and some endpoints do real work per item (bulk variant creation, drafting a
+  // purchase order per supplier), so a short timeout would turn slow-but-working into
+  // broken. 90s is far longer than any healthy request here and still turns "hangs for ever"
+  // into an error the user can act on.
+  timeout: 90000
 });
 
 // Must match AuthContext.jsx's STORAGE_KEY — this used to be a different string
@@ -54,6 +66,22 @@ api.interceptors.response.use(
         window.location.href = '/login';
       }
     }
+    // A timeout has no error.response, so it would otherwise reject with a raw axios error
+    // whose message is "timeout of 90000ms exceeded" -- accurate, and meaningless to a shop
+    // owner. Give it the same { message } shape every caller already reads.
+    if (error.code === 'ECONNABORTED') {
+      return Promise.reject({
+        message: 'The server took too long to respond. Check your connection and try again.'
+      });
+    }
+
+    // Likewise for a request that never reached the server at all.
+    if (!error.response && error.code === 'ERR_NETWORK') {
+      return Promise.reject({
+        message: 'Could not reach the server. Check your connection and try again.'
+      });
+    }
+
     // Handle global API errors (e.g., 401 Unauthorized)
     return Promise.reject(error.response?.data || error);
   }

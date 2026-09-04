@@ -115,11 +115,19 @@ export default function ProductPreview() {
     // reference uploads to Supabase + the backend, so they show up together on the
     // product's Images tab. Runs after the product exists so images can be scoped
     // under its productId in storage.
+    // Snapshotted before anything resets the form, because uploads now continue after the
+    // user has left this screen and productData will have been cleared by then.
+    const imagePayload = {
+      title: productData.title,
+      generatedViews: productData.generatedGarmentViews || {},
+      sourceFiles: Object.values(productData.sourceUploadFiles || {}).filter(Boolean)
+    };
+
     const persistImages = async (productId) => {
       // No tenant here either -- the server owns the storage path.
       let orderIndex = 0;
 
-      const generatedViews = productData.generatedGarmentViews || {};
+      const generatedViews = imagePayload.generatedViews;
       for (const viewKey of VIEW_ORDER) {
         const dataUrl = generatedViews[viewKey];
         if (!dataUrl || !dataUrl.startsWith('data:')) continue;
@@ -127,7 +135,7 @@ export default function ProductPreview() {
           const file = dataUrlToFile(dataUrl, `${viewKey}.jpg`);
           await uploadImageFile(productId, file, {
             isPrimary: orderIndex === 0,
-            altText: `${productData.title} - ${viewKey} view`,
+            altText: `${imagePayload.title} - ${viewKey} view`,
             imageType: 'GALLERY',
             orderIndex: orderIndex++
           });
@@ -140,12 +148,12 @@ export default function ProductPreview() {
       // to produce them (RAW_UPLOAD). When there are none -- dress types the Try-On API
       // doesn't support -- these uploads *are* the product's photos (GALLERY).
       const hadGeneratedViews = orderIndex > 0;
-      const sourceFiles = Object.values(productData.sourceUploadFiles || {}).filter(Boolean);
+      const sourceFiles = imagePayload.sourceFiles;
       for (const file of sourceFiles) {
         try {
           await uploadImageFile(productId, file, {
             isPrimary: orderIndex === 0,
-            altText: hadGeneratedViews ? `${productData.title} - flat lay reference` : productData.title,
+            altText: hadGeneratedViews ? `${imagePayload.title} - flat lay reference` : imagePayload.title,
             imageType: hadGeneratedViews ? 'RAW_UPLOAD' : 'GALLERY',
             orderIndex: orderIndex++
           });
@@ -166,7 +174,16 @@ export default function ProductPreview() {
         { id: productData.id, data: payload },
         {
           onSuccess: async () => {
-            try { await persistImages(productData.id); } finally { setIsSubmitting(false); }
+            // Same reasoning as the create path: the product is already saved, so an image
+            // failure must not strand the user on this screen.
+            try {
+              await persistImages(productData.id);
+            } catch (err) {
+              console.error('Image upload failed after the product was updated:', err);
+              toast.error('The product was saved, but its images could not be uploaded. Add them from the product page.');
+            } finally {
+              setIsSubmitting(false);
+            }
             resetProductData();
             navigate('/products');
           },
@@ -192,13 +209,26 @@ export default function ProductPreview() {
             }
           }
 
-          if (newProductId) {
-            await persistImages(newProductId);
-          }
-
+          // Images are NOT awaited. The product and its variants already exist, so nothing
+          // below changes whether the publish succeeded -- and each image costs three round
+          // trips, of which asking storage to sign the upload alone measured ~13s here. With
+          // several images that is minutes of a frozen "SAVING..." button on a screen the
+          // user cannot leave, after the success toast has already appeared. Pressing publish
+          // again to escape would create a duplicate product.
+          //
+          // So the user is released immediately and the uploads finish in the background.
+          // persistImages reports its own failures and works off a snapshot, so clearing the
+          // form underneath it is safe.
           setIsSubmitting(false);
           resetProductData();
           navigate('/products');
+
+          if (newProductId) {
+            persistImages(newProductId).catch(err => {
+              console.error('Image upload failed after the product was created:', err);
+              toast.error('The product was created, but its images could not be uploaded. Add them from the product page.');
+            });
+          }
         },
         onError: () => setIsSubmitting(false)
       });

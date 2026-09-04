@@ -176,7 +176,8 @@ export default function TopNav({ onMenuClick }) {
             <Select 
               value={currentLocation?.id || ''} 
               onChange={(e) => setCurrentLocationId(e.target.value)}
-              style={{ background: 'transparent', border: 'none', outline: 'none', color: 'var(--text-primary)', fontSize: '14px', cursor: 'pointer' }}
+              variant="ghost"
+              style={{ width: '180px' }}
             >
               {locations.map(loc => (
                 <option key={loc.id} value={loc.id}>{loc.name} ({loc.code})</option>
@@ -245,7 +246,7 @@ export default function TopNav({ onMenuClick }) {
             <div style={{
               position: 'absolute', top: '48px', right: 0, width: '320px',
               background: 'var(--bg-card)', border: '1px solid var(--border-light)',
-              borderRadius: '8px', boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
+              borderRadius: '8px', boxShadow: 'var(--shadow-panel)',
               zIndex: 100, overflow: 'hidden', display: 'flex', flexDirection: 'column'
             }}>
               <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

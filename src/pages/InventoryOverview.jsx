@@ -58,8 +58,8 @@ export default function InventoryOverview() {
     <div className="mobile-no-scroll" style={{ display: 'flex', flexDirection: 'column', gap: '24px', height: '100%' }}>
       <div className="mobile-col" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexShrink: 0, gap: '16px' }}>
         <div>
-          <h1 style={{ fontSize: '28px', marginBottom: '4px', color: 'var(--text-primary)' }}>Inventory Overview</h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>Manage stock levels, valuations, and adjustments.</p>
+          <h1 style={{ fontSize: '32px', fontWeight: '600', letterSpacing: '-0.03em', marginBottom: '8px', color: 'var(--text-primary)' }}>Inventory Overview</h1>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '15px' }}>Manage stock levels, valuations, and adjustments.</p>
         </div>
         <div className="mobile-col" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           <button 
@@ -147,24 +147,24 @@ export default function InventoryOverview() {
                   <td style={{ textAlign: 'right' }}>₹{variant.averageCost?.toFixed(2)}</td>
                   <td style={{ textAlign: 'right', fontWeight: '500' }}>₹{variant.inventoryValue?.toFixed(2)}</td>
                   <td>
-                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                    <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
                       {can('inventory:receive') && (
-                        <button className="btn-secondary" style={{ padding: '4px 8px', fontSize: '12px', display: 'flex', gap: '4px' }} onClick={() => setModalState({ type: 'IN', variant })}>
-                          <Plus size={14} /> Receive
+                        <button title="Receive Stock" className="btn-icon" onClick={() => setModalState({ type: 'IN', variant })}>
+                          <Plus size={16} />
                         </button>
                       )}
                       {can('inventory:adjust') && (
-                        <button className="btn-secondary" style={{ padding: '4px 8px', fontSize: '12px', display: 'flex', gap: '4px' }} onClick={() => setModalState({ type: 'OUT', variant })}>
-                          <Minus size={14} /> Issue
+                        <button title="Issue Stock" className="btn-icon" onClick={() => setModalState({ type: 'OUT', variant })}>
+                          <Minus size={16} />
                         </button>
                       )}
                       {can('inventory:adjust') && (
-                        <button className="btn-secondary" style={{ padding: '4px 8px', fontSize: '12px', display: 'flex', gap: '4px' }} onClick={() => setModalState({ type: 'ADJUST', variant })}>
-                          <Settings2 size={14} /> Adjust
+                        <button title="Adjust Stock" className="btn-icon" onClick={() => setModalState({ type: 'ADJUST', variant })}>
+                          <Settings2 size={16} />
                         </button>
                       )}
-                      <button className="btn-secondary" style={{ padding: '4px 8px', fontSize: '12px', display: 'flex', gap: '4px' }} onClick={() => navigate(`/inventory/ledger?variantId=${variant.variantId}`)}>
-                        <History size={14} /> Ledger
+                      <button title="View Ledger" className="btn-icon" onClick={() => navigate(`/inventory/ledger?variantId=${variant.variantId}`)}>
+                        <History size={16} />
                       </button>
                     </div>
                   </td>

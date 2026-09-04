@@ -70,7 +70,7 @@ export default function Dropdown({ value, onChange, options, placeholder, classN
               zIndex: 100,
               maxHeight: '250px',
               overflowY: 'auto',
-              boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
+              boxShadow: 'var(--shadow-dropdown)',
               display: 'flex',
               flexDirection: 'column',
               gap: '4px'

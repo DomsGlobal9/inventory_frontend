@@ -224,7 +224,7 @@ export default function StockLocationsPage() {
           <div className="card" style={{
             position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
             width: '100%', maxWidth: '480px', zIndex: 101, padding: '32px',
-            boxShadow: '0 24px 48px rgba(0,0,0,0.2)', borderRadius: '16px'
+            boxShadow: 'var(--shadow-modal)', borderRadius: '16px'
           }}>
             <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '24px', color: 'var(--text-primary)' }}>
               {editingLocation ? 'Edit Location' : 'Create New Location'}

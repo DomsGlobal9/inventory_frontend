@@ -136,7 +136,7 @@ export default function VariantSearchModal({ isOpen, onClose, onSelect, supplier
           style={{
             backgroundColor: 'var(--bg-card)', borderRadius: '12px',
             width: '100%', maxWidth: '600px', border: '1px solid var(--border-light)',
-            boxShadow: '0 16px 48px rgba(0,0,0,0.4)', display: 'flex', flexDirection: 'column',
+            boxShadow: 'var(--shadow-modal)', display: 'flex', flexDirection: 'column',
             maxHeight: '70vh'
           }}
         >

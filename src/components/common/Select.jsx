@@ -25,6 +25,12 @@ const styles = `
     min-height: 40px;
   }
   
+  .custom-select-trigger.ghost {
+    background: transparent;
+    border-color: transparent;
+    padding: 4px 8px;
+  }
+  
   .custom-select-trigger:hover:not(.disabled) {
     border-color: var(--border-focus, rgba(255, 255, 255, 0.2));
   }
@@ -97,7 +103,7 @@ const styles = `
   }
 `;
 
-export default function Select({ value, onChange, children, className = '', style, disabled, required }) {
+export default function Select({ value, onChange, children, className = '', style, disabled, required, variant = 'default' }) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
 
@@ -139,7 +145,7 @@ export default function Select({ value, onChange, children, className = '', styl
         style={style}
       >
         <div 
-          className={`custom-select-trigger ${isOpen ? 'open' : ''} ${disabled ? 'disabled' : ''}`}
+          className={`custom-select-trigger ${isOpen ? 'open' : ''} ${disabled ? 'disabled' : ''} ${variant === 'ghost' ? 'ghost' : ''}`}
           onClick={() => !disabled && setIsOpen(!isOpen)}
         >
           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

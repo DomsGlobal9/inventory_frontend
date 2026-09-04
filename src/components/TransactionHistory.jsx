@@ -135,7 +135,7 @@ export default function TransactionHistory({ productId, onNewTransaction }) {
                   </div>
                   
                   {/* Content Card */}
-                  <div style={{ flex: 1, padding: '16px', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
+                  <div style={{ flex: 1, padding: '16px', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '8px', boxShadow: 'var(--shadow-panel)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <span style={{ fontSize: '15px', fontWeight: '700', color: color }}>

@@ -247,7 +247,7 @@ export default function SupplierDetails() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              style={{ backgroundColor: 'var(--bg-card)', borderRadius: '12px', padding: '32px', width: '100%', maxWidth: '500px', border: '1px solid var(--border-light)', position: 'relative', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}
+              style={{ backgroundColor: 'var(--bg-card)', borderRadius: '12px', padding: '32px', width: '100%', maxWidth: '500px', border: '1px solid var(--border-light)', position: 'relative', boxShadow: 'var(--shadow-panel)' }}
             >
               <button 
                 onClick={() => setShowEditModal(false)}

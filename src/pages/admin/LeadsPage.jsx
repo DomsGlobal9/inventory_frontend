@@ -21,16 +21,24 @@ const MANUAL_STATUSES = ['NEW', 'CONTACTED', 'QUALIFIED', 'REJECTED'];
 export default function LeadsPage() {
   const [statusFilter, setStatusFilter] = useState('');
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
   const [expandedId, setExpandedId] = useState(null);
   const [noteDrafts, setNoteDrafts] = useState({});
   const [credentials, setCredentials] = useState(null);
 
-  const { data, isLoading } = useAdminLeads({ status: statusFilter || undefined, search: search || undefined });
+  const { data, isLoading } = useAdminLeads({ status: statusFilter || undefined, search: search || undefined, page });
   const updateLead = useUpdateLead();
   const convertLead = useConvertLead();
 
   const leads = data?.data || [];
   const counts = data?.meta?.countsByStatus || {};
+  const totalPages = data?.meta?.totalPages || 1;
+  const total = data?.meta?.total ?? 0;
+
+  // Any change to what is being listed has to reset the page, or filtering while on page 3
+  // of an unfiltered list asks for page 3 of a one-page result and shows nothing.
+  const changeFilter = (next) => { setStatusFilter(next); setPage(1); };
+  const changeSearch = (next) => { setSearch(next); setPage(1); };
 
   const handleConvert = (lead) => {
     // Converting provisions a real workspace and issues credentials -- not something to do
@@ -112,17 +120,17 @@ export default function LeadsPage() {
           className="input-field"
           placeholder="Search name, business, email or phone..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => changeSearch(e.target.value)}
           style={{ flex: 1, minWidth: '260px' }}
         />
         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-          <FilterChip label={`All (${Object.values(counts).reduce((a, b) => a + b, 0)})`} active={!statusFilter} onClick={() => setStatusFilter('')} />
+          <FilterChip label={`All (${Object.values(counts).reduce((a, b) => a + b, 0)})`} active={!statusFilter} onClick={() => changeFilter('')} />
           {STATUSES.map(s => (
             <FilterChip
               key={s}
               label={`${s.charAt(0) + s.slice(1).toLowerCase()} (${counts[s] || 0})`}
               active={statusFilter === s}
-              onClick={() => setStatusFilter(statusFilter === s ? '' : s)}
+              onClick={() => changeFilter(statusFilter === s ? '' : s)}
             />
           ))}
         </div>
@@ -284,6 +292,39 @@ export default function LeadsPage() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--border-light)',
+          flexWrap: 'wrap', gap: '12px'
+        }}>
+          <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+            Showing {(page - 1) * 25 + 1}&ndash;{Math.min(page * 25, total)} of {total}
+          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <button
+              className="btn-secondary"
+              disabled={page <= 1}
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              style={{ opacity: page <= 1 ? 0.4 : 1, cursor: page <= 1 ? 'default' : 'pointer' }}
+            >
+              Previous
+            </button>
+            <span style={{ fontSize: '13px', color: 'var(--text-secondary)', minWidth: '90px', textAlign: 'center' }}>
+              Page {page} of {totalPages}
+            </span>
+            <button
+              className="btn-secondary"
+              disabled={page >= totalPages}
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              style={{ opacity: page >= totalPages ? 0.4 : 1, cursor: page >= totalPages ? 'default' : 'pointer' }}
+            >
+              Next
+            </button>
+          </div>
         </div>
       )}
     </div>

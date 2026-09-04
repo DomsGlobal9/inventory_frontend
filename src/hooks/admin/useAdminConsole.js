@@ -133,16 +133,24 @@ export const useAdminSetUserPassword = () => {
 // ─── SIGNUP LEADS ───
 
 export const useAdminLeads = (params = {}) => {
+  const page = params.page || 1;
   const query = new URLSearchParams();
   if (params.status) query.set('status', params.status);
   if (params.search) query.set('search', params.search);
+  // The list is newest-first and the server pages at 25. Without sending a page the older
+  // leads were simply unreachable -- a burst of new enquiries pushed genuine earlier ones
+  // off the only page the console could show, with nothing on screen to say more existed.
+  query.set('page', String(page));
   const qs = query.toString();
 
   return useQuery({
-    // params are part of the key so switching filter or search refetches rather than
-    // serving the previous filter's rows.
-    queryKey: ['admin', 'leads', params.status || 'ALL', params.search || ''],
+    // params are part of the key so switching filter, search or page refetches rather than
+    // serving the previous one's rows.
+    queryKey: ['admin', 'leads', params.status || 'ALL', params.search || '', page],
     queryFn: async () => (await api.get(`/admin/leads${qs ? `?${qs}` : ''}`)),
+    // Keeps the current rows on screen while the next page loads, instead of flashing the
+    // empty state between pages.
+    placeholderData: (prev) => prev,
     // A lead arriving is the one thing on this page worth seeing without a refresh --
     // same short poll as errors and tickets.
     refetchInterval: 25000

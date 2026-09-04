@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Plus, Trash2, Loader2, AlertCircle, Download, AlertTriangle, X, Copy, CheckCircle2, Printer, Info, Settings, Check } from 'lucide-react';
+import { Plus, Trash2, Loader2, AlertCircle, Download, AlertTriangle, X, Copy, CheckCircle2, Printer, Info, Settings, Check, Truck } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import Barcode from 'react-barcode';
@@ -10,6 +10,7 @@ import { useVariants, useBulkCreateVariants, useDeleteVariant, useUpdateVariant 
 import { useCatalogData } from '../hooks/useCatalogConfig';
 import { useLocationContext } from '../contexts/LocationContext';
 import { useAuth } from '../context/AuthContext';
+import VariantSuppliersPanel from './VariantSuppliersPanel';
 
 export default function VariantTable({ productId, productName, highlightVariantId }) {
   // Stamped into the barcode-label PDF metadata; must be the real tenant.
@@ -40,7 +41,10 @@ export default function VariantTable({ productId, productName, highlightVariantI
   const [deleteTarget, setDeleteTarget] = useState(null); // { id, sku }
   const [selectedVariants, setSelectedVariants] = useState([]); // array of variant ids
   const [isPrinting, setIsPrinting] = useState(false);
-  const [stockBreakdownVariant, setStockBreakdownVariant] = useState(null); // stores the variant object
+  const [stockBreakdownVariant, setStockBreakdownVariant] = useState(null);
+  // Which row has its supplier list open. One at a time: these each fetch, and several open
+  // at once is a burst of requests for something nobody reads side by side.
+  const [suppliersOpenFor, setSuppliersOpenFor] = useState(null); // stores the variant object
   const [locationSettingsVariant, setLocationSettingsVariant] = useState(null); // stores the variant object
 
   const { sizes: SIZES, colors: COLORS_PALETTE } = useCatalogData();
@@ -594,9 +598,9 @@ export default function VariantTable({ productId, productName, highlightVariantI
                 // scanned size/colour is obvious among its siblings.
                 const isScanned = !!highlightVariantId && v.id === highlightVariantId;
                 return (
+                  <React.Fragment key={v.id}>
                   <motion.tr
                     variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}
-                    key={v.id}
                     ref={isScanned ? scannedRowRef : undefined}
                     style={{
                       background: isScanned ? 'rgba(245, 158, 11, 0.14)' : (isSelected ? 'var(--bg-input)' : 'transparent'),
@@ -840,6 +844,13 @@ export default function VariantTable({ productId, productName, highlightVariantI
                           <Printer size={16} />
                         </button>
                         <button 
+                          onClick={() => setSuppliersOpenFor(suppliersOpenFor === v.id ? null : v.id)}
+                          style={{ color: suppliersOpenFor === v.id ? 'var(--accent-gold)' : 'var(--text-secondary)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px' }}
+                          title="Who supplies this item"
+                        >
+                          <Truck size={16} />
+                        </button>
+                        <button 
                           onClick={() => setLocationSettingsVariant(v)}
                           style={{ color: 'var(--text-secondary)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px' }}
                           title="Location Settings"
@@ -856,6 +867,20 @@ export default function VariantTable({ productId, productName, highlightVariantI
                       </div>
                     </td>
                   </motion.tr>
+
+                  {suppliersOpenFor === v.id && (
+                    <tr>
+                      {/* Spans the full table: the 11 data columns plus the leading
+                          checkbox column. */}
+                      <td colSpan={12} style={{ padding: 0, background: 'var(--bg-input)', borderBottom: '1px solid var(--border-light)' }}>
+                        <div style={{ padding: '10px 20px 0', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)' }}>
+                          Suppliers for {v.sku}
+                        </div>
+                        <VariantSuppliersPanel variantId={v.id} sku={v.sku} />
+                      </td>
+                    </tr>
+                  )}
+                  </React.Fragment>
                 );
               })}
             </tbody>

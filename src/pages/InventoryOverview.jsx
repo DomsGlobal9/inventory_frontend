@@ -8,6 +8,8 @@ import StockInModal from '../components/inventory/StockInModal';
 import StockOutModal from '../components/inventory/StockOutModal';
 import AdjustModal from '../components/inventory/AdjustModal';
 import { usePermission } from '../hooks/usePermission';
+import Select from '../components/common/Select';
+
 
 export default function InventoryOverview() {
   const navigate = useNavigate();
@@ -84,17 +86,17 @@ export default function InventoryOverview() {
           />
         </div>
         
-        <select className="input-field" style={{ width: '160px' }} value={filters.status} onChange={(e) => updateFilter('status', e.target.value)}>
+        <Select className="input-field" style={{ width: '160px' }} value={filters.status} onChange={(e) => updateFilter('status', e.target.value)}>
           <option value="">All Inventory</option>
           <option value="HEALTHY">🟢 Healthy</option>
           <option value="LOW_STOCK">🟡 Low Stock</option>
           <option value="OUT_OF_STOCK">🔴 Out of Stock</option>
           <option value="ARCHIVED">⚫ Archived</option>
-        </select>
+        </Select>
         
 
         <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px' }}>
-            <select className="input-field" style={{ width: '180px' }} value={`${filters.sortBy}-${filters.order}`} onChange={(e) => {
+            <Select className="input-field" style={{ width: '180px' }} value={`${filters.sortBy}-${filters.order}`} onChange={(e) => {
               const [sortBy, order] = e.target.value.split('-');
               setFilters(prev => ({ ...prev, sortBy, order }));
             }}>
@@ -104,7 +106,7 @@ export default function InventoryOverview() {
               <option value="inventoryValue-desc">Highest Value First</option>
               <option value="productTitle-asc">Product Name (A-Z)</option>
               <option value="sku-asc">SKU (A-Z)</option>
-            </select>
+            </Select>
         </div>
       </div>
 

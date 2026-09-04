@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { X, Minus, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStockOut, useInventoryMetadata } from '../../hooks/useInventory';
+import Select from '../common/Select';
+
 
 export default function StockOutModal({ variant, onClose }) {
   const { data: metadata } = useInventoryMetadata();
@@ -67,11 +69,11 @@ export default function StockOutModal({ variant, onClose }) {
 
           <div className="form-group">
             <label className="form-label">Reason</label>
-            <select className="input-field" value={formData.reason} onChange={e => setFormData({...formData, reason: e.target.value})} required>
+            <Select className="input-field" value={formData.reason} onChange={e => setFormData({...formData, reason: e.target.value})} required>
               {metadata?.inventoryReasons?.filter(r => ['SALE', 'DAMAGE', 'RETURN_TO_VENDOR', 'SAMPLE'].includes(r)).map(r => (
                 <option key={r} value={r}>{r.replace(/_/g, ' ')}</option>
               ))}
-            </select>
+            </Select>
           </div>
 
           <div className="mobile-stack-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>

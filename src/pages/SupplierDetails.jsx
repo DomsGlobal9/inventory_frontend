@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Edit, Mail, Phone, MapPin, Building, Calendar, FileText, IndianRupee, Clock, Package, X } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useUpdateSupplier } from '../hooks/useSuppliers';
+import SupplierProductsPanel from '../components/SupplierProductsPanel';
 import { api } from '../lib/api';
 import PageLoader from '../components/PageLoader';
 
@@ -153,6 +154,13 @@ export default function SupplierDetails() {
           </div>
         </motion.div>
       </div>
+
+      {/* What we buy from this supplier. Placed above purchase orders because it answers
+          the question people come to a supplier page with -- "what do we get from them, and
+          what needs reordering" -- whereas the PO list is history. */}
+      <motion.div variants={item} style={{ marginBottom: '24px' }}>
+        <SupplierProductsPanel supplierId={supplier.id} supplierName={supplier.name} />
+      </motion.div>
 
       {/* Recent Purchase Orders */}
       <motion.div variants={item} className="glass-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '400px' }}>

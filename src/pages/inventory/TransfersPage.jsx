@@ -6,6 +6,8 @@ import toast from 'react-hot-toast';
 import { useLocationContext } from '../../contexts/LocationContext';
 import { usePermission } from '../../hooks/usePermission';
 import { ArrowRight, Plus, Trash2 } from 'lucide-react';
+import Select from '../../components/common/Select';
+
 
 export default function TransfersPage() {
   const queryClient = useQueryClient();
@@ -133,12 +135,12 @@ export default function TransfersPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '16px', alignItems: 'center', marginBottom: '24px' }}>
             <div className="form-group">
               <label>Origin Location</label>
-              <select required className="input" value={formData.originLocationId} onChange={e => handleOriginChange(e.target.value)}>
+              <Select required className="input" value={formData.originLocationId} onChange={e => handleOriginChange(e.target.value)}>
                 <option value="">Select origin...</option>
                 {locations.map(loc => (
                   <option key={loc.id} value={loc.id}>{loc.name} ({loc.code})</option>
                 ))}
-              </select>
+              </Select>
             </div>
 
             <div style={{ paddingTop: '24px', color: 'var(--text-secondary)' }}>
@@ -147,12 +149,12 @@ export default function TransfersPage() {
 
             <div className="form-group">
               <label>Destination Location</label>
-              <select required className="input" value={formData.destinationLocationId} onChange={e => setFormData({...formData, destinationLocationId: e.target.value})}>
+              <Select required className="input" value={formData.destinationLocationId} onChange={e => setFormData({...formData, destinationLocationId: e.target.value})}>
                 <option value="">Select destination...</option>
                 {locations.filter(loc => loc.id !== formData.originLocationId).map(loc => (
                   <option key={loc.id} value={loc.id}>{loc.name} ({loc.code})</option>
                 ))}
-              </select>
+              </Select>
             </div>
           </div>
 
@@ -198,12 +200,12 @@ export default function TransfersPage() {
                   const available = availableFor(item.variantId);
                   return (
                     <div key={index} style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                      <select required className="input" value={item.variantId} onChange={e => updateItem(index, 'variantId', e.target.value)} style={{ flex: 1 }}>
+                      <Select required className="input" value={item.variantId} onChange={e => updateItem(index, 'variantId', e.target.value)} style={{ flex: 1 }}>
                         <option value="">Select a variant...</option>
                         {variants.map(v => (
                           <option key={v.variantId} value={v.variantId}>{v.sku} - {v.productTitle} ({v.quantity} available)</option>
                         ))}
-                      </select>
+                      </Select>
                       <div style={{ display: 'flex', flexDirection: 'column', width: '120px' }}>
                         <input
                           required

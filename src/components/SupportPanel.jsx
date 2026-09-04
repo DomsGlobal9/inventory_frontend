@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { LifeBuoy, Plus, ArrowLeft, Send, Loader2, Clock } from 'lucide-react';
 import { useSupportTickets, useSupportTicket, useCreateSupportTicket, useReplySupportTicket } from '../hooks/useSupportTickets';
+import Select from './common/Select';
+
 
 const STATUS_STYLE = {
   OPEN: { label: 'Open', color: 'var(--accent-danger)', bg: 'rgba(239, 68, 68, 0.1)' },
@@ -51,15 +53,15 @@ function NewTicketForm({ onDone }) {
       <div style={{ display: 'flex', gap: '12px' }}>
         <div style={{ flex: 1 }}>
           <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Category</label>
-          <select className="input-field" value={category} onChange={e => setCategory(e.target.value)}>
+          <Select className="input-field" value={category} onChange={e => setCategory(e.target.value)}>
             {CATEGORY_OPTIONS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-          </select>
+          </Select>
         </div>
         <div style={{ flex: 1 }}>
           <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Priority</label>
-          <select className="input-field" value={priority} onChange={e => setPriority(e.target.value)}>
+          <Select className="input-field" value={priority} onChange={e => setPriority(e.target.value)}>
             {PRIORITY_OPTIONS.map(p => <option key={p} value={p}>{p.charAt(0) + p.slice(1).toLowerCase()}</option>)}
-          </select>
+          </Select>
         </div>
       </div>
       <div>

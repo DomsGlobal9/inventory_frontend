@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useSalesOrders } from '../../hooks/useSalesOrders';
 import { Search, Filter } from 'lucide-react';
 import { formatINR } from '../../utils/formatUtils';
+import Select from '../../components/common/Select';
+
 
 export default function SalesOrders() {
   const navigate = useNavigate();
@@ -42,7 +44,7 @@ export default function SalesOrders() {
       <div style={{ display: 'flex', gap: '16px', flexShrink: 0 }}>
         <div style={{ position: 'relative', width: '200px' }}>
           <Filter size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-          <select 
+          <Select 
             className="input-field" 
             style={{ paddingLeft: '44px', width: '100%', appearance: 'none' }}
             value={statusFilter}
@@ -53,7 +55,7 @@ export default function SalesOrders() {
             <option value="CONFIRMED">Confirmed</option>
             <option value="PARTIALLY_DISPATCHED">Partially Dispatched</option>
             <option value="DISPATCHED">Dispatched</option>
-          </select>
+          </Select>
         </div>
       </div>
 

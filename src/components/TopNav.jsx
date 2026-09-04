@@ -8,6 +8,8 @@ import { useLocationContext } from '../contexts/LocationContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { MapPin } from 'lucide-react';
 import { useAlerts, useMarkAlertRead, useMarkAllAlertsRead, useTogglePinAlert, useDeleteAlert } from '../hooks/useAlerts';
+import Select from './common/Select';
+
 
 export default function TopNav({ onMenuClick }) {
   const navigate = useNavigate();
@@ -171,7 +173,7 @@ export default function TopNav({ onMenuClick }) {
         {locations.length > 0 && (
           <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-input)', border: '1px solid var(--border-light)', borderRadius: '8px', padding: '0 12px', height: '40px' }}>
             <MapPin size={16} color="var(--text-secondary)" style={{ marginRight: '8px' }} />
-            <select 
+            <Select 
               value={currentLocation?.id || ''} 
               onChange={(e) => setCurrentLocationId(e.target.value)}
               style={{ background: 'transparent', border: 'none', outline: 'none', color: 'var(--text-primary)', fontSize: '14px', cursor: 'pointer' }}
@@ -179,7 +181,7 @@ export default function TopNav({ onMenuClick }) {
               {locations.map(loc => (
                 <option key={loc.id} value={loc.id}>{loc.name} ({loc.code})</option>
               ))}
-            </select>
+            </Select>
           </div>
         )}
       </div>

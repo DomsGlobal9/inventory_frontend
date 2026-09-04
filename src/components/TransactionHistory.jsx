@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Plus, Filter, Download, ArrowUpRight, ArrowDownRight, Activity } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTransactions } from '../hooks/useTransactions';
+import Select from './common/Select';
+
 
 export default function TransactionHistory({ productId, onNewTransaction }) {
   const [filters, setFilters] = useState({
@@ -71,7 +73,7 @@ export default function TransactionHistory({ productId, onNewTransaction }) {
       <div className="mobile-col" style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--bg-input)', padding: '8px 16px', borderRadius: '4px', border: '1px solid var(--border-light)' }}>
           <Filter size={16} color="var(--text-secondary)" />
-          <select 
+          <Select 
             value={filters.type} 
             onChange={(e) => handleFilterChange('type', e.target.value)}
             style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', outline: 'none', cursor: 'pointer' }}
@@ -80,11 +82,11 @@ export default function TransactionHistory({ productId, onNewTransaction }) {
             <option value="IN">Stock In</option>
             <option value="OUT">Stock Out</option>
             <option value="ADJUSTMENT">Adjustment</option>
-          </select>
+          </Select>
         </div>
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--bg-input)', padding: '8px 16px', borderRadius: '4px', border: '1px solid var(--border-light)' }}>
-          <select 
+          <Select 
             value={filters.reason} 
             onChange={(e) => handleFilterChange('reason', e.target.value)}
             style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', outline: 'none', cursor: 'pointer' }}
@@ -97,7 +99,7 @@ export default function TransactionHistory({ productId, onNewTransaction }) {
             <option value="INITIAL_STOCK">Initial Stock</option>
             <option value="SUPPLIER_DELIVERY">Supplier Delivery</option>
             <option value="MANUAL_CORRECTION">Manual Correction</option>
-          </select>
+          </Select>
         </div>
       </div>
 

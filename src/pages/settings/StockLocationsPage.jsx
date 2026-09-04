@@ -4,6 +4,8 @@ import toast from 'react-hot-toast';
 import { Plus, Edit2, Trash2, MapPin, Search } from 'lucide-react';
 import { useLocationContext } from '../../contexts/LocationContext';
 import { usePermission } from '../../hooks/usePermission';
+import Select from '../../components/common/Select';
+
 
 export default function StockLocationsPage() {
   const [locations, setLocations] = useState([]);
@@ -239,11 +241,11 @@ export default function StockLocationsPage() {
               </div>
               <div className="form-group">
                 <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '8px' }}>Type</label>
-                <select className="input-field" value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})}>
+                <Select className="input-field" value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})}>
                   <option value="STORE">Retail Store</option>
                   <option value="WAREHOUSE">Warehouse</option>
                   <option value="ONLINE">Online / Virtual</option>
-                </select>
+                </Select>
               </div>
               
               <div style={{ 

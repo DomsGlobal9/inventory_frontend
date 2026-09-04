@@ -5,6 +5,8 @@ import { ArrowLeft, CheckCircle, AlertTriangle, Box, Truck, Edit3 } from 'lucide
 import { api } from '../../lib/api';
 import { usePermission } from '../../hooks/usePermission';
 import { invalidateDerivedViews } from '../../lib/invalidate';
+import Select from '../../components/common/Select';
+
 
 export default function ReturnDetail() {
   const { id } = useParams();
@@ -246,7 +248,7 @@ export default function ReturnDetail() {
                     <div style={{ fontWeight: 500 }}>{item.dispatchItem?.salesOrderItem?.variant?.sku}</div>
                     <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Qty: {item.quantity}</div>
                   </div>
-                  <select 
+                  <Select 
                     className="input-field" 
                     style={{ width: '150px' }}
                     value={inspectionData[item.id] || ''}
@@ -258,7 +260,7 @@ export default function ReturnDetail() {
                     <option value="RESTOCK">Restock (Add to Inventory)</option>
                     <option value="DAMAGED">Damaged</option>
                     <option value="SCRAP">Scrap</option>
-                  </select>
+                  </Select>
                 </div>
               ))}
             </div>

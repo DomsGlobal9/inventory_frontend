@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useCustomers } from '../../hooks/useCustomers';
 import { Search, Filter, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import Select from '../../components/common/Select';
+
 
 export default function Customers() {
   const navigate = useNavigate();
@@ -57,7 +59,7 @@ export default function Customers() {
         
         <div style={{ position: 'relative', width: '200px' }}>
           <Filter size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-          <select 
+          <Select 
             className="input-field" 
             style={{ paddingLeft: '44px', width: '100%', appearance: 'none' }}
             value={statusFilter}
@@ -67,7 +69,7 @@ export default function Customers() {
             <option value="ACTIVE">Active</option>
             <option value="INACTIVE">Inactive</option>
             <option value="ARCHIVED">Archived</option>
-          </select>
+          </Select>
         </div>
       </div>
 

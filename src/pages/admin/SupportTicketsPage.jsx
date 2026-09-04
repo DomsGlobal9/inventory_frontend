@@ -5,6 +5,8 @@ import {
   useAdminSupportTickets, useAdminSupportTicket, useAdminReplySupportTicket, useAdminUpdateTicketStatus
 } from '../../hooks/admin/useAdminConsole';
 import PageGuide from '../../components/admin/PageGuide';
+import Select from '../../components/common/Select';
+
 
 const STATUS_STYLE = {
   OPEN: { label: 'Open', color: 'var(--accent-danger)', bg: 'rgba(239, 68, 68, 0.1)' },
@@ -77,7 +79,7 @@ function TicketDetail({ ticketId, onBack }) {
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}>{ticket.clientId}</span>
           </div>
 
-          <select
+          <Select
             value={statusMutation.isPending && statusMutation.variables?.status ? statusMutation.variables.status : ticket.status}
             onChange={(e) => statusMutation.mutate({ ticketId, status: e.target.value })}
             disabled={statusMutation.isPending}
@@ -85,7 +87,7 @@ function TicketDetail({ ticketId, onBack }) {
             style={{ padding: '8px 12px', fontSize: '13px', borderRadius: '8px', background: 'var(--bg-input)', border: '1px solid var(--border-light)', color: 'var(--text-primary)', cursor: statusMutation.isPending ? 'not-allowed' : 'pointer', opacity: statusMutation.isPending ? 0.7 : 1 }}
           >
             {Object.keys(STATUS_STYLE).map(s => <option key={s} value={s}>Set as {STATUS_STYLE[s].label}</option>)}
-          </select>
+          </Select>
         </div>
       </div>
 

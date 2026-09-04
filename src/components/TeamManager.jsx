@@ -6,6 +6,8 @@ import {
   useSetTeamMemberStatus, useViewTeamMemberPassword, useSetTeamMemberPassword
 } from '../hooks/useTeam';
 import { buildCredentialMailto, buildCredentialWhatsapp } from '../lib/credentialShare';
+import Select from './common/Select';
+
 
 function RecentActivity({ onClose }) {
   const { data: events, isLoading } = useTeamActivity();
@@ -152,9 +154,9 @@ function InviteForm({ roles, onDone }) {
       </div>
       <div>
         <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Role</label>
-        <select className="input-field" value={roleId} onChange={e => setRoleId(e.target.value)}>
+        <Select className="input-field" value={roleId} onChange={e => setRoleId(e.target.value)}>
           {roles?.map(r => <option key={r.id} value={r.id}>{r.name.replace(/_/g, ' ')}</option>)}
-        </select>
+        </Select>
       </div>
       <div>
         <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Password</label>
@@ -355,7 +357,7 @@ export default function TeamManager() {
                       <div style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{m.email}</div>
                     </td>
                     <td style={{ padding: '10px 16px' }}>
-                      <select
+                      <Select
                         value={currentRoleId}
                         disabled={!canManageThisRow || updateRoleMutation.isPending}
                         onChange={(e) => updateRoleMutation.mutate({ userId: m.id, roleId: e.target.value })}
@@ -364,7 +366,7 @@ export default function TeamManager() {
                         title={disabledReason}
                       >
                         {roles?.map(r => <option key={r.id} value={r.id}>{r.name.replace(/_/g, ' ')}</option>)}
-                      </select>
+                      </Select>
                     </td>
                     <td style={{ padding: '10px 16px' }}>
                       <button

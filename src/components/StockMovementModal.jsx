@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useCreateTransaction } from '../hooks/useTransactions';
 import { useVariants } from '../hooks/useVariants';
 import toast from 'react-hot-toast';
+import Select from './common/Select';
+
 
 export default function StockMovementModal({ isOpen, onClose, productId }) {
   const { data: variantsData, isLoading: variantsLoading } = useVariants(productId);
@@ -66,7 +68,7 @@ export default function StockMovementModal({ isOpen, onClose, productId }) {
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '8px' }}>Select SKU</label>
-                <select 
+                <Select 
                   className="input-field" 
                   value={formData.variantId}
                   onChange={e => setFormData({ ...formData, variantId: e.target.value })}
@@ -76,13 +78,13 @@ export default function StockMovementModal({ isOpen, onClose, productId }) {
                   {variants.map(v => (
                     <option key={v.id} value={v.id}>{v.sku} ({v.size}, {v.colorName}) - Stock: {v.quantity}</option>
                   ))}
-                </select>
+                </Select>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '8px' }}>Type</label>
-                  <select 
+                  <Select 
                     className="input-field"
                     value={formData.type}
                     onChange={e => setFormData({ ...formData, type: e.target.value, reason: e.target.value === 'IN' ? 'PURCHASE' : e.target.value === 'OUT' ? 'SALE' : 'MANUAL_CORRECTION' })}
@@ -90,7 +92,7 @@ export default function StockMovementModal({ isOpen, onClose, productId }) {
                     <option value="IN">Stock IN</option>
                     <option value="OUT">Stock OUT</option>
                     <option value="ADJUSTMENT">Adjustment</option>
-                  </select>
+                  </Select>
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '8px' }}>Quantity</label>
@@ -107,7 +109,7 @@ export default function StockMovementModal({ isOpen, onClose, productId }) {
 
               <div>
                 <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '8px' }}>Reason</label>
-                <select 
+                <Select 
                   className="input-field"
                   value={formData.reason}
                   onChange={e => setFormData({ ...formData, reason: e.target.value })}
@@ -129,7 +131,7 @@ export default function StockMovementModal({ isOpen, onClose, productId }) {
                   {formData.type === 'ADJUSTMENT' && (
                     <option value="MANUAL_CORRECTION">Manual Correction</option>
                   )}
-                </select>
+                </Select>
               </div>
 
               <div>

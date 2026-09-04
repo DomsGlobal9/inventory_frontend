@@ -13,6 +13,8 @@ import { api } from '../lib/api';
 import PageLoader from '../components/PageLoader';
 import { useAuth } from '../context/AuthContext';
 import { buildWhatsAppUrl, buildPurchaseOrderMessage, toWhatsAppNumber } from '../utils/whatsappUtils';
+import Select from '../components/common/Select';
+
 
 export default function PurchaseOrderDetails() {
   const { id } = useParams();
@@ -208,6 +210,27 @@ export default function PurchaseOrderDetails() {
 
   if (isLoadingPO && !isNew) return <PageLoader text="Loading PO details..." />;
 
+  // Loading was the only state guarded here, so a PO that finished loading as nothing --
+  // deleted, belonging to another tenant, or simply a failed request -- fell straight
+  // through to `po.poNumber` below and took the whole page down to a blank screen with the
+  // real cause only visible in the console. A missing order is an ordinary thing to land on
+  // from a stale link or a back button; it deserves a sentence, not a crash.
+  if (!isNew && !po) {
+    return (
+      <div style={{ padding: '80px 24px', textAlign: 'center', color: 'var(--text-muted)' }}>
+        <h2 style={{ fontSize: '18px', color: 'var(--text-primary)', margin: '0 0 8px' }}>
+          Purchase order not found
+        </h2>
+        <p style={{ fontSize: '14px', margin: '0 0 24px' }}>
+          It may have been deleted, or the link is out of date.
+        </p>
+        <button className="btn-secondary" onClick={() => navigate('/inventory/purchase-orders')}>
+          Back to purchase orders
+        </button>
+      </div>
+    );
+  }
+
   const isReceivable = po && (po.status === 'SENT' || po.status === 'PARTIALLY_RECEIVED');
 
   return (
@@ -333,7 +356,7 @@ export default function PurchaseOrderDetails() {
                 same isNew-only rule. */}
             {isNew ? (
               <div>
-                <select 
+                <Select 
                   className="input-field"
                   value={formData.supplierId}
                   onChange={e => setFormData({...formData, supplierId: e.target.value})}
@@ -343,7 +366,7 @@ export default function PurchaseOrderDetails() {
                   {suppliers.map(s => (
                     <option key={s.id} value={s.id}>{s.name} ({s.supplierCode})</option>
                   ))}
-                </select>
+                </Select>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -537,10 +560,20 @@ export default function PurchaseOrderDetails() {
         </div>
 
       </motion.div>
+      {/* The picker needs to know who the order is for: with a supplier it opens on that
+          vendor's own items instead of an empty search box, and flags anything searched for
+          that they have never supplied. Read from formData rather than the saved PO so a
+          supplier just chosen on an unsaved draft takes effect immediately. */}
       <VariantSearchModal 
         isOpen={showVariantModal} 
         onClose={() => setShowVariantModal(false)}
         onSelect={handleAddVariant}
+        supplierId={formData.supplierId || po?.supplierId || null}
+        supplierName={
+          suppliers.find(s => s.id === (formData.supplierId || po?.supplierId))?.name
+          || po?.supplier?.name
+          || null
+        }
       />
       <ConfirmModal 
         isOpen={confirmState.isOpen}

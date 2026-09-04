@@ -60,3 +60,70 @@ export const useUpdateSupplier = () => {
     }
   });
 };
+
+// ─── SUPPLIER <-> PRODUCT CATALOGUE ───
+//
+// Which supplier sells which item. Both directions read the same relationship: the supplier
+// page asks "what do we buy from them", the product page asks "who do we buy this from".
+
+export const useSupplierProducts = (supplierId, search) => {
+  return useQuery({
+    queryKey: ['supplier-products', supplierId, search || ''],
+    queryFn: async () => {
+      const params = search ? { search } : undefined;
+      return (await api.get(`/suppliers/${supplierId}/products`, { params })).data;
+    },
+    enabled: Boolean(supplierId)
+  });
+};
+
+export const useVariantSuppliers = (variantId) => {
+  return useQuery({
+    queryKey: ['variant-suppliers', variantId],
+    queryFn: async () => (await api.get(`/variants/${variantId}/suppliers`)).data,
+    enabled: Boolean(variantId)
+  });
+};
+
+// Both sides of the relationship are cached separately, so every mutation has to clear both
+// or the page you are not looking at keeps showing a link that no longer exists.
+const invalidateBothSides = (queryClient) => {
+  queryClient.invalidateQueries({ queryKey: ['supplier-products'] });
+  queryClient.invalidateQueries({ queryKey: ['variant-suppliers'] });
+};
+
+export const useLinkSupplierProduct = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload) => (await api.post('/supplier-products', payload)).data,
+    onSuccess: () => {
+      invalidateBothSides(queryClient);
+      toast.success('Supplier link saved');
+    },
+    onError: (error) => toast.error(error?.message || 'Could not save the supplier link')
+  });
+};
+
+export const useUnlinkSupplierProduct = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id) => (await api.delete(`/supplier-products/${id}`)).data,
+    onSuccess: () => {
+      invalidateBothSides(queryClient);
+      toast.success('Supplier link removed');
+    },
+    onError: (error) => toast.error(error?.message || 'Could not remove the supplier link')
+  });
+};
+
+export const useSetPreferredSupplier = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id) => (await api.post(`/supplier-products/${id}/preferred`, {})).data,
+    onSuccess: () => {
+      invalidateBothSides(queryClient);
+      toast.success('Preferred supplier updated');
+    },
+    onError: (error) => toast.error(error?.message || 'Could not set the preferred supplier')
+  });
+};

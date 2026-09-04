@@ -6,6 +6,8 @@ import { useProducts } from '../hooks/useProducts';
 import { useProduct } from '../context/ProductContext';
 import BulkUpdateModal from '../components/BulkUpdateModal';
 import PageLoader from '../components/PageLoader';
+import Select from '../components/common/Select';
+
 
 export default function Products() {
   const navigate = useNavigate();
@@ -51,7 +53,7 @@ export default function Products() {
           <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>Manage your catalog, variants, and base pricing.</p>
         </div>
         <div className="mobile-col" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <select 
+          <Select 
             className="input-field" 
             style={{ width: '150px' }}
             value={statusFilter}
@@ -60,7 +62,7 @@ export default function Products() {
             <option value="">Active & Drafts</option>
             <option value="ARCHIVED">Archived</option>
             <option value="TRASHED">Trash</option>
-          </select>
+          </Select>
           <button 
             className="btn-secondary" 
             style={{ display: 'flex', alignItems: 'center', gap: '8px' }}

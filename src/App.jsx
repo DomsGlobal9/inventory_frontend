@@ -10,6 +10,7 @@ import ClientOverviewPage from './pages/admin/ClientOverviewPage';
 import UsersPage from './pages/admin/UsersPage';
 import OnboardingPage from './pages/admin/OnboardingPage';
 import LeadsPage from './pages/admin/LeadsPage';
+import DayBook from './pages/DayBook';
 import Signup from './pages/Signup';
 import InventoryHealthPage from './pages/admin/InventoryHealthPage';
 import AuditLogPage from './pages/admin/AuditLogPage';
@@ -125,6 +126,7 @@ function App() {
           <Route path="/inventory/ledger" element={<InventoryLedger />} />
           <Route path="/inventory/transfers" element={<TransfersPage />} />
           <Route path="/inventory" element={<InventoryOverview />} />
+          <Route path="/reports/daybook" element={<DayBook />} />
           <Route path="/customers" element={<Customers />} />
           <Route path="/customers/:id" element={<CustomerDetail />} />
           <Route path="/settings" element={<Settings />} />

@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, ShoppingBag, Box, Users, Settings, Package, Truck, FileText, ArrowLeftRight, MapPin, LogOut, User } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Box, Users, Settings, Package, Truck, FileText, ArrowLeftRight, MapPin, LogOut, User, BookOpen } from 'lucide-react';
 import { usePermission } from '../hooks/usePermission';
 import { useAuth } from '../context/AuthContext';
 
@@ -15,6 +15,8 @@ const NAV_ITEMS = [
   { name: 'Transfers', path: '/inventory/transfers', icon: ArrowLeftRight, permission: 'inventory:transfer' },
   { name: 'Purchase Orders', path: '/inventory/purchase-orders', icon: FileText, permission: 'purchase_order:view' },
   { name: 'Customers', path: '/customers', icon: Users, permission: 'customer:view' },
+  // Same permission as the dashboard: it shows the same facts, arranged by day.
+  { name: 'Day Book', path: '/reports/daybook', icon: BookOpen, permission: 'dashboard:view' },
   { name: 'Settings', path: '/settings', icon: Settings, permission: null },
 ];
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, ShoppingBag, Box, Users, Settings, Package, Truck, FileText, ArrowLeftRight, MapPin, LogOut, User, BookOpen } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Box, Users, Settings, Package, Truck, FileText, ArrowLeftRight, MapPin, LogOut, User, BookOpen, BarChart3 } from 'lucide-react';
 import { usePermission } from '../hooks/usePermission';
 import { useAuth } from '../context/AuthContext';
 
@@ -15,17 +15,28 @@ const NAV_ITEMS = [
   { name: 'Transfers', path: '/inventory/transfers', icon: ArrowLeftRight, permission: 'inventory:transfer' },
   { name: 'Purchase Orders', path: '/inventory/purchase-orders', icon: FileText, permission: 'purchase_order:view' },
   { name: 'Customers', path: '/customers', icon: Users, permission: 'customer:view' },
-  // Same permission as the dashboard: it shows the same facts, arranged by day.
+  // Same permission as the dashboard: these show the same facts, arranged by day and by value.
   { name: 'Day Book', path: '/reports/daybook', icon: BookOpen, permission: 'dashboard:view' },
+  { name: 'Reports', path: '/reports', icon: BarChart3, permission: 'dashboard:view' },
   { name: 'Settings', path: '/settings', icon: Settings, permission: null },
 ];
 
 export default function Sidebar({ isOpen }) {
   const location = useLocation();
+
   const { can } = usePermission();
   const { user, logout } = useAuth();
 
   const navItems = NAV_ITEMS.filter((item) => can(item.permission));
+
+  // The longest nav path that the current URL sits under. Exact match first, then a match on
+  // a path segment boundary so /reportsomething never counts as being under /reports.
+  const matches = navItems.filter(i =>
+    i.path === '/'
+      ? location.pathname === '/'
+      : location.pathname === i.path || location.pathname.startsWith(i.path + '/')
+  );
+  const activePath = matches.reduce((best, i) => (i.path.length > best.length ? i.path : best), '');
 
   return (
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
@@ -46,13 +57,19 @@ export default function Sidebar({ isOpen }) {
       <nav style={{ flex: 1, minHeight: 0, padding: '24px 0', display: 'flex', flexDirection: 'column', gap: '8px', overflowY: 'auto' }}>
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = item.path === '/'
-            ? location.pathname === '/'
-            : location.pathname.startsWith(item.path);
+          // Only the most specific match lights up. A plain startsWith would highlight
+          // "Reports" as well as "Day Book" while sitting on /reports/daybook, since one
+          // path is a prefix of the other.
+          const isActive = item.path === activePath;
 
           return (
             <NavLink
               key={item.name}
+              // `end` stops react-router adding its own "active" class on a prefix match.
+              // Without it both "Inventory" and "Transfers" light up on /inventory/transfers,
+              // and both "Reports" and "Day Book" on /reports/daybook, whatever this
+              // component decides. Which single item is lit is settled by activePath above.
+              end
               to={item.path}
               className={`nav-link ${isActive ? 'active' : ''}`}
             >

@@ -118,6 +118,9 @@ function App() {
           <Route path="/inventory/suppliers" element={<PurchaseOrders />} />
           <Route path="/inventory/suppliers/:id" element={<SupplierDetails />} />
           <Route path="/inventory/purchase-orders" element={<PurchaseOrders />} />
+          {/* Rendered by PurchaseOrders, which picks its tab from the path -- same pattern
+              as /inventory/suppliers. */}
+          <Route path="/inventory/reorder" element={<PurchaseOrders />} />
           <Route path="/inventory/purchase-orders/:id" element={<PurchaseOrderDetails />} />
           <Route path="/inventory/ledger" element={<InventoryLedger />} />
           <Route path="/inventory/transfers" element={<TransfersPage />} />

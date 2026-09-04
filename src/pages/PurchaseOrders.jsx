@@ -1,17 +1,21 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FileText, Plus, Search, MoreVertical, Building2, Calendar, Package, Truck } from 'lucide-react';
+import { FileText, Plus, Search, MoreVertical, Building2, Calendar, Package, Truck, RefreshCw } from 'lucide-react';
 import { usePurchaseOrders } from '../hooks/usePurchaseOrders';
 import PageLoader from '../components/PageLoader';
 import Suppliers from './Suppliers';
+import ReorderSuggestions from './ReorderSuggestions';
 import { usePermission } from '../hooks/usePermission';
 
 export default function PurchaseOrders() {
   const location = useLocation();
   const navigate = useNavigate();
   const { can } = usePermission();
-  const activeTab = location.pathname.startsWith('/inventory/suppliers') ? 'suppliers' : 'orders';
+  const activeTab =
+    location.pathname.startsWith('/inventory/suppliers') ? 'suppliers'
+    : location.pathname.startsWith('/inventory/reorder') ? 'reorder'
+    : 'orders';
   const canSeeSuppliers = can('supplier:view');
 
   return (
@@ -49,10 +53,29 @@ export default function PurchaseOrders() {
             Suppliers
           </button>
         )}
+        {/* Sits with orders and suppliers because it is where an order starts: what is low,
+            who supplies it, one action to draft the orders. */}
+        <button
+          onClick={() => navigate('/inventory/reorder')}
+          className="btn-tab"
+          style={{
+            display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px',
+            border: 'none', background: 'none', cursor: 'pointer',
+            fontSize: '14px', fontWeight: activeTab === 'reorder' ? '600' : '500',
+            color: activeTab === 'reorder' ? 'var(--text-primary)' : 'var(--text-secondary)',
+            borderBottom: activeTab === 'reorder' ? '2px solid var(--accent-gold)' : '2px solid transparent',
+            marginBottom: '-1px'
+          }}
+        >
+          <RefreshCw size={16} />
+          Reorder
+        </button>
       </div>
 
-      <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-        {activeTab === 'suppliers' && canSeeSuppliers ? <Suppliers /> : <PurchaseOrdersList />}
+      <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+        {activeTab === 'reorder' ? <ReorderSuggestions />
+          : activeTab === 'suppliers' && canSeeSuppliers ? <Suppliers />
+          : <PurchaseOrdersList />}
       </div>
     </div>
   );

@@ -3,7 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { usePurchaseOrder, useCreatePurchaseOrder, useUpdatePurchaseOrderStatus, useReceiveGoods } from '../hooks/usePurchaseOrders';
 import { useSuppliers } from '../hooks/useSuppliers';
-import { ArrowLeft, CheckCircle2, Box, Truck, Plus, Save, Download, Loader2 } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Box, Truck, Plus, Save, Download, Loader2, MessageCircle } from 'lucide-react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import toast from 'react-hot-toast';
 import PurchaseOrderPDF from '../components/PurchaseOrderPDF';
@@ -11,6 +11,8 @@ import VariantSearchModal from '../components/VariantSearchModal';
 import ConfirmModal from '../components/ConfirmModal';
 import { api } from '../lib/api';
 import PageLoader from '../components/PageLoader';
+import { useAuth } from '../context/AuthContext';
+import { buildWhatsAppUrl, buildPurchaseOrderMessage, toWhatsAppNumber } from '../utils/whatsappUtils';
 
 export default function PurchaseOrderDetails() {
   const { id } = useParams();
@@ -19,6 +21,7 @@ export default function PurchaseOrderDetails() {
   
   const { data: po, isLoading: isLoadingPO } = usePurchaseOrder(isNew ? null : id);
   const { data: suppliers = [] } = useSuppliers();
+  const { user } = useAuth();
   const createPO = useCreatePurchaseOrder();
   const updateStatus = useUpdatePurchaseOrderStatus();
   const receiveGoods = useReceiveGoods();
@@ -159,6 +162,23 @@ export default function PurchaseOrderDetails() {
 
   const grandTotal = formData.items.reduce((sum, item) => sum + (item.orderedQty * item.unitPrice), 0);
 
+  // Built from the SAVED order rather than formData: this button only appears on a
+  // persisted DRAFT, and formData carries unsaved edits that the supplier would otherwise
+  // be told about before they exist on the order.
+  const whatsAppUrl = po && !isNew
+    ? buildWhatsAppUrl(
+        po.supplier?.phone,
+        buildPurchaseOrderMessage({
+          poNumber: po.poNumber,
+          supplierName: po.supplier?.name,
+          items: po.items || [],
+          total: po.totalAmount ?? grandTotal,
+          expectedDeliveryDate: po.expectedDeliveryDate,
+          senderName: user?.name
+        })
+      )
+    : null;
+
   // Approximates the margin this cost would leave against what the item actually sells
   // for -- not a full moving-average blend (that only happens for real once the PO is
   // received), just an early warning so the merchant isn't surprised after the fact.
@@ -224,6 +244,41 @@ export default function PurchaseOrderDetails() {
               }}>
                 {po.status.replace('_', ' ')}
               </span>
+              {/* Opens WhatsApp with the order pre-filled; the user presses Send. Placed
+                  before "Mark as Sent" because that is the real order of events -- send it,
+                  then record that you did. Disabled rather than hidden when the supplier has
+                  no usable number, so the reason is visible instead of the button just being
+                  missing. */}
+              {po.status === 'DRAFT' && (
+                whatsAppUrl ? (
+                  <a
+                    href={whatsAppUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-secondary"
+                    style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: '#25D366', borderColor: 'rgba(37, 211, 102, 0.4)' }}
+                    title={`Open WhatsApp chat with ${po?.supplier?.name || 'the supplier'}`}
+                  >
+                    <MessageCircle size={16} />
+                    Send on WhatsApp
+                  </a>
+                ) : (
+                  <button
+                    className="btn-secondary"
+                    disabled
+                    style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: 0.5, cursor: 'not-allowed' }}
+                    title={
+                      po?.supplier?.phone
+                        ? `${po.supplier.phone} is not a valid WhatsApp number -- add the country code on the supplier`
+                        : 'This supplier has no phone number saved'
+                    }
+                  >
+                    <MessageCircle size={16} />
+                    Send on WhatsApp
+                  </button>
+                )
+              )}
+
               {po.status === 'DRAFT' && (
                 <button 
                   onClick={handleMarkSent}

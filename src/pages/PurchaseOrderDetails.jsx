@@ -98,7 +98,12 @@ export default function PurchaseOrderDetails() {
     setConfirmState({
       isOpen: true,
       title: 'Mark Purchase Order as Sent',
-      message: 'This will mark the purchase order as sent to the supplier. Once marked as sent, the supplier is expected to fulfill this order.\n\nDo you want to continue?',
+      // Was: "This will mark the purchase order as sent to the supplier", which read as
+      // though pressing it delivered something. It never has -- it only moves the status,
+      // and until now there was no way to send a PO from the app at all. With a real send
+      // button beside it, the difference has to be stated rather than left for the user to
+      // discover when the supplier says they never received anything.
+      message: 'This only records that the order has been sent -- it does not deliver anything to the supplier.\n\nIf you have not sent it yet, use "Send on WhatsApp" first.\n\nOnce marked as sent, you can start receiving stock against this order.',
       confirmText: 'Confirm',
       onConfirm: async () => {
         await updateStatus.mutateAsync({ id, status: 'SENT' });

@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Loader2, TrendingUp, TrendingDown, ArrowLeftRight, AlertTriangle, CheckCircle2,
-  Calendar, MapPin, MessageCircle, Coffee
+  Calendar, MapPin, MessageCircle, Coffee, Download, Info
 } from 'lucide-react';
 import { useDayBook } from '../hooks/useDayBook';
 import { useLocationContext } from '../contexts/LocationContext';
 import { useAuth } from '../context/AuthContext';
 import { buildWhatsAppUrl } from '../utils/whatsappUtils';
+import { pdf } from '@react-pdf/renderer';
+import DayBookPDF from '../components/DayBookPDF';
 
 /**
  * One business day, closed off the way a shop owner closes a till.
@@ -32,7 +34,12 @@ const shiftKey = (key, days) => {
 export default function DayBook() {
   const [date, setDate] = useState('');       // '' means today, resolved server-side
   const [locationId, setLocationId] = useState('');
-  const { data, isLoading, isError, error } = useDayBook(date || undefined, locationId || undefined);
+  const [printing, setPrinting] = useState(false);
+  // isFetching, not just isLoading: placeholderData keeps the previous day on screen while a
+  // new one loads, so between clicking a date and the answer arriving the page shows one day's
+  // figures. Exporting during that window produced a PDF of the day you had just navigated
+  // away from, named after it too, with nothing on screen to suggest anything was wrong.
+  const { data, isLoading, isFetching, isError, error } = useDayBook(date || undefined, locationId || undefined);
   // Reuses the locations the app already loaded for its header selector rather than
   // fetching them again for a dropdown.
   const { locations = [] } = useLocationContext();
@@ -82,6 +89,40 @@ export default function DayBook() {
 
   const waUrl = buildWhatsAppUrl(user?.phone || '0000000000', summaryText);
 
+  // The document is built only when it is asked for. A PDFDownloadLink renders the whole PDF
+  // on every page render, so it would rebuild each time the date or location changes, for a
+  // file most visits never download.
+  const downloadPdf = async () => {
+    if (!d || printing || isFetching) return;
+    setPrinting(true);
+    let url;
+    try {
+      const blob = await pdf(
+        <DayBookPDF
+          day={d}
+          heading={heading}
+          businessName={d.businessName || user?.clientName || ''}
+          locationName={locations.find(l => l.id === locationId)?.name || ''}
+          generatedBy={user?.name || ''}
+        />
+      ).toBlob();
+      url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `day-book-${shownDate}${locationId ? '-' + (locations.find(l => l.id === locationId)?.code || 'location') : ''}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (err) {
+      console.error('Day book PDF failed', err);
+      alert('Could not build the PDF. Please try again.');
+    } finally {
+      // Revoking immediately can cancel the download in some browsers, so it is deferred.
+      if (url) setTimeout(() => URL.revokeObjectURL(url), 10000);
+      setPrinting(false);
+    }
+  };
+
   return (
     <div style={{ paddingBottom: '40px' }}>
       {/* ── Header: date, location, share ───────────────────────────────── */}
@@ -125,6 +166,16 @@ export default function DayBook() {
               {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
             </select>
           </div>
+          <button className="btn-secondary" onClick={downloadPdf} disabled={printing || !d || isFetching}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '7px', fontSize: '13px',
+              opacity: (printing || isFetching) ? 0.55 : 1,
+              cursor: (printing || isFetching) ? 'not-allowed' : 'pointer'
+            }}
+            title={isFetching ? 'Waiting for this day to load' : 'Download this day as a PDF'}>
+            {(printing || isFetching) ? <Loader2 size={15} className="animate-spin" /> : <Download size={15} />}
+            {printing ? 'Preparing...' : 'PDF'}
+          </button>
           {waUrl && (
             <a href={waUrl} target="_blank" rel="noopener noreferrer" className="btn-secondary"
               style={{ display: 'flex', alignItems: 'center', gap: '7px', textDecoration: 'none', color: '#25D366', borderColor: 'rgba(37,211,102,0.4)', fontSize: '13px' }}
@@ -161,14 +212,20 @@ export default function DayBook() {
             <Figure label="Closing stock" units={d.closing.units} value={d.closing.value} strong />
           </div>
 
+          {/* Three states, not two. `balanced` is null when there is no independent record to
+              check against -- a day before the shop's first movement, say -- and treating that
+              as false told the owner their books were broken when nothing was wrong. Silence
+              is the honest answer there, so the page makes no claim either way. */}
           <div style={{
             marginTop: '18px', paddingTop: '16px', borderTop: '1px solid var(--border-light)',
             display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px',
-            color: d.balanced ? 'var(--accent-success)' : 'var(--accent-danger)'
+            color: d.balanced === true ? 'var(--accent-success)'
+              : d.balanced === false ? 'var(--accent-danger)'
+              : 'var(--text-muted)'
           }}>
-            {d.balanced
-              ? <><CheckCircle2 size={15} /> The books balance for this day.</>
-              : <><AlertTriangle size={15} /> These figures do not add up — treat them as unreliable and tell support.</>}
+            {d.balanced === true && <><CheckCircle2 size={15} /> The books balance for this day.</>}
+            {d.balanced === false && <><AlertTriangle size={15} /> These figures do not add up — treat them as unreliable and tell support.</>}
+            {d.balanced === null && <><Info size={15} /> There is no separate record for this day to check these totals against.</>}
           </div>
         </motion.div>
       )}

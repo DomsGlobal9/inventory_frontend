@@ -129,3 +129,50 @@ export const useAdminSetUserPassword = () => {
     onError: (error) => toast.error(error?.message || 'Failed to set password')
   });
 };
+
+// ─── SIGNUP LEADS ───
+
+export const useAdminLeads = (params = {}) => {
+  const query = new URLSearchParams();
+  if (params.status) query.set('status', params.status);
+  if (params.search) query.set('search', params.search);
+  const qs = query.toString();
+
+  return useQuery({
+    // params are part of the key so switching filter or search refetches rather than
+    // serving the previous filter's rows.
+    queryKey: ['admin', 'leads', params.status || 'ALL', params.search || ''],
+    queryFn: async () => (await api.get(`/admin/leads${qs ? `?${qs}` : ''}`)),
+    // A lead arriving is the one thing on this page worth seeing without a refresh --
+    // same short poll as errors and tickets.
+    refetchInterval: 25000
+  });
+};
+
+export const useUpdateLead = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...data }) => (await api.patch(`/admin/leads/${id}`, data)).data,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'leads'] });
+    },
+    onError: (error) => {
+      toast.error(error?.message || 'Failed to update lead');
+    }
+  });
+};
+
+export const useConvertLead = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...overrides }) => (await api.post(`/admin/leads/${id}/convert`, overrides)).data,
+    onSuccess: () => {
+      // Converting creates a real workspace, so the Clients list is stale too.
+      queryClient.invalidateQueries({ queryKey: ['admin', 'leads'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'clients'] });
+    },
+    onError: (error) => {
+      toast.error(error?.message || 'Failed to convert lead');
+    }
+  });
+};

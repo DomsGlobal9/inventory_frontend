@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Loader2, Mail, Lock, ArrowRight, Package, Building2, Eye, EyeOff } from 'lucide-react';
 
@@ -294,8 +294,16 @@ export default function Login() {
         </form>
         )}
 
-        <div style={{ textAlign: 'center', marginTop: '40px' }}>
-          <p style={{ fontSize: '13px', color: '#555555', letterSpacing: '0.02em' }}>
+        <div style={{ textAlign: 'center', marginTop: '32px' }}>
+          {/* The signup page is otherwise unreachable -- there is no marketing site linking
+              to it yet, so without this the form exists but nobody can find it. */}
+          <p style={{ fontSize: '13px', color: '#888888', margin: '0 0 16px' }}>
+            Don't have a workspace?{' '}
+            <Link to="/signup" style={{ color: '#e2c171', textDecoration: 'none', fontWeight: 500 }}>
+              Request access
+            </Link>
+          </p>
+          <p style={{ fontSize: '13px', color: '#555555', letterSpacing: '0.02em', margin: 0 }}>
             Secured by Scaleezy Gateway Authentication
           </p>
         </div>

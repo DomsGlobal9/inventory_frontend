@@ -1,12 +1,13 @@
 import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { Building2, Users, Rocket, HeartPulse, ScrollText, Bug, LifeBuoy, LogOut, ShieldCheck, Sun, Moon } from 'lucide-react';
+import { Building2, Users, Rocket, HeartPulse, ScrollText, Bug, LifeBuoy, LogOut, ShieldCheck, Sun, Moon, Inbox } from 'lucide-react';
 import { usePlatformAdmin } from '../context/PlatformAdminContext';
 import { useTheme } from '../contexts/ThemeContext';
 
 const NAV_ITEMS = [
   { name: 'Clients', path: '/platformconsole/clients', icon: Building2 },
   { name: 'Users', path: '/platformconsole/users', icon: Users },
+  { name: 'Leads', path: '/platformconsole/leads', icon: Inbox },
   { name: 'Onboarding', path: '/platformconsole/onboarding', icon: Rocket },
   { name: 'Inventory Health', path: '/platformconsole/health', icon: HeartPulse },
   { name: 'Errors', path: '/platformconsole/errors', icon: Bug },

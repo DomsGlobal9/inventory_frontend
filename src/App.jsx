@@ -9,6 +9,8 @@ import ClientsPage from './pages/admin/ClientsPage';
 import ClientOverviewPage from './pages/admin/ClientOverviewPage';
 import UsersPage from './pages/admin/UsersPage';
 import OnboardingPage from './pages/admin/OnboardingPage';
+import LeadsPage from './pages/admin/LeadsPage';
+import Signup from './pages/Signup';
 import InventoryHealthPage from './pages/admin/InventoryHealthPage';
 import AuditLogPage from './pages/admin/AuditLogPage';
 import ClientErrorsPage from './pages/admin/ClientErrorsPage';
@@ -50,6 +52,9 @@ function App() {
       <Router>
         <Routes>
         <Route path="/login" element={<Login />} />
+        {/* Public. Records a signup enquiry as a lead -- it creates no account and no
+            workspace, so it sits outside every auth boundary by design. */}
+        <Route path="/signup" element={<Signup />} />
 
         {/* Platform Admin console: entirely separate auth realm (its own cookie, its own
             login), scoped under its own PlatformAdminProvider so normal client sessions
@@ -62,6 +67,7 @@ function App() {
               <Route path="clients" element={<ClientsPage />} />
               <Route path="clients/:clientId" element={<ClientOverviewPage />} />
               <Route path="users" element={<UsersPage />} />
+              <Route path="leads" element={<LeadsPage />} />
               <Route path="onboarding" element={<OnboardingPage />} />
               <Route path="health" element={<InventoryHealthPage />} />
               <Route path="errors" element={<ClientErrorsPage />} />

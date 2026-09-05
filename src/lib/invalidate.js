@@ -16,7 +16,14 @@
  * navigation.
  *
  * Keys are matched by prefix, so ['reports'] covers reports/dead-stock,
- * reports/recent-transactions, reports/snapshots and reports/stock-movement.
+ * reports/recent-transactions, reports/snapshots and reports/stock-movement, and ['daybook']
+ * covers every date and location variant of it.
+ *
+ * Anything derived from stock belongs in this list. Three were missing and each failed the
+ * same way -- the screen was correct only once its own staleTime happened to expire:
+ * the day book (60s), whose whole purpose is today's running total; the reorder suggestions
+ * (30s), where a stale answer means reordering something that was just restocked; and the
+ * per-product variant tables, which show quantity and value per variant.
  */
 export function invalidateDerivedViews(queryClient) {
   const keys = [
@@ -26,18 +33,11 @@ export function invalidateDerivedViews(queryClient) {
     ['inventory-variants'],      // Inventory Overview rows
     ['inventory-transactions'],  // Inventory Ledger
     ['inventory'],               // alerts + inventory rollups
+    ['daybook'],                 // today's opening/in/out/closing, and the per-location split
+    ['reorder-suggestions'],     // what is below its reorder level, which stock changes decide
+    ['variants'],                // per-product variant tables, which show quantity and value
   ];
   keys.forEach((queryKey) => queryClient.invalidateQueries({ queryKey }));
-}
-
-/**
- * Anything that moves stock also moves money and alert state, so these two always travel
- * together. Callers that additionally own a specific resource (a PO, an order) should
- * invalidate that resource themselves as well.
- */
-export function invalidateAfterStockChange(queryClient) {
-  invalidateDerivedViews(queryClient);
-  queryClient.invalidateQueries({ queryKey: ['variants'] });
 }
 
 /**

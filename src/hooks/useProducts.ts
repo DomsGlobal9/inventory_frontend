@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getProducts, getProductById, createProduct, updateProduct, archiveProduct, trashProduct, restoreProduct, hardDeleteProduct } from '../services/product.service';
 import { queryKeys } from '../lib/queryKeys';
 import { toast } from 'react-hot-toast';
+import { invalidateDerivedViews } from '../lib/invalidate';
 
 export const useProducts = (params: any = {}) => {
   return useQuery({
@@ -36,6 +37,7 @@ export const useCreateProduct = () => {
     mutationFn: createProduct,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.products });
+      invalidateDerivedViews(queryClient); // active-product count + inventory value
       toast.success('Product created successfully');
     },
     onError: (error: any) => {
@@ -52,6 +54,7 @@ export const useUpdateProduct = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.products });
       queryClient.invalidateQueries({ queryKey: queryKeys.product(variables.id) });
+      invalidateDerivedViews(queryClient); // active-product count + inventory value
       toast.success('Product updated successfully');
     },
     onError: (error: any) => {
@@ -66,6 +69,7 @@ export const useArchiveProduct = () => {
     mutationFn: archiveProduct,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.products });
+      invalidateDerivedViews(queryClient); // active-product count + inventory value
       toast.success('Product archived successfully');
     },
     onError: (error: any) => {
@@ -80,6 +84,7 @@ export const useTrashProduct = () => {
     mutationFn: trashProduct,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.products });
+      invalidateDerivedViews(queryClient); // active-product count + inventory value
       toast.success('Product moved to trash');
     },
     onError: (error: any) => {
@@ -94,6 +99,7 @@ export const useRestoreProduct = () => {
     mutationFn: restoreProduct,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.products });
+      invalidateDerivedViews(queryClient); // active-product count + inventory value
       toast.success('Product restored successfully');
     },
     onError: (error: any) => {
@@ -108,6 +114,7 @@ export const useHardDeleteProduct = () => {
     mutationFn: hardDeleteProduct,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.products });
+      invalidateDerivedViews(queryClient); // active-product count + inventory value
       toast.success('Product permanently deleted');
     },
     onError: (error: any) => {

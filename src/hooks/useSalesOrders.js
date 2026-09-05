@@ -52,6 +52,10 @@ export const useCreateFullOrder = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sales-orders'] });
+      // This endpoint creates the order CONFIRMED when asked to, and a confirmed order
+      // reserves stock -- which changes what is available behind alerts and reorder
+      // suggestions. (The plain draft endpoint above cannot, so it stays as it is.)
+      invalidateDerivedViews(queryClient);
     },
     onError: showError('Could not create the order.')
   });

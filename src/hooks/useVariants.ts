@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getVariants, createVariant, bulkCreateVariants, bulkUpdateVariants, updateVariant, deleteVariant } from '../services/variant.service';
 import { queryKeys } from '../lib/queryKeys';
 import { toast } from 'react-hot-toast';
+import { invalidateDerivedViews } from '../lib/invalidate';
 
 export const useVariants = (productId: string) => {
   return useQuery({
@@ -19,6 +20,7 @@ export const useCreateVariant = (productId: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.variants(productId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.product(productId) });
+      invalidateDerivedViews(queryClient); // variant count + inventory value
       toast.success('Variant created successfully');
     },
     onError: (error: any) => {
@@ -36,6 +38,7 @@ export const useBulkCreateVariants = (productId: string) => {
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.variants(productId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.product(productId) });
+      invalidateDerivedViews(queryClient); // variant count + inventory value
       
       const res = data.data; // data unwrapped once in interceptor, but we return data wrapper in controller?
       // Wait, our axios interceptor returns response.data
@@ -65,6 +68,7 @@ export const useBulkUpdateVariants = () => {
       // Invalidate all variants and products since bulk update can affect many
       queryClient.invalidateQueries({ queryKey: ['variants'] });
       queryClient.invalidateQueries({ queryKey: queryKeys.products });
+      invalidateDerivedViews(queryClient); // variant count + inventory value
       
       const payload = data.data; // The returned data object
       
@@ -87,6 +91,7 @@ export const useUpdateVariant = (productId: string) => {
     mutationFn: ({ id, data }: { id: string; data: any }) => updateVariant(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.variants(productId) });
+      invalidateDerivedViews(queryClient); // variant count + inventory value
       toast.success('Variant updated successfully');
     },
     onError: (error: any) => {
@@ -103,6 +108,7 @@ export const useDeleteVariant = (productId: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.variants(productId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.product(productId) });
+      invalidateDerivedViews(queryClient); // variant count + inventory value
       toast.success('Variant deleted successfully');
     },
     onError: (error: any) => {

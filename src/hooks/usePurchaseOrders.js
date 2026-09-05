@@ -52,6 +52,9 @@ export const useUpdatePurchaseOrderStatus = () => {
       toast.success('PO status updated');
       queryClient.invalidateQueries({ queryKey: ['purchase-orders'] });
       queryClient.invalidateQueries({ queryKey: ['purchase-orders', variables.id] });
+      // Marking a draft as SENT moves its value into "money committed to orders", which
+      // counts SENT and PARTIALLY_RECEIVED, and into the day book's PO counts for the day.
+      invalidateDerivedViews(queryClient);
     },
     onError: (error) => {
       toast.error(error?.message || 'Failed to update PO status');

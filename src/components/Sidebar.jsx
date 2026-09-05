@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, ShoppingBag, Box, Users, Settings, Package, Truck, FileText, ArrowLeftRight, LogOut, User, BookOpen, BarChart3 } from 'lucide-react';
 import { usePermission } from '../hooks/usePermission';
@@ -38,6 +38,33 @@ export default function Sidebar({ isOpen }) {
   );
   const activePath = matches.reduce((best, i) => (i.path.length > best.length ? i.path : best), '');
 
+  // On a short window the nav list is taller than the space it has, so the last few entries
+  // sit below the fold behind a 6px scrollbar that is easy to miss entirely -- which meant
+  // Reports and Day Book looked as though they did not exist. Two small things fix that:
+  // the current page is scrolled into view, and a soft fade marks that the list continues.
+  const navRef = useRef(null);
+  const [edges, setEdges] = useState({ above: false, below: false });
+
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+    nav.querySelector('.nav-link.active')?.scrollIntoView({ block: 'nearest' });
+    const update = () => setEdges({
+      above: nav.scrollTop > 4,
+      below: nav.scrollHeight - nav.scrollTop - nav.clientHeight > 4
+    });
+    update();
+    nav.addEventListener('scroll', update, { passive: true });
+    const ro = new ResizeObserver(update);
+    ro.observe(nav);
+    return () => { nav.removeEventListener('scroll', update); ro.disconnect(); };
+  }, [activePath, navItems.length]);
+
+  const FADE = '28px';
+  const navMask = edges.above || edges.below
+    ? `linear-gradient(to bottom, ${edges.above ? 'transparent, #000 ' + FADE : '#000'}, ${edges.below ? '#000 calc(100% - ' + FADE + '), transparent' : '#000'})`
+    : undefined;
+
   return (
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       {/* Brand */}
@@ -54,7 +81,14 @@ export default function Sidebar({ isOpen }) {
           otherwise refuses to let this shrink below its content's natural height --
           without it, on a short viewport this pushes the footer chip below down past
           the last nav items instead of scrolling internally, crowding the two together. */}
-      <nav style={{ flex: 1, minHeight: 0, padding: '24px 0', display: 'flex', flexDirection: 'column', gap: '8px', overflowY: 'auto' }}>
+      <nav ref={navRef} style={{
+        flex: 1, minHeight: 0, padding: '24px 0', display: 'flex', flexDirection: 'column',
+        gap: '8px', overflowY: 'auto',
+        // Fades whichever end has more beyond it, rather than cutting off flat, so a clipped
+        // list reads as "there is more this way" instead of "this is the end". Both ends
+        // matter: scrolled down to reach Reports, Dashboard is hidden above just as silently.
+        maskImage: navMask
+      }}>
         {navItems.map((item) => {
           const Icon = item.icon;
           // Only the most specific match lights up. A plain startsWith would highlight

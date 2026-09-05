@@ -124,7 +124,7 @@ export default function DayBook() {
   };
 
   return (
-    <div style={{ paddingBottom: '40px' }}>
+    <div className="page-scroll">
       {/* ── Header: date, location, share ───────────────────────────────── */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '20px', flexWrap: 'wrap', marginBottom: '24px' }}>
         <div>

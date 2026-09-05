@@ -360,8 +360,29 @@ tr:hover td {
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 .animate-spin { animation: spin 1s linear infinite; }
 
+/* Long-form pages (Reports, Day Book).
+ *
+ * The shell deliberately gives html, body and .main-content `overflow: hidden` -- "zero
+ * global scroll" -- because the table-driven screens manage their own scrolling internally.
+ * A page that is simply a tall stack of panels has nothing to do that with, so its content
+ * below the fold was being clipped and was unreachable. This makes such a page its own
+ * scroll container instead of changing the shell, which the other screens depend on. */
+.page-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-bottom: 40px;
+}
+
 /* ─── Mobile Responsiveness ─── */
 @media (max-width: 768px) {
+  /* Below this width .main-content scrolls instead, so the page must not become a second,
+     nested scroll container inside it -- that traps the scroll and strands the footer. */
+  .page-scroll {
+    flex: none;
+    overflow-y: visible;
+  }
+
   .sidebar {
     position: fixed;
     z-index: 1000;

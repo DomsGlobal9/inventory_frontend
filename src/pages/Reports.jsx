@@ -65,7 +65,7 @@ export default function Reports() {
   const categoryTotal = (categories.data || []).reduce((a, r) => a + r.totalValue, 0);
 
   return (
-    <div style={{ paddingBottom: '40px' }}>
+    <div className="page-scroll">
       <div style={{ marginBottom: '24px' }}>
         <h1 style={{ fontSize: '26px', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--text-primary)', margin: '0 0 6px' }}>
           Reports

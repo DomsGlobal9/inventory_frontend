@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
-import { Settings as SettingsIcon, Tag, Palette, Scissors, Layers, Hexagon, Grid, ShoppingBag, Store, Users, CreditCard, Key, User as UserIcon, Mail, Shield, MapPin, Edit2, Save, X, LifeBuoy, Loader2, BookOpen } from 'lucide-react';
+import { Settings as SettingsIcon, Tag, Palette, Scissors, Layers, Hexagon, Grid, ShoppingBag, Store, Users, CreditCard, Key, User as UserIcon, Mail, Shield, MapPin, Edit2, Save, X, LifeBuoy, Loader2, BookOpen, Globe } from 'lucide-react';
 import CatalogManager from '../components/CatalogManager';
 import StockLocationsPage from './settings/StockLocationsPage';
 import DayBook from './DayBook';
+import StorefrontManager from '../components/StorefrontManager';
 import SupportPanel from '../components/SupportPanel';
 import TeamManager from '../components/TeamManager';
 import { useAuth } from '../context/AuthContext';
@@ -14,6 +15,7 @@ const SETTINGS_DOMAINS = [
   { id: 'CATALOG', label: 'Catalog Configuration', icon: Grid },
   { id: 'LOCATIONS', label: 'Stock Locations', icon: MapPin },
   { id: 'DAYBOOK', label: 'Day Book', icon: BookOpen },
+  { id: 'STOREFRONT', label: 'Storefront', icon: Globe },
   { id: 'USERS', label: 'Team & Users', icon: Users },
   { id: 'SUPPORT', label: 'Help & Support', icon: LifeBuoy },
   // BILLING and API were shipped as navigable tabs whose only content was "This section is
@@ -31,7 +33,7 @@ const SETTINGS_DOMAINS = [
  * chain had to be extended by hand every time a domain gained content -- and when Day Book was
  * added it was not, so the page rendered the day book AND the placeholder underneath it.
  */
-const IMPLEMENTED_DOMAINS = new Set(['GENERAL', 'CATALOG', 'LOCATIONS', 'DAYBOOK', 'USERS', 'SUPPORT']);
+const IMPLEMENTED_DOMAINS = new Set(['GENERAL', 'CATALOG', 'LOCATIONS', 'DAYBOOK', 'STOREFRONT', 'USERS', 'SUPPORT']);
 
 const CATALOG_TABS = [
   { id: 'SIZE', label: 'Sizes', icon: Scissors, description: 'Manage available sizes across your products' },
@@ -275,6 +277,12 @@ export default function Settings() {
           {/* The day book brings its own panels and its own scrolling, so unlike the sections
               above it is not wrapped in a card -- doing so would box a full page inside a box. */}
           {activeDomain === 'DAYBOOK' && <DayBook />}
+
+          {activeDomain === 'STOREFRONT' && (
+            <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '32px' }}>
+              <StorefrontManager />
+            </div>
+          )}
 
           {activeDomain === 'USERS' && (
             <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '32px' }}>

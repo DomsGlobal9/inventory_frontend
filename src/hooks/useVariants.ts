@@ -62,6 +62,18 @@ export const useBulkCreateVariants = (productId: string) => {
         toast.success(`Successfully created ${payload.created} variants.`);
       }
 
+      // The variant exists but its opening quantity did not apply. Different remedy from a
+      // failed create, so it gets its own message: adding the variant again would duplicate it.
+      if (payload.stockNotApplied?.length) {
+        const list = payload.stockNotApplied
+          .map((s: any) => `${s.sku} (${s.quantity})`).slice(0, 3).join(', ');
+        toast.error(
+          `Created, but no opening stock was added for: ${list}. ` +
+          `Set the quantity from the product page -- do not add these again.`,
+          { duration: 14000 }
+        );
+      }
+
       // The SKU it was given is not the SKU it asked for, so the user is told rather than
       // discovering it later on a label.
       if (payload.adjusted?.length) {
@@ -90,9 +102,21 @@ export const useBulkUpdateVariants = () => {
       invalidateDerivedViews(queryClient); // variant count + inventory value
       
       const payload = data.data; // The returned data object
-      
+
+      // Same reasoning as the create above, and it matters more here: this is the CSV import,
+      // so a row that did not apply is a stock quantity that never changed. Reporting that in
+      // green as "Skipped 2" let a spreadsheet half-apply and the levels drift, with no list
+      // of which rows to fix -- the modal closes and discards the parsed file on success.
       if (payload.skipped > 0) {
-        toast.success(`Updated ${payload.updated} variants. Skipped ${payload.skipped}.`);
+        const why = (payload.errors || [])
+          .map((e: any) => (e?.sku ? `${e.sku}: ${e.reason || 'not applied'}` : String(e?.reason || e)))
+          .slice(0, 4)
+          .join('; ');
+        toast.error(
+          `${payload.updated} of ${payload.updated + payload.skipped} rows applied. ` +
+          `${payload.skipped} failed${why ? ` -- ${why}` : ''}.`,
+          { duration: 12000 }
+        );
       } else {
         toast.success(`Successfully updated ${payload.updated} variants.`);
       }

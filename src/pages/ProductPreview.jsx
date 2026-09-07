@@ -200,7 +200,44 @@ export default function ProductPreview() {
 
           if (newProductId && variants.length > 0) {
             try {
-              await bulkCreateVariants(newProductId, variants, applyToAllLocations);
+              const res = await bulkCreateVariants(newProductId, variants, applyToAllLocations);
+
+              // A PARTIAL failure comes back as HTTP 200 with { created, skipped, errors },
+              // so it never reaches the catch below. That is how a customer published a
+              // product with two variants, got a green "Product created successfully", was
+              // navigated away, and only found one variant later: the one that failed was
+              // counted in a field nobody read.
+              const summary = res?.data || {};
+              const skipped = summary.skipped || 0;
+              if (skipped > 0) {
+                const why = (summary.errors || [])
+                  .map((e) => (e?.sku ? `${e.sku}: ${e.reason || 'could not be created'}` : String(e?.reason || e)))
+                  .slice(0, 3)
+                  .join('; ');
+                toast.error(
+                  `Product created, but ${skipped} of ${variants.length} variants did not save` +
+                  `${why ? ` -- ${why}` : ''}. Add them from the product page.`,
+                  { duration: 12000 }
+                );
+              }
+              // The variant exists but its opening quantity did not apply, so the advice is
+              // to set the quantity -- NOT to add the variant again, which would duplicate it.
+              if (summary.stockNotApplied?.length) {
+                const list = summary.stockNotApplied
+                  .map((s) => `${s.sku} (${s.quantity})`).slice(0, 3).join(', ');
+                toast.error(
+                  `These variants were created but their opening stock was not added: ${list}. ` +
+                  `Set the quantity from the product page -- do not add the variants again.`,
+                  { duration: 14000 }
+                );
+              }
+
+              // Told rather than left to be discovered on a label later.
+              if (summary.adjusted?.length) {
+                const list = summary.adjusted
+                  .map((a) => `${a.requested} -> ${a.used}`).slice(0, 3).join(', ');
+                toast(`Renamed to keep SKUs unique: ${list}`, { duration: 8000, icon: 'ℹ️' });
+              }
             } catch (err) {
               console.error('Variant creation failed:', err);
               // Silently swallowing this left a published product with no sellable

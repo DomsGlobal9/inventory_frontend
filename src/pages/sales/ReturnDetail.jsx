@@ -8,6 +8,8 @@ import { invalidateDerivedViews } from '../../lib/invalidate';
 import Select from '../../components/common/Select';
 
 
+import PageLoader from '../../components/PageLoader';
+
 export default function ReturnDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -55,7 +57,9 @@ export default function ReturnDetail() {
     onSuccess: () => refreshReturn()
   });
 
-  if (isLoading) return <div style={{ padding: '24px' }}>Loading...</div>;
+  if (isLoading) {
+    return <PageLoader text="LOADING RETURNS..." />;
+  }
 
   const ret = returnData?.data;
   if (!ret) return <div style={{ padding: '24px' }}>Return not found.</div>;

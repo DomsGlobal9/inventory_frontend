@@ -3,12 +3,14 @@ import { Navigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LocationProvider } from '../contexts/LocationContext';
 
+import PageLoader from '../components/PageLoader';
+
 export default function ProtectedRoute({ requiredRole, requiredPermission }) {
   const { isAuthenticated, user, isLoading } = useAuth();
   const location = useLocation();
 
   if (isLoading) {
-    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'var(--text-secondary)' }}>Verifying session...</div>;
+    return <PageLoader text="VERIFYING SESSION..." fullScreen />;
   }
 
   if (!isAuthenticated) {

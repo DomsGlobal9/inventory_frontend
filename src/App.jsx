@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import { ProductProvider } from './context/ProductContext';
 import { PlatformAdminProvider } from './context/PlatformAdminContext';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
@@ -18,6 +19,7 @@ import ClientErrorsPage from './pages/admin/ClientErrorsPage';
 import SupportTicketsPage from './pages/admin/SupportTicketsPage';
 import MainLayout from './layouts/MainLayout';
 import WizardLayout from './layouts/WizardLayout';
+import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 import GeneralInfo from './pages/GeneralInfo';
 import Measurements from './pages/Measurements';
@@ -49,13 +51,15 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
-    <ProductProvider>
-      <Router>
-        <Routes>
-        <Route path="/login" element={<Login />} />
-        {/* Public. Records a signup enquiry as a lead -- it creates no account and no
-            workspace, so it sits outside every auth boundary by design. */}
-        <Route path="/signup" element={<Signup />} />
+    <HelmetProvider>
+      <ProductProvider>
+        <Router>
+          <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<Login />} />
+          {/* Public. Records a signup enquiry as a lead -- it creates no account and no
+              workspace, so it sits outside every auth boundary by design. */}
+          <Route path="/signup" element={<Signup />} />
 
         {/* Platform Admin console: entirely separate auth realm (its own cookie, its own
             login), scoped under its own PlatformAdminProvider so normal client sessions
@@ -81,7 +85,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
         <Route element={<MainLayout />}>
           <Route path="/unauthorized" element={<Unauthorized />} />
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           
           <Route path="/add" element={<WizardLayout title="Add Your Product" subtitle="Create a new product and configure its details before publishing." />}>
             {/* Without this, a bare /add matched the layout with no child to fill its
@@ -134,12 +138,13 @@ function App() {
           <Route path="/settings" element={<Settings />} />
           <Route path="/settings/locations" element={<StockLocationsPage />} />
 
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Route>
         </Route>
       </Routes>
     </Router>
     </ProductProvider>
+    </HelmetProvider>
   );
 }
 

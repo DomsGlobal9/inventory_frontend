@@ -5,6 +5,8 @@ import { useTransactions } from '../hooks/useTransactions';
 import Select from './common/Select';
 
 
+import PageLoader from '../components/PageLoader';
+
 export default function TransactionHistory({ productId, onNewTransaction }) {
   const [filters, setFilters] = useState({
     productId,
@@ -37,7 +39,9 @@ export default function TransactionHistory({ productId, onNewTransaction }) {
     });
   };
 
-  if (isLoading) return <div style={{ padding: '32px' }}>Loading transaction history...</div>;
+  if (isLoading) {
+    return <PageLoader text="LOADING RETURNS..." />;
+  }
 
   return (
     <div className="glass-panel" style={{ padding: '32px', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>

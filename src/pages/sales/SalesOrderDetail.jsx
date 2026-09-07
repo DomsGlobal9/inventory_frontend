@@ -6,6 +6,8 @@ import { ArrowLeft, Loader2, CheckCircle, XCircle, Truck } from 'lucide-react';
 import { usePermission } from '../../hooks/usePermission';
 import { formatINR } from '../../utils/formatUtils';
 
+import PageLoader from '../../components/PageLoader';
+
 export default function SalesOrderDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -18,7 +20,9 @@ export default function SalesOrderDetail() {
   const [isDispatching, setIsDispatching] = useState(false);
   const [dispatchQuantities, setDispatchQuantities] = useState({});
 
-  if (isLoading) return <div style={{ padding: '48px', textAlign: 'center' }}>Loading order details...</div>;
+  if (isLoading) {
+    return <PageLoader text="LOADING ORDERS..." />;
+  }
   if (!order) return <div style={{ padding: '48px', textAlign: 'center', color: 'red' }}>Order not found</div>;
 
   const handleConfirmOrder = () => {

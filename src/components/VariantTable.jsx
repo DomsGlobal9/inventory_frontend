@@ -11,6 +11,7 @@ import { useCatalogData } from '../hooks/useCatalogConfig';
 import { useLocationContext } from '../contexts/LocationContext';
 import { useAuth } from '../context/AuthContext';
 import VariantSuppliersPanel from './VariantSuppliersPanel';
+import PageLoader from './PageLoader';
 
 export default function VariantTable({ productId, productName, highlightVariantId }) {
   // Stamped into the barcode-label PDF metadata; must be the real tenant.
@@ -341,7 +342,7 @@ export default function VariantTable({ productId, productName, highlightVariantI
     }
   };
 
-  if (isLoading) return <div style={{ padding: '32px' }}>Loading variants...</div>;
+  if (isLoading) return <PageLoader text="LOADING VARIANTS..." />;
 
   return (
     <>

@@ -20,7 +20,7 @@ export default function Unauthorized() {
       <p style={{ margin: '0 0 24px', maxWidth: '400px' }}>
         Your account doesn't have permission to view this page. If you think this is a mistake, ask an administrator to update your role.
       </p>
-      <button className="btn-primary" onClick={() => navigate('/')}>Back to Dashboard</button>
+      <button className="btn-primary" onClick={() => navigate('/dashboard')}>Back to Dashboard</button>
     </div>
   );
 }

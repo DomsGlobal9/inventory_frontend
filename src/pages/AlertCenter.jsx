@@ -51,7 +51,7 @@ export default function AlertCenter() {
       {/* Header */}
       <motion.div variants={item} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <button className="btn-secondary" onClick={() => navigate('/')} style={{ padding: '8px' }}>
+          <button className="btn-secondary" onClick={() => navigate('/dashboard')} style={{ padding: '8px' }}>
             <ArrowLeft size={16} />
           </button>
           <div>

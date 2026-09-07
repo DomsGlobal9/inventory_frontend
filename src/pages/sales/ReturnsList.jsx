@@ -3,6 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../lib/api';
 
+import PageLoader from '../../components/PageLoader';
+
 export default function ReturnsList() {
   const navigate = useNavigate();
 
@@ -24,7 +26,9 @@ export default function ReturnsList() {
     }
   };
 
-  if (isLoading) return <div style={{ padding: '24px' }}>Loading returns...</div>;
+  if (isLoading) {
+    return <PageLoader text="LOADING RETURNS..." />;
+  }
 
   const returns = returnsData?.data || [];
 

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useImages, useUploadImage, useDeleteImage, useUpdateImage } from '../hooks/useImages';
 import toast from 'react-hot-toast';
 import ConfirmModal from './ConfirmModal';
+import PageLoader from './PageLoader';
 
 export default function ImageGallery({ productId }) {
   const fileInputRef = useRef(null);
@@ -53,7 +54,7 @@ export default function ImageGallery({ productId }) {
     });
   };
 
-  if (isLoading) return <div style={{ padding: '32px', color: 'var(--text-muted)' }}>Loading images...</div>;
+  if (isLoading) return <PageLoader text="LOADING IMAGES..." />;
 
   const containerVariants = {
     hidden: { opacity: 0 },

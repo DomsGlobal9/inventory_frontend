@@ -2,12 +2,14 @@ import React from 'react';
 import { Navigate, useLocation, Outlet } from 'react-router-dom';
 import { usePlatformAdmin } from '../context/PlatformAdminContext';
 
+import PageLoader from '../components/PageLoader';
+
 export default function AdminProtectedRoute() {
   const { admin, isLoading } = usePlatformAdmin();
   const location = useLocation();
 
   if (isLoading) {
-    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#888', background: '#0a0a0c' }}>Verifying platform admin session...</div>;
+    return <PageLoader text="VERIFYING SESSION..." fullScreen />;
   }
 
   if (!admin) {

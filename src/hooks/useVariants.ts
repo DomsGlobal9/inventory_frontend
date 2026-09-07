@@ -40,17 +40,36 @@ export const useBulkCreateVariants = (productId: string) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.product(productId) });
       invalidateDerivedViews(queryClient); // variant count + inventory value
       
-      const res = data.data; // data unwrapped once in interceptor, but we return data wrapper in controller?
-      // Wait, our axios interceptor returns response.data
-      // And backend controller does res.json({ success: true, data: result })
-      // So data here IS { success: true, data: { created, skipped, errors } }
-      // The interceptor returns response.data, so data.data is the payload.
+      // The interceptor already unwraps to the response body, and the controller replies
+      // { success, data }, so the payload is data.data.
       const payload = data.data;
 
+      // A variant that did not get created is a failure, not a footnote. This used to show a
+      // green "Created 1 variants. Skipped 1." -- which reads as "the duplicate was ignored,
+      // all fine" -- and a real customer lost a variant off their first product without ever
+      // being told. If something did not save, say so and say which.
       if (payload.skipped > 0) {
-        toast.success(`Created ${payload.created} variants. Skipped ${payload.skipped}.`);
+        const why = (payload.errors || [])
+          .map((e: any) => e?.sku ? `${e.sku}: ${e.reason || 'could not be created'}` : String(e?.reason || e))
+          .slice(0, 3)
+          .join('; ');
+        toast.error(
+          `${payload.created} of ${payload.created + payload.skipped} variants saved. ` +
+          `${payload.skipped} failed${why ? ` -- ${why}` : ''}. Please add the missing ones again.`,
+          { duration: 10000 }
+        );
       } else {
         toast.success(`Successfully created ${payload.created} variants.`);
+      }
+
+      // The SKU it was given is not the SKU it asked for, so the user is told rather than
+      // discovering it later on a label.
+      if (payload.adjusted?.length) {
+        const list = payload.adjusted
+          .map((a: any) => `${a.requested} -> ${a.used}`)
+          .slice(0, 3)
+          .join(', ');
+        toast(`Renamed to keep SKUs unique: ${list}`, { duration: 8000, icon: 'ℹ️' });
       }
     },
     onError: (error: any) => {

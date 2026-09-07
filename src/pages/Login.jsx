@@ -16,7 +16,14 @@ export default function Login() {
   // matches more than one workspace -- see auth.controller.ts's `login`.
   const [workspaceChoices, setWorkspaceChoices] = useState(null);
 
-  const redirectTo = location.state?.from || '/';
+  // "/" is the public marketing page now, not the dashboard. Sending a freshly signed-in
+  // user there looked exactly like a failed login: correct password, and you land back on
+  // the page that invites you to sign up. `from` is also ignored when it points at "/" or
+  // the login page itself, so a bounce through either does not send you straight back.
+  const requested = location.state?.from;
+  const redirectTo = !requested || requested === '/' || requested.startsWith('/login')
+    ? '/dashboard'
+    : requested;
 
   const attemptLogin = async (clientId) => {
     setError('');
@@ -93,31 +100,7 @@ export default function Login() {
         animation: 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
       }}>
         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-          <div style={{
-            width: '64px',
-            height: '64px',
-            background: 'linear-gradient(135deg, #333333 0%, #111111 100%)',
-            borderRadius: '18px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            margin: '0 auto 24px',
-            color: '#e2c171',
-            boxShadow: 'var(--shadow-panel)',
-            border: '1px solid rgba(255,255,255,0.1)'
-          }}>
-            <Package size={32} strokeWidth={1.5} />
-          </div>
-          <h1 style={{ 
-            fontSize: '32px', 
-            fontWeight: 600, 
-            letterSpacing: '-0.03em', 
-            margin: '0 0 12px',
-            color: '#ffffff',
-            textShadow: '0 2px 12px rgba(255,255,255,0.1)'
-          }}>
-            Scaleezy
-          </h1>
+          <img src="/scaleezy-logo.png" alt="Scaleezy" style={{ height: '48px', marginBottom: '24px', objectFit: 'contain' }} />
           <p style={{ color: '#888888', fontSize: '15px', fontWeight: 400, letterSpacing: '0.01em' }}>
             Enterprise Inventory Platform
           </p>

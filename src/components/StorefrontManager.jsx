@@ -137,6 +137,13 @@ export default function StorefrontManager() {
           onToggle={() => setExpandedId(expandedId === connection.id ? null : connection.id)}
           onTest={() => test.mutate(connection.id)}
           testing={test.isPending && test.variables === connection.id}
+          // Pausing takes several seconds against a database in another region, and until now
+          // the button said "Pause" the whole time and stayed clickable -- so it looked as
+          // though the click had missed, and the natural response is to click it again.
+          busy={
+            (lifecycle.isPending && lifecycle.variables?.id === connection.id) ||
+            (rotate.isPending && rotate.variables === connection.id)
+          }
           onLifecycle={(action) => {
             if (action === 'revoke') {
               setConfirm({
@@ -228,7 +235,7 @@ export default function StorefrontManager() {
             <button type="submit" className="btn-primary" disabled={createMutation.isPending}
               style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               {createMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
-              Connect
+              {createMutation.isPending ? 'Connecting…' : 'Connect'}
             </button>
           </div>
         </form>
@@ -287,7 +294,7 @@ function SecretPanel({ secret, name, onCopy, onDismiss }) {
   );
 }
 
-function ConnectionCard({ connection, locations, expanded, onToggle, onTest, testing, onLifecycle, onRotate }) {
+function ConnectionCard({ connection, locations, expanded, onToggle, onTest, testing, busy, onLifecycle, onRotate }) {
   const status = STATUS_STYLE[connection.status] || { label: connection.status, color: 'var(--text-muted)' };
   const scoped = connection.locationIds?.length
     ? locations.filter(l => connection.locationIds.includes(l.id)).map(l => l.name).join(', ')
@@ -334,23 +341,25 @@ function ConnectionCard({ connection, locations, expanded, onToggle, onTest, tes
               {testing ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
               {testing ? 'Testing…' : 'Send test'}
             </button>
-            <button className="btn-secondary" onClick={onRotate}
+            <button className="btn-secondary" onClick={onRotate} disabled={busy}
               style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px' }}
               title="Issue a new key and stop the old one working">
-              <RefreshCw size={14} /> New key
+              {busy ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />} New key
             </button>
             {connection.status === 'DISABLED' ? (
-              <button className="btn-secondary" onClick={() => onLifecycle('enable')}
+              <button className="btn-secondary" onClick={() => onLifecycle('enable')} disabled={busy}
                 style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px' }}>
-                <Play size={14} /> Resume
+                {busy ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
+                {busy ? 'Working…' : 'Resume'}
               </button>
             ) : (
-              <button className="btn-secondary" onClick={() => onLifecycle('disable')}
+              <button className="btn-secondary" onClick={() => onLifecycle('disable')} disabled={busy}
                 style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px' }}>
-                <Pause size={14} /> Pause
+                {busy ? <Loader2 size={14} className="animate-spin" /> : <Pause size={14} />}
+                {busy ? 'Working…' : 'Pause'}
               </button>
             )}
-            <button className="btn-secondary" onClick={() => onLifecycle('revoke')}
+            <button className="btn-secondary" onClick={() => onLifecycle('revoke')} disabled={busy}
               style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--accent-danger)' }}>
               <Trash2 size={14} /> Revoke
             </button>

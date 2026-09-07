@@ -78,6 +78,12 @@ export default function StockInModal({ variant, onClose }) {
             <div className="form-group">
               <label className="form-label">Unit Cost (₹)</label>
               <input type="number" step="0.01" min="0" className="input-field" value={formData.unitCost} onChange={e => setFormData({...formData, unitCost: e.target.value})} placeholder="e.g. 150.00" />
+              {/* The field is optional and looks harmless, but leaving it blank is what makes
+                  INVENTORY VALUE read ₹0 on the dashboard for stock that is physically there. */}
+              <p style={{ margin: '6px 0 0', fontSize: '11.5px', color: 'var(--text-secondary)' }}>
+                What you paid per unit. Leave it blank and this stock counts as ₹0 towards your
+                inventory value.
+              </p>
             </div>
           </div>
 

@@ -7,7 +7,10 @@ import { useAuth } from '../context/AuthContext';
 // permission: null/undefined means "visible to any authenticated user". Every entry
 // below is now gated by the same permission key the matching backend route enforces.
 const NAV_ITEMS = [
-  { name: 'Dashboard', path: '/', icon: LayoutDashboard, permission: 'dashboard:view' },
+  // "/" serves the public marketing page, so this has to name the dashboard route itself --
+  // otherwise the first item in the sidebar signs the shopkeeper out of their own app, in
+  // appearance if not in fact.
+  { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, permission: 'dashboard:view' },
   { name: 'Products', path: '/products', icon: Package, permission: 'product:view' },
   { name: 'Orders', path: '/orders', icon: ShoppingBag, permission: 'sales_order:view' },
   { name: 'Returns', path: '/returns', icon: Truck, permission: 'return:view' },
@@ -69,7 +72,7 @@ export default function Sidebar({ isOpen }) {
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       {/* Brand */}
       <div style={{ height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid var(--border-light)' }}>
-        <Link to="/" style={{ textDecoration: 'none' }}>
+        <Link to="/dashboard" style={{ textDecoration: 'none' }}>
           <h1 style={{ fontSize: '28px', margin: 0, color: 'var(--text-primary)', textAlign: 'center', cursor: 'pointer', transition: 'opacity 0.2s' }} onMouseOver={(e) => e.currentTarget.style.opacity = '0.8'} onMouseOut={(e) => e.currentTarget.style.opacity = '1'}>
             Scaleezy
           </h1>

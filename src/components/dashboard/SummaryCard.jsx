@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-export default function SummaryCard({ title, value, icon: Icon, colorClass, bgColorClass, onClick }) {
+export default function SummaryCard({ title, value, note, icon: Icon, colorClass, bgColorClass, onClick }) {
   return (
     <motion.div 
       className="stat-card" 
@@ -37,6 +37,13 @@ export default function SummaryCard({ title, value, icon: Icon, colorClass, bgCo
           <h2 style={{ fontSize: '32px', margin: 0, fontWeight: '600', color: 'var(--text-primary)' }}>
             {value}
           </h2>
+          {/* Says why a figure is lower than the shopkeeper expects. A number that is quietly
+              incomplete is worse than one that explains itself. */}
+          {note && (
+            <p style={{ margin: '6px 0 0', fontSize: '11.5px', color: 'var(--text-muted, var(--text-secondary))', lineHeight: 1.4 }}>
+              {note}
+            </p>
+          )}
         </div>
         <div 
           className="stat-icon-wrapper" 

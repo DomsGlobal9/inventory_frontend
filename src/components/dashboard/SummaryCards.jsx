@@ -44,6 +44,13 @@ export default function SummaryCards({ data, isLoading, isError }) {
     {
       title: "Inventory Value",
       value: formatINR(safeData?.inventoryValue),
+      // Stock received without a unit cost is worth ₹0 to this figure, which made a full
+      // shelf look like an empty one and the dashboard look broken. Say so, and say where
+      // to fix it, rather than leaving the shopkeeper to guess.
+      note: safeData?.unitsWithoutCost > 0
+        ? `${formatNumber(safeData.unitsWithoutCost)} units have no cost recorded and count as ₹0. ` +
+          `Add a unit cost when you stock in, or set a cost price on the product.`
+        : null,
       icon: IndianRupee,
       colorClass: '#3b82f6',
       bgColorClass: 'rgba(59, 130, 246, 0.1)',
@@ -92,9 +99,10 @@ export default function SummaryCards({ data, isLoading, isError }) {
     <motion.div variants={itemVariants} className="dashboard-grid">
       {cards.map((card, index) => (
         <div key={index} onClick={card.onClick} style={{ cursor: 'pointer' }}>
-          <SummaryCard 
+          <SummaryCard
             title={card.title}
             value={card.value}
+            note={card.note}
             icon={card.icon}
             colorClass={card.colorClass}
             bgColorClass={card.bgColorClass}

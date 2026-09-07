@@ -94,7 +94,8 @@ export const useBulkUpdateVariants = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (updates: any[]) => bulkUpdateVariants(updates),
+    mutationFn: ({ updates, locationId }: { updates: any[]; locationId?: string }) =>
+      bulkUpdateVariants(updates, locationId),
     onSuccess: (data: any) => {
       // Invalidate all variants and products since bulk update can affect many
       queryClient.invalidateQueries({ queryKey: ['variants'] });

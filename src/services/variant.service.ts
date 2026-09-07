@@ -12,8 +12,10 @@ export const bulkCreateVariants = async (productId: string, variants: any[], app
   return api.post(`/products/${productId}/variants/bulk`, { variants, applyToAllLocations });
 };
 
-export const bulkUpdateVariants = async (updates: any[]) => {
-  return api.post(`/variants/bulk-update`, { updates });
+export const bulkUpdateVariants = async (updates: any[], locationId?: string) => {
+  // locationId says where a `quantity` column applies. Sent explicitly so the server does not
+  // have to guess, which it used to do by looking for a location named MAIN-STORE.
+  return api.post(`/variants/bulk-update`, { updates, ...(locationId ? { locationId } : {}) });
 };
 
 export const updateVariant = async (id: string, data: any) => {

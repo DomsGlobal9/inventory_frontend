@@ -1,15 +1,34 @@
-import React, { useState } from 'react';
-import { X, Upload, FileText, AlertCircle, Loader2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Upload, FileText, AlertCircle, Loader2, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { parseCSV } from '../utils/csvUtils';
 import { useBulkUpdateVariants } from '../hooks/useVariants';
+import { useLocationContext } from '../contexts/LocationContext';
 
 export default function BulkUpdateModal({ isOpen, onClose }) {
   const [file, setFile] = useState(null);
   const [parsedData, setParsedData] = useState(null);
   const [errors, setErrors] = useState([]);
-  
+
+  // A quantity in a spreadsheet is a level at ONE place, and a business with a warehouse and
+  // a shop has no single obvious answer for which. The server used to pick for you -- it
+  // looked for a location literally coded MAIN-STORE -- so a tenant that had renamed its
+  // locations could not import quantities at all, and one that had several would have had
+  // them silently applied to whichever the server chose. It is asked for instead.
+  const { locations = [], currentLocation } = useLocationContext();
+  const [locationId, setLocationId] = useState('');
+
+  // Defaults to the location already selected in the header, which is where the user is
+  // working; changing it here does not disturb that choice.
+  useEffect(() => {
+    if (isOpen) setLocationId(currentLocation?.id || locations[0]?.id || '');
+  }, [isOpen, currentLocation?.id, locations]);
+
   const bulkUpdateMutation = useBulkUpdateVariants();
+
+  // Prices and reorder levels belong to the variant itself, so a file that only sets those
+  // needs no location and is not asked for one.
+  const touchesQuantity = (parsedData || []).some(u => u.quantity !== undefined);
 
   const handleFileChange = async (e) => {
     const selectedFile = e.target.files[0];
@@ -96,11 +115,12 @@ export default function BulkUpdateModal({ isOpen, onClose }) {
 
   const handleImport = () => {
     if (!parsedData) return;
-    bulkUpdateMutation.mutate(parsedData, {
-      onSuccess: () => {
-        handleClose();
-      }
-    });
+    // Sent explicitly rather than left to the server to guess, so the quantities land where
+    // the user said and the confirmation can name that place.
+    bulkUpdateMutation.mutate(
+      { updates: parsedData, locationId: touchesQuantity ? locationId : undefined },
+      { onSuccess: () => handleClose() }
+    );
   };
 
   const handleClose = () => {
@@ -221,11 +241,46 @@ export default function BulkUpdateModal({ isOpen, onClose }) {
                 </div>
               )}
 
+              {/* Only when the file actually sets quantities. Prices and reorder levels are
+                  properties of the variant itself and are the same wherever it is held. */}
+              {parsedData && errors.length === 0 && touchesQuantity && (
+                <div style={{ marginBottom: '24px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>
+                    <MapPin size={14} /> Apply these quantities to
+                  </label>
+                  <select
+                    className="input-field"
+                    value={locationId}
+                    onChange={(e) => setLocationId(e.target.value)}
+                    style={{ width: '100%', padding: '10px' }}
+                  >
+                    {locations.length === 0 && <option value="">No stock locations yet</option>}
+                    {locations.map(l => (
+                      <option key={l.id} value={l.id}>{l.name} ({l.code})</option>
+                    ))}
+                  </select>
+                  <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px', marginBottom: 0 }}>
+                    The <code>quantity</code> column sets the stock level <strong>at this location</strong>,
+                    not the total across all of them. Prices and reorder levels apply everywhere.
+                  </p>
+                  {locations.length === 0 && (
+                    <p style={{ fontSize: '12px', color: 'var(--accent-danger)', marginTop: '8px', marginBottom: 0 }}>
+                      Create a stock location under Settings &rarr; Stock Locations before importing quantities.
+                    </p>
+                  )}
+                </div>
+              )}
+
               {parsedData && errors.length === 0 && (
                 <div style={{ padding: '16px', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '8px', marginBottom: '24px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#10b981' }}>
                     <FileText size={16} />
-                    <span style={{ fontWeight: '600', fontSize: '14px' }}>Ready to import {parsedData.length} valid updates.</span>
+                    <span style={{ fontWeight: '600', fontSize: '14px' }}>
+                      Ready to import {parsedData.length} valid update{parsedData.length === 1 ? '' : 's'}
+                      {touchesQuantity && locationId
+                        ? ` into ${locations.find(l => l.id === locationId)?.name || 'the selected location'}`
+                        : ''}.
+                    </span>
                   </div>
                 </div>
               )}
@@ -238,7 +293,12 @@ export default function BulkUpdateModal({ isOpen, onClose }) {
               <button 
                 className="btn-primary" 
                 onClick={handleImport}
-                disabled={!parsedData || errors.length > 0 || bulkUpdateMutation.isPending}
+                // Importing quantities with nowhere to put them would fail on every row, so
+                // the button waits for a location rather than letting that happen.
+                disabled={
+                  !parsedData || errors.length > 0 || bulkUpdateMutation.isPending ||
+                  (touchesQuantity && !locationId)
+                }
                 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
               >
                 {bulkUpdateMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}

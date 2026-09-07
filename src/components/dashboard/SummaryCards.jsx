@@ -44,13 +44,18 @@ export default function SummaryCards({ data, isLoading, isError }) {
     {
       title: "Inventory Value",
       value: formatINR(safeData?.inventoryValue),
-      // Stock received without a unit cost is worth ₹0 to this figure, which made a full
-      // shelf look like an empty one and the dashboard look broken. Say so, and say where
-      // to fix it, rather than leaving the shopkeeper to guess.
+      // Two different ways this number can mislead, and the shopkeeper is told which applies.
+      // Nothing known at all means the stock counts as ₹0 and a full shelf looks like an empty
+      // one; only a price known means it is valued at what it sells for, which is higher than
+      // what it is worth by the margin. An unexplained figure is the thing to avoid, in
+      // either direction.
       note: safeData?.unitsWithoutCost > 0
-        ? `${formatNumber(safeData.unitsWithoutCost)} units have no cost recorded and count as ₹0. ` +
-          `Add a unit cost when you stock in, or set a cost price on the product.`
-        : null,
+        ? `${formatNumber(safeData.unitsWithoutCost)} units have no cost or price recorded and count as ₹0. ` +
+          `Add a unit cost when you stock in, or a price on the product.`
+        : safeData?.unitsValuedAtPrice > 0
+          ? `${formatNumber(safeData.unitsValuedAtPrice)} units are valued at their selling price ` +
+            `because no cost was recorded. Add a unit cost when you stock in for a truer figure.`
+          : null,
       icon: IndianRupee,
       colorClass: '#3b82f6',
       bgColorClass: 'rgba(59, 130, 246, 0.1)',

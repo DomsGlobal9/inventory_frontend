@@ -26,6 +26,9 @@ export default function ProductPreview() {
   // window the button went live again with the product already created. A second click
   // there produces a duplicate product.
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Which step of the publish sequence is running, so the button can name it instead of
+  // spinning generically through work the user has no way to account for.
+  const [phase, setPhase] = useState(null);
 
   const createMutation = useCreateProduct();
   const updateMutation = useUpdateProduct();
@@ -173,21 +176,26 @@ export default function ProductPreview() {
       updateMutation.mutate(
         { id: productData.id, data: payload },
         {
-          onSuccess: async () => {
-            // Same reasoning as the create path: the product is already saved, so an image
-            // failure must not strand the user on this screen.
-            try {
-              await persistImages(productData.id);
-            } catch (err) {
-              console.error('Image upload failed after the product was updated:', err);
-              toast.error('The product was saved, but its images could not be uploaded. Add them from the product page.');
-            } finally {
-              setIsSubmitting(false);
-            }
+          onSuccess: () => {
+            // Not awaited, for the same reason as the create path below -- which was fixed
+            // while this one was left behind. The product is already saved and the mutation
+            // has already shown its success toast, but awaiting the uploads kept the button
+            // spinning behind that toast for as long as they took: signing a single upload
+            // measured ~13s here, so with a few images the screen sat on "PUBLISHING..."
+            // for minutes after saying it was done. Pressing publish again to escape is how
+            // a duplicate gets made.
+            const savedId = productData.id;
+            toast.success('Product updated');
+            setIsSubmitting(false);
             resetProductData();
             navigate('/products');
+
+            persistImages(savedId).catch(err => {
+              console.error('Image upload failed after the product was updated:', err);
+              toast.error('The product was saved, but its images could not be uploaded. Add them from the product page.');
+            });
           },
-          onError: () => setIsSubmitting(false)
+          onError: () => { setPhase(null); setIsSubmitting(false); }
         }
       );
     } else {
@@ -200,6 +208,10 @@ export default function ProductPreview() {
 
           if (newProductId && variants.length > 0) {
             try {
+              // The button says what it is doing rather than sitting on a generic spinner:
+              // creating variants and their opening stock is several round trips and is the
+              // slowest part of publishing.
+              setPhase('variants');
               const res = await bulkCreateVariants(newProductId, variants, applyToAllLocations);
 
               // A PARTIAL failure comes back as HTTP 200 with { created, skipped, errors },
@@ -256,6 +268,10 @@ export default function ProductPreview() {
           // So the user is released immediately and the uploads finish in the background.
           // persistImages reports its own failures and works off a snapshot, so clearing the
           // form underneath it is safe.
+          // The one confirmation, raised now that the product AND its variants exist. The
+          // create hook deliberately stays quiet so this cannot appear while work continues.
+          toast.success(publish ? 'Product published' : 'Draft saved');
+          setPhase(null);
           setIsSubmitting(false);
           resetProductData();
           navigate('/products');
@@ -267,7 +283,7 @@ export default function ProductPreview() {
             });
           }
         },
-        onError: () => setIsSubmitting(false)
+        onError: () => { setPhase(null); setIsSubmitting(false); }
       });
     }
   };
@@ -470,7 +486,9 @@ export default function ProductPreview() {
             title={!canPublish ? 'Complete the checklist above to publish' : undefined}
           >
             {isPending ? <Loader2 size={16} className="animate-spin" /> : null}
-            {isPending ? 'SAVING...' : (productData.id ? 'UPDATE PRODUCT' : 'PUBLISH PRODUCT')}
+            {isPending
+              ? (phase === 'variants' ? 'ADDING VARIANTS...' : 'SAVING...')
+              : (productData.id ? 'UPDATE PRODUCT' : 'PUBLISH PRODUCT')}
           </button>
 
           {/* Publishing was previously the only way out of this screen, so a product that

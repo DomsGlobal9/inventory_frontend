@@ -38,7 +38,12 @@ export const useCreateProduct = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.products });
       invalidateDerivedViews(queryClient); // active-product count + inventory value
-      toast.success('Product created successfully');
+      // Deliberately no toast here. Creating the product row is the FIRST step of publishing,
+      // not the end of it -- its variants and their opening stock are created afterwards, and
+      // React Query keeps the mutation pending while that runs. Announcing success here put a
+      // "Product created successfully" toast on screen while the button was still spinning
+      // through the rest, which reads as the app having hung after saying it was done. The
+      // one confirmation is raised by the caller when the whole sequence has finished.
     },
     onError: (error: any) => {
       toast.error(describeError(error, 'Failed to create product'));
@@ -55,7 +60,7 @@ export const useUpdateProduct = () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.products });
       queryClient.invalidateQueries({ queryKey: queryKeys.product(variables.id) });
       invalidateDerivedViews(queryClient); // active-product count + inventory value
-      toast.success('Product updated successfully');
+      // As with create: the caller confirms once the whole save has finished, not partway.
     },
     onError: (error: any) => {
       toast.error(describeError(error, 'Failed to update product'));

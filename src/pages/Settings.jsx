@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
-import { Settings as SettingsIcon, Tag, Palette, Scissors, Layers, Hexagon, Grid, ShoppingBag, Store, Users, CreditCard, Key, User as UserIcon, Mail, Shield, MapPin, Edit2, Save, X, LifeBuoy, Loader2 } from 'lucide-react';
+import { Settings as SettingsIcon, Tag, Palette, Scissors, Layers, Hexagon, Grid, ShoppingBag, Store, Users, CreditCard, Key, User as UserIcon, Mail, Shield, MapPin, Edit2, Save, X, LifeBuoy, Loader2, BookOpen } from 'lucide-react';
 import CatalogManager from '../components/CatalogManager';
 import StockLocationsPage from './settings/StockLocationsPage';
+import DayBook from './DayBook';
 import SupportPanel from '../components/SupportPanel';
 import TeamManager from '../components/TeamManager';
 import { useAuth } from '../context/AuthContext';
@@ -12,6 +13,7 @@ const SETTINGS_DOMAINS = [
   { id: 'GENERAL', label: 'General Info', icon: Store },
   { id: 'CATALOG', label: 'Catalog Configuration', icon: Grid },
   { id: 'LOCATIONS', label: 'Stock Locations', icon: MapPin },
+  { id: 'DAYBOOK', label: 'Day Book', icon: BookOpen },
   { id: 'USERS', label: 'Team & Users', icon: Users },
   { id: 'SUPPORT', label: 'Help & Support', icon: LifeBuoy },
   // BILLING and API were shipped as navigable tabs whose only content was "This section is
@@ -20,6 +22,16 @@ const SETTINGS_DOMAINS = [
   // this module, so the entries are withdrawn until there is something real to show --
   // restore them here alongside a body in the switch below.
 ];
+
+/**
+ * Domains that have a body rendered below. The "under construction" card shows for anything
+ * listed above but not here.
+ *
+ * It is a set rather than the chain of `activeDomain !== 'X' && ...` it replaces, because that
+ * chain had to be extended by hand every time a domain gained content -- and when Day Book was
+ * added it was not, so the page rendered the day book AND the placeholder underneath it.
+ */
+const IMPLEMENTED_DOMAINS = new Set(['GENERAL', 'CATALOG', 'LOCATIONS', 'DAYBOOK', 'USERS', 'SUPPORT']);
 
 const CATALOG_TABS = [
   { id: 'SIZE', label: 'Sizes', icon: Scissors, description: 'Manage available sizes across your products' },
@@ -260,6 +272,10 @@ export default function Settings() {
             </div>
           )}
 
+          {/* The day book brings its own panels and its own scrolling, so unlike the sections
+              above it is not wrapped in a card -- doing so would box a full page inside a box. */}
+          {activeDomain === 'DAYBOOK' && <DayBook />}
+
           {activeDomain === 'USERS' && (
             <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '32px' }}>
               <div style={{ marginBottom: '24px' }}>
@@ -285,7 +301,7 @@ export default function Settings() {
             </div>
           )}
 
-          {activeDomain !== 'CATALOG' && activeDomain !== 'GENERAL' && activeDomain !== 'LOCATIONS' && activeDomain !== 'SUPPORT' && activeDomain !== 'USERS' && (
+          {!IMPLEMENTED_DOMAINS.has(activeDomain) && (
             <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '48px', textAlign: 'center' }}>
               <div style={{ color: 'var(--text-secondary)', marginBottom: '16px' }}>
                 {(() => {

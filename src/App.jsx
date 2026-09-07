@@ -11,7 +11,6 @@ import UsersPage from './pages/admin/UsersPage';
 import OnboardingPage from './pages/admin/OnboardingPage';
 import LeadsPage from './pages/admin/LeadsPage';
 import DayBook from './pages/DayBook';
-import Reports from './pages/Reports';
 import Signup from './pages/Signup';
 import InventoryHealthPage from './pages/admin/InventoryHealthPage';
 import AuditLogPage from './pages/admin/AuditLogPage';
@@ -127,7 +126,8 @@ function App() {
           <Route path="/inventory/ledger" element={<InventoryLedger />} />
           <Route path="/inventory/transfers" element={<TransfersPage />} />
           <Route path="/inventory" element={<InventoryOverview />} />
-          <Route path="/reports" element={<Reports />} />
+          {/* The day book now lives inside Settings. This route is kept so links and
+              bookmarks that already point at it still land on the day book itself. */}
           <Route path="/reports/daybook" element={<DayBook />} />
           <Route path="/customers" element={<Customers />} />
           <Route path="/customers/:id" element={<CustomerDetail />} />

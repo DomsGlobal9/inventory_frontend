@@ -10,6 +10,7 @@ import {
 } from '../hooks/useStorefront';
 import { useLocationContext } from '../contexts/LocationContext';
 import ConfirmModal from './ConfirmModal';
+import ShopifyPanel from './ShopifyPanel';
 
 /**
  * Connecting a website to the shop.
@@ -99,6 +100,11 @@ export default function StorefrontManager() {
           stock. There is nothing to export and nothing to press afterwards.
         </p>
       </div>
+
+      {/* Shopify first, and separate. Connecting it is a different act from adding a generic
+          storefront: the merchant leaves for Shopify, approves permissions there, and comes
+          back -- so presenting it as another row in the same list would misdescribe it. */}
+      <ShopifyPanel />
 
       {revealedSecret && (
         <SecretPanel

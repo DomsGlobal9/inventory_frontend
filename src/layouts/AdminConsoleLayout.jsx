@@ -13,6 +13,8 @@ const NAV_ITEMS = [
   { name: 'Errors', path: '/platformconsole/errors', icon: Bug },
   { name: 'Support', path: '/platformconsole/support', icon: LifeBuoy },
   { name: 'Audit Log', path: '/platformconsole/audit-log', icon: ScrollText },
+  // Last, and on its own: this is the only screen that changes who can reach the console.
+  { name: 'Platform Admins', path: '/platformconsole/platform-admins', icon: ShieldCheck },
 ];
 
 export default function AdminConsoleLayout() {

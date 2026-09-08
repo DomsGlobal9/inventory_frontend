@@ -9,6 +9,7 @@ import AdminLogin from './pages/admin/AdminLogin';
 import ClientsPage from './pages/admin/ClientsPage';
 import ClientOverviewPage from './pages/admin/ClientOverviewPage';
 import UsersPage from './pages/admin/UsersPage';
+import PlatformAdminsPage from './pages/admin/PlatformAdminsPage';
 import OnboardingPage from './pages/admin/OnboardingPage';
 import LeadsPage from './pages/admin/LeadsPage';
 import DayBook from './pages/DayBook';
@@ -78,6 +79,7 @@ function App() {
               <Route path="errors" element={<ClientErrorsPage />} />
               <Route path="support" element={<SupportTicketsPage />} />
               <Route path="audit-log" element={<AuditLogPage />} />
+              <Route path="platform-admins" element={<PlatformAdminsPage />} />
             </Route>
           </Route>
         </Route>

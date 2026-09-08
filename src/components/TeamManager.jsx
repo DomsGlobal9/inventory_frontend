@@ -6,7 +6,7 @@ import {
   useSetTeamMemberStatus, useViewTeamMemberPassword, useSetTeamMemberPassword,
   useResendTeamMemberCredentials
 } from '../hooks/useTeam';
-import { buildCredentialMailto, buildCredentialWhatsapp } from '../lib/credentialShare';
+import { buildCredentialWhatsapp } from '../lib/credentialShare';
 import Select from './common/Select';
 
 
@@ -124,9 +124,12 @@ function CredentialsPanel({ recipientName, email, password, roleLabel, emailed, 
             {resend.isPending ? 'Sending…' : emailed ? 'Send again' : 'Send by email'}
           </button>
         )}
-        <a href={buildCredentialMailto({ recipientName, email, tempPassword: password, roleLabel })} className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', textDecoration: 'none' }}>
-          <Mail size={14} /> Open in mail app
-        </a>
+        {/* The mailto: link that used to sit here is gone. It handed the message to whatever
+            mail client the admin's machine happened to have -- often none, in which case
+            clicking it did nothing at all and looked like a broken button. Email now goes
+            through the shop's own mail server, which works the same on every machine and can
+            actually report whether it arrived. WhatsApp stays because it is a genuinely
+            different channel, not a second way to do the same thing. */}
         <a href={buildCredentialWhatsapp({ recipientName, email, tempPassword: password, roleLabel })} target="_blank" rel="noopener noreferrer" className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', textDecoration: 'none' }}>
           <MessageCircle size={14} /> WhatsApp
         </a>
@@ -218,7 +221,8 @@ function InviteForm({ roles, onDone }) {
   );
 }
 
-function ShareRow({ recipientName, email, password }) {
+function ShareRow({ recipientName, email, password, userId }) {
+  const resend = useResendTeamMemberCredentials();
   const [copied, setCopied] = useState(false);
   const handleCopy = async () => {
     try {
@@ -233,9 +237,11 @@ function ShareRow({ recipientName, email, password }) {
 
   return (
     <div style={{ display: 'flex', gap: '8px' }}>
-      <a href={buildCredentialMailto({ recipientName, email, tempPassword: password })} className="btn-secondary" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '8px', textDecoration: 'none', fontSize: '12px' }}>
-        <Mail size={13} /> Email
-      </a>
+      <button onClick={() => userId && resend.mutate(userId)} disabled={!userId || resend.isPending}
+        className="btn-secondary" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '8px', fontSize: '12px' }}>
+        {resend.isPending ? <Loader2 size={13} className="animate-spin" /> : <Mail size={13} />}
+        {resend.isPending ? 'Sending…' : 'Email'}
+      </button>
       <a href={buildCredentialWhatsapp({ recipientName, email, tempPassword: password })} target="_blank" rel="noopener noreferrer" className="btn-secondary" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '8px', textDecoration: 'none', fontSize: '12px' }}>
         <MessageCircle size={13} /> WhatsApp
       </a>
@@ -297,7 +303,7 @@ function PasswordManager({ member, onClose }) {
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: '14px', background: 'var(--bg-input)', borderRadius: '8px', padding: '12px', textAlign: 'center', border: '1px solid var(--border-light)' }}>
                   {revealed}
                 </div>
-                <ShareRow recipientName={member.name} email={member.email} password={revealed} />
+                <ShareRow recipientName={member.name} email={member.email} password={revealed} userId={member.id} />
               </>
             ) : (
               <button onClick={handleView} disabled={viewMutation.isPending} className="btn-secondary" style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px' }}>
@@ -319,7 +325,7 @@ function PasswordManager({ member, onClose }) {
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', background: 'var(--bg-input)', borderRadius: '8px', padding: '10px', textAlign: 'center', border: '1px solid var(--accent-gold)' }}>
                   New password: {revealed}
                 </div>
-                <ShareRow recipientName={member.name} email={member.email} password={revealed} />
+                <ShareRow recipientName={member.name} email={member.email} password={revealed} userId={member.id} />
               </>
             )}
           </div>

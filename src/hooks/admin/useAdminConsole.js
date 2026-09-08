@@ -184,3 +184,60 @@ export const useConvertLead = () => {
     }
   });
 };
+
+// ─── PLATFORM ADMINS ──────────────────────────────────────────────────────────
+// Who can reach this console at all. Every account here sees every tenant, so the list is
+// deliberately small and the actions on it are few.
+
+export const usePlatformAdmins = () => {
+  return useQuery({
+    queryKey: ['admin', 'platform-admins'],
+    queryFn: async () => (await api.get('/admin/platform-admins')).data ?? []
+  });
+};
+
+export const useCreatePlatformAdmin = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (input) => (await api.post('/admin/platform-admins', input)).data,
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'platform-admins'] });
+      // Not toasted as the whole story: the password is shown on screen and must stay there
+      // until dismissed, because there is no way to retrieve it afterwards.
+      if (result?.emailed) toast.success(`Added. Login sent to ${result.email}.`);
+      else toast.error(`Added, but not emailed: ${result?.emailReason ?? 'unknown reason'}`, { duration: 12000 });
+    },
+    onError: (error) => toast.error(error?.message || 'Could not add that platform admin')
+  });
+};
+
+export const useSetPlatformAdminStatus = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, status }) => (await api.patch(`/admin/platform-admins/${id}/status`, { status })).data,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'platform-admins'] });
+      toast.success('Updated');
+    },
+    onError: (error) => toast.error(error?.message || 'Could not update that admin')
+  });
+};
+
+/**
+ * Issues a NEW password and emails it.
+ *
+ * There is no "resend" for a platform admin, because no recoverable copy of the password is
+ * kept -- these accounts can see every tenant, so a decryptable copy would be a far larger
+ * prize than a shop assistant's. The honest operation is replacement, and the existing
+ * password stops working immediately.
+ */
+export const useResetPlatformAdminPassword = () => {
+  return useMutation({
+    mutationFn: async (id) => (await api.post(`/admin/platform-admins/${id}/password`, {})).data,
+    onSuccess: (result) => {
+      if (result?.emailed) toast.success(`New password sent to ${result.email}.`);
+      else toast.error(`Password changed, but not emailed: ${result?.emailReason ?? 'unknown reason'}`, { duration: 12000 });
+    },
+    onError: (error) => toast.error(error?.message || 'Could not reset that password')
+  });
+};

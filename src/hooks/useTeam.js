@@ -86,3 +86,19 @@ export const useUpdateMyProfile = () => {
     onError: (error) => toast.error(error?.message || 'Failed to update profile')
   });
 };
+
+/**
+ * A Super Admin changing their own password.
+ *
+ * The only self-service password change in the product. Everyone else's is set for them by an
+ * admin and stays permanent -- the owner is the exception because there is nobody above them
+ * to reset it.
+ */
+export const useChangeMyPassword = () => {
+  return useMutation({
+    mutationFn: async ({ currentPassword, newPassword }) =>
+      (await api.post('/auth/me/password', { currentPassword, newPassword })).data,
+    onSuccess: () => toast.success('Password changed. Use the new one next time you sign in.'),
+    onError: (error) => toast.error(error?.message || 'Could not change the password')
+  });
+};

@@ -5,6 +5,7 @@ import CatalogManager from '../components/CatalogManager';
 import StockLocationsPage from './settings/StockLocationsPage';
 import DayBook from './DayBook';
 import StorefrontManager from '../components/StorefrontManager';
+import ChangeOwnPassword from '../components/ChangeOwnPassword';
 import SupportPanel from '../components/SupportPanel';
 import TeamManager from '../components/TeamManager';
 import { useAuth } from '../context/AuthContext';
@@ -285,6 +286,11 @@ export default function Settings() {
                     )}
                   </div>
                 </div>
+
+                {/* Only the Super Admin. Everyone else's password is set for them and stays
+                    permanent -- staff who change their own leave nobody able to help them back
+                    in. The owner is the exception because there is nobody above them. */}
+                {isSuperAdmin && <ChangeOwnPassword />}
               </div>
             </div>
           )}

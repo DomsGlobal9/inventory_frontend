@@ -25,6 +25,16 @@ const api = axios.create({
 // Must match AuthContext.jsx's STORAGE_KEY — this used to be a different string
 // ('scaleezy_auth'), so the 401 handler below was clearing a localStorage key nobody
 // ever wrote to, leaving the real stored user behind until the next session check.
+/**
+ * Pages a signed-out visitor is entitled to see.
+ *
+ * An explicit list rather than something inferred, because being wrong in the other direction
+ * is worse: a page that DOES need a session but is listed here would leave someone staring at
+ * a broken screen instead of being asked to sign in. Add a path only when the page genuinely
+ * works with nobody logged in.
+ */
+const PUBLIC_PATHS = ['/', '/login', '/signup'];
+
 const STORAGE_KEY = 'scaleezy_auth_user';
 export const LOCATION_STORAGE_KEY = 'scaleezy_location_id';
 
@@ -60,6 +70,22 @@ api.interceptors.response.use(
       if (window.location.pathname.startsWith('/platformconsole')) {
         return Promise.reject(error.response?.data || error);
       }
+
+      // Nor from a page that never required a session in the first place.
+      //
+      // The landing page runs a session check on mount, as every page does. For a visitor who
+      // has never signed in, that check correctly returns 401 -- and this handler was reading
+      // it as "your session expired" and sending them to /login. So every prospective customer
+      // who opened the marketing site was thrown to a login screen before reading a word of
+      // it, and the only people who could see the sales pitch were the ones who had already
+      // bought.
+      //
+      // A 401 on a public page is the expected answer, not a failure: it means nobody is
+      // signed in, which those pages are built to handle themselves.
+      if (PUBLIC_PATHS.some(p => window.location.pathname === p)) {
+        return Promise.reject(error.response?.data || error);
+      }
+
       // Session was rejected/expired — send the user back to login.
       localStorage.removeItem(STORAGE_KEY);
       if (!window.location.pathname.startsWith('/login')) {

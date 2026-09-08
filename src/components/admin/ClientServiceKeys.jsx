@@ -18,7 +18,20 @@ import {
  */
 
 const SERVICE_LABELS = {
-  CATALOG_TRYON: 'Virtual Try-On'
+  CATALOG_TRYON: '4-View Catalog Try-On',
+  SHOPPER_TRYON: 'Try-On'
+};
+
+/** What each service does, so an admin pasting a key knows which one they are pasting into. */
+const SERVICE_BLURBS = {
+  CATALOG_TRYON: 'Staff turn one garment photograph into four catalogue views, inside the app.',
+  SHOPPER_TRYON: 'Customers scan the QR code on a garment and see themselves wearing it.'
+};
+
+/** A generation and a try-on are counted the same way and are not the same thing. */
+const SERVICE_UNITS = {
+  CATALOG_TRYON: 'generations',
+  SHOPPER_TRYON: 'try-ons'
 };
 
 /**
@@ -31,19 +44,21 @@ const SERVICE_LABELS = {
  * A blank field means unlimited, and zero means zero. Those are opposite intentions and the
  * input keeps them apart rather than treating an empty box as a number.
  */
-function UsageAndLimit({ clientId }) {
-  const { data, isLoading } = useClientTryOnUsage(clientId);
+function UsageAndLimit({ clientId, service }) {
+  const { data, isLoading } = useClientTryOnUsage(clientId, service);
   const setLimit = useSetClientTryOnLimit();
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState('');
 
   if (isLoading || !data?.summary) return null;
   const u = data.summary;
+  const unit = SERVICE_UNITS[service] ?? 'generations';
 
   const save = async (e) => {
     e.preventDefault();
     await setLimit.mutateAsync({
       clientId,
+      service,
       monthlyLimit: value.trim() === '' ? null : Number(value.trim())
     });
     setEditing(false);
@@ -56,7 +71,7 @@ function UsageAndLimit({ clientId }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
         <div style={{ fontSize: '13px' }}>
           <strong>{u.generations}</strong>
-          {u.monthlyLimit === null ? ' generations' : ` of ${u.monthlyLimit}`} this month
+          {u.monthlyLimit === null ? ` ${unit}` : ` of ${u.monthlyLimit}`} this month
           <span style={{ color: 'var(--text-muted)' }}>
             {' · '}{u.viewsGenerated} views
             {u.failed > 0 ? ` · ${u.failed} failed` : ''}
@@ -81,7 +96,7 @@ function UsageAndLimit({ clientId }) {
       )}
       {u.overLimit && (
         <p style={{ margin: '8px 0 0', fontSize: '12px', color: 'var(--accent-danger,#ef4444)' }}>
-          Over the limit. Their generations are being refused.
+          Over the limit. Their {unit} are being refused.
         </p>
       )}
 
@@ -144,13 +159,21 @@ export default function ClientServiceKeys({ clientId }) {
         </p>
       </div>
 
-      {services.map(svc => (
-        <div key={svc.service} style={{ padding: '18px 20px' }}>
-          {svc.service === 'CATALOG_TRYON' && <UsageAndLimit clientId={clientId} />}
+      {services.map((svc, i) => (
+        <div key={svc.service} style={{
+          padding: '18px 20px',
+          // Each service is its own block with its own key, allowance and figures. Without a
+          // divider the two run together and it stops being obvious which key belongs to which.
+          borderTop: i === 0 ? 'none' : '1px solid var(--border-light)'
+        }}>
+          <UsageAndLimit clientId={clientId} service={svc.service} />
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', flexWrap: 'wrap' }}>
             <div style={{ minWidth: '240px', flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
                 <strong style={{ fontSize: '14px' }}>{SERVICE_LABELS[svc.service] ?? svc.service}</strong>
+                {/* Two try-ons on one page, and pasting a key into the wrong one gives a
+                    client a service they did not buy while the one they did stays broken.
+                    Naming what each does costs a line and removes the guess. */}
                 <span style={{
                   fontSize: '11px', fontWeight: 700, letterSpacing: '.04em',
                   color: svc.configured ? 'var(--accent-success,#22c55e)' : 'var(--text-muted)'
@@ -158,6 +181,12 @@ export default function ClientServiceKeys({ clientId }) {
                   {svc.configured ? 'OWN KEY' : svc.usingSharedFallback ? 'SHARED KEY' : 'NOT AVAILABLE'}
                 </span>
               </div>
+
+              {SERVICE_BLURBS[svc.service] && (
+                <p style={{ margin: '0 0 8px', fontSize: '12px', color: 'var(--text-muted)' }}>
+                  {SERVICE_BLURBS[svc.service]}
+                </p>
+              )}
 
               {svc.configured ? (
                 <div style={{ fontSize: '12.5px', color: 'var(--text-secondary)' }}>

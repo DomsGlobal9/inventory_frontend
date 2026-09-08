@@ -325,11 +325,36 @@ export default function ProductDetails() {
                         </div>
                       </div>
                       
+                      {/* The try-on code, for printing on the garment's tag.
+                          The address comes from the server (`tryOnScanUrl`), not from this
+                          screen: the code gets printed and a printed tag outlives every
+                          deploy, so where it points is one decision in one place. It used to
+                          be assembled here as scaleezy.com/tryon/<code>, which nothing has
+                          ever served -- every code printed from this screen led nowhere. */}
                       <div style={{ marginTop: '12px', paddingTop: '16px', borderTop: '1px solid var(--border-light)' }}>
-                        <span style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)', display: 'block', marginBottom: '8px' }}>Storefront QR Code</span>
-                        <div style={{ background: '#fff', padding: '8px', borderRadius: '8px', display: 'inline-flex' }}>
-                          <QRCodeSVG value={`https://scaleezy.com/tryon/${product.productCode}`} size={120} />
-                        </div>
+                        <span style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)', display: 'block', marginBottom: '8px' }}>
+                          Try-On QR Code
+                        </span>
+
+                        {product.tryOnScanUrl ? (
+                          <>
+                            <div style={{ background: '#fff', padding: '8px', borderRadius: '8px', display: 'inline-flex' }}>
+                              <QRCodeSVG value={product.tryOnScanUrl} size={120} />
+                            </div>
+                            <p style={{ margin: '8px 0 0', fontSize: '12px', color: 'var(--text-secondary)', maxWidth: '240px' }}>
+                              {product.status === 'ACTIVE'
+                                ? 'A customer scans this and sees themselves wearing it.'
+                                // Worth saying here rather than letting someone print a tag
+                                // and discover it in the shop: the scan resolves published
+                                // products only.
+                                : 'This works once the product is published — a scan finds nothing while it is a draft.'}
+                            </p>
+                          </>
+                        ) : (
+                          <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-muted)', maxWidth: '240px' }}>
+                            Try-On is not switched on for this workspace yet, so there is no code to print.
+                          </p>
+                        )}
                       </div>
 
                     </div>

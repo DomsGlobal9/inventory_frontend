@@ -328,10 +328,12 @@ export const useRevokeClientServiceKey = () => {
   });
 };
 
-export const useClientTryOnUsage = (clientId) => {
+// The service is in the query key as well as the URL. Without it the two services share one
+// cache entry and each shows the other's figures under its own heading.
+export const useClientTryOnUsage = (clientId, service = 'CATALOG_TRYON') => {
   return useQuery({
-    queryKey: ['admin', 'clients', clientId, 'tryon-usage'],
-    queryFn: async () => (await api.get(`/admin/clients/${clientId}/tryon-usage`)).data,
+    queryKey: ['admin', 'clients', clientId, 'tryon-usage', service],
+    queryFn: async () => (await api.get(`/admin/clients/${clientId}/tryon-usage?service=${service}`)).data,
     enabled: !!clientId
   });
 };
@@ -341,13 +343,14 @@ export const useSetClientTryOnLimit = () => {
   return useMutation({
     // Empty means unlimited, deliberately -- clearing a limit and setting it to zero are
     // opposite intentions, and a blank field reads as the first.
-    mutationFn: async ({ clientId, monthlyLimit }) =>
-      (await api.patch(`/admin/clients/${clientId}/tryon-limit`, { monthlyLimit })).data,
-    onSuccess: (result, { clientId }) => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'clients', clientId, 'tryon-usage'] });
+    mutationFn: async ({ clientId, monthlyLimit, service = 'CATALOG_TRYON' }) =>
+      (await api.patch(`/admin/clients/${clientId}/tryon-limit`, { monthlyLimit, service })).data,
+    onSuccess: (result, { clientId, service = 'CATALOG_TRYON' }) => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'clients', clientId, 'tryon-usage', service] });
+      const unit = service === 'SHOPPER_TRYON' ? 'try-ons' : 'generations';
       toast.success(result?.monthlyLimit === null
         ? 'Limit removed — this client is now unlimited.'
-        : `Limit set to ${result.monthlyLimit} generations a month.`);
+        : `Limit set to ${result.monthlyLimit} ${unit} a month.`);
     },
     onError: (error) => toast.error(error?.message || 'Could not set that limit')
   });

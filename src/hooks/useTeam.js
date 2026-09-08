@@ -117,11 +117,17 @@ export const useMyServices = () => {
   });
 };
 
-/** This workspace's own try-on usage for the current month. */
-export const useMyTryOnUsage = () => {
+/**
+ * This workspace's own try-on usage for the current month, for one service.
+ *
+ * The service is part of the query key, not just the URL. Leaving it out would let the two
+ * services share one cache entry and show each other's numbers -- the same figure under two
+ * different headings, which is worse than no figure at all.
+ */
+export const useMyTryOnUsage = (service = 'CATALOG_TRYON') => {
   return useQuery({
-    queryKey: ['services', 'tryon-usage'],
-    queryFn: async () => (await api.get('/services/tryon-usage')).data,
+    queryKey: ['services', 'tryon-usage', service],
+    queryFn: async () => (await api.get(`/services/tryon-usage?service=${service}`)).data,
     staleTime: 30_000
   });
 };

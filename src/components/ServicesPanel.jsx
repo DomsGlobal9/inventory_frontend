@@ -1,5 +1,5 @@
 import React from 'react';
-import { Loader2, Sparkles, ShieldCheck } from 'lucide-react';
+import { Loader2, Sparkles, ShieldCheck, QrCode } from 'lucide-react';
 import { useMyServices, useMyTryOnUsage } from '../hooks/useTeam';
 
 /**
@@ -15,7 +15,8 @@ import { useMyServices, useMyTryOnUsage } from '../hooks/useTeam';
  */
 
 const ICONS = {
-  CATALOG_TRYON: Sparkles
+  CATALOG_TRYON: Sparkles,
+  SHOPPER_TRYON: QrCode
 };
 
 /**
@@ -25,7 +26,19 @@ const ICONS = {
  * were never shown has no way to understand it and nothing to do about it; a merchant who
  * watched it fill up can ask for more before they are stuck.
  */
-function UsageBar({ usage }) {
+/**
+ * What a unit of each service is called, in the merchant's terms.
+ *
+ * The two are counted the same way and mean different things: a catalog generation produces
+ * four views of a garment, a shopper try-on produces one picture of one customer. Calling both
+ * "generations" would be accurate and useless.
+ */
+const UNIT_FOR = {
+  CATALOG_TRYON: { noun: 'generations', showViews: true },
+  SHOPPER_TRYON: { noun: 'try-ons', showViews: false }
+};
+
+function UsageBar({ usage, unit = UNIT_FOR.CATALOG_TRYON }) {
   if (!usage) return null;
 
   const limited = usage.monthlyLimit !== null;
@@ -39,7 +52,7 @@ function UsageBar({ usage }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', marginBottom: '8px' }}>
         <span style={{ color: 'var(--text-secondary)' }}>This month</span>
         <strong>
-          {usage.generations}{limited ? ` of ${usage.monthlyLimit}` : ''} generations
+          {usage.generations}{limited ? ` of ${usage.monthlyLimit}` : ''} {unit.noun}
         </strong>
       </div>
 
@@ -63,7 +76,10 @@ function UsageBar({ usage }) {
       {/* Views are shown separately because they are what the merchant actually received. A
           run that produced three of four is visible here rather than rounded up. */}
       <p style={{ margin: '10px 0 0', fontSize: '12px', color: 'var(--text-muted)' }}>
-        {usage.viewsGenerated} views produced
+        {/* Views are shown for the catalog service because a run that produced three of four
+            is a real outcome the merchant should see. A shopper try-on is one picture, so the
+            count would only ever repeat the number above it. */}
+        {unit.showViews ? `${usage.viewsGenerated} views produced` : `${usage.completed} completed`}
         {usage.failed > 0 ? ` · ${usage.failed} run${usage.failed === 1 ? '' : 's'} failed` : ''}
         {usage.cancelled > 0 ? ` · ${usage.cancelled} cancelled (not counted)` : ''}
       </p>
@@ -73,7 +89,11 @@ function UsageBar({ usage }) {
 
 export default function ServicesPanel() {
   const { data: services = [], isLoading } = useMyServices();
-  const { data: tryOnUsage } = useMyTryOnUsage();
+  // One query per service. They are metered separately, so they are fetched separately --
+  // sharing one would put one service's numbers under the other's heading.
+  const { data: catalogUsage } = useMyTryOnUsage('CATALOG_TRYON');
+  const { data: shopperUsage } = useMyTryOnUsage('SHOPPER_TRYON');
+  const usageFor = { CATALOG_TRYON: catalogUsage, SHOPPER_TRYON: shopperUsage };
 
   if (isLoading) {
     return (
@@ -164,7 +184,7 @@ export default function ServicesPanel() {
                 </div>
               )}
 
-              {svc.active && svc.id === 'CATALOG_TRYON' && <UsageBar usage={tryOnUsage} />}
+              {svc.active && <UsageBar usage={usageFor[svc.id]} unit={UNIT_FOR[svc.id]} />}
             </div>
           );
         })

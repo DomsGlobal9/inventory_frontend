@@ -233,7 +233,11 @@ export const useSetPlatformAdminStatus = () => {
  */
 export const useResetPlatformAdminPassword = () => {
   return useMutation({
-    mutationFn: async (id) => (await api.post(`/admin/platform-admins/${id}/password`, {})).data,
+    // An object rather than a bare id, so the caller can pass a chosen password AND so the
+    // page can tell WHICH row is currently working -- `reset.variables.id`. With a bare id
+    // every card in the grid shows the same spinner at once.
+    mutationFn: async ({ id, customPassword }) =>
+      (await api.post(`/admin/platform-admins/${id}/password`, { customPassword })).data,
     onSuccess: (result) => {
       if (result?.emailed) toast.success(`New password sent to ${result.email}.`);
       else toast.error(`Password changed, but not emailed: ${result?.emailReason ?? 'unknown reason'}`, { duration: 12000 });

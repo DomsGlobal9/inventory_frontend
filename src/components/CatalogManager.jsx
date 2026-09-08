@@ -24,6 +24,16 @@ export default function CatalogManager({ type }) {
   
   const [formData, setFormData] = useState({ label: '', value: '', category: '', hex: '#000000' });
   const [searchQuery, setSearchQuery] = useState('');
+  // Shown only once someone has tried to save. Marking a field red before they have finished
+  // typing it is nagging, not helping.
+  const [showErrors, setShowErrors] = useState(false);
+
+  // #RGB and #RRGGBB, which is what a colour input and a hand-typed value both produce.
+  const HEX_PATTERN = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
+  const labelError = !formData.label.trim() ? 'Give it a name.' : '';
+  const hexError = type === 'COLOR' && !HEX_PATTERN.test(formData.hex.trim())
+    ? 'Use a hex colour like #FF69B4.' : '';
+  const cannotSave = Boolean(labelError || hexError);
 
   const itemsList = Array.isArray(response?.data) ? response.data : (Array.isArray(response) ? response : []);
   const items = itemsList
@@ -42,7 +52,8 @@ export default function CatalogManager({ type }) {
   const handleAddStart = () => {
     setIsEditing(false);
     setEditingItem(null);
-    setFormData({ label: '', value: '', category: '', hex: '#000000' });
+    setFormData({ label: "", value: "", category: "", hex: "#000000" });
+    setShowErrors(false);
     setModalOpen(true);
   };
 
@@ -60,11 +71,14 @@ export default function CatalogManager({ type }) {
 
   const handleCloseModal = () => {
     setModalOpen(false);
+    setShowErrors(false);
     setEditingItem(null);
   };
 
   const handleSave = () => {
-    if (!formData.label) return;
+    // This used to be a bare `return` on an empty label: the button moved, nothing happened,
+    // and the screen said nothing about why. Now the reason is on the field.
+    if (cannotSave) { setShowErrors(true); return; }
 
     const finalValue = formData.value.trim() || formData.label.toUpperCase().replace(/\s+/g, '_');
 
@@ -106,9 +120,11 @@ export default function CatalogManager({ type }) {
     if (editingItem.isActive) {
       setConfirmState({
         isOpen: true,
-        title: 'Disable Item',
-        message: `Are you sure you want to disable "${editingItem.label}"? It will be hidden from dropdowns but kept for historical records.`,
-        confirmText: 'Disable',
+        title: `Disable ${editingItem.label}?`,
+        // Says what happens rather than asking whether they are sure. "Are you sure" is a
+        // question nobody can answer without already knowing the consequence.
+        message: `It stops appearing when someone is adding a product. Products already using ${editingItem.label} keep it and are not changed. You can turn it back on at any time.`,
+        confirmText: `Disable ${editingItem.label}`,
         confirmStyle: 'warning',
         onConfirm: () => {
           updateMutation.mutate({ id: editingItem.id, isActive: false }, {
@@ -131,9 +147,9 @@ export default function CatalogManager({ type }) {
     
     setConfirmState({
       isOpen: true,
-      title: 'Permanently Delete Item',
-      message: `Are you sure you want to permanently delete "${editingItem.label}"? This action cannot be undone.`,
-      confirmText: 'Delete Permanently',
+      title: `Delete ${editingItem.label}?`,
+      message: `${editingItem.label} is removed from this ${getTypeName(type).toLowerCase()} list for good. Nothing is using it, so no product changes — but it cannot be brought back, and you would have to add it again from scratch.`,
+      confirmText: `Delete ${editingItem.label}`,
       confirmStyle: 'danger',
       onConfirm: () => {
         deleteMutation.mutate(editingItem.id, {
@@ -276,11 +292,11 @@ export default function CatalogManager({ type }) {
             boxShadow: 'var(--shadow-modal)', padding: '24px',
             display: 'flex', flexDirection: 'column', gap: '20px'
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 600, margin: 0, color: 'var(--text-primary)' }}>
-                {isEditing ? `Edit ${editingItem?.label}` : `Add New ${getTypeName(type)}`}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <h3 style={{ fontSize: '20px', fontWeight: 600, margin: 0, color: 'var(--text-primary)' }}>
+                {isEditing ? `Edit ${editingItem?.label}` : `Add ${getTypeName(type)}`}
               </h3>
-              <button onClick={handleCloseModal} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
+              <button onClick={handleCloseModal} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '4px' }}>
                 <X size={20} />
               </button>
             </div>
@@ -294,8 +310,11 @@ export default function CatalogManager({ type }) {
                   value={formData.label} 
                   onChange={e => setFormData({...formData, label: e.target.value})} 
                   placeholder={placeholders.label}
-                  style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-light)', borderRadius: '8px', background: 'var(--bg-input)', color: 'var(--text-primary)' }}
+                  style={{ width: '100%', padding: '12px 14px', border: `2px solid ${showErrors && labelError ? 'rgb(220, 38, 38)' : 'var(--text-primary)'}`, borderRadius: '8px', background: 'var(--bg-card)', color: 'var(--text-primary)', fontSize: '15px', fontWeight: 500, outline: 'none' }}
                 />
+                {showErrors && labelError && (
+                  <p style={{ margin: '6px 0 0', fontSize: '12.5px', color: 'rgb(220, 38, 38)' }}>{labelError}</p>
+                )}
               </div>
 
               {!isEditing && (
@@ -306,7 +325,7 @@ export default function CatalogManager({ type }) {
                     value={formData.value} 
                     onChange={e => setFormData({...formData, value: e.target.value})} 
                     placeholder={placeholders.value + " (Auto-generates)"}
-                    style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-light)', borderRadius: '8px', background: 'var(--bg-input)', color: 'var(--text-primary)' }}
+                    style={{ width: '100%', padding: '12px 14px', border: '1px solid var(--border-light)', borderRadius: '8px', background: 'var(--bg-input)', color: 'var(--text-primary)' }}
                   />
                 </div>
               )}
@@ -315,19 +334,27 @@ export default function CatalogManager({ type }) {
                 <div>
                   <label style={{ display: 'block', fontSize: '13px', marginBottom: '6px', color: 'var(--text-secondary)' }}>Hex Color</label>
                   <div style={{ display: 'flex', gap: '12px' }}>
-                    <input 
-                      type="color" 
-                      value={formData.hex} 
+                    <input
+                      type="color"
+                      // The swatch cannot represent a half-typed value like "#FF6", and a
+                      // colour input given one silently falls back to black -- so the picker
+                      // keeps showing the last good colour while the text is being edited.
+                      value={hexError ? (editingItem?.metadata?.hex || '#000000') : formData.hex}
                       onChange={e => setFormData({...formData, hex: e.target.value})}
-                      style={{ width: '40px', height: '40px', padding: '0', border: 'none', borderRadius: '8px', cursor: 'pointer', background: 'transparent' }}
+                      title="Pick a colour"
+                      style={{ width: '48px', height: '48px', padding: '0', border: 'none', borderRadius: '8px', cursor: 'pointer', background: 'transparent' }}
                     />
-                    <input 
-                      type="text" 
-                      value={formData.hex} 
-                      onChange={e => setFormData({...formData, hex: e.target.value})} 
-                      style={{ flex: 1, padding: '10px 12px', border: '1px solid var(--border-light)', borderRadius: '8px', background: 'var(--bg-input)', color: 'var(--text-primary)' }}
+                    <input
+                      type="text"
+                      value={formData.hex}
+                      onChange={e => setFormData({...formData, hex: e.target.value})}
+                      spellCheck={false}
+                      style={{ flex: 1, padding: '12px 14px', border: `2px solid ${showErrors && hexError ? 'rgb(220, 38, 38)' : 'var(--text-primary)'}`, borderRadius: '8px', background: 'var(--bg-card)', color: 'var(--text-primary)', fontSize: '15px', fontWeight: 500, outline: 'none', fontFamily: 'ui-monospace, Menlo, monospace' }}
                     />
                   </div>
+                  {showErrors && hexError && (
+                    <p style={{ margin: '6px 0 0', fontSize: '12.5px', color: 'rgb(220, 38, 38)' }}>{hexError}</p>
+                  )}
                 </div>
               )}
 
@@ -337,9 +364,10 @@ export default function CatalogManager({ type }) {
                   <div 
                     onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
                     style={{ 
-                      width: '100%', padding: '10px 12px', border: '1px solid var(--border-light)', 
-                      borderRadius: '8px', background: 'var(--bg-input)', color: 'var(--text-primary)',
-                      cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+                      width: '100%', padding: '12px 14px', border: '2px solid var(--text-primary)', 
+                      borderRadius: '8px', background: 'var(--bg-card)', color: 'var(--text-primary)',
+                      cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                      fontSize: '15px', fontWeight: 500
                     }}
                   >
                     <span>
@@ -348,7 +376,7 @@ export default function CatalogManager({ type }) {
                        formData.category === 'KIDS' ? 'Kids' : 
                        'Select Category...'}
                     </span>
-                    <ChevronDown size={16} style={{ color: 'var(--text-secondary)' }} />
+                    <ChevronDown size={18} style={{ color: 'var(--text-primary)' }} />
                   </div>
                   
                   {categoryDropdownOpen && (
@@ -371,7 +399,7 @@ export default function CatalogManager({ type }) {
                             setCategoryDropdownOpen(false);
                           }}
                           style={{
-                            padding: '10px 12px', cursor: 'pointer', fontSize: '14px',
+                            padding: '12px 14px', cursor: 'pointer', fontSize: '15px', fontWeight: 500,
                             background: formData.category === opt.val ? 'var(--bg-hover)' : 'transparent',
                             color: formData.category === opt.val ? 'var(--primary-color)' : 'var(--text-primary)',
                             borderBottom: opt.val === '' ? '1px solid var(--border-light)' : 'none'
@@ -384,52 +412,102 @@ export default function CatalogManager({ type }) {
                   )}
                 </div>
               )}
+
+              {/* Whether this is safe to delete, said on the screen.
+                  It used to live in a `title` tooltip on the Delete button -- invisible until
+                  you hover, and invisible altogether on a touch screen. That is the one fact
+                  that decides whether the destructive button is even allowed, so a greyed-out
+                  Delete with no stated reason is the worst version of it. */}
+              {isEditing && (
+                <div style={{
+                  display: 'flex', gap: '10px', alignItems: 'flex-start',
+                  padding: '12px 14px', borderRadius: '8px', fontSize: '13px', lineHeight: 1.5,
+                  background: editingItem?.usageCount > 0 ? 'rgba(245, 158, 11, 0.08)' : 'var(--bg-input)',
+                  color: editingItem?.usageCount > 0 ? 'var(--text-primary)' : 'var(--text-secondary)'
+                }}>
+                  {editingItem?.usageCount > 0
+                    ? <Lock size={15} style={{ flexShrink: 0, marginTop: '2px', color: 'rgb(180, 120, 10)' }} />
+                    : <Check size={15} style={{ flexShrink: 0, marginTop: '2px' }} />}
+                  <span>
+                    {editingItem?.usageCount > 0 ? (
+                      <>
+                        In use by <strong>{editingItem.usageCount}</strong>{' '}
+                        {editingItem.usageCount === 1 ? 'product' : 'products'}.
+                        {' '}Renaming it is fine and updates everywhere. It cannot be deleted —
+                        disable it instead to take it out of the dropdowns while the existing
+                        products keep it.
+                      </>
+                    ) : (
+                      <>Not used by any product yet, so it is safe to delete.</>
+                    )}
+                  </span>
+                </div>
+              )}
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', paddingTop: '16px', borderTop: '1px solid var(--border-light)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginTop: '24px', paddingTop: '24px', borderTop: '1px solid var(--border-light)' }}>
+              {/* Disable and Delete are deliberately quieter than Save. They are the rare
+                  actions on this screen; renaming is the common one. */}
               {isEditing ? (
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <button 
-                    onClick={handleToggleActive}
-                    disabled={updateMutation.isPending}
-                    style={{ background: 'transparent', border: '1px solid var(--border-light)', color: editingItem?.isActive ? 'var(--text-secondary)' : 'rgb(22, 163, 74)', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', fontWeight: 500 }}
-                  >
-                    {editingItem?.isActive ? <><X size={16} /> Disable</> : <><RotateCcw size={16} /> Enable</>}
-                  </button>
-                  
-                  <div title={editingItem?.usageCount > 0 ? `Used by ${editingItem.usageCount} products/variants. Disable instead.` : ''}>
-                    <button 
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  {(() => {
+                    const turningOff = editingItem?.isActive;
+                    // Scoped to what is actually running: Save uses the same mutation, so a
+                    // bare isPending spun this button while the user was saving a rename.
+                    const busy = updateMutation.isPending
+                      && updateMutation.variables?.isActive !== undefined;
+                    return (
+                      <button
+                        onClick={handleToggleActive}
+                        disabled={updateMutation.isPending}
+                        style={{ background: 'transparent', border: '1px solid var(--border-light)', color: turningOff ? 'var(--text-secondary)' : 'rgb(22, 163, 74)', padding: '10px 16px', borderRadius: '8px', cursor: updateMutation.isPending ? 'default' : 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: 500 }}
+                      >
+                        {busy
+                          ? <><Loader2 size={16} className="animate-spin" /> {turningOff ? 'Disabling…' : 'Enabling…'}</>
+                          // Not an X: that glyph already closes this modal in the corner, and
+                          // having it also mean "disable" made three different ways to say no.
+                          : <><RotateCcw size={16} /> {turningOff ? 'Disable' : 'Enable'}</>}
+                      </button>
+                    );
+                  })()}
+
+                  {/* Only offered when it is actually possible. A permanently disabled button
+                      is a question the screen refuses to answer; the reason is stated above
+                      instead, where there is room to say what to do about it. */}
+                  {!(editingItem?.usageCount > 0) && (
+                    <button
                       onClick={handleDelete}
-                      disabled={deleteMutation.isPending || editingItem?.usageCount > 0}
-                      style={{ 
-                        background: 'transparent', 
-                        border: '1px solid var(--border-light)', 
-                        color: editingItem?.usageCount > 0 ? 'var(--text-disabled)' : 'rgb(220, 38, 38)', 
-                        padding: '8px 16px', 
-                        borderRadius: '8px', 
-                        cursor: editingItem?.usageCount > 0 ? 'not-allowed' : 'pointer', 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: '6px', 
-                        fontSize: '14px', 
-                        fontWeight: 500,
-                        opacity: editingItem?.usageCount > 0 ? 0.5 : 1
-                      }}
+                      disabled={deleteMutation.isPending}
+                      style={{ background: 'transparent', border: 'none', color: 'rgb(220, 38, 38)', padding: '10px 12px', borderRadius: '8px', cursor: deleteMutation.isPending ? 'default' : 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: 500 }}
                     >
-                      <Trash2 size={16} /> Delete
+                      {deleteMutation.isPending
+                        ? <><Loader2 size={16} className="animate-spin" /> Deleting…</>
+                        : <><Trash2 size={16} /> Delete</>}
                     </button>
-                  </div>
+                  )}
                 </div>
               ) : (
                 <div />
               )}
 
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <button onClick={handleCloseModal} style={{ background: 'transparent', color: 'var(--text-secondary)', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 500 }}>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <button onClick={handleCloseModal} style={{ background: 'transparent', color: 'var(--text-secondary)', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '15px', fontWeight: 600 }}>
                   Cancel
                 </button>
-                <button onClick={handleSave} disabled={addMutation.isPending || updateMutation.isPending} style={{ background: 'var(--primary-color)', color: '#fff', border: 'none', padding: '8px 20px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', fontWeight: 500 }}>
-                  {(addMutation.isPending || updateMutation.isPending) ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} Save
+                <button
+                  onClick={handleSave}
+                  // Never disabled on invalid input: a button that cannot be pressed and does
+                  // not say why is the reason people think the screen is broken. Pressing it
+                  // reveals what is wrong instead.
+                  disabled={addMutation.isPending || updateMutation.isPending}
+                  style={{ background: 'var(--text-primary)', color: 'var(--bg-card)', border: 'none', padding: '10px 24px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '15px', fontWeight: 600, opacity: showErrors && cannotSave ? 0.6 : 1 }}
+                >
+                  {/* Save and Disable share one mutation, so this asks which of the two is
+                      actually in flight -- otherwise both buttons spun for either action. */}
+                  {addMutation.isPending
+                    || (updateMutation.isPending && updateMutation.variables?.isActive === undefined)
+                    ? <><Loader2 size={18} className="animate-spin" /> Saving…</>
+                    : <><Save size={18} /> Save</>}
                 </button>
               </div>
             </div>

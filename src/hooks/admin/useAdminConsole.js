@@ -327,3 +327,28 @@ export const useRevokeClientServiceKey = () => {
     onError: (error) => toast.error(error?.message || 'Could not disconnect that key')
   });
 };
+
+export const useClientTryOnUsage = (clientId) => {
+  return useQuery({
+    queryKey: ['admin', 'clients', clientId, 'tryon-usage'],
+    queryFn: async () => (await api.get(`/admin/clients/${clientId}/tryon-usage`)).data,
+    enabled: !!clientId
+  });
+};
+
+export const useSetClientTryOnLimit = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    // Empty means unlimited, deliberately -- clearing a limit and setting it to zero are
+    // opposite intentions, and a blank field reads as the first.
+    mutationFn: async ({ clientId, monthlyLimit }) =>
+      (await api.patch(`/admin/clients/${clientId}/tryon-limit`, { monthlyLimit })).data,
+    onSuccess: (result, { clientId }) => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'clients', clientId, 'tryon-usage'] });
+      toast.success(result?.monthlyLimit === null
+        ? 'Limit removed — this client is now unlimited.'
+        : `Limit set to ${result.monthlyLimit} generations a month.`);
+    },
+    onError: (error) => toast.error(error?.message || 'Could not set that limit')
+  });
+};

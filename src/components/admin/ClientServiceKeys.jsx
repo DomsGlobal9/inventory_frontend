@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { KeyRound, Loader2, Check, Plug, Unplug } from 'lucide-react';
 import {
-  useClientServiceKeys, useSetClientServiceKey, useRevokeClientServiceKey
+  useClientServiceKeys, useSetClientServiceKey, useRevokeClientServiceKey,
+  useClientTryOnUsage, useSetClientTryOnLimit
 } from '../../hooks/admin/useAdminConsole';
 
 /**
@@ -19,6 +20,90 @@ import {
 const SERVICE_LABELS = {
   CATALOG_TRYON: 'Virtual Try-On'
 };
+
+/**
+ * This client's usage, and the allowance an admin can set.
+ *
+ * Sits above the key rather than below it because it is the question actually being asked when
+ * someone opens this page -- "how much are they using" comes up far more often than "what is
+ * their key".
+ *
+ * A blank field means unlimited, and zero means zero. Those are opposite intentions and the
+ * input keeps them apart rather than treating an empty box as a number.
+ */
+function UsageAndLimit({ clientId }) {
+  const { data, isLoading } = useClientTryOnUsage(clientId);
+  const setLimit = useSetClientTryOnLimit();
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState('');
+
+  if (isLoading || !data?.summary) return null;
+  const u = data.summary;
+
+  const save = async (e) => {
+    e.preventDefault();
+    await setLimit.mutateAsync({
+      clientId,
+      monthlyLimit: value.trim() === '' ? null : Number(value.trim())
+    });
+    setEditing(false);
+  };
+
+  return (
+    <div style={{
+      background: 'var(--bg-input)', borderRadius: '10px', padding: '14px 16px', marginBottom: '16px'
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+        <div style={{ fontSize: '13px' }}>
+          <strong>{u.generations}</strong>
+          {u.monthlyLimit === null ? ' generations' : ` of ${u.monthlyLimit}`} this month
+          <span style={{ color: 'var(--text-muted)' }}>
+            {' · '}{u.viewsGenerated} views
+            {u.failed > 0 ? ` · ${u.failed} failed` : ''}
+            {u.cancelled > 0 ? ` · ${u.cancelled} cancelled` : ''}
+          </span>
+        </div>
+
+        {!editing && (
+          <button className="btn-secondary" style={{ fontSize: '12.5px', minHeight: '34px', padding: '0 12px' }}
+            onClick={() => { setEditing(true); setValue(u.monthlyLimit === null ? '' : String(u.monthlyLimit)); }}>
+            {u.monthlyLimit === null ? 'Set a limit' : 'Change limit'}
+          </button>
+        )}
+      </div>
+
+      {/* Unlimited is a real state, and a quiet one -- try-on is GPU work, so a client with no
+          ceiling is worth naming rather than leaving as an absence on the screen. */}
+      {u.monthlyLimit === null && !editing && (
+        <p style={{ margin: '8px 0 0', fontSize: '12px', color: 'var(--text-muted)' }}>
+          No limit set — this client can generate without a ceiling.
+        </p>
+      )}
+      {u.overLimit && (
+        <p style={{ margin: '8px 0 0', fontSize: '12px', color: 'var(--accent-danger,#ef4444)' }}>
+          Over the limit. Their generations are being refused.
+        </p>
+      )}
+
+      {editing && (
+        <form onSubmit={save} style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
+          <input className="input-field" type="number" min="0" value={value}
+            onChange={e => setValue(e.target.value)}
+            placeholder="Blank for unlimited"
+            style={{ flex: 1, minWidth: '160px' }} />
+          <button type="submit" className="btn-primary" disabled={setLimit.isPending}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', minHeight: '38px' }}>
+            {setLimit.isPending ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+            Save
+          </button>
+          <button type="button" className="btn-secondary" onClick={() => setEditing(false)} style={{ minHeight: '38px' }}>
+            Cancel
+          </button>
+        </form>
+      )}
+    </div>
+  );
+}
 
 export default function ClientServiceKeys({ clientId }) {
   const { data: services = [], isLoading } = useClientServiceKeys(clientId);
@@ -61,6 +146,7 @@ export default function ClientServiceKeys({ clientId }) {
 
       {services.map(svc => (
         <div key={svc.service} style={{ padding: '18px 20px' }}>
+          {svc.service === 'CATALOG_TRYON' && <UsageAndLimit clientId={clientId} />}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', flexWrap: 'wrap' }}>
             <div style={{ minWidth: '240px', flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>

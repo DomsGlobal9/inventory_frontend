@@ -1,6 +1,6 @@
 import React from 'react';
 import { Loader2, Sparkles, ShieldCheck } from 'lucide-react';
-import { useMyServices } from '../hooks/useTeam';
+import { useMyServices, useMyTryOnUsage } from '../hooks/useTeam';
 
 /**
  * Settings -> APIs & Services, as a merchant sees it.
@@ -18,8 +18,62 @@ const ICONS = {
   CATALOG_TRYON: Sparkles
 };
 
+/**
+ * This month's usage against the allowance.
+ *
+ * Shown before it matters, not at the moment of refusal. A merchant stopped by a number they
+ * were never shown has no way to understand it and nothing to do about it; a merchant who
+ * watched it fill up can ask for more before they are stuck.
+ */
+function UsageBar({ usage }) {
+  if (!usage) return null;
+
+  const limited = usage.monthlyLimit !== null;
+  const fraction = limited ? Math.min(usage.generations / usage.monthlyLimit, 1) : 0;
+  const tone = usage.overLimit
+    ? 'var(--accent-danger,#ef4444)'
+    : usage.approachingLimit ? 'var(--accent-warning,#f59e0b)' : 'var(--accent-success,#22c55e)';
+
+  return (
+    <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border-light)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', marginBottom: '8px' }}>
+        <span style={{ color: 'var(--text-secondary)' }}>This month</span>
+        <strong>
+          {usage.generations}{limited ? ` of ${usage.monthlyLimit}` : ''} generations
+        </strong>
+      </div>
+
+      {limited && (
+        <div style={{ height: '6px', borderRadius: '3px', background: 'var(--bg-input)', overflow: 'hidden' }}>
+          <div style={{ width: `${fraction * 100}%`, height: '100%', background: tone, transition: 'width .3s' }} />
+        </div>
+      )}
+
+      {usage.overLimit && (
+        <p style={{ margin: '10px 0 0', fontSize: '12.5px', color: 'var(--accent-danger,#ef4444)' }}>
+          You have used this month's allowance. Ask Scaleezy to raise it to carry on generating.
+        </p>
+      )}
+      {usage.approachingLimit && (
+        <p style={{ margin: '10px 0 0', fontSize: '12.5px', color: 'var(--accent-warning,#f59e0b)' }}>
+          {usage.remaining} left this month. Ask Scaleezy to raise it before you run out.
+        </p>
+      )}
+
+      {/* Views are shown separately because they are what the merchant actually received. A
+          run that produced three of four is visible here rather than rounded up. */}
+      <p style={{ margin: '10px 0 0', fontSize: '12px', color: 'var(--text-muted)' }}>
+        {usage.viewsGenerated} views produced
+        {usage.failed > 0 ? ` · ${usage.failed} run${usage.failed === 1 ? '' : 's'} failed` : ''}
+        {usage.cancelled > 0 ? ` · ${usage.cancelled} cancelled (not counted)` : ''}
+      </p>
+    </div>
+  );
+}
+
 export default function ServicesPanel() {
   const { data: services = [], isLoading } = useMyServices();
+  const { data: tryOnUsage } = useMyTryOnUsage();
 
   if (isLoading) {
     return (
@@ -109,6 +163,8 @@ export default function ServicesPanel() {
                   </div>
                 </div>
               )}
+
+              {svc.active && svc.id === 'CATALOG_TRYON' && <UsageBar usage={tryOnUsage} />}
             </div>
           );
         })

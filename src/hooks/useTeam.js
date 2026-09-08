@@ -116,3 +116,12 @@ export const useMyServices = () => {
     staleTime: 60_000
   });
 };
+
+/** This workspace's own try-on usage for the current month. */
+export const useMyTryOnUsage = () => {
+  return useQuery({
+    queryKey: ['services', 'tryon-usage'],
+    queryFn: async () => (await api.get('/services/tryon-usage')).data,
+    staleTime: 30_000
+  });
+};

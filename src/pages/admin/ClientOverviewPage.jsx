@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Loader2, ArrowLeft, LogIn, Users, Package, AlertTriangle, IndianRupee, Clock, ShieldCheck, Mail, Shield, KeyRound } from 'lucide-react';
 import { useAdminClient, useAssumeClient } from '../../hooks/admin/useAdminConsole';
+import ClientDangerZone from '../../components/admin/ClientDangerZone';
 import UserPasswordManager from '../../components/admin/UserPasswordManager';
 
 const ONBOARDING_STYLE = {
@@ -249,6 +250,10 @@ export default function ClientOverviewPage() {
           </div>
         </div>
       </div>
+
+      {/* Last on the page, and visually separate. A destructive control sitting among the
+          ordinary ones eventually gets clicked by someone reaching for the one beside it. */}
+      <ClientDangerZone clientId={clientId} suspended={data?.userCount > 0 && data?.activeUserCount === 0} />
 
       {passwordTarget && <UserPasswordManager user={passwordTarget} onClose={() => setPasswordTarget(null)} />}
     </div>

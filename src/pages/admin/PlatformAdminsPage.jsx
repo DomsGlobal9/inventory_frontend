@@ -288,15 +288,17 @@ export default function PlatformAdminsPage() {
       {isLoading ? (
         <div style={{ padding: '60px', textAlign: 'center' }}><Loader2 size={28} className="animate-spin" style={{ color: 'var(--accent-gold)' }} /></div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '24px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {admins.map((admin) => (
             <div key={admin.id} style={{
               background: 'var(--bg-card)',
               border: '1px solid var(--border-light)',
               borderRadius: '16px',
-              padding: '24px',
+              padding: '20px 24px',
               display: 'flex',
-              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '24px',
               position: 'relative',
               overflow: 'hidden',
               boxShadow: 'var(--shadow-sm)',
@@ -305,32 +307,30 @@ export default function PlatformAdminsPage() {
             onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = 'var(--shadow-md)'; }}
             onMouseOut={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'var(--shadow-sm)'; }}
             >
-              {/* Top Status Border */}
-              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '4px', background: admin.status === 'ACTIVE' ? 'var(--accent-success)' : 'var(--text-muted)' }} />
+              {/* Left Status Border Indicator */}
+              <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: '4px', background: admin.status === 'ACTIVE' ? 'var(--accent-success)' : 'var(--text-muted)' }} />
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                  <div style={{
-                    width: '52px', height: '52px', borderRadius: '50%',
-                    background: 'linear-gradient(135deg, var(--bg-input) 0%, var(--bg-dark) 100%)',
-                    border: '1px solid var(--border-light)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)'
-                  }}>
-                    {admin.name.charAt(0).toUpperCase()}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: '1 1 auto', minWidth: '250px' }}>
+                <div style={{
+                  width: '48px', height: '48px', borderRadius: '50%',
+                  background: 'linear-gradient(135deg, var(--bg-input) 0%, var(--bg-dark) 100%)',
+                  border: '1px solid var(--border-light)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', flexShrink: 0
+                }}>
+                  {admin.name.charAt(0).toUpperCase()}
+                </div>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontWeight: 700, fontSize: '16px', color: 'var(--text-primary)', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {admin.name}
                   </div>
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ fontWeight: 700, fontSize: '16px', color: 'var(--text-primary)', marginBottom: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {admin.name}
-                    </div>
-                    <div style={{ fontSize: '13px', color: 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {admin.email}
-                    </div>
+                  <div style={{ fontSize: '13.5px', color: 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {admin.email}
                   </div>
                 </div>
               </div>
 
-              <div style={{ marginBottom: '24px' }}>
+              <div style={{ flexShrink: 0, width: '120px', textAlign: 'center' }}>
                 <span style={{
                   display: 'inline-flex', alignItems: 'center', gap: '6px',
                   padding: '6px 12px', borderRadius: '20px',
@@ -343,17 +343,18 @@ export default function PlatformAdminsPage() {
                 </span>
               </div>
 
-              <div style={{ display: 'flex', gap: '10px', marginTop: 'auto', borderTop: '1px solid var(--border-light)', paddingTop: '20px' }}>
-                {/* Scoped to THIS row. A bare `reset.isPending` spins every card in the grid
-                    at once, so the operator cannot tell which admin they actually clicked. */}
+              <div style={{ display: 'flex', gap: '12px', flexShrink: 0 }}>
+                {/* Opens the confirmation rather than firing straight away, and shows progress
+                    on THIS row only. A bare reset.isPending spins every row at once, so the
+                    operator cannot tell which admin they actually pressed. */}
                 {(() => {
                   const busy = reset.isPending && reset.variables?.id === admin.id;
                   return (
                     <button className="btn-secondary" disabled={reset.isPending}
                       onClick={() => setResetting(admin)}
                       title="Issue a new password and email it"
-                      style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '13px', minHeight: '40px' }}>
-                      {busy ? <Loader2 size={14} className="animate-spin" /> : <KeyRound size={14} />}
+                      style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', padding: '8px 16px', minHeight: '40px', minWidth: '130px', justifyContent: 'center' }}>
+                      {busy ? <Loader2 size={16} className="animate-spin" /> : <KeyRound size={16} />}
                       {busy ? 'Working…' : 'Reset Pass'}
                     </button>
                   );
@@ -363,13 +364,13 @@ export default function PlatformAdminsPage() {
                   <button className="btn-secondary" disabled={setStatus.isPending || activeCount <= 1}
                     title={activeCount <= 1 ? 'This is the only active admin' : 'Deactivate'}
                     onClick={() => setStatus.mutate({ id: admin.id, status: 'INACTIVE' })}
-                    style={{ flex: 1, fontSize: '13px', minHeight: '40px', color: activeCount <= 1 ? 'var(--text-muted)' : 'var(--accent-warning)' }}>
+                    style={{ fontSize: '13px', padding: '8px 16px', minHeight: '40px', color: activeCount <= 1 ? 'var(--text-muted)' : 'var(--accent-warning)', minWidth: '110px' }}>
                     Deactivate
                   </button>
                 ) : (
                   <button className="btn-secondary" disabled={setStatus.isPending}
                     onClick={() => setStatus.mutate({ id: admin.id, status: 'ACTIVE' })}
-                    style={{ flex: 1, fontSize: '13px', minHeight: '40px', color: 'var(--accent-success)' }}>
+                    style={{ fontSize: '13px', padding: '8px 16px', minHeight: '40px', color: 'var(--accent-success)', minWidth: '110px' }}>
                     Activate
                   </button>
                 )}
@@ -379,6 +380,8 @@ export default function PlatformAdminsPage() {
         </div>
       )}
 
+      {/* Defined above but never rendered after the layout was rewritten, which left the
+          Reset Pass button calling a function that no longer existed. */}
       {resetting && (
         <ResetDialog
           admin={resetting}

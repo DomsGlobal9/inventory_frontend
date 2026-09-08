@@ -245,3 +245,45 @@ export const useResetPlatformAdminPassword = () => {
     onError: (error) => toast.error(error?.message || 'Could not reset that password')
   });
 };
+
+// ─── SUSPENDING AND DELETING A CLIENT ─────────────────────────────────────────
+
+export const useSetClientSuspended = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ clientId, suspended }) =>
+      (await api.patch(`/admin/clients/${clientId}/suspend`, { suspended })).data,
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'clients'] });
+      toast.success(result?.suspended
+        ? `Suspended. ${result.usersAffected} account${result.usersAffected === 1 ? '' : 's'} can no longer sign in.`
+        : 'Reinstated. Their team can sign in again.');
+    },
+    onError: (error) => toast.error(error?.message || 'Could not change that client')
+  });
+};
+
+/** What a deletion would destroy. Read before anyone is asked to confirm it. */
+export const useClientDeletionPreview = (clientId, enabled) => {
+  return useQuery({
+    queryKey: ['admin', 'clients', clientId, 'deletion-preview'],
+    queryFn: async () => (await api.get(`/admin/clients/${clientId}/deletion-preview`)).data,
+    enabled: Boolean(clientId && enabled),
+    // Always refetched when the dialog opens. A cached count from ten minutes ago is exactly
+    // the wrong thing to show someone deciding whether to erase a business.
+    staleTime: 0
+  });
+};
+
+export const useDeleteClient = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ clientId, confirmation }) =>
+      (await api.delete(`/admin/clients/${clientId}`, { data: { confirmation } })).data,
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ['admin'] });
+      toast.success(`${result?.clientId} has been erased.`);
+    },
+    onError: (error) => toast.error(error?.message || 'Could not delete that client', { duration: 12000 })
+  });
+};

@@ -148,6 +148,26 @@ export default function ClientOverviewPage() {
             Total Inventory Value
           </div>
           <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>₹{Number(data.inventoryValue).toLocaleString('en-IN')}</div>
+
+          {/* How much of that number is a guess.
+              When a shop never records a unit cost, the valuation falls through to what they
+              SELL for -- overstated by their whole margin. The merchant's own dashboard has
+              always said so; this screen showed the same inflated figure in silence, which is
+              worse here: a merchant knows they never entered costs, while someone comparing
+              forty shops cannot tell which totals are real. */}
+          {data.valuationCaveat?.unitsValuedAtPrice > 0 && (
+            <div style={{ fontSize: '11.5px', color: 'var(--text-muted)', lineHeight: 1.5, marginTop: '2px' }}>
+              {Number(data.valuationCaveat.unitsValuedAtPrice).toLocaleString('en-IN')} units counted at
+              their selling price — this shop has recorded no cost for them, so the figure is
+              high by their margin.
+            </div>
+          )}
+          {data.valuationCaveat?.unitsWithoutAnyFigure > 0 && (
+            <div style={{ fontSize: '11.5px', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+              {Number(data.valuationCaveat.unitsWithoutAnyFigure).toLocaleString('en-IN')} units carry
+              no price or cost at all and count as nothing here.
+            </div>
+          )}
         </div>
         
         <div style={STAT_CARD}>

@@ -78,7 +78,8 @@ function CredentialsPanel({ recipientName, email, password, roleLabel, emailed, 
   };
 
   return (
-    <div style={{ border: '1px solid var(--accent-gold)', background: 'rgba(226, 193, 113, 0.06)', borderRadius: '12px', padding: '20px', marginBottom: '20px' }}>
+    <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(4px)' }} onClick={onDone}>
+      <div style={{ border: '1px solid var(--accent-gold)', background: 'var(--bg-card)', borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '420px', boxShadow: 'var(--shadow-modal)' }} onClick={e => e.stopPropagation()}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
         <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '15px' }}>Credentials for {recipientName}</div>
         <button onClick={onDone} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}><X size={18} /></button>
@@ -138,6 +139,7 @@ function CredentialsPanel({ recipientName, email, password, roleLabel, emailed, 
         </button>
       </div>
     </div>
+    </div>
   );
 }
 
@@ -180,7 +182,8 @@ function InviteForm({ roles, onDone }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px', maxWidth: '480px', border: '1px solid var(--border-light)', borderRadius: '12px', padding: '20px', marginBottom: '20px', background: 'var(--bg-input)' }}>
+    <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(4px)' }} onClick={onDone}>
+      <form onSubmit={handleSubmit} onClick={e => e.stopPropagation()} style={{ display: 'flex', flexDirection: 'column', gap: '14px', width: '100%', maxWidth: '420px', background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '16px', padding: '24px', boxShadow: 'var(--shadow-modal)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '15px' }}>Add Team Member</div>
         <button type="button" onClick={onDone} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}><X size={18} /></button>
@@ -218,6 +221,7 @@ function InviteForm({ roles, onDone }) {
         Create Account
       </button>
     </form>
+    </div>
   );
 }
 
@@ -373,12 +377,12 @@ export default function TeamManager() {
           <Loader2 size={24} className="animate-spin" />
         </div>
       ) : (
-        <div style={{ border: '1px solid var(--border-light)', borderRadius: '12px', overflow: 'hidden' }}>
+        <div style={{ border: '1px solid var(--border-light)', borderRadius: '12px', overflow: 'visible' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
               <tr style={{ background: 'var(--bg-input)' }}>
-                {['Name', 'Role', 'Status', 'Last Active', ''].map(h => (
-                  <th key={h} style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
+                {['Name', 'Role', 'Status', 'Last Active', ''].map((h, index, arr) => (
+                  <th key={h} style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', borderTopLeftRadius: index === 0 ? '12px' : 0, borderTopRightRadius: index === arr.length - 1 ? '12px' : 0 }}>{h}</th>
                 ))}
               </tr>
             </thead>

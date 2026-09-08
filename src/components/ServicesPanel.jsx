@@ -175,7 +175,16 @@ export default function ServicesPanel() {
                     <div style={{ color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '.05em', fontSize: '11px', marginBottom: '3px' }}>
                       Last used
                     </div>
-                    <div>{svc.lastUsedAt ? new Date(svc.lastUsedAt).toLocaleDateString() : 'Not used yet'}</div>
+                    {/* `lastUsedAt` is stamped on the shop's OWN key. A shop running on the
+                        platform's shared key has no key row to stamp, so this said "Not used
+                        yet" directly above "2 try-ons this month" -- both figures individually
+                        correct and together nonsense. The meter is the better witness: it
+                        counts what the shop actually did, whichever key carried it. */}
+                    <div>
+                      {svc.lastUsedAt
+                        ? new Date(svc.lastUsedAt).toLocaleDateString()
+                        : usageFor[svc.id]?.generations > 0 ? 'Used this month' : 'Not used yet'}
+                    </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px', color: 'var(--text-muted)' }}>
                     <ShieldCheck size={14} />

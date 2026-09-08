@@ -58,6 +58,21 @@ export const useViewTeamMemberPassword = () => {
   });
 };
 
+/**
+ * Sends a team member their existing login again.
+ *
+ * Not the same as setting a new password. The everyday case is a message that went to spam or
+ * was deleted, and changing the password to fix that would break the login for anyone already
+ * using it -- solving a delivery problem by creating an access one.
+ */
+export const useResendTeamMemberCredentials = () => {
+  return useMutation({
+    mutationFn: async (userId) => (await api.post(`/team/members/${userId}/credentials/resend`)).data,
+    onSuccess: (result) => toast.success(`Sent again to ${result?.email ?? 'their address'}.`),
+    onError: (error) => toast.error(error?.message || 'Could not resend the login')
+  });
+};
+
 export const useSetTeamMemberPassword = () => {
   return useMutation({
     mutationFn: async ({ userId, customPassword }) => (await api.post(`/team/members/${userId}/password`, { customPassword })).data,

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { UserPlus, Loader2, Mail, MessageCircle, Copy, Check, X, KeyRound, Shield, Clock, ShieldCheck, Activity, ScrollText, Eye, EyeOff, RefreshCw } from 'lucide-react';
+import { UserPlus, Loader2, Mail, MessageCircle, Copy, Check, X, KeyRound, Shield, Clock, ShieldCheck, Activity, ScrollText, Eye, EyeOff, RefreshCw, Send } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import {
   useTeamMembers, useTeamRoles, useTeamActivity, useInviteTeamMember, useUpdateTeamMemberRole,
-  useSetTeamMemberStatus, useViewTeamMemberPassword, useSetTeamMemberPassword
+  useSetTeamMemberStatus, useViewTeamMemberPassword, useSetTeamMemberPassword,
+  useResendTeamMemberCredentials
 } from '../hooks/useTeam';
 import { buildCredentialMailto, buildCredentialWhatsapp } from '../lib/credentialShare';
 import Select from './common/Select';
@@ -61,8 +62,9 @@ function RecentActivity({ onClose }) {
   );
 }
 
-function CredentialsPanel({ recipientName, email, password, roleLabel, emailed, emailReason, onDone }) {
+function CredentialsPanel({ recipientName, email, password, roleLabel, emailed, emailReason, userId, onDone }) {
   const [copied, setCopied] = useState(false);
+  const resend = useResendTeamMemberCredentials();
 
   const handleCopy = async () => {
     try {
@@ -107,8 +109,23 @@ function CredentialsPanel({ recipientName, email, password, roleLabel, emailed, 
         This password is permanent; you can view or change it any time from this page.
       </p>
       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+        {/* Two different things used to sit behind one word. This one sends through the
+            shop's own mail server; the mailto link below opens the admin's mail app for them
+            to send by hand. Labelled apart, because "Email" next to "Sent to ..." reads as a
+            button that does the thing that has already happened. */}
+        {userId && (
+          <button
+            onClick={() => resend.mutate(userId)}
+            disabled={resend.isPending}
+            className="btn-secondary"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px' }}
+          >
+            {resend.isPending ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+            {resend.isPending ? 'Sending…' : emailed ? 'Send again' : 'Send by email'}
+          </button>
+        )}
         <a href={buildCredentialMailto({ recipientName, email, tempPassword: password, roleLabel })} className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', textDecoration: 'none' }}>
-          <Mail size={14} /> Email
+          <Mail size={14} /> Open in mail app
         </a>
         <a href={buildCredentialWhatsapp({ recipientName, email, tempPassword: password, roleLabel })} target="_blank" rel="noopener noreferrer" className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', textDecoration: 'none' }}>
           <MessageCircle size={14} /> WhatsApp
@@ -153,6 +170,7 @@ function InviteForm({ roles, onDone }) {
         roleLabel={credentials.role}
         emailed={credentials.emailed}
         emailReason={credentials.emailReason}
+        userId={credentials.id}
         onDone={onDone}
       />
     );

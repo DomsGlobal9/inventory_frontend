@@ -61,7 +61,7 @@ function RecentActivity({ onClose }) {
   );
 }
 
-function CredentialsPanel({ recipientName, email, password, roleLabel, onDone }) {
+function CredentialsPanel({ recipientName, email, password, roleLabel, emailed, emailReason, onDone }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -85,8 +85,26 @@ function CredentialsPanel({ recipientName, email, password, roleLabel, onDone })
         <div>Email: {email}</div>
         <div>Password: {password}</div>
       </div>
+      {/* The admin has to know whether the person already has this, or is still waiting on
+          them. Saying nothing means they either send it twice or assume it arrived when the
+          mail server was down -- and the new staff member cannot log in either way. */}
+      {emailed ? (
+        <p style={{ fontSize: '12px', color: 'var(--accent-success, #22c55e)', marginBottom: '12px', display: 'flex', gap: '6px', alignItems: 'flex-start' }}>
+          <Check size={14} style={{ flexShrink: 0, marginTop: '1px' }} />
+          <span>
+            Sent to {email}. They can sign in now. Nothing else to do — the buttons below are
+            only if you want to share it another way as well.
+          </span>
+        </p>
+      ) : (
+        <p style={{ fontSize: '12px', color: 'var(--accent-warning, #f59e0b)', marginBottom: '12px' }}>
+          {emailReason
+            ? `Not emailed: ${emailReason} Share it with ${recipientName} using the buttons below.`
+            : `Share these with ${recipientName} directly.`}
+        </p>
+      )}
       <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '12px' }}>
-        There's no automatic email delivery yet -- share these with {recipientName} directly. This password is permanent; you can view or change it any time from this page.
+        This password is permanent; you can view or change it any time from this page.
       </p>
       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
         <a href={buildCredentialMailto({ recipientName, email, tempPassword: password, roleLabel })} className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', textDecoration: 'none' }}>
@@ -133,6 +151,8 @@ function InviteForm({ roles, onDone }) {
         email={credentials.email}
         password={credentials.password}
         roleLabel={credentials.role}
+        emailed={credentials.emailed}
+        emailReason={credentials.emailReason}
         onDone={onDone}
       />
     );

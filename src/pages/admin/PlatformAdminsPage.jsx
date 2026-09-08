@@ -183,6 +183,7 @@ export default function PlatformAdminsPage() {
   const [customPassword, setCustomPassword] = useState('');
   const [revealed, setRevealed] = useState(null);
   const [resetting, setResetting] = useState(null);
+  const [confirmingStatus, setConfirmingStatus] = useState(null);
 
   const customReady = passwordMode === 'auto' || customPassword.length >= 12;
   const formReady = form.name.trim() && form.email.trim() && customReady;
@@ -360,20 +361,67 @@ export default function PlatformAdminsPage() {
                   );
                 })()}
 
-                {admin.status === 'ACTIVE' ? (
-                  <button className="btn-secondary" disabled={setStatus.isPending || activeCount <= 1}
-                    title={activeCount <= 1 ? 'This is the only active admin' : 'Deactivate'}
-                    onClick={() => setStatus.mutate({ id: admin.id, status: 'INACTIVE' })}
-                    style={{ fontSize: '13px', padding: '8px 16px', minHeight: '40px', color: activeCount <= 1 ? 'var(--text-muted)' : 'var(--accent-warning)', minWidth: '110px' }}>
-                    Deactivate
-                  </button>
-                ) : (
-                  <button className="btn-secondary" disabled={setStatus.isPending}
-                    onClick={() => setStatus.mutate({ id: admin.id, status: 'ACTIVE' })}
-                    style={{ fontSize: '13px', padding: '8px 16px', minHeight: '40px', color: 'var(--accent-success)', minWidth: '110px' }}>
-                    Activate
-                  </button>
-                )}
+                {/* Both directions confirm, and both show progress on THIS row.
+                    Turning an admin off locks a colleague out of every tenant; turning one on
+                    hands somebody that access. Neither should happen on a single stray click,
+                    and `setStatus.isPending` alone is global -- it would spin every card in the
+                    grid at once, so nobody could tell which admin they had actually pressed. */}
+                {(() => {
+                  const busy = setStatus.isPending && setStatus.variables?.id === admin.id;
+                  const turningOff = admin.status === 'ACTIVE';
+                  const confirming = confirmingStatus === admin.id;
+                  const firstName = admin.name.split(' ')[0];
+
+                  if (busy) {
+                    return (
+                      <button className="btn-secondary" disabled
+                        style={{ fontSize: '13px', padding: '8px 16px', minHeight: '40px', minWidth: '130px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                        <Loader2 size={14} className="animate-spin" />
+                        {turningOff ? 'Deactivating…' : 'Activating…'}
+                      </button>
+                    );
+                  }
+
+                  if (confirming) {
+                    return (
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <button
+                          onClick={() => {
+                            setStatus.mutate({ id: admin.id, status: turningOff ? 'INACTIVE' : 'ACTIVE' });
+                            setConfirmingStatus(null);
+                          }}
+                          style={{
+                            fontSize: '13px', padding: '8px 14px', minHeight: '40px', borderRadius: '8px',
+                            border: 'none', fontWeight: 600, cursor: 'pointer', color: '#fff',
+                            background: turningOff ? 'var(--accent-warning,#f59e0b)' : 'var(--accent-success,#22c55e)'
+                          }}>
+                          {turningOff ? `Lock out ${firstName}` : `Give ${firstName} access`}
+                        </button>
+                        <button className="btn-secondary" onClick={() => setConfirmingStatus(null)}
+                          style={{ fontSize: '13px', padding: '8px 14px', minHeight: '40px' }}>
+                          Cancel
+                        </button>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <button className="btn-secondary"
+                      disabled={setStatus.isPending || (turningOff && activeCount <= 1)}
+                      title={turningOff && activeCount <= 1
+                        ? 'This is the only active admin'
+                        : turningOff ? 'Deactivate' : 'Activate'}
+                      onClick={() => setConfirmingStatus(admin.id)}
+                      style={{
+                        fontSize: '13px', padding: '8px 16px', minHeight: '40px', minWidth: '130px',
+                        color: turningOff
+                          ? (activeCount <= 1 ? 'var(--text-muted)' : 'var(--accent-warning)')
+                          : 'var(--accent-success)'
+                      }}>
+                      {turningOff ? 'Deactivate' : 'Activate'}
+                    </button>
+                  );
+                })()}
               </div>
             </div>
           ))}

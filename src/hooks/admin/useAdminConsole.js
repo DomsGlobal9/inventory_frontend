@@ -287,3 +287,43 @@ export const useDeleteClient = () => {
     onError: (error) => toast.error(error?.message || 'Could not delete that client', { duration: 12000 })
   });
 };
+
+// ─── A CLIENT'S SERVICE KEYS ──────────────────────────────────────────────────
+// Generated in the gateway, pasted here. The response never contains the key itself -- only a
+// prefix -- so there is nothing sensitive in this cache.
+
+export const useClientServiceKeys = (clientId) => {
+  return useQuery({
+    queryKey: ['admin', 'clients', clientId, 'service-keys'],
+    queryFn: async () => (await api.get(`/admin/clients/${clientId}/service-keys`)).data ?? [],
+    enabled: !!clientId
+  });
+};
+
+export const useSetClientServiceKey = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ clientId, service, key }) =>
+      (await api.post(`/admin/clients/${clientId}/service-keys`, { service, key })).data,
+    onSuccess: (_result, { clientId }) => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'clients', clientId, 'service-keys'] });
+      toast.success('Key saved and checked against the gateway.');
+    },
+    // The server checks the key by using it, so this message is the real reason it failed --
+    // "rejected", "not reachable", "not a full key" -- rather than a generic failure.
+    onError: (error) => toast.error(error?.message || 'Could not save that key', { duration: 10000 })
+  });
+};
+
+export const useRevokeClientServiceKey = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ clientId, service }) =>
+      (await api.delete(`/admin/clients/${clientId}/service-keys?service=${service}`)).data,
+    onSuccess: (_result, { clientId }) => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'clients', clientId, 'service-keys'] });
+      toast.success('Disconnected. They fall back to the shared key.');
+    },
+    onError: (error) => toast.error(error?.message || 'Could not disconnect that key')
+  });
+};

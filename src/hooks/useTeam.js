@@ -102,3 +102,17 @@ export const useChangeMyPassword = () => {
     onError: (error) => toast.error(error?.message || 'Could not change the password')
   });
 };
+
+/**
+ * The platform services this workspace uses.
+ *
+ * Read only, and the response cannot contain a key -- the endpoint returns a prefix and never
+ * decrypts. See service-catalogue.routes.ts.
+ */
+export const useMyServices = () => {
+  return useQuery({
+    queryKey: ['services'],
+    queryFn: async () => (await api.get('/services')).data ?? [],
+    staleTime: 60_000
+  });
+};

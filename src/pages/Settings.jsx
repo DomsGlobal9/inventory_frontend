@@ -6,6 +6,7 @@ import StockLocationsPage from './settings/StockLocationsPage';
 import DayBook from './DayBook';
 import StorefrontManager from '../components/StorefrontManager';
 import ChangeOwnPassword from '../components/ChangeOwnPassword';
+import ServicesPanel from '../components/ServicesPanel';
 import SupportPanel from '../components/SupportPanel';
 import TeamManager from '../components/TeamManager';
 import { useAuth } from '../context/AuthContext';
@@ -17,6 +18,7 @@ const SETTINGS_DOMAINS = [
   { id: 'LOCATIONS', label: 'Stock Locations', icon: MapPin },
   { id: 'DAYBOOK', label: 'Day Book', icon: BookOpen },
   { id: 'STOREFRONT', label: 'Storefront', icon: Globe },
+  { id: 'SERVICES', label: 'APIs & Services', icon: Key },
   { id: 'USERS', label: 'Team & Users', icon: Users },
   { id: 'SUPPORT', label: 'Help & Support', icon: LifeBuoy },
   // BILLING and API were shipped as navigable tabs whose only content was "This section is
@@ -34,7 +36,7 @@ const SETTINGS_DOMAINS = [
  * chain had to be extended by hand every time a domain gained content -- and when Day Book was
  * added it was not, so the page rendered the day book AND the placeholder underneath it.
  */
-const IMPLEMENTED_DOMAINS = new Set(['GENERAL', 'CATALOG', 'LOCATIONS', 'DAYBOOK', 'STOREFRONT', 'USERS', 'SUPPORT']);
+const IMPLEMENTED_DOMAINS = new Set(['GENERAL', 'CATALOG', 'LOCATIONS', 'DAYBOOK', 'STOREFRONT', 'SERVICES', 'USERS', 'SUPPORT']);
 
 const CATALOG_TABS = [
   { id: 'SIZE', label: 'Sizes', icon: Scissors, description: 'Manage available sizes across your products' },
@@ -308,6 +310,12 @@ export default function Settings() {
           {activeDomain === 'STOREFRONT' && (
             <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '32px' }}>
               <StorefrontManager />
+            </div>
+          )}
+
+          {activeDomain === 'SERVICES' && (
+            <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '32px' }}>
+              <ServicesPanel />
             </div>
           )}
 

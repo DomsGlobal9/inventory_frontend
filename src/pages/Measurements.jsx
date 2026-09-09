@@ -151,7 +151,7 @@ export default function Measurements() {
         {/* ROW 1: Price and Sizes */}
         <div className="mobile-col" style={{ display: 'flex', gap: '32px' }}>
           <div style={{ width: '170px' }}>
-            <label className="input-label">Base Price (₹)</label>
+            <label className="input-label">You sell at (₹)</label>
             <input 
               type="number" 
               className="input-field" 

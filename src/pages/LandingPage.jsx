@@ -384,11 +384,207 @@ function PlatformArt() {
  */
 const HERO_CARDS = [
   { label: 'ON HAND',    value: '1,284', note: 'pieces, counted', tone: 'plain', rot: -3.5, dy: 14 },
-  { label: 'WORTH',      value: '\u20b98.4L', note: 'and it says how it knows', tone: 'plain', rot: -1.5, dy: 4 },
+  { label: 'WORTH',      value: '₹8.4L', note: 'and it says how it knows', tone: 'plain', rot: -1.5, dy: 4 },
   { label: 'MARGIN',     value: '38.1%', note: 'on every piece', tone: 'good', rot: 0, dy: -6 },
-  { label: 'THIS ORDER', value: '\u20b9150', note: 'a piece \u2014 too thin', tone: 'bad', rot: 1.8, dy: 4 },
+  { label: 'THIS ORDER', value: '₹150', note: 'a piece — too thin', tone: 'bad', rot: 1.8, dy: 4 },
   { label: 'TRY-ONS',    value: '312', note: 'from the tag, this month', tone: 'plain', rot: 3.5, dy: 15 }
 ];
+
+
+/**
+ * The whole product, once, at size.
+ *
+ * Not a screenshot. A screenshot of this app would carry a real shop's figures, and it would
+ * be two files to keep in step with the light and dark themes and stale the moment a column
+ * moves. This is the interface built from elements, in the app's own tokens, with invented
+ * numbers -- so it follows the theme, stays sharp on any screen, and cannot leak anyone.
+ *
+ * Tilted because a flat rectangle reads as a picture of software while a tilted one reads as
+ * an object. The angle is small on purpose: past about eight degrees the type on the far side
+ * starts to fight to be read.
+ */
+const SHOW_NAV = ['Dashboard', 'Products', 'Orders', 'Returns', 'Inventory', 'Transfers', 'Purchase Orders', 'Customers'];
+const SHOW_TILES = [
+  { k: 'Stock on hand', v: 'R8.4L', note: '68% costed' },
+  { k: 'Margin', v: '38.1%', tone: 'good' },
+  { k: 'Try-ons', v: '312', note: 'this month' },
+  { k: 'Low stock', v: '7', tone: 'warn' }
+];
+const SHOW_ROWS = [
+  { n: 'Silk saree', c: 'Indigo / Free', q: '38', cost: 'R2,600', m: '38.1%', tone: 'good' },
+  { n: 'Cotton saree', c: 'Green / Free', q: '112', cost: 'R640', m: '46.7%', tone: 'good' },
+  { n: 'Zari border', c: 'Maroon / Free', q: '9', cost: 'R4,050', m: '3.6%', tone: 'bad' },
+  { n: 'Printed kurta', c: 'Blue / M', q: '54', cost: 'R380', m: '31.0%', tone: 'good' },
+  { n: 'Silk blouse', c: 'Gold / S', q: '6', cost: 'R210', m: 'no cost yet', tone: 'muted' }
+];
+
+function Showcase() {
+  const toneColour = (t) => t === 'good' ? 'var(--accent-success, #10b981)'
+    : t === 'bad' ? 'var(--accent-danger, #ef4444)'
+    : t === 'warn' ? 'var(--accent-warning, #f59e0b)'
+    : 'var(--text-muted)';
+
+  return (
+    <section className="lp-show">
+      <div className="lp-show-head">
+        <p className="lp-show-eyebrow">The whole thing</p>
+        <h2 className="lp-show-title">Every number on one screen, and each one says where it came from</h2>
+      </div>
+
+      <div className="lp-show-stage">
+        <div className="lp-show-frame" role="img" aria-label="The Scaleezy Inventory dashboard: stock value, margin, try-ons and low stock, above a table of items with their costs and margins">
+          {/* the rail down the side */}
+          <aside className="lp-show-side">
+            <span className="lp-show-mark" />
+            {SHOW_NAV.map((n, i) => (
+              <span key={i} className={`lp-show-nav${i === 0 ? ' is-on' : ''}`}>{n}</span>
+            ))}
+          </aside>
+
+          <div className="lp-show-main">
+            <header className="lp-show-top">
+              <span className="lp-show-search">Search products, SKU, barcode</span>
+              <span className="lp-show-chip">Main shop</span>
+              <span className="lp-show-avatar" />
+            </header>
+
+            <div className="lp-show-tiles">
+              {SHOW_TILES.map((t, i) => (
+                <div key={i} className="lp-show-tile">
+                  <span className="lp-show-k">{t.k}</span>
+                  <span className="lp-show-v" style={t.tone ? { color: toneColour(t.tone) } : undefined}>
+                    {t.v.replace('R', '₹')}
+                  </span>
+                  {t.note && <span className="lp-show-note">{t.note}</span>}
+                </div>
+              ))}
+            </div>
+
+            <div className="lp-show-table">
+              <div className="lp-show-tr lp-show-th">
+                <span>Item</span><span>Stock</span><span>Cost</span><span>Margin</span>
+              </div>
+              {SHOW_ROWS.map((r, i) => (
+                <div key={i} className="lp-show-tr">
+                  <span>
+                    <b>{r.n}</b>
+                    <em>{r.c}</em>
+                  </span>
+                  <span>{r.q}</span>
+                  <span>{r.cost.replace('R', '₹')}</span>
+                  <span style={{ color: toneColour(r.tone), fontWeight: 700 }}>{r.m}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * The one thing on this page a visitor can use rather than read.
+ *
+ * It runs the product's real rule, not a friendly approximation: the same thresholds the
+ * variant table and the purchase order screen use, including the one that stops reporting a
+ * percentage under 1% and says the money instead -- because "0% margin", rounded, looks like a
+ * bug rather than a warning.
+ *
+ * Nothing is sent anywhere. It is arithmetic in a browser, and saying so is the point: the
+ * quickest way to show that a tool is honest about numbers is to let someone try to catch it
+ * out before they have given you an email address.
+ */
+function TryTheMargin() {
+  const [cost, setCost] = useState('2600');
+  const [price, setPrice] = useState('4200');
+
+  const c = Number(cost) || 0;
+  const p = Number(price) || 0;
+  const pct = p > 0 ? ((p - c) / p) * 100 : null;
+  const per = p - c;
+
+  let verdict, tone;
+  if (!p) { verdict = 'Set a price'; tone = 'muted'; }
+  else if (!c) { verdict = 'No cost recorded yet'; tone = 'muted'; }
+  else if (pct < 0) { verdict = `Loss ${Math.abs(pct).toFixed(1)}%`; tone = 'bad'; }
+  else if (pct < 1) { verdict = `Only ₹${per.toFixed(0)} a piece`; tone = 'bad'; }
+  else if (pct < 15) { verdict = `${pct.toFixed(1)}% — thin`; tone = 'bad'; }
+  else if (pct < 30) { verdict = `${pct.toFixed(1)}% — workable`; tone = 'warn'; }
+  else { verdict = `${pct.toFixed(1)}%`; tone = 'good'; }
+
+  const toneColour = tone === 'good' ? 'var(--accent-success, #10b981)'
+    : tone === 'warn' ? 'var(--accent-warning, #f59e0b)'
+    : tone === 'bad' ? 'var(--accent-danger, #ef4444)'
+    : 'var(--text-muted)';
+
+  const field = (label, value, onChange) => (
+    <label style={{ display: 'block', flex: '1 1 150px', minWidth: 0 }}>
+      <span style={{ display: 'block', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, marginBottom: '10px' }}>
+        {label}
+      </span>
+      <span style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--bg-input)', border: '1px solid var(--border-light)', borderRadius: '14px', padding: '12px 16px' }}>
+        <span style={{ color: 'var(--text-muted)', fontSize: '19px' }}>₹</span>
+        <input
+          type="number" inputMode="numeric" min="0" value={value}
+          onChange={(e) => onChange(e.target.value)}
+          style={{
+            width: '100%', minWidth: 0, background: 'none', border: 'none', outline: 'none',
+            color: 'var(--text-primary)', fontSize: 'clamp(20px, 2.4vw, 28px)', fontWeight: 700,
+            fontFamily: 'inherit', padding: 0
+          }}
+        />
+      </span>
+    </label>
+  );
+
+  return (
+    <div style={{
+      borderRadius: 'clamp(20px, 3vw, 32px)', border: '1px solid var(--border-light)',
+      background: 'var(--bg-card)', padding: 'clamp(24px, 4vw, 48px)',
+      display: 'grid', gap: 'clamp(24px, 4vw, 56px)',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', alignItems: 'center'
+    }}>
+      <div>
+        <p style={{ fontSize: '12px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--brand-ink)', margin: '0 0 14px', fontWeight: 700 }}>
+          Try it here
+        </p>
+        <h2 style={{ fontSize: 'clamp(24px, 3.2vw, 36px)', fontWeight: 500, lineHeight: 1.18, letterSpacing: '-0.015em', color: 'var(--text-primary)', margin: '0 0 16px' }}>
+          Put your own numbers in
+        </h2>
+        <p style={{ fontSize: '15.5px', color: 'var(--text-secondary)', lineHeight: 1.65, margin: 0, maxWidth: '46ch' }}>
+          This is the rule the app runs, not a friendly version of it — including the part that
+          stops quoting a percentage when it would round to zero and tells you the money instead.
+          Nothing is sent anywhere.
+        </p>
+      </div>
+
+      <div>
+        <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
+          {field('You pay', cost, setCost)}
+          {field('You sell at', price, setPrice)}
+        </div>
+        <div style={{
+          marginTop: '20px', padding: '20px 24px', borderRadius: '18px',
+          background: `color-mix(in srgb, ${toneColour} 12%, transparent)`,
+          border: `1px solid color-mix(in srgb, ${toneColour} 30%, transparent)`
+        }}>
+          <div style={{ fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700 }}>
+            What the app would say
+          </div>
+          <div style={{ fontSize: 'clamp(26px, 3.4vw, 40px)', fontWeight: 700, color: toneColour, lineHeight: 1.15, marginTop: '6px' }}>
+            {verdict}
+          </div>
+          {p > 0 && c > 0 && (
+            <div style={{ fontSize: '13.5px', color: 'var(--text-secondary)', marginTop: '6px' }}>
+              {per >= 0 ? 'You keep' : 'You lose'} ₹{Math.abs(per).toLocaleString('en-IN')} on every piece.
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const FEATURES = [
   {
@@ -530,6 +726,110 @@ export default function LandingPage() {
       .lp-row > * { order: 0 !important; }
     }
 
+    /*
+      The product, once, at size.
+
+      Everything sizes in cqw -- one percent of the frame's own width -- so the whole interface
+      scales as one object instead of a layout that reflows into something a real screen never
+      looks like. A mockup that rearranges itself is no longer a picture of the thing.
+    */
+    .lp-show {
+      padding: clamp(48px, 7vw, 96px) 0 0;
+      border-top: 1px solid var(--border-light);
+      background:
+        radial-gradient(70% 90% at 50% 0%, color-mix(in srgb, var(--brand) 11%, transparent) 0%, transparent 60%),
+        var(--bg-card);
+      overflow: hidden;
+    }
+    .lp-show-head { max-width: 1280px; margin: 0 auto; padding: 0 clamp(20px, 3vw, 40px); text-align: center; }
+    .lp-show-eyebrow {
+      margin: 0 0 14px; font-size: 12px; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase; color: var(--brand-ink);
+    }
+    .lp-show-title {
+      margin: 0 auto clamp(36px, 5vw, 64px); max-width: 22ch;
+      font-size: clamp(24px, 3.4vw, 42px); font-weight: 500;
+      line-height: 1.14; letter-spacing: -.02em; color: var(--text-primary);
+    }
+
+    /* The stage holds the perspective; the frame is what leans inside it. */
+    .lp-show-stage {
+      perspective: 2200px;
+      padding: 0 clamp(16px, 4vw, 64px);
+      /* Sunk into the page rather than stopped by a line. */
+      mask-image: linear-gradient(180deg, #000 62%, transparent 100%);
+      -webkit-mask-image: linear-gradient(180deg, #000 62%, transparent 100%);
+    }
+    .lp-show-frame {
+      max-width: 1180px; margin: 0 auto;
+      container-type: inline-size;
+      display: flex; overflow: hidden;
+      border: 1px solid var(--border-light); border-radius: clamp(12px, 1.4vw, 20px);
+      background: var(--bg-dark);
+      transform: rotateX(7deg) rotateZ(-0.6deg) scale(1.01);
+      transform-origin: 50% 0;
+      box-shadow: 0 60px 120px -40px rgba(0,0,0,.55), 0 12px 40px -12px rgba(0,0,0,.25);
+    }
+
+    .lp-show-side {
+      flex: 0 0 19%; padding: 2.2cqw 1.6cqw; display: flex; flex-direction: column; gap: 1.5cqw;
+      border-right: 1px solid var(--border-light); background: var(--bg-card);
+    }
+    .lp-show-mark {
+      width: 2.4cqw; height: 2.4cqw; border-radius: .7cqw; margin-bottom: 1.4cqw;
+      background: linear-gradient(135deg, #A6D92B 50%, #164B1E 50%);
+    }
+    .lp-show-nav {
+      font-size: 1.28cqw; color: var(--text-secondary); padding: .55cqw .8cqw; border-radius: .7cqw;
+      white-space: nowrap;
+    }
+    .lp-show-nav.is-on { background: var(--bg-input); color: var(--text-primary); font-weight: 600; }
+
+    .lp-show-main { flex: 1; min-width: 0; padding: 2.2cqw; display: flex; flex-direction: column; gap: 1.8cqw; }
+    .lp-show-top { display: flex; align-items: center; gap: 1.2cqw; }
+    .lp-show-search {
+      flex: 1; font-size: 1.2cqw; color: var(--text-muted);
+      background: var(--bg-card); border: 1px solid var(--border-light);
+      border-radius: 99px; padding: .8cqw 1.4cqw;
+    }
+    .lp-show-chip {
+      font-size: 1.2cqw; color: var(--text-primary);
+      background: var(--bg-card); border: 1px solid var(--border-light);
+      border-radius: 99px; padding: .8cqw 1.4cqw; white-space: nowrap;
+    }
+    .lp-show-avatar { width: 2.6cqw; height: 2.6cqw; border-radius: 50%; background: var(--bg-input); border: 1px solid var(--border-light); }
+
+    .lp-show-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2cqw; }
+    .lp-show-tile {
+      background: var(--bg-card); border: 1px solid var(--border-light);
+      border-radius: 1.1cqw; padding: 1.4cqw 1.5cqw; display: flex; flex-direction: column; gap: .35cqw;
+    }
+    .lp-show-k { font-size: 1.02cqw; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); font-weight: 700; }
+    .lp-show-v { font-size: 2.7cqw; font-weight: 700; color: var(--text-primary); line-height: 1.15; }
+    .lp-show-note { font-size: 1.05cqw; color: var(--text-secondary); }
+
+    .lp-show-table { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 1.1cqw; overflow: hidden; }
+    .lp-show-tr {
+      display: grid; grid-template-columns: 2.4fr .8fr 1fr 1fr; gap: 1cqw; align-items: center;
+      padding: 1.15cqw 1.5cqw; border-top: 1px solid var(--border-light); font-size: 1.24cqw;
+      color: var(--text-primary);
+    }
+    .lp-show-tr:first-child { border-top: none; }
+    .lp-show-th { background: var(--bg-input); font-size: 1.02cqw; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); font-weight: 700; }
+    .lp-show-tr b { display: block; font-weight: 600; }
+    .lp-show-tr em { display: block; font-style: normal; font-size: 1.02cqw; color: var(--text-muted); margin-top: .2cqw; }
+
+    /* Below this the interface is smaller than it is readable, so it lies flat and the lean,
+       which only ever existed to make it look like an object, is dropped. */
+    @media (max-width: 767px) {
+      .lp-show-frame { transform: none; }
+      .lp-show-side { display: none; }
+      .lp-show-tiles { grid-template-columns: repeat(2, 1fr); }
+      .lp-show-tr { grid-template-columns: 2fr .7fr 1fr; }
+      .lp-show-tr > *:nth-child(3) { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) { .lp-show-frame { transform: none; } }
+
     /* Base state is the finished state, so nothing here is required for the words to be read. */
     @keyframes lpRise {
       from { opacity: 0; transform: translateY(22px); }
@@ -568,7 +868,7 @@ export default function LandingPage() {
     // does not, and everything past the first screen is unreachable.
     <div className="lp" style={{ backgroundColor: 'var(--bg-dark)', height: '100vh', overflowY: 'auto', overflowX: 'hidden' }}>
       <Helmet>
-        <title>Scaleezy Inventory — know what you are holding</title>
+        <title>Scaleezy Inventory</title>
         <meta name="description" content="Inventory for clothing retail: an immutable ledger, honest stock valuation, margins before you buy, purchase orders you can send, multi-location stock, and QR try-on for shoppers." />
         <meta name="keywords" content="inventory management, retail stock, saree shop software, purchase orders, stock valuation, virtual try on" />
         <meta property="og:title" content="Scaleezy Inventory" />
@@ -682,9 +982,12 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <Showcase />
+
       {/* ── Features, one idea per screen ───────────────────────────────── */}
       {FEATURES.map((f, i) => (
-        <section key={i} style={{
+        <React.Fragment key={i}>
+        <section style={{
           padding: 'clamp(56px, 9vw, 104px) 0',
           background: i % 2 === 1 ? 'var(--bg-card)' : 'transparent',
           borderTop: '1px solid var(--border-light)'
@@ -726,6 +1029,16 @@ export default function LandingPage() {
             </motion.div>
           </div>
         </section>
+
+        {/* Halfway down, the page stops explaining and hands over. Placed after the section
+            about margin because that is the moment the reader has just been told a rule and is
+            in a position to test it. */}
+        {i === 2 && (
+          <section style={{ padding: 'clamp(48px, 7vw, 88px) 0', borderTop: '1px solid var(--border-light)' }}>
+            <div style={shell}><TryTheMargin /></div>
+          </section>
+        )}
+        </React.Fragment>
       ))}
 
       {/* ── FAQ ─────────────────────────────────────────────────────────── */}

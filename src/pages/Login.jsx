@@ -53,6 +53,11 @@ export default function Login() {
       eyebrow="Welcome back"
       title="Sign in to your shop"
       subtitle="Your stock, your costs and your margins, exactly where you left them."
+      points={[
+        'Every movement still on the ledger, none of it overwritten',
+        'What each piece cost, and what it leaves you',
+        'Every shop you keep stock in, and the total across them'
+      ]}
       footer={
         <>
           Don&apos;t have a workspace?{' '}

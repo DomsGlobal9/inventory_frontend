@@ -148,6 +148,11 @@ export default function Signup() {
       eyebrow="Request access"
       title="Tell us about your shop"
       subtitle="We set each shop up with you, so the stock you already hold goes in with its costs rather than as a pile of unvalued pieces."
+      points={[
+        'We move your opening stock in with you, not after you',
+        'Nothing to install — it runs in the browser you already have',
+        'Free to start, and no card to begin with'
+      ]}
       footer={
         <>
           Already have a workspace?{' '}

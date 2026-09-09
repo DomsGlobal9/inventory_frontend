@@ -4,6 +4,7 @@ import { Link, Navigate } from 'react-router-dom';
 import { ArrowRight, Plus, Minus } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '../context/AuthContext';
+import Humaaan from '../components/landing/Humaaan';
 
 /**
  * The page a shopkeeper meets before they have an account.
@@ -353,37 +354,20 @@ function TryOnArt() {
         {/* the result coming in, which is what the third step is waiting for */}
         <div style={{
           flex: 1, borderRadius: '2.4cqw', overflow: 'hidden', position: 'relative',
-          border: '1px solid var(--border-light)'
+          border: '1px solid var(--border-light)',
+          background: 'linear-gradient(170deg, #F4F2EC, #E6E9DF)'
         }}>
-          <svg viewBox="0 0 60 80" preserveAspectRatio="xMidYMid slice" aria-hidden="true"
-            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
-            <defs>
-              <linearGradient id="tryOnSilk" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#0B2C12" />
-                <stop offset="45%" stopColor="#2F8B48" />
-                <stop offset="100%" stopColor="#0C2F14" />
-              </linearGradient>
-              <linearGradient id="tryOnZari" x1="0" y1="0" x2="1" y2="0.4">
-                <stop offset="0%" stopColor="#9A7530" />
-                <stop offset="35%" stopColor="#F3E1A8" />
-                <stop offset="100%" stopColor="#A8823A" />
-              </linearGradient>
-              <linearGradient id="tryOnScan" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#A6D92B" stopOpacity="0" />
-                <stop offset="50%" stopColor="#F4FCE2" stopOpacity="0.5" />
-                <stop offset="100%" stopColor="#A6D92B" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-            <rect width="60" height="80" fill="url(#tryOnSilk)" />
-            <path d="M-2 12 Q16 38 6 80" stroke="#04180A" strokeWidth="4" opacity="0.3" fill="none" />
-            <path d="M40 -4 Q54 30 46 80" stroke="#04180A" strokeWidth="5" opacity="0.26" fill="none" />
-            <path d="M24 -4 L32 -4 L18 84 L10 84 Z" fill="#ffffff" opacity="0.08" />
-            <g transform="rotate(-16 30 50)">
-              <rect x="-10" y="46" width="86" height="6" fill="url(#tryOnZari)" opacity="0.95" />
-              <rect x="-10" y="54" width="86" height="1.2" fill="url(#tryOnZari)" opacity="0.65" />
-            </g>
-            <rect className="lpScan" width="60" height="14" y="-14" fill="url(#tryOnScan)" />
-          </svg>
+          {/* Her. Drawn by Humaaans rather than by me -- see components/landing/Humaaan. */}
+          <Humaaan style={{
+            position: 'absolute', left: '50%', bottom: '2%', transform: 'translateX(-50%)',
+            height: '96%', width: 'auto'
+          }} />
+
+          {/* the scan still passing over her, which is what the third step means */}
+          <span className="lpScan" style={{
+            position: 'absolute', left: 0, right: 0, top: '-24%', height: '24%',
+            background: 'linear-gradient(180deg, rgba(166,217,43,0) 0%, rgba(244,252,226,0.75) 50%, rgba(166,217,43,0) 100%)'
+          }} />
         </div>
 
         <div style={{ ...muted, fontSize: '1.7cqw', textAlign: 'center' }}>No app. No account.</div>
@@ -453,21 +437,6 @@ function PlatformArt() {
 }
 
 /* ─── The page ───────────────────────────────────────────────────────────── */
-
-/**
- * The five things the product answers, fanned across the hero.
- *
- * Illustrative figures, not anyone's. A public page has no business carrying a real shop's
- * stock value, and the first draft of this one did.
- */
-const HERO_CARDS = [
-  { label: 'ON HAND',    value: '1,284', note: 'pieces, counted', tone: 'plain', rot: -3.5, dy: 14 },
-  { label: 'WORTH',      value: '₹8.4L', note: 'and it says how it knows', tone: 'plain', rot: -1.5, dy: 4 },
-  { label: 'MARGIN',     value: '38.1%', note: 'on every piece', tone: 'good', rot: 0, dy: -6 },
-  { label: 'THIS ORDER', value: '₹150', note: 'a piece — too thin', tone: 'bad', rot: 1.8, dy: 4 },
-  { label: 'TRY-ONS',    value: '312', note: 'from the tag, this month', tone: 'plain', rot: 3.5, dy: 15 }
-];
-
 
 /**
  * The one thing on this page a visitor can use rather than read.
@@ -674,7 +643,6 @@ export default function LandingPage() {
 
   if (!isLoading && isAuthenticated) return <Navigate to="/dashboard" replace />;
 
-
   // Wider than it was. At 1120px a large monitor showed more empty margin than page, which is
   // not restraint, it is unused space.
   const shell = { maxWidth: '1280px', margin: '0 auto', padding: '0 clamp(20px, 3vw, 40px)' };
@@ -703,7 +671,7 @@ export default function LandingPage() {
        prefers-reduced-motion block below, where the figure simply sits there fully rendered. */
     @keyframes lpScanSweep {
       0%   { transform: translateY(0); }
-      100% { transform: translateY(224px); }
+      100% { transform: translateY(560%); }
     }
     @keyframes lpPulse {
       0%, 100% { opacity: 1; transform: scale(1); }
@@ -738,12 +706,7 @@ export default function LandingPage() {
 
     /* The hero strip runs off both edges. The two outermost cards are the ones to drop as the
        screen narrows, because they are the ones already half off the screen. */
-    @media (max-width: 1023px) { .lp-strip-0, .lp-strip-4 { display: none; } }
-    @media (max-width: 719px)  { .lp-strip-1, .lp-strip-3 { display: none; } }
-    @media (max-width: 719px)  { .lp-strip { padding-bottom: 8px; } }
-    .lp-strip-card { transition: transform .35s cubic-bezier(.22,1,.36,1); }
     @media (hover: hover) {
-      .lp-strip-card:hover { transform: rotate(0deg) translateY(-10px) !important; }
     }
   `;
 
@@ -845,41 +808,6 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* The product itself, fanned across the whole width and running off both sides so it
-            reads as a shelf continuing past the screen rather than as five cards in a box. */}
-        <div
-          className="lp-strip lp-rise lp-rise-4"
-          style={{
-            display: 'flex', gap: 'clamp(12px, 1.6vw, 26px)', alignItems: 'center',
-            justifyContent: 'center', padding: '0 12px', marginTop: 'clamp(8px, 2vw, 26px)'
-          }}
-        >
-          {HERO_CARDS.map((c, i) => (
-            <div key={i} className={`lp-strip-card lp-strip-${i}`} style={{
-              flex: '0 0 auto', width: 'clamp(150px, 15.5vw, 236px)',
-              background: 'var(--bg-card)', border: '1px solid var(--border-light)',
-              borderRadius: 'clamp(14px, 1.5vw, 22px)', padding: 'clamp(14px, 1.5vw, 22px)',
-              boxShadow: '0 26px 50px -20px rgba(0,0,0,0.42), 0 2px 8px rgba(0,0,0,0.07)',
-              transform: `rotate(${c.rot}deg) translateY(${c.dy}px)`
-            }}>
-              <div style={{ fontSize: 'clamp(8.5px, 0.78vw, 10.5px)', letterSpacing: '0.14em', color: 'var(--text-muted)', fontWeight: 700 }}>
-                {c.label}
-              </div>
-              <div style={{
-                fontSize: 'clamp(20px, 2.3vw, 34px)', fontWeight: 700, lineHeight: 1.15,
-                margin: 'clamp(6px, 0.7vw, 10px) 0 clamp(4px, 0.5vw, 7px)',
-                color: c.tone === 'good' ? 'var(--accent-success, #10b981)'
-                  : c.tone === 'bad' ? 'var(--accent-danger, #ef4444)'
-                  : 'var(--text-primary)'
-              }}>
-                {c.value}
-              </div>
-              <div style={{ fontSize: 'clamp(10.5px, 1vw, 13px)', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
-                {c.note}
-              </div>
-            </div>
-          ))}
-        </div>
       </section>
 
       {/* ── Features, one idea per screen ───────────────────────────────── */}

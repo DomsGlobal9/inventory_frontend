@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, Navigate } from 'react-router-dom';
 import { ArrowRight, Plus, Minus } from 'lucide-react';
@@ -702,6 +702,7 @@ export default function LandingPage() {
     /* Motion here is decoration, and decoration is the first thing to drop for anyone who has
        asked their device to stop moving things. */
     @media (prefers-reduced-motion: reduce) { .lp-drift { animation: none; } }
+    @media (prefers-reduced-motion: reduce) { .lp nav { transition: none !important; } }
     /* On a phone they were hidden outright, which left the panel bare. They stay -- smaller,
        and softened, because at this width some of them fall behind the words rather than
        around them. The copy sits on z-index 1 above them, so it stays readable; these become
@@ -720,11 +721,41 @@ export default function LandingPage() {
     }
   `;
 
+  // The bar steps aside on the way down and comes back on the way up.
+  //
+  // Three details that decide whether this feels right or merely works. The top of the page
+  // always shows it, so a small bounce at the very top cannot leave it hidden. Movements under
+  // a few pixels are ignored, because a trackpad and a thumb both produce a stream of tiny
+  // jitters and reacting to those makes the bar flicker. And it is only ever hidden below the
+  // first screenful, so nobody loses the navigation before they have scrolled anywhere.
+  const scrollerRef = useRef(null);
+  const lastY = useRef(0);
+  const [navHidden, setNavHidden] = useState(false);
+
+  useEffect(() => {
+    const el = scrollerRef.current;
+    if (!el) return undefined;
+
+    const onScroll = () => {
+      const y = el.scrollTop;
+      const delta = y - lastY.current;
+      if (y < 96) setNavHidden(false);
+      else if (Math.abs(delta) > 6) setNavHidden(delta > 0);
+      lastY.current = y;
+    };
+
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => el.removeEventListener('scroll', onScroll);
+  }, []);
+
   return (
     // Scrolls itself, not the window. The app shell gives html and body `overflow: hidden`
     // ("zero global scroll" -- index.css), so a page that expects the window to scroll simply
     // does not, and everything past the first screen is unreachable.
-    <div className="lp" style={{ backgroundColor: 'var(--bg-dark)', height: '100vh', overflowY: 'auto', overflowX: 'hidden' }}>
+    //
+    // Which is also why the nav below listens to THIS element rather than to window: a scroll
+    // handler on window would never fire here and the bar would simply never move.
+    <div ref={scrollerRef} className="lp" style={{ backgroundColor: 'var(--bg-dark)', height: '100vh', overflowY: 'auto', overflowX: 'hidden' }}>
       <Helmet>
         <title>Scaleezy Inventory</title>
         <meta name="description" content="Inventory for clothing retail: an immutable ledger, honest stock valuation, margins before you buy, purchase orders you can send, multi-location stock, and QR try-on for shoppers." />
@@ -736,7 +767,28 @@ export default function LandingPage() {
       <style>{responsiveCss}</style>
 
       {/* Navigation */}
-      <nav style={{ padding: 'clamp(14px, 3vw, 20px) clamp(16px, 4vw, 48px)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-light)', backgroundColor: 'var(--bg-dark)', position: 'sticky', top: 0, zIndex: 50 }}>
+      {/* A bar that floats over the page rather than sitting on top of it.
+          Sticky rather than fixed, so it still takes its space at the top of the document and
+          nothing has to be padded down to clear it -- and it keeps that space when it hides,
+          so the page does not jump. */}
+      <nav style={{
+        position: 'sticky',
+        top: 'clamp(10px, 1.6vw, 18px)',
+        zIndex: 50,
+        margin: '0 clamp(10px, 3vw, 40px)',
+        padding: 'clamp(8px, 1.4vw, 12px) clamp(12px, 2vw, 22px)',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px',
+        borderRadius: '999px',
+        border: '1px solid var(--border-light)',
+        // Translucent, so the page moving underneath is visible through it -- which is what
+        // makes it read as floating rather than as a panel that happens to be at the top.
+        backgroundColor: 'color-mix(in srgb, var(--bg-dark) 78%, transparent)',
+        backdropFilter: 'blur(16px) saturate(160%)',
+        WebkitBackdropFilter: 'blur(16px) saturate(160%)',
+        boxShadow: navHidden ? 'none' : '0 8px 28px -12px rgba(0,0,0,0.28), 0 1px 2px rgba(0,0,0,0.04)',
+        transform: navHidden ? 'translateY(calc(-100% - 24px))' : 'translateY(0)',
+        transition: 'transform 0.32s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.32s ease'
+      }}>
         <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', flexShrink: 0 }}>
           <BrandLockup size="md" />
         </Link>

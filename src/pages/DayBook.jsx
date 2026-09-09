@@ -219,11 +219,30 @@ export default function DayBook() {
           <div style={{
             marginTop: '18px', paddingTop: '16px', borderTop: '1px solid var(--border-light)',
             display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px',
-            color: d.balanced === true ? 'var(--accent-success)'
-              : d.balanced === false ? 'var(--accent-danger)'
+            color: d.balanced === false ? 'var(--accent-danger)'
+              : (d.balanced === true && d.valueMatches !== false) ? 'var(--accent-success)'
               : 'var(--text-muted)'
           }}>
-            {d.balanced === true && <><CheckCircle2 size={15} /> The books balance for this day.</>}
+            {d.balanced === true && d.valueMatches !== false && (
+              <><CheckCircle2 size={15} /> The books balance for this day.</>
+            )}
+            {/* The count agreeing while the value does not is the NORMAL case for a shop that
+                values stock at a weighted average, and it is not a fault. When goods arrive at
+                a new price, the pieces already on the shelf are re-valued to the new average
+                too, and that re-valuation is not a movement -- so it cannot appear in what came
+                in or went out, and the closing figure calculated from movements drifts from
+                what the stock is actually worth.
+
+                Saying "the books balance" without qualification was the problem: only the
+                count had ever been checked, and a closing stock value is exactly the number
+                somebody writes down as what their stock is worth. */}
+            {d.balanced === true && d.valueMatches === false && (
+              <><Info size={15} /> Every piece is accounted for. The closing value is{' '}
+                {money(Math.abs(d.valueGap))} {d.valueGap > 0 ? 'lower than' : 'higher than'} what
+                your stock is worth today ({money(d.measuredClosingValue)}), because stock you
+                already had was re-valued when new stock arrived at a different price. Nothing
+                is missing.</>
+            )}
             {d.balanced === false && <><AlertTriangle size={15} /> These figures do not add up — treat them as unreliable and tell support.</>}
             {d.balanced === null && <><Info size={15} /> There is no separate record for this day to check these totals against.</>}
           </div>

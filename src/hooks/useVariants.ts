@@ -128,18 +128,61 @@ export const useBulkUpdateVariants = () => {
   });
 };
 
+/**
+ * Edits land in the table immediately, before the server has answered.
+ *
+ * This used to wait. VariantTable commits a price by firing the mutation and dropping its
+ * local draft in the same tick, so the cell fell straight back to the CACHED value -- the old
+ * price -- and stayed there for the second or so the round trip to the server takes. Typing
+ * 6000, pressing save, and watching the cell go back to 5200 reads as a rejected edit, and the
+ * natural response is to type it again.
+ *
+ * So the cache is updated first and the request is sent after. If the server refuses, the
+ * snapshot goes back and the toast explains why; that is the rare case, and it is the one that
+ * should cost a moment rather than every successful edit costing one.
+ */
 export const useUpdateVariant = (productId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) => updateVariant(id, data),
+
+    onMutate: async ({ id, data }: { id: string; data: any }) => {
+      const key = queryKeys.variants(productId);
+      // An in-flight refetch would land after this and undo it.
+      await queryClient.cancelQueries({ queryKey: key });
+      const previous = queryClient.getQueryData(key);
+
+      queryClient.setQueryData(key, (old: any) => {
+        if (!old) return old;
+        const patch = (v: any) => (v?.id === id ? { ...v, ...data } : v);
+        // The endpoint has been returning both a bare array and a { data: [...] } envelope at
+        // different times, so patch whichever shape is actually in the cache rather than
+        // assuming one and silently doing nothing.
+        if (Array.isArray(old)) return old.map(patch);
+        if (Array.isArray(old?.data)) return { ...old, data: old.data.map(patch) };
+        return old;
+      });
+
+      return { previous, key };
+    },
+
+    onError: (error: any, _vars, context: any) => {
+      if (context?.previous !== undefined) {
+        queryClient.setQueryData(context.key, context.previous);
+      }
+      toast.error(error.message || 'Failed to update variant');
+    },
+
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.variants(productId) });
-      invalidateDerivedViews(queryClient); // variant count + inventory value
       toast.success('Variant updated successfully');
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to update variant');
+
+    // Whatever happened, reconcile with the server -- the optimistic patch only covers the
+    // fields that were sent, and a receipt or another user's edit may have moved others.
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.variants(productId) });
+      invalidateDerivedViews(queryClient); // variant count + inventory value
     }
   });
 };

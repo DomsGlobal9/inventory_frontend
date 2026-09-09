@@ -9,12 +9,77 @@ import Select from '../components/common/Select';
 
 const FREE_SIZE = 'Free Size';
 
+/**
+ * What each category is measured by, and the figures for each size.
+ *
+ * The chart used to be one hardcoded table: XS to XL against Bust, Waist and Hips. That is a
+ * women's chart, and it was shown for menswear and for childrenswear too -- so a shop adding
+ * a boy's kurta was told to measure his bust, and the sizes on offer were XS to XXL when
+ * children's clothes are sold by age.
+ *
+ * Inches, and Indian ready-to-wear conventions. These are a starting point, not a standard:
+ * every shop cuts differently, which is why the sizes themselves live in the client's own
+ * catalogue (Settings -> Catalog Configuration) where they can be renamed, removed or added
+ * to per category.
+ */
+const SIZE_CHARTS = {
+  WOMEN: {
+    title: "Women's Size Chart",
+    columns: ['Size', 'Bust', 'Waist', 'Hips'],
+    rows: [
+      ['XS', '32"', '24"', '34"'],
+      ['S', '34"', '26"', '36"'],
+      ['M', '36"', '28"', '38"'],
+      ['L', '38"', '30"', '40"'],
+      ['XL', '40"', '32"', '42"'],
+      ['XXL', '42"', '34"', '44"']
+    ]
+  },
+  MEN: {
+    title: "Men's Size Chart",
+    columns: ['Size', 'Chest', 'Waist', 'Shoulder'],
+    rows: [
+      ['S', '36"', '30"', '16.5"'],
+      ['M', '38"', '32"', '17"'],
+      ['L', '40"', '34"', '17.5"'],
+      ['XL', '42"', '36"', '18"'],
+      ['XXL', '44"', '38"', '18.5"'],
+      ['3XL', '46"', '40"', '19"']
+    ]
+  },
+  KIDS: {
+    title: "Kids' Size Chart",
+    // Age first, because that is what a parent buys by. Height and chest are how you check.
+    columns: ['Age', 'Height', 'Chest'],
+    rows: [
+      ['0-6M', '24"', '18"'],
+      ['6-12M', '28"', '19"'],
+      ['1-2Y', '33"', '20"'],
+      ['2-3Y', '37"', '21"'],
+      ['3-4Y', '40"', '22"'],
+      ['4-5Y', '43"', '23"'],
+      ['5-6Y', '45"', '24"'],
+      ['6-7Y', '47"', '25"'],
+      ['7-8Y', '50"', '26"'],
+      ['8-10Y', '54"', '28"'],
+      ['10-12Y', '58"', '30"'],
+      ['12-14Y', '62"', '32"']
+    ]
+  }
+};
+
 export default function Measurements() {
   const navigate = useNavigate();
   const { productData, updateProductData } = useProduct();
   const [activeColor, setActiveColor] = useState(null);
   const [showSizeChart, setShowSizeChart] = useState(false);
-  const { sizes: SIZES, colors: COLORS_PALETTE } = useCatalogData();
+  const { sizesFor, colors: COLORS_PALETTE } = useCatalogData();
+
+  // Which chart and which sizes this product should be offered, from the category chosen on
+  // the previous step. Falls back to women's, which is what this catalogue was built around.
+  const category = (productData.category || 'WOMEN').toUpperCase();
+  const SIZES = sizesFor(category);
+  const sizeChart = SIZE_CHARTS[category] || SIZE_CHARTS.WOMEN;
   const { data: suppliers = [] } = useSuppliers();
 
   // Sarees drape rather than fit to a size chart -- they're sold as one size.
@@ -29,6 +94,26 @@ export default function Measurements() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSaree]);
+
+  /**
+   * Drop any chosen size that the current category does not offer.
+   *
+   * Without this, picking L and XL for a women's kurta and then going back and switching the
+   * product to Kids left L and XL selected -- sizes that are not on the kids chart, that the
+   * shopper cannot see to unpick, and that would have gone through to the variant matrix and
+   * been created as real stock-keeping units.
+   *
+   * Free Size is left alone: the saree rule below owns it, and it is valid for any category.
+   */
+  useEffect(() => {
+    if (isSaree) return;
+    const allowed = new Set([...SIZES, FREE_SIZE]);
+    const kept = productData.selectedSizes.filter(sz => allowed.has(sz));
+    if (kept.length !== productData.selectedSizes.length) {
+      updateProductData('selectedSizes', kept);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [category, SIZES.join('|')]);
 
   // Handlers for Sizes
   const toggleSize = (size) => {
@@ -120,24 +205,31 @@ export default function Measurements() {
       {showSizeChart && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
           <div className="glass-panel" style={{ width: '600px', padding: '32px', backgroundColor: 'var(--bg-card)' }}>
-            <h2 style={{ fontSize: '24px', marginBottom: '16px' }}>Standard Size Chart (Inches)</h2>
-            <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--border-light)' }}>
-                  <th style={{ padding: '8px' }}>Size</th>
-                  <th style={{ padding: '8px' }}>Bust</th>
-                  <th style={{ padding: '8px' }}>Waist</th>
-                  <th style={{ padding: '8px' }}>Hips</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr style={{ borderBottom: '1px solid var(--border-light)' }}><td style={{ padding: '8px' }}>XS</td><td style={{ padding: '8px' }}>32"</td><td style={{ padding: '8px' }}>24"</td><td style={{ padding: '8px' }}>34"</td></tr>
-                <tr style={{ borderBottom: '1px solid var(--border-light)' }}><td style={{ padding: '8px' }}>S</td><td style={{ padding: '8px' }}>34"</td><td style={{ padding: '8px' }}>26"</td><td style={{ padding: '8px' }}>36"</td></tr>
-                <tr style={{ borderBottom: '1px solid var(--border-light)' }}><td style={{ padding: '8px' }}>M</td><td style={{ padding: '8px' }}>36"</td><td style={{ padding: '8px' }}>28"</td><td style={{ padding: '8px' }}>38"</td></tr>
-                <tr style={{ borderBottom: '1px solid var(--border-light)' }}><td style={{ padding: '8px' }}>L</td><td style={{ padding: '8px' }}>38"</td><td style={{ padding: '8px' }}>30"</td><td style={{ padding: '8px' }}>40"</td></tr>
-                <tr style={{ borderBottom: '1px solid var(--border-light)' }}><td style={{ padding: '8px' }}>XL</td><td style={{ padding: '8px' }}>40"</td><td style={{ padding: '8px' }}>32"</td><td style={{ padding: '8px' }}>42"</td></tr>
-              </tbody>
-            </table>
+            <h2 style={{ fontSize: '24px', marginBottom: '4px' }}>{sizeChart.title} (Inches)</h2>
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: 0, marginBottom: '16px' }}>
+              A starting point, not a standard. Your own sizes live in Settings under Catalog
+              Configuration, where you can rename them or add your own per category.
+            </p>
+            <div style={{ maxHeight: '46vh', overflowY: 'auto' }}>
+              <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--border-light)' }}>
+                    {sizeChart.columns.map(col => (
+                      <th key={col} style={{ padding: '8px', position: 'sticky', top: 0, background: 'var(--bg-card)' }}>{col}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {sizeChart.rows.map(row => (
+                    <tr key={row[0]} style={{ borderBottom: '1px solid var(--border-light)' }}>
+                      {row.map((cell, i) => (
+                        <td key={i} style={{ padding: '8px' }}>{cell}</td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
               <button className="btn-primary" onClick={() => setShowSizeChart(false)}>CLOSE</button>
             </div>

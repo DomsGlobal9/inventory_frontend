@@ -606,30 +606,6 @@ export default function LandingPage() {
   // below the point where the grid stops being two columns. An inline style cannot hold a
   // media query, hence the tag.
   const responsiveCss = `
-    /*
-      The logo's own two greens, scoped to this page.
-
-      --brand is the lime from the top half of the mark. It is a FILL colour: at 4.5:1 against
-      white it fails badly for small text, so it is used for large display type, bars, washes
-      and anything on a dark ground -- never for a caption.
-
-      --brand-ink is the deep green from the bottom half, which is what carries small text on a
-      light background. On a dark background the pair swap roles, which is why this is a token
-      and not a hex code repeated twenty times.
-    */
-    .lp {
-      --brand: #A6D92B;
-      --brand-deep: #164B1E;
-      --brand-ink: #164B1E;
-      --brand-on-solid: #FFFFFF;
-      --brand-solid: #164B1E;
-    }
-    :root[data-theme='dark'] .lp {
-      --brand-ink: #A6D92B;
-      --brand-solid: #A6D92B;
-      --brand-on-solid: #0B2410;
-    }
-
     @media (max-width: 719px) {
       .lp-row > * { order: 0 !important; }
     }

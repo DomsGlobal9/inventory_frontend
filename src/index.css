@@ -19,6 +19,20 @@
   
   --accent-gold: #e2c171;
   --accent-gold-hover: #fcd34d;
+
+  /*
+    The logo's own two greens.
+
+    --brand is the lime from the top half of the mark. It is a FILL colour: against white it
+    sits near 1.9:1, so it carries display type, bars and washes, never a caption.
+    --brand-ink is whichever of the two can be read at small sizes on THIS theme, which is why
+    the pair swap below rather than being one hex code used everywhere.
+  */
+  --brand: #A6D92B;
+  --brand-deep: #164B1E;
+  --brand-ink: #A6D92B;
+  --brand-solid: #A6D92B;
+  --brand-on-solid: #0B2410;
   --accent-danger: #ef4444;
   --accent-success: #10b981;
   
@@ -47,6 +61,13 @@
   
   --accent-gold: #b48600;
   --accent-gold-hover: #d97706;
+
+  /* On a light ground the deep green is the readable one, and the lime becomes the fill. */
+  --brand: #A6D92B;
+  --brand-deep: #164B1E;
+  --brand-ink: #164B1E;
+  --brand-solid: #164B1E;
+  --brand-on-solid: #FFFFFF;
   --accent-danger: #ef4444;
   --accent-success: #10b981;
   

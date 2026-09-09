@@ -284,152 +284,129 @@ function LocationsArt() {
   );
 }
 
-/** A phone, with the scan and the result floating off it. */
+/**
+ * The try-on, drawn as the flow this product actually has.
+ *
+ * Earlier versions of this illustrated a body, and later ones invented an interface -- colour
+ * swatches, a cart, "in stock in your size" -- none of which exists. Inventing a flow on a
+ * marketing page is worse than drawing a bad figure: it promises something the product does
+ * not do, and the first customer to try it finds out.
+ *
+ * What actually happens, from shopper-tryon-public.routes:
+ *
+ *   GET  /:clientId/:productCode           the scanned code resolves to a garment, or 404s
+ *   POST /:clientId/:productCode/generate  with a photograph the shopper has already uploaded
+ *
+ * So: scan, photograph, result -- three steps and a meter, because the last line of the copy
+ * beside this promises a merchant they can see how many were used. Two elements rather than
+ * five, because the previous attempt was legible only to someone who already knew what it
+ * said.
+ */
 function TryOnArt() {
+  const steps = [
+    { label: 'Tag scanned', detail: 'PRD-000002', done: true },
+    { label: 'Photo added', detail: 'by the shopper', done: true },
+    { label: 'Putting it on them', detail: 'about a minute', done: false }
+  ];
+
   return (
-    <Frame label="A phone showing a garment tried on, with the scanned tag floating beside it">
+    <Frame label="A phone showing the three steps of a try-on, beside the shop's try-on meter">
       {/* the phone */}
       <div style={{
-        position: 'absolute', left: '50%', top: '7%', transform: 'translateX(-50%)',
-        width: '31%', aspectRatio: '9 / 17', borderRadius: '5cqw',
-        background: 'var(--bg-card)', border: '1px solid var(--border-light)',
-        boxShadow: '0 5cqw 10cqw -2cqw rgba(0,0,0,0.4)', overflow: 'hidden'
+        position: 'absolute', left: '7%', top: '5%', width: '38%', height: '90%',
+        borderRadius: '5cqw', background: 'var(--bg-card)', border: '1px solid var(--border-light)',
+        boxShadow: '0 4cqw 9cqw -3cqw rgba(0,0,0,0.28)',
+        padding: '3cqw 2.8cqw', display: 'flex', flexDirection: 'column', gap: '2.4cqw'
       }}>
-        <div style={{ height: '4%', display: 'flex', justifyContent: 'center', paddingTop: '1.4cqw' }}>
-          <span style={{ width: '34%', height: '1cqw', borderRadius: '99px', background: 'var(--border-light)' }} />
-        </div>
-        {/* the piece, on the person
-            Drawn the way a fashion illustration is drawn, because the previous two attempts
-            were not. Colouring the whole figure in the brand green produced a lime person,
-            which reads as a cartoon alien rather than a customer: skin is not a brand colour.
-            A croquis is a neutral silhouette -- small head, long neck, no face -- and the
-            GARMENT carries the colour. So the figure here is soft charcoal and the saree is a
-            deep green with a gold border, which is what a Kanchipuram actually looks like, and
-            what this shop actually sells.
+        <div style={{ fontSize: '2.4cqw', fontWeight: 700, color: 'var(--text-primary)' }}>Try-on</div>
 
-            The bare midriff between the blouse and the skirt is doing real work: it is the one
-            gap that says saree rather than dress, and it breaks the block the earlier version
-            became. */}
-        <svg
-          viewBox="0 0 100 190" preserveAspectRatio="xMidYMid slice" aria-hidden="true"
-          style={{ position: 'absolute', inset: '9% 0 0', width: '100%', height: '91%' }}
-        >
-          <defs>
-            <linearGradient id="tryOnRoom" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#F3F1EA" />
-              <stop offset="100%" stopColor="#E4E9DC" />
-            </linearGradient>
-            <linearGradient id="tryOnSilk" x1="0.2" y1="0" x2="0.8" y2="1">
-              <stop offset="0%" stopColor="#1D5C2A" />
-              <stop offset="55%" stopColor="#154A20" />
-              <stop offset="100%" stopColor="#0E3517" />
-            </linearGradient>
-            <linearGradient id="tryOnPallu" x1="0" y1="0" x2="1" y2="0.6">
-              <stop offset="0%" stopColor="#20682F" />
-              <stop offset="100%" stopColor="#123F1B" />
-            </linearGradient>
-            <linearGradient id="tryOnScan" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#A6D92B" stopOpacity="0" />
-              <stop offset="50%" stopColor="#EAF7C4" stopOpacity="0.75" />
-              <stop offset="100%" stopColor="#A6D92B" stopOpacity="0" />
-            </linearGradient>
-
-            {/* The union of her, so the light travels over the figure and not the room. */}
-            <clipPath id="tryOnFigure">
-              <ellipse cx="50" cy="15" rx="5.6" ry="7" />
-              <path d="M47.6 21 h4.8 v11 h-4.8 z" />
-              <path d="M50 31 C57 31 62 34 63 39 L64 52 C64 58 62 62 60 66 C62 70 63 74 63 79 L63 86 L37 86 L37 79 C37 74 38 70 40 66 C38 62 36 58 36 52 L37 39 C38 34 43 31 50 31 Z" />
-              <path d="M37 40 C33 42 31 46 31 51 L29 88 C28.6 91 30 93 32 93 C34 93 35.4 91 35 88 L35 52 C35 47 36 43 39 41 Z" />
-              <path d="M63 40 C67 42 69 46 69 51 L71 88 C71.4 91 70 93 68 93 C66 93 64.6 91 65 88 L65 52 C65 47 64 43 61 41 Z" />
-              <path d="M37 70 L63 70 L70 190 L30 190 Z" />
-            </clipPath>
-          </defs>
-
-          <rect width="100" height="190" fill="url(#tryOnRoom)" />
-          {/* the floor she is standing on, so she is in a room and not floating */}
-          <ellipse cx="50" cy="188" rx="30" ry="5" fill="#1F1B16" opacity="0.07" />
-
-          {/* the figure: one soft charcoal, no face. A croquis has no features -- the moment
-              you draw eyes at this size you get a cartoon. */}
-          <g fill="#3B352E" fillOpacity="0.88">
-            {/* the bun, behind the head, before the head is drawn over it */}
-            <circle cx="50" cy="21.5" r="3.4" />
-            <ellipse cx="50" cy="15" rx="5.6" ry="7" />
-            {/* the long neck a croquis is drawn with */}
-            <path d="M47.6 21 h4.8 v11 h-4.8 z" />
-            {/* torso, pinched at the waist so the saree has something to fall from */}
-            <path d="M50 31 C57 31 62 34 63 39 L64 52 C64 58 62 62 60 66 C62 70 63 74 63 79 L63 86 L37 86 L37 79 C37 74 38 70 40 66 C38 62 36 58 36 52 L37 39 C38 34 43 31 50 31 Z" />
-          </g>
-
-          {/* arms, a shade back and clearly clear of the body -- the gap of background between
-              arm and waist is what stops the whole thing reading as one block */}
-          <g fill="#3B352E" fillOpacity="0.62">
-            <path d="M37 40 C33 42 31 46 31 51 L29 88 C28.6 91 30 93 32 93 C34 93 35.4 91 35 88 L35 52 C35 47 36 43 39 41 Z" />
-            <path d="M63 40 C67 42 69 46 69 51 L71 88 C71.4 91 70 93 68 93 C66 93 64.6 91 65 88 L65 52 C65 47 64 43 61 41 Z" />
-          </g>
-
-          {/* the blouse */}
-          <path d="M50 31 C57 31 62 34 63 39 L64 52 L36 52 L37 39 C38 34 43 31 50 31 Z" fill="url(#tryOnSilk)" />
-          {/* and the skirt, falling straight the way silk does rather than belling out */}
-          <path d="M37 70 L63 70 L70 190 L30 190 Z" fill="url(#tryOnSilk)" />
-
-          {/* the gold border, along the hem and up the edge of the drape. A Kanchipuram is
-              known by its border more than by its colour. */}
-          <path d="M30.6 178 L69.4 178" stroke="#D9B76A" strokeWidth="4" strokeOpacity="0.85" fill="none" />
-          <path d="M30.2 184 L69.8 184" stroke="#EBD79E" strokeWidth="1.2" strokeOpacity="0.7" fill="none" />
-
-          {/* the pallu, over the left shoulder and falling in front */}
-          <path d="M40 33 L52 32 L51 46 L47 190 L35 190 L38 47 Z" fill="url(#tryOnPallu)" />
-          <path d="M50.4 46 L46.6 190" stroke="#D9B76A" strokeWidth="1.6" strokeOpacity="0.8" fill="none" />
-
-          {/* folds, so the silk has a direction to fall in */}
-          <path d="M43 86 L40 188" stroke="#000000" strokeOpacity="0.14" strokeWidth="1" fill="none" />
-          <path d="M57 86 L61 188" stroke="#000000" strokeOpacity="0.1" strokeWidth="1" fill="none" />
-          <path d="M56 74 Q60 78 62 84" stroke="#ffffff" strokeOpacity="0.12" strokeWidth="1" fill="none" />
-
-          {/* the scan still passing over her */}
-          <g clipPath="url(#tryOnFigure)">
-            <rect className="lpScan" width="100" height="26" y="-26" fill="url(#tryOnScan)" />
-          </g>
-        </svg>
-
-        {/* what it is doing, said on the screen itself */}
-        <div style={{
-          position: 'absolute', left: '8%', right: '8%', bottom: '5%',
-          display: 'flex', alignItems: 'center', gap: '1.4cqw',
-          padding: '1.6cqw 2cqw', borderRadius: '2cqw',
-          background: 'color-mix(in srgb, var(--bg-card) 82%, transparent)',
-          border: '1px solid var(--border-light)'
-        }}>
-          <span className="lpPulse" style={{
-            width: '1.6cqw', height: '1.6cqw', borderRadius: '50%',
-            background: 'var(--brand)', flexShrink: 0
-          }} />
-          <span style={{ fontSize: '1.9cqw', color: 'var(--text-primary)', fontWeight: 600, whiteSpace: 'nowrap' }}>
-            Trying it on&hellip;
-          </span>
-        </div>
-      </div>
-
-      {/* the tag, floating in front */}
-      <div style={floater({ left: '4%', top: '18%', width: '30%', padding: '3cqw' })}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.9cqw' }}>
-          {Array.from({ length: 16 }).map((_, i) => (
-            <span key={i} style={{
-              aspectRatio: '1', borderRadius: '0.6cqw',
-              background: 'var(--text-primary)',
-              opacity: [0, 3, 5, 6, 9, 10, 12, 15].includes(i) ? 0.88 : 0.16
-            }} />
+        {/* the three steps, two done and one running */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2.2cqw' }}>
+          {steps.map(step => (
+            <div key={step.label} style={{ display: 'flex', alignItems: 'center', gap: '1.8cqw' }}>
+              <span style={{
+                width: '3.6cqw', height: '3.6cqw', borderRadius: '50%', flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: step.done ? '#164B1E' : 'transparent',
+                border: step.done ? 'none' : '0.5cqw solid #A6D92B'
+              }}>
+                {step.done && (
+                  <svg viewBox="0 0 12 12" style={{ width: '2cqw' }} aria-hidden="true">
+                    <path d="M2.5 6.3 L4.8 8.6 L9.5 3.6" fill="none" stroke="#ffffff" strokeWidth="2"
+                      strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+              </span>
+              <span style={{ minWidth: 0 }}>
+                <span style={{
+                  display: 'block', fontSize: '2cqw', fontWeight: 600,
+                  color: 'var(--text-primary)', whiteSpace: 'nowrap'
+                }}>{step.label}</span>
+                <span style={{ ...muted, display: 'block', fontSize: '1.7cqw', whiteSpace: 'nowrap' }}>
+                  {step.detail}
+                </span>
+              </span>
+            </div>
           ))}
         </div>
-        <div style={{ ...muted, fontSize: '2cqw', marginTop: '2.2cqw', textAlign: 'center' }}>on the tag</div>
+
+        {/* the result coming in, which is what the third step is waiting for */}
+        <div style={{
+          flex: 1, borderRadius: '2.4cqw', overflow: 'hidden', position: 'relative',
+          border: '1px solid var(--border-light)'
+        }}>
+          <svg viewBox="0 0 60 80" preserveAspectRatio="xMidYMid slice" aria-hidden="true"
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+            <defs>
+              <linearGradient id="tryOnSilk" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#0B2C12" />
+                <stop offset="45%" stopColor="#2F8B48" />
+                <stop offset="100%" stopColor="#0C2F14" />
+              </linearGradient>
+              <linearGradient id="tryOnZari" x1="0" y1="0" x2="1" y2="0.4">
+                <stop offset="0%" stopColor="#9A7530" />
+                <stop offset="35%" stopColor="#F3E1A8" />
+                <stop offset="100%" stopColor="#A8823A" />
+              </linearGradient>
+              <linearGradient id="tryOnScan" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#A6D92B" stopOpacity="0" />
+                <stop offset="50%" stopColor="#F4FCE2" stopOpacity="0.5" />
+                <stop offset="100%" stopColor="#A6D92B" stopOpacity="0" />
+              </linearGradient>
+            </defs>
+            <rect width="60" height="80" fill="url(#tryOnSilk)" />
+            <path d="M-2 12 Q16 38 6 80" stroke="#04180A" strokeWidth="4" opacity="0.3" fill="none" />
+            <path d="M40 -4 Q54 30 46 80" stroke="#04180A" strokeWidth="5" opacity="0.26" fill="none" />
+            <path d="M24 -4 L32 -4 L18 84 L10 84 Z" fill="#ffffff" opacity="0.08" />
+            <g transform="rotate(-16 30 50)">
+              <rect x="-10" y="46" width="86" height="6" fill="url(#tryOnZari)" opacity="0.95" />
+              <rect x="-10" y="54" width="86" height="1.2" fill="url(#tryOnZari)" opacity="0.65" />
+            </g>
+            <rect className="lpScan" width="60" height="14" y="-14" fill="url(#tryOnScan)" />
+          </svg>
+        </div>
+
+        <div style={{ ...muted, fontSize: '1.7cqw', textAlign: 'center' }}>No app. No account.</div>
       </div>
 
-      {/* the promise, floating in front on the other side */}
-      <div style={floater({ right: '4%', bottom: '14%', width: '38%', padding: '3.2cqw 3.6cqw' })}>
-        <div style={{ fontSize: '2.9cqw', fontWeight: 700, color: 'var(--text-primary)' }}>See it on you</div>
-        <div style={{ ...secondary, fontSize: '2.3cqw', marginTop: '1.2cqw', lineHeight: 1.5 }}>
-          No app. No account. About a minute.
+      {/* the meter, which is the merchant's half of this and the last line of the copy beside it */}
+      <div style={floater({ right: '7%', top: '26%', width: '40%', padding: '3cqw' })}>
+        <div style={{ ...secondary, fontSize: '1.9cqw', fontWeight: 600 }}>Try-ons this month</div>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '1.4cqw', marginTop: '1.2cqw' }}>
+          <span style={{ fontSize: '5cqw', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1 }}>18</span>
+          <span style={{ ...muted, fontSize: '2cqw' }}>of 50</span>
+        </div>
+        <div style={{
+          marginTop: '2cqw', height: '1.2cqw', borderRadius: '99px',
+          background: 'var(--bg-input)', overflow: 'hidden'
+        }}>
+          <span style={{
+            display: 'block', width: '36%', height: '100%', borderRadius: '99px',
+            background: 'linear-gradient(90deg, #164B1E, #A6D92B)'
+          }} />
+        </div>
+        <div style={{ ...muted, fontSize: '1.7cqw', marginTop: '1.8cqw', lineHeight: 1.45 }}>
+          You pay per try-on, and every one is counted here.
         </div>
       </div>
     </Frame>
@@ -734,9 +711,18 @@ export default function LandingPage() {
     }
     .lpScan { animation: lpScanSweep 2.6s cubic-bezier(.4,0,.6,1) infinite; }
     .lpPulse { animation: lpPulse 1.4s ease-in-out infinite; }
+    /* The bar filling, then filling again. A progress bar that sits still says the opposite
+       of what it is there to say. */
+    @keyframes lpProgress {
+      0%   { width: 8%; }
+      70%  { width: 82%; }
+      100% { width: 92%; }
+    }
+    .lpProgress { animation: lpProgress 2.8s ease-in-out infinite; }
     @media (prefers-reduced-motion: reduce) {
       .lpScan { animation: none; opacity: 0; }
       .lpPulse { animation: none; }
+      .lpProgress { animation: none; width: 72%; }
     }
 
     @keyframes lpFloat {
@@ -778,20 +764,24 @@ export default function LandingPage() {
 
       {/* Navigation */}
       <nav style={{ padding: 'clamp(14px, 3vw, 20px) clamp(16px, 4vw, 48px)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-light)', backgroundColor: 'var(--bg-dark)', position: 'sticky', top: 0, zIndex: 50 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <Link to="/" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px', textDecoration: 'none' }}>
-            <img src="/scaleezy-logo.png" alt="Scaleezy" style={{ height: 'clamp(30px, 5vw, 40px)', objectFit: 'contain', display: 'block' }} />
-            <span style={{
-              fontSize: 'clamp(9px, 1.5vw, 11px)', fontWeight: 700, letterSpacing: '0.22em',
-              textTransform: 'uppercase', color: 'var(--text-secondary)',
-              // Nudged to sit under the wordmark rather than under the mark, which is where the
-              // eye expects a product name to hang.
-              paddingLeft: '2px', lineHeight: 1
-            }}>
-              Inventory
-            </span>
-          </Link>
-        </div>
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(9px, 1.6vw, 14px)', textDecoration: 'none' }}>
+          <img
+            src="/scaleezy-logo.png"
+            alt="Scaleezy"
+            style={{ height: 'clamp(26px, 4.4vw, 34px)', objectFit: 'contain', display: 'block' }}
+          />
+          {/* the hairline that makes the two one lockup rather than two logos */}
+          <span aria-hidden="true" style={{
+            width: '1px', height: 'clamp(18px, 3vw, 24px)',
+            background: 'var(--border-light)', flexShrink: 0
+          }} />
+          <span style={{
+            fontSize: 'clamp(15px, 2.4vw, 20px)', fontWeight: 600, letterSpacing: '-0.01em',
+            color: 'var(--brand-strong, #164B1E)', lineHeight: 1, whiteSpace: 'nowrap'
+          }}>
+            Inventory
+          </span>
+        </Link>
         <div style={{ display: 'flex', gap: '16px' }}>
           <Link to="/login" className="btn-secondary" style={{ whiteSpace: 'nowrap' }}>Log In</Link>
           <Link to="/signup" style={{

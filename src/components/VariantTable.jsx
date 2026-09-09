@@ -708,7 +708,7 @@ export default function VariantTable({ productId, productName, productBasePrice,
                                 }}
                                 onBlur={() => { if (!costDirty) discardCostDraft(v.id); }}
                                 style={{ width: '80px', padding: '6px 8px', fontSize: '13px', borderColor: costDirty ? 'var(--accent-gold)' : undefined }}
-                                title="What you pay for this item. Only needed if you haven't received it through a Purchase Order yet. Enter to save, Esc to cancel."
+                                title="What you pay for this item. If this stock has never been costed, saving this also values the pieces you are holding. Enter to save, Esc to cancel."
                               />
                               {costDirty && (
                                 <>
@@ -841,8 +841,22 @@ export default function VariantTable({ productId, productName, productBasePrice,
                     <td>
                       {(() => {
                         const margin = getMarginInfo(v);
+                        const price = effectivePriceOf(v);
+                        const cost = effectiveCostOf(v);
+                        // A bare percentage invites the question "against what?", and the two
+                        // numbers behind it can each come from three different places. Saying
+                        // them is cheaper than making someone work it out.
+                        const explain = margin.pct === null
+                          ? (cost.value > 0
+                              ? 'No price to compare the cost against yet.'
+                              : 'No cost recorded for this item yet.')
+                          : `Selling at ₹${Number(price).toFixed(2)}, costing ₹${cost.value.toFixed(2)} (${cost.source}). `
+                            + `That leaves ₹${(Number(price) - cost.value).toFixed(2)} on every piece.`;
                         return (
-                          <span style={{ fontSize: '13px', fontWeight: 600, color: margin.color }}>
+                          <span
+                            title={explain}
+                            style={{ fontSize: '13px', fontWeight: 600, color: margin.color, cursor: 'help' }}
+                          >
                             {margin.label}
                           </span>
                         );

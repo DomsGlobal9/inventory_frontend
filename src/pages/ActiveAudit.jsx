@@ -267,7 +267,11 @@ export default function ActiveAudit() {
             </thead>
             <tbody>
               {filteredItems.map(item => {
-                const counted = localCounts[item.id];
+                // Defaulted to '' because localCounts is empty on the very first render, before
+                // the effect fills it -- so this input started life uncontrolled and became
+                // controlled a tick later, which React warns about and which loses a keystroke
+                // typed into that gap.
+                const counted = localCounts[item.id] ?? '';
                 const expected = item.expectedQty;
                 const hasValue = counted !== '' && counted !== undefined && counted !== null;
                 const diff = hasValue ? Number(counted) - expected : null;

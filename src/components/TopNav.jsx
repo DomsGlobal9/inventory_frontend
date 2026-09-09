@@ -30,15 +30,33 @@ export default function TopNav({ onMenuClick }) {
   const prevUnreadCountRef = useRef(0);
 
   // Close dropdowns when clicking outside
+  //
+  // The "new alert" popup is included here now, and it matters more than tidiness. That
+  // popup hangs 100px BELOW the nav at z-index 50, which on a narrow window lands squarely
+  // on top of the page's own action button -- Start Counting, New Audit, whatever the screen
+  // leads with. It had no auto-hide by design ("so the notification stands"), so it stood
+  // there swallowing every click aimed at the button underneath, indefinitely, with nothing
+  // to suggest that was what was happening. Two flows were dead in the water because of it.
+  //
+  // Standing until read is the right instinct; standing until it blocks the app is not.
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (isAlertMenuOpen && !e.target.closest('.alert-dropdown-container')) {
-        setIsAlertMenuOpen(false);
-      }
+      if (e.target.closest('.alert-dropdown-container')) return;
+      if (isAlertMenuOpen) setIsAlertMenuOpen(false);
+      if (showNotification) setShowNotification(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isAlertMenuOpen]);
+  }, [isAlertMenuOpen, showNotification]);
+
+  // And a backstop, for the person who never clicks anywhere near it. Ten seconds is long
+  // enough to read a two-line notice and act on it; the bell keeps its unread badge either
+  // way, so nothing is actually lost when this goes.
+  useEffect(() => {
+    if (!showNotification) return;
+    const timer = setTimeout(() => setShowNotification(false), 10000);
+    return () => clearTimeout(timer);
+  }, [showNotification]);
 
   useEffect(() => {
     const currentUnread = alertData?.unreadCount || 0;
@@ -66,7 +84,8 @@ export default function TopNav({ onMenuClick }) {
         audio.play().catch(playBeep);
       } catch(e) {}
       
-      // Removed the 3-second auto-hide so the notification 'stands'
+      // It stands until dismissed, clicked away from, or ten seconds pass -- see the
+      // effects above for why it cannot be allowed to stand indefinitely.
     }
     prevUnreadCountRef.current = currentUnread;
   }, [alertData?.unreadCount]);

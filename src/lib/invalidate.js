@@ -54,6 +54,42 @@ export function invalidateDerivedViews(queryClient) {
  * rather than guessing. The invalidation still runs afterwards and is the source of truth;
  * this only removes the visible lag.
  */
+/**
+ * Move a row's quantity by a known delta, before the server has answered.
+ *
+ * patchInventoryRows below applies the server's numbers, which is the truth -- but it can only
+ * run once the round trip is done, and this database is seconds away. Receiving three pieces
+ * and watching the row sit on its old figure for six seconds reads as a button that did
+ * nothing, and the shopkeeper presses it again.
+ *
+ * So the delta is applied first from what was asked for, and the response corrects it after.
+ * Returns the previous cache entries so a failure can put them back.
+ *
+ * Average cost is deliberately NOT guessed here. Receiving at a different unit cost moves a
+ * weighted average, and the arithmetic for that lives on the server; inventing a number that
+ * the response then corrects would be a figure about money that was briefly wrong. The
+ * quantity is what the eye is on, and the quantity is knowable.
+ */
+export function optimisticQuantityDelta(queryClient, variables, delta) {
+  if (!variables?.variantId || !Number.isFinite(delta)) return [];
+
+  const snapshots = [];
+  queryClient.setQueriesData({ queryKey: ['inventory-variants'] }, (old) => {
+    if (!old?.items) return old;
+    snapshots.push(old);
+    return {
+      ...old,
+      items: old.items.map((row) => {
+        if (row.variantId !== variables.variantId) return row;
+        const quantity = Math.max(Number(row.quantity ?? 0) + delta, 0);
+        const averageCost = Number(row.averageCost ?? 0);
+        return { ...row, quantity, inventoryValue: quantity * averageCost };
+      })
+    };
+  });
+  return snapshots;
+}
+
 export function patchInventoryRows(queryClient, variables, result) {
   if (!result || !variables?.variantId) return;
 

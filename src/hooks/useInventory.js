@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import toast from 'react-hot-toast';
-import { invalidateDerivedViews, patchInventoryRows } from '../lib/invalidate';
+import { invalidateDerivedViews, patchInventoryRows, optimisticQuantityDelta } from '../lib/invalidate';
 
 export function useInventoryVariants(filters) {
   const queryObj = Object.fromEntries(
@@ -50,6 +50,8 @@ export function useStockIn() {
       const response = await api.post('/inventory/stock-in', data);
       return response.data;
     },
+    // The row moves now; onSuccess replaces the guess with the server's own figures.
+    onMutate: (variables) => ({ snapshots: optimisticQuantityDelta(queryClient, variables, Number(variables?.quantity) || 0) }),
     onSuccess: (result, variables) => {
       // Update the visible row from the response first so it changes immediately; the
       // invalidation below then reconciles against the server.
@@ -72,6 +74,7 @@ export function useStockOut() {
       const response = await api.post('/inventory/stock-out', data);
       return response.data;
     },
+    onMutate: (variables) => ({ snapshots: optimisticQuantityDelta(queryClient, variables, -(Number(variables?.quantity) || 0)) }),
     onSuccess: (result, variables) => {
       // Update the visible row from the response first so it changes immediately; the
       // invalidation below then reconciles against the server.

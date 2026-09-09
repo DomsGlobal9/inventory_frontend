@@ -137,7 +137,10 @@ export default function RoleManager() {
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0 }}>
-                <span style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 5 }}>
+                <span
+                  style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 5 }}
+                  title={role.memberCount === 1 ? '1 person has this role' : `${role.memberCount} people have this role`}
+                >
                   <Users size={13} /> {role.memberCount}
                 </span>
                 <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>

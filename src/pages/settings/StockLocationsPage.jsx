@@ -5,6 +5,7 @@ import { Plus, Edit2, Trash2, MapPin, Search } from 'lucide-react';
 import { useLocationContext } from '../../contexts/LocationContext';
 import { usePermission } from '../../hooks/usePermission';
 import Select from '../../components/common/Select';
+import ConfirmModal from '../../components/ConfirmModal';
 
 
 export default function StockLocationsPage() {
@@ -15,6 +16,7 @@ export default function StockLocationsPage() {
   const { can } = usePermission();
   const canManage = can('admin:locations');
 
+  const [confirmState, setConfirmState] = useState({ isOpen: false });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingLocation, setEditingLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
@@ -76,16 +78,42 @@ export default function StockLocationsPage() {
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this location?')) return;
-    try {
-      await api.delete(`/locations/${id}`);
-      toast.success('Location deleted successfully');
-      fetchLocations();
-      refreshLocations();
-    } catch (error) {
-      toast.error(error?.error || 'Failed to delete location');
-    }
+  /**
+   * Deleting a location.
+   *
+   * Was a window.confirm reading "Are you sure you want to delete this location?" -- a grey
+   * browser box naming neither the location nor what happens to it, on a page where the rows
+   * look alike and the icon buttons that opened it had no label, no title and no aria-label
+   * at all. Nothing on the row said which button was which, or which row it belonged to.
+   *
+   * The server refuses while stock is still there and now explains exactly what is in the
+   * way, so nothing is duplicated here: a count taken in the browser would only go stale.
+   */
+  const handleDelete = (loc) => {
+    setConfirmState({
+      isOpen: true,
+      title: 'Delete location',
+      message:
+        `"${loc.name}" (${loc.code}) will be removed from this workspace. Stock history that ` +
+        `mentions it is kept, so past movements still read correctly. If it still holds stock, ` +
+        `this will be refused and nothing will change.`,
+      confirmText: 'Delete location',
+      confirmStyle: 'danger',
+      onConfirm: async () => {
+        // This endpoint answers with { error: "..." } where the rest of the API uses
+        // { message }, so both are read -- whichever the server sends, the person gets the
+        // real reason rather than the generic fallback.
+        try {
+          await api.delete(`/locations/${loc.id}`);
+          toast.success(`${loc.name} deleted`);
+          fetchLocations();
+          refreshLocations();
+        } catch (error) {
+          toast.error(error?.error || error?.message || 'Could not delete that location.', { duration: 7000 });
+          throw error; // rethrown so the dialog stays open and the reason can be read
+        }
+      }
+    });
   };
 
   const filteredLocations = (locations || []).filter(loc => 
@@ -186,6 +214,8 @@ export default function StockLocationsPage() {
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
                       <button 
                         onClick={() => openEditModal(loc)}
+                        title={`Edit ${loc.name}`}
+                        aria-label={`Edit ${loc.name}`}
                         style={{ color: 'var(--text-secondary)', transition: 'all 0.2s', padding: '6px', borderRadius: '6px', border: 'none', background: 'transparent', cursor: 'pointer' }}
                         onMouseOver={(e) => { e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.background = 'var(--bg-hover)'; }}
                         onMouseOut={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.background = 'transparent'; }}
@@ -193,7 +223,9 @@ export default function StockLocationsPage() {
                         <Edit2 size={16} />
                       </button>
                       <button 
-                        onClick={() => handleDelete(loc.id)}
+                        onClick={() => handleDelete(loc)}
+                        title={`Delete ${loc.name}`}
+                        aria-label={`Delete ${loc.name}`}
                         style={{ color: 'var(--text-secondary)', transition: 'all 0.2s', padding: '6px', borderRadius: '6px', border: 'none', background: 'transparent', cursor: 'pointer' }}
                         onMouseOver={(e) => { e.currentTarget.style.color = 'var(--accent-danger)'; e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'; }}
                         onMouseOut={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.background = 'transparent'; }}
@@ -286,6 +318,16 @@ export default function StockLocationsPage() {
           background-color: var(--bg-hover) !important;
         }
       `}</style>
+
+      <ConfirmModal
+        isOpen={confirmState.isOpen}
+        onClose={() => setConfirmState({ isOpen: false })}
+        onConfirm={confirmState.onConfirm}
+        title={confirmState.title}
+        message={confirmState.message}
+        confirmText={confirmState.confirmText}
+        confirmStyle={confirmState.confirmStyle}
+      />
     </div>
   );
 }

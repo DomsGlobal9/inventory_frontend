@@ -96,7 +96,7 @@ export default function StorefrontManager() {
       <div style={{ marginBottom: '24px' }}>
         <h2 style={{ fontSize: '20px', margin: '0 0 6px', color: 'var(--text-primary)' }}>Storefront</h2>
         <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-secondary)' }}>
-          Connect your website and it stays up to date on its own -- products, prices, photos and
+          Connect your website and it stays up to date on its own — products, prices, photos and
           stock. There is nothing to export and nothing to press afterwards.
         </p>
       </div>
@@ -157,7 +157,7 @@ export default function StorefrontManager() {
                 title: 'Revoke this connection',
                 message:
                   `"${connection.name}" will stop receiving updates immediately and its key can never ` +
-                  `be used again. Its delivery history is kept.\n\nThis cannot be undone -- reconnecting ` +
+                  `be used again. Its delivery history is kept.\n\nThis cannot be undone — reconnecting ` +
                   `means creating a new connection and re-syncing the catalogue.`,
                 confirmText: 'Revoke',
                 onConfirm: () => lifecycle.mutateAsync({ id: connection.id, action: 'revoke' })
@@ -274,13 +274,13 @@ function SecretPanel({ secret, name, onCopy, onDismiss }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
         <KeyRound size={16} color="var(--accent-gold)" />
         <strong style={{ fontSize: '15px', color: 'var(--text-primary)' }}>
-          Key for "{name}" -- copy it now
+          Key for "{name}" — copy it now
         </strong>
       </div>
       <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 12px' }}>
         This is the only time it can be shown. We keep a one-way fingerprint of it, not the key
         itself, so it cannot be looked up later. Give it to whoever builds your website. If it is
-        lost, issue a new one -- that immediately stops the old one working.
+        lost, issue a new one — that immediately stops the old one working.
       </p>
       <div style={{
         display: 'flex', alignItems: 'center', gap: '10px', padding: '12px',
@@ -335,7 +335,7 @@ function ConnectionCard({ connection, locations, expanded, onToggle, onTest, tes
           {connection.status === 'PENDING_SYNC' && (
             <p style={{ fontSize: '12.5px', color: 'var(--accent-gold)', margin: '10px 0 0' }}>
               Waiting for your website to fetch the catalogue for the first time. Updates are being
-              held until it has -- telling it a price changed before it has the product would not help.
+              held until it has — telling it a price changed before it has the product would not help.
             </p>
           )}
         </div>

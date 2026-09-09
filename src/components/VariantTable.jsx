@@ -13,7 +13,7 @@ import { useAuth } from '../context/AuthContext';
 import VariantSuppliersPanel from './VariantSuppliersPanel';
 import PageLoader from './PageLoader';
 
-export default function VariantTable({ productId, productName, highlightVariantId }) {
+export default function VariantTable({ productId, productName, productBasePrice, highlightVariantId }) {
   // Stamped into the barcode-label PDF metadata; must be the real tenant.
   const { clientId } = useAuth();
   const { data, isLoading, isError } = useVariants(productId);
@@ -162,19 +162,14 @@ export default function VariantTable({ productId, productName, highlightVariantI
     if (draft !== undefined) return Number(draft); // previewing an unconfirmed edit
     const override = locationPriceOf(v);
     if (override !== null) return override;
-    return v.sellingPrice ? Number(v.sellingPrice) : null;
-  };
-
-  const getMarginInfo = (v) => {
-    const effectivePrice = effectivePriceOf(v);
-    const sellingPrice = Number.isFinite(effectivePrice) && effectivePrice > 0 ? effectivePrice : null;
-    const avgCost = Number(v.averageCost || 0);
-    if (!sellingPrice) return { label: 'Set a price', color: 'var(--text-muted)', pct: null };
-    if (avgCost <= 0) return { label: 'No cost data yet', color: 'var(--text-muted)', pct: null };
-
-    const pct = ((sellingPrice - avgCost) / sellingPrice) * 100;
-    const color = pct >= 30 ? '#10b981' : pct >= 15 ? '#f59e0b' : '#ef4444';
-    return { label: `${pct.toFixed(1)}%`, color, pct };
+    if (v.sellingPrice) return Number(v.sellingPrice);
+    // The product's own price is the last step of the backend's resolveVariantForLocation,
+    // and it was missing here. That matters more than it sounds: adding a product asks for
+    // one Base Price and never for a per-variant price, so 282 of 344 variants on this
+    // platform are priced only at the product level. Without this line every one of them
+    // reported "Set a price" and had no margin -- the margin feature was switched off for
+    // most of the catalogue while the shop was selling perfectly well.
+    return productBasePrice ? Number(productBasePrice) : null;
   };
 
   // What a markup is calculated against. Real money actually paid (averageCost, blended
@@ -187,6 +182,25 @@ export default function VariantTable({ productId, productName, highlightVariantI
     const manual = v.costPrice ? Number(v.costPrice) : 0;
     if (manual > 0) return { value: manual, source: 'your cost' };
     return { value: 0, source: null };
+  };
+
+  const getMarginInfo = (v) => {
+    const effectivePrice = effectivePriceOf(v);
+    const sellingPrice = Number.isFinite(effectivePrice) && effectivePrice > 0 ? effectivePrice : null;
+    // The same cost the profit-% box calculates from. It used to read averageCost alone, so a
+    // variant with a hand-typed cost could have its price DERIVED from that cost by the box on
+    // the left while the column on the right said "No cost data yet" about the very same row --
+    // and the CSV export wrote both, a cost and "no cost data", side by side.
+    const cost = effectiveCostOf(v).value;
+    if (!sellingPrice) return { label: 'Set a price', color: 'var(--text-muted)', pct: null };
+    if (cost <= 0) return { label: 'No cost data yet', color: 'var(--text-muted)', pct: null };
+
+    const pct = ((sellingPrice - cost) / sellingPrice) * 100;
+    // Below zero is not a thin margin, it is a loss on every piece sold, and it read as the
+    // same red as 14%. A shop selling a 45,000 saree for 45,666 needs to be told, not tinted.
+    if (pct < 0) return { label: `Loss ${Math.abs(pct).toFixed(1)}%`, color: '#ef4444', pct };
+    const color = pct >= 30 ? '#10b981' : pct >= 15 ? '#f59e0b' : '#ef4444';
+    return { label: `${pct.toFixed(1)}%`, color, pct };
   };
 
   // Type a profit % -> fills the selling price as cost + that % OF COST (markup), the way

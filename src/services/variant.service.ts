@@ -8,8 +8,14 @@ export const createVariant = async (productId: string, data: any) => {
   return api.post(`/products/${productId}/variants`, data);
 };
 
-export const bulkCreateVariants = async (productId: string, variants: any[], applyToAllLocations: boolean = false) => {
-  return api.post(`/products/${productId}/variants/bulk`, { variants, applyToAllLocations });
+export const bulkCreateVariants = async (productId: string, variants: any[], applyToAllLocations: boolean = false, supplierId?: string) => {
+  // supplierId is optional and only sent when the merchant chose one, so the server keeps
+  // treating its absence as "no supplier" rather than as an empty string to look up.
+  return api.post(`/products/${productId}/variants/bulk`, {
+    variants,
+    applyToAllLocations,
+    ...(supplierId ? { supplierId } : {})
+  });
 };
 
 export const bulkUpdateVariants = async (updates: any[], locationId?: string) => {

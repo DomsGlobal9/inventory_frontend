@@ -4,6 +4,8 @@ import { ChevronRight, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useProduct } from '../context/ProductContext';
 import { useCatalogData } from '../hooks/useCatalogConfig';
+import { useSuppliers } from '../hooks/useSuppliers';
+import Select from '../components/common/Select';
 
 const FREE_SIZE = 'Free Size';
 
@@ -13,6 +15,7 @@ export default function Measurements() {
   const [activeColor, setActiveColor] = useState(null);
   const [showSizeChart, setShowSizeChart] = useState(false);
   const { sizes: SIZES, colors: COLORS_PALETTE } = useCatalogData();
+  const { data: suppliers = [] } = useSuppliers();
 
   // Sarees drape rather than fit to a size chart -- they're sold as one size.
   // Force the selection to Free Size while this product is a saree, and clear it
@@ -87,6 +90,17 @@ export default function Measurements() {
     }
   };
 
+  // Per-variant price. Decimals allowed, unlike units -- a saree can cost 1250.50, it
+  // cannot be half a saree.
+  const handleVariantPriceChange = (size, colorCode, value) => {
+    if (value !== '' && !/^[0-9]*[.]?[0-9]*$/.test(value)) return;
+    const current = productData.variantPrices || {};
+    updateProductData('variantPrices', {
+      ...current,
+      [colorCode]: { ...(current[colorCode] || {}), [size]: value }
+    });
+  };
+
   return (
     <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative' }}>
       
@@ -136,7 +150,7 @@ export default function Measurements() {
         
         {/* ROW 1: Price and Sizes */}
         <div className="mobile-col" style={{ display: 'flex', gap: '32px' }}>
-          <div style={{ width: '200px' }}>
+          <div style={{ width: '170px' }}>
             <label className="input-label">Base Price (₹)</label>
             <input 
               type="number" 
@@ -145,6 +159,46 @@ export default function Measurements() {
               value={productData.price}
               onChange={(e) => updateProductData('price', e.target.value)} 
             />
+          </div>
+
+          {/* Asked for here because not asking is what produced stock the system believed was
+              free. A shop holding 50 sarees at no cost that received one more at 4,999 had the
+              saree valued at 98 rupees -- the 4,999 was averaged across 51 pieces, 50 of which
+              were recorded as costing nothing. Optional, and the hint says what it is for
+              rather than nagging. */}
+          <div style={{ width: '170px' }}>
+            <label className="input-label">Cost Price (₹)</label>
+            <input
+              type="number"
+              className="input-field"
+              placeholder="what you paid"
+              value={productData.costPrice}
+              onChange={(e) => updateProductData('costPrice', e.target.value)}
+            />
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
+              {Number(productData.costPrice) > 0 && Number(productData.price) > 0
+                ? `${(((Number(productData.price) - Number(productData.costPrice)) / Number(productData.price)) * 100).toFixed(0)}% margin`
+                : 'Optional — used for profit and stock value'}
+            </div>
+          </div>
+
+          {/* The supplier link was created only when a purchase order was raised, so every
+              supplier's item list stayed empty until you had already ordered from them, and
+              reordering could not suggest who to buy from. */}
+          <div style={{ width: '200px' }}>
+            <label className="input-label">Supplier</label>
+            <Select
+              value={productData.supplierId}
+              onChange={(value) => updateProductData('supplierId', value)}
+              options={[
+                { value: '', label: 'Not from a supplier' },
+                ...suppliers.map(sup => ({ value: sup.id, label: sup.name }))
+              ]}
+              placeholder="Who you buy this from"
+            />
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
+              Optional — lets you reorder without retyping
+            </div>
           </div>
           
           <div style={{ flex: 1 }}>
@@ -278,7 +332,26 @@ export default function Measurements() {
 
         {/* ROW 3: Inventory Matrix Table */}
         <div style={{ display: 'flex', flexDirection: 'column', marginTop: '8px' }}>
-          <label className="input-label">Inventory Units Matrix <span style={{color: 'var(--accent-gold)'}}>*</span></label>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+            <label className="input-label" style={{ marginBottom: 0 }}>
+              Inventory Units Matrix <span style={{color: 'var(--accent-gold)'}}>*</span>
+            </label>
+            {/* Off by default. Most shops sell every size of one saree at one price, and a grid
+                of price boxes nobody needs is a grid of boxes somebody mistypes. But when it is
+                real -- a plus size, a heavier zari border -- there was no way to say so, and
+                the only alternative was editing every variant afterwards, one at a time. */}
+            {productData.selectedSizes.length > 0 && productData.selectedColors.length > 0 && (
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: 'var(--text-secondary)', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={!!productData.perVariantPricing}
+                  onChange={(e) => updateProductData('perVariantPricing', e.target.checked)}
+                  style={{ cursor: 'pointer' }}
+                />
+                Different price per size or colour
+              </label>
+            )}
+          </div>
           
           {(productData.selectedSizes.length === 0 || productData.selectedColors.length === 0) ? (
             <div style={{ padding: '32px', background: 'var(--bg-input)', borderRadius: '6px', border: '1px dashed var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -310,14 +383,28 @@ export default function Measurements() {
                         </td>
                         {productData.selectedSizes.map(size => (
                           <td key={size} style={{ padding: '8px' }}>
-                            <input 
-                              type="text" 
-                              className="input-field" 
-                              placeholder="0"
-                              value={productData.units[colorCode]?.[size] || ''}
-                              onChange={(e) => handleUnitChange(size, colorCode, e.target.value)}
-                              style={{ textAlign: 'center', width: '60px', padding: '6px', margin: '0 auto' }}
-                            />
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
+                              <input
+                                type="text"
+                                className="input-field"
+                                placeholder="0"
+                                title="How many pieces"
+                                value={productData.units[colorCode]?.[size] || ''}
+                                onChange={(e) => handleUnitChange(size, colorCode, e.target.value)}
+                                style={{ textAlign: 'center', width: '70px', padding: '6px', margin: '0 auto' }}
+                              />
+                              {productData.perVariantPricing && (
+                                <input
+                                  type="text"
+                                  className="input-field"
+                                  placeholder={productData.price ? `₹${productData.price}` : '₹ price'}
+                                  title="What this exact size and colour sells for. Leave blank to use the base price."
+                                  value={productData.variantPrices?.[colorCode]?.[size] || ''}
+                                  onChange={(e) => handleVariantPriceChange(size, colorCode, e.target.value)}
+                                  style={{ textAlign: 'center', width: '70px', padding: '4px', margin: '0 auto', fontSize: '12px' }}
+                                />
+                              )}
+                            </div>
                           </td>
                         ))}
                       </tr>

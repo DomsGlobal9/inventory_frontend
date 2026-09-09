@@ -66,7 +66,15 @@ export default function PurchaseOrderDetails() {
         // sellingPrice lives on the nested variant, not on the PO item itself -- promote
         // it to the top level so getMarginWarning (which only reads item.sellingPrice)
         // works the same way for a reopened Draft PO as it does for a brand-new one.
-        items: po.items.map(i => ({ ...i, sellingPrice: i.variant?.sellingPrice ? Number(i.variant.sellingPrice) : null }))
+        items: po.items.map(i => ({
+          ...i,
+          // The variant's own price when it has one, otherwise the product's -- the same
+          // order the backend resolves in. Reading only the variant's left the warning
+          // silent for the 82% of variants that are priced at product level.
+          sellingPrice: i.variant?.sellingPrice ? Number(i.variant.sellingPrice)
+            : i.variant?.product?.basePrice ? Number(i.variant.product.basePrice)
+            : null
+        }))
       });
       
       const initialRec = {};
@@ -178,7 +186,9 @@ This actually sends it. Once it goes, the order is marked as Sent and you can st
           size: variant.size,
           orderedQty: variant.orderedQty,
           unitPrice: variant.unitPrice,
-          sellingPrice: variant.sellingPrice,
+          // effectiveSellingPrice, not sellingPrice: most variants have no price of their
+          // own and sell at the product's, and the margin warning was silent for all of them.
+          sellingPrice: variant.effectiveSellingPrice ?? variant.sellingPrice,
           variant: { product: { title: variant.productTitle } }
         });
       }
@@ -212,7 +222,11 @@ This actually sends it. Once it goes, the order is marked as Sent and you can st
   const getMarginWarning = (item) => {
     if (!item.sellingPrice) return null; // nothing to compare against yet
     const margin = ((item.sellingPrice - item.unitPrice) / item.sellingPrice) * 100;
-    if (margin < 0) return { text: `This costs more than the ₹${item.sellingPrice} selling price`, color: 'var(--accent-danger)' };
+    if (margin < 0) return { text: `This costs more than the ₹${item.sellingPrice} selling price -- you would lose money on every piece`, color: 'var(--accent-danger)' };
+    // Under 1% reads as "0% margin" once rounded, which looks like a display glitch rather
+    // than a warning. Said in rupees instead, because ₹666 on a ₹45,666 saree is the sentence
+    // that lands -- this is a real order on this platform.
+    if (margin < 1) return { text: `Only ₹${(item.sellingPrice - item.unitPrice).toFixed(0)} per piece at this cost`, color: 'var(--accent-danger)' };
     if (margin < 15) return { text: `Only ~${margin.toFixed(0)}% margin at this cost`, color: 'var(--accent-danger)' };
     if (margin < 30) return { text: `~${margin.toFixed(0)}% margin at this cost`, color: 'var(--accent-warning, #f59e0b)' };
     return null; // healthy margin, no need to call it out

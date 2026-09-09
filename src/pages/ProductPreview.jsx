@@ -101,6 +101,14 @@ export default function ProductPreview() {
           // Generate a clean SKU
           const safeName = colorInfo.name.toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 3);
           const sku = `${productCode}-${safeName}-${size}`;
+          // The per-variant price when one was typed, otherwise nothing -- leaving it unset
+          // means the variant falls back to the product's base price, which is what a shop
+          // selling every size at one price wants and is how the backend resolves it anyway.
+          const perVariant = productData.perVariantPricing
+            ? Number(productData.variantPrices?.[colorCode]?.[size] || 0)
+            : 0;
+          const cost = Number(productData.costPrice || 0);
+
           variants.push({
             sku,
             size,
@@ -108,6 +116,11 @@ export default function ProductPreview() {
             hexCode: colorInfo.value,
             quantity: qty,
             reorderLevel: 5,
+            ...(perVariant > 0 ? { sellingPrice: perVariant } : {}),
+            // Sent so the opening stock is VALUED, not merely counted. Without it the pieces
+            // enter with no cost and the first purchase order is averaged against a zero that
+            // was never true -- which priced a 4,999 saree at 98 rupees.
+            ...(cost > 0 ? { costPrice: cost } : {})
           });
         });
       });
@@ -212,7 +225,7 @@ export default function ProductPreview() {
               // creating variants and their opening stock is several round trips and is the
               // slowest part of publishing.
               setPhase('variants');
-              const res = await bulkCreateVariants(newProductId, variants, applyToAllLocations);
+              const res = await bulkCreateVariants(newProductId, variants, applyToAllLocations, productData.supplierId);
 
               // A PARTIAL failure comes back as HTTP 200 with { created, skipped, errors },
               // so it never reaches the catch below. That is how a customer published a

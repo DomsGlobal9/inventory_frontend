@@ -265,7 +265,11 @@ export default function Settings() {
                         <div style={{ padding: '12px', borderRadius: '8px', background: 'var(--bg-input)', border: '1px solid var(--border-light)' }}>
                           <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0, display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
                             <Shield size={16} color="var(--accent-gold)" style={{ flexShrink: 0, marginTop: '2px' }} />
-                            <span>Your password and role are managed by administrators. Please contact a Super Admin if you need to update sensitive credentials.</span>
+                            <span>
+                              {isSuperAdmin
+                                ? 'Your name is yours to change. Your role is the owner\'s and cannot be changed here — it is what gets you back in if another role is set up wrongly.'
+                                : 'Your name is yours to change. Your role and password are set by whoever manages your team, so ask them if either needs to change.'}
+                            </span>
                           </p>
                         </div>
                         <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
@@ -297,15 +301,24 @@ export default function Settings() {
                             ))}
                           </div>
                         </div>
+
+                        {/* Inside the card, with the name and the email and the role.
+                            It sat below the card under its own divider, which read as a
+                            separate feature of the page rather than as one more fact about
+                            this account -- and it was directly under a notice telling the
+                            reader to ask somebody else about their password.
+
+                            Only the owner. Everyone else's password is set for them by whoever
+                            manages the team; staff who change their own leave nobody able to
+                            help them back in, and the owner is the exception because there is
+                            nobody above them to do the resetting. */}
+                        {isSuperAdmin && <ChangeOwnPassword />}
                       </div>
                     )}
                   </div>
                 </div>
 
-                {/* Only the Super Admin. Everyone else's password is set for them and stays
-                    permanent -- staff who change their own leave nobody able to help them back
-                    in. The owner is the exception because there is nobody above them. */}
-                {isSuperAdmin && <ChangeOwnPassword />}
+
               </div>
             </div>
           )}

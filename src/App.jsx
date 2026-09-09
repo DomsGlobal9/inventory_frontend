@@ -49,6 +49,7 @@ import ReturnDetail from './pages/sales/ReturnDetail';
 import Login from './pages/Login';
 import Unauthorized from './pages/Unauthorized';
 import ProtectedRoute from './components/ProtectedRoute';
+import Guard from './components/Guard';
 
 function App() {
   return (
@@ -84,10 +85,18 @@ function App() {
           </Route>
         </Route>
 
+        {/* Every business route below carries the permission its backend route enforces.
+            None of them did: the sidebar hid the links and the API refused the data, so a
+            bookmark or a colleague's link rendered the page anyway with the contents missing --
+            Purchase Orders told a salesperson "No purchase orders found", which is not a
+            refusal but a false statement about the shop.
+
+            /settings is deliberately open: it holds a person's own profile and password, so
+            somebody with no permissions at all still has somewhere to be. */}
         <Route element={<ProtectedRoute />}>
         <Route element={<MainLayout />}>
           <Route path="/unauthorized" element={<Unauthorized />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Guard permission="dashboard:view"><Dashboard /></Guard>} />
           
           <Route path="/add" element={<WizardLayout title="Add Your Product" subtitle="Create a new product and configure its details before publishing." />}>
             {/* Without this, a bare /add matched the layout with no child to fill its
@@ -113,32 +122,32 @@ function App() {
             </div>
           } />
           
-          <Route path="/products/:id" element={<ProductDetails />} />
-          <Route path="/products" element={<Products />} />
-          <Route path="/orders" element={<SalesOrders />} />
-          <Route path="/orders/:id" element={<SalesOrderDetail />} />
-          <Route path="/returns" element={<ReturnsList />} />
-          <Route path="/returns/:id" element={<ReturnDetail />} />
-          <Route path="/inventory/alerts" element={<AlertCenter />} />
-          <Route path="/inventory/audits" element={<AuditList />} />
-          <Route path="/inventory/audits/:id" element={<ActiveAudit />} />
-          <Route path="/inventory/suppliers" element={<PurchaseOrders />} />
-          <Route path="/inventory/suppliers/:id" element={<SupplierDetails />} />
-          <Route path="/inventory/purchase-orders" element={<PurchaseOrders />} />
+          <Route path="/products/:id" element={<Guard permission="product:view"><ProductDetails /></Guard>} />
+          <Route path="/products" element={<Guard permission="product:view"><Products /></Guard>} />
+          <Route path="/orders" element={<Guard permission="sales_order:view"><SalesOrders /></Guard>} />
+          <Route path="/orders/:id" element={<Guard permission="sales_order:view"><SalesOrderDetail /></Guard>} />
+          <Route path="/returns" element={<Guard permission="return:view"><ReturnsList /></Guard>} />
+          <Route path="/returns/:id" element={<Guard permission="return:view"><ReturnDetail /></Guard>} />
+          <Route path="/inventory/alerts" element={<Guard permission="inventory:view"><AlertCenter /></Guard>} />
+          <Route path="/inventory/audits" element={<Guard permission="stock_count:view"><AuditList /></Guard>} />
+          <Route path="/inventory/audits/:id" element={<Guard permission="stock_count:view"><ActiveAudit /></Guard>} />
+          <Route path="/inventory/suppliers" element={<Guard permission="supplier:view"><PurchaseOrders /></Guard>} />
+          <Route path="/inventory/suppliers/:id" element={<Guard permission="supplier:view"><SupplierDetails /></Guard>} />
+          <Route path="/inventory/purchase-orders" element={<Guard permission="purchase_order:view"><PurchaseOrders /></Guard>} />
           {/* Rendered by PurchaseOrders, which picks its tab from the path -- same pattern
               as /inventory/suppliers. */}
-          <Route path="/inventory/reorder" element={<PurchaseOrders />} />
-          <Route path="/inventory/purchase-orders/:id" element={<PurchaseOrderDetails />} />
-          <Route path="/inventory/ledger" element={<InventoryLedger />} />
-          <Route path="/inventory/transfers" element={<TransfersPage />} />
-          <Route path="/inventory" element={<InventoryOverview />} />
+          <Route path="/inventory/reorder" element={<Guard permission="purchase_order:view"><PurchaseOrders /></Guard>} />
+          <Route path="/inventory/purchase-orders/:id" element={<Guard permission="purchase_order:view"><PurchaseOrderDetails /></Guard>} />
+          <Route path="/inventory/ledger" element={<Guard permission="inventory:view"><InventoryLedger /></Guard>} />
+          <Route path="/inventory/transfers" element={<Guard permission="inventory:transfer"><TransfersPage /></Guard>} />
+          <Route path="/inventory" element={<Guard permission="inventory:view"><InventoryOverview /></Guard>} />
           {/* The day book now lives inside Settings. This route is kept so links and
               bookmarks that already point at it still land on the day book itself. */}
-          <Route path="/reports/daybook" element={<DayBook />} />
-          <Route path="/customers" element={<Customers />} />
-          <Route path="/customers/:id" element={<CustomerDetail />} />
+          <Route path="/reports/daybook" element={<Guard permission="report:financial"><DayBook /></Guard>} />
+          <Route path="/customers" element={<Guard permission="customer:view"><Customers /></Guard>} />
+          <Route path="/customers/:id" element={<Guard permission="customer:view"><CustomerDetail /></Guard>} />
           <Route path="/settings" element={<Settings />} />
-          <Route path="/settings/locations" element={<StockLocationsPage />} />
+          <Route path="/settings/locations" element={<Guard permission="admin:locations"><StockLocationsPage /></Guard>} />
 
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Route>

@@ -8,6 +8,7 @@ import { AuthProvider } from './context/AuthContext.jsx';
 import { ThemeProvider } from './contexts/ThemeContext.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import { installGlobalErrorReporting } from './lib/errorReporter.js';
+import { shouldRetry } from './lib/access.js';
 
 installGlobalErrorReporting();
 
@@ -15,7 +16,9 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      retry: 1,
+      // A refusal is not a blip. Retrying one doubles the requests and delays the moment the
+      // screen settles into telling the person the truth -- see lib/access.
+      retry: shouldRetry,
     }
   }
 });

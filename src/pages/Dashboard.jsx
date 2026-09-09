@@ -13,9 +13,13 @@ import StockMovementChart from '../components/dashboard/StockMovementChart';
 import { Plus } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useProduct } from '../context/ProductContext';
+import { usePermission } from '../hooks/usePermission';
 
 export default function Dashboard() {
-  const { data, isLoading, isError } = useDashboardSummary();
+  const { can } = usePermission();
+  // The five tiles are the shop's money. Asked for only by somebody allowed to see them.
+  const canSeeMoney = can('report:financial');
+  const { data, isLoading, isError, error } = useDashboardSummary(canSeeMoney);
   const navigate = useNavigate();
   const { resetProductData } = useProduct();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -55,22 +59,33 @@ export default function Dashboard() {
 
       {/* Global Section: KPIs & Quick Actions */}
       <motion.div variants={item}>
-        <SummaryCards data={data} isLoading={isLoading} isError={isError} />
+        <SummaryCards data={data} isLoading={isLoading} isError={isError} error={error} noAccess={!canSeeMoney} />
       </motion.div>
 
+      {/* Only the shortcuts this person can actually walk through.
+          Offering "+ Purchase Order" to somebody who cannot raise one is worse than offering
+          nothing: they press it, and land on a wall they had no way to predict. */}
       <motion.div variants={item} style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-        <button className="btn btn-primary" onClick={() => { resetProductData(); navigate('/add/general'); }} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px' }}>
-          <Plus size={16} /> Product
-        </button>
-        <button className="btn btn-secondary" onClick={() => navigate('/inventory')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px' }}>
-          <Plus size={16} /> Stock In
-        </button>
-        <button className="btn btn-secondary" onClick={() => navigate('/inventory/purchase-orders/new')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px' }}>
-          <Plus size={16} /> Purchase Order
-        </button>
-        <button className="btn btn-secondary" onClick={() => navigate('/inventory/suppliers')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px' }}>
-          <Plus size={16} /> Supplier
-        </button>
+        {can('product:create') && (
+          <button className="btn btn-primary" onClick={() => { resetProductData(); navigate('/add/general'); }} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px' }}>
+            <Plus size={16} /> Product
+          </button>
+        )}
+        {can('inventory:receive') && (
+          <button className="btn btn-secondary" onClick={() => navigate('/inventory')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px' }}>
+            <Plus size={16} /> Stock In
+          </button>
+        )}
+        {can('purchase_order:create') && (
+          <button className="btn btn-secondary" onClick={() => navigate('/inventory/purchase-orders/new')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px' }}>
+            <Plus size={16} /> Purchase Order
+          </button>
+        )}
+        {can('supplier:view') && (
+          <button className="btn btn-secondary" onClick={() => navigate('/inventory/suppliers')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px' }}>
+            <Plus size={16} /> Supplier
+          </button>
+        )}
       </motion.div>
 
       {/* Tabs Navigation */}

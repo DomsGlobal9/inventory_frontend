@@ -13,16 +13,17 @@ import RoleManager from '../components/RoleManager';
 import { holdsEverything } from '../lib/authority';
 import { useAuth } from '../context/AuthContext';
 import { useUpdateMyProfile } from '../hooks/useTeam';
+import { usePermission } from '../hooks/usePermission';
 
 const SETTINGS_DOMAINS = [
   { id: 'GENERAL', label: 'General Info', icon: Store },
-  { id: 'CATALOG', label: 'Catalog Configuration', icon: Grid },
-  { id: 'LOCATIONS', label: 'Stock Locations', icon: MapPin },
-  { id: 'DAYBOOK', label: 'Day Book', icon: BookOpen },
-  { id: 'STOREFRONT', label: 'Storefront', icon: Globe },
-  { id: 'SERVICES', label: 'APIs & Services', icon: Key },
-  { id: 'USERS', label: 'Team & Users', icon: Users },
-  { id: 'ROLES', label: 'Roles & Permissions', icon: Shield },
+  { id: 'CATALOG', label: 'Catalog Configuration', icon: Grid, permission: 'admin:catalog' },
+  { id: 'LOCATIONS', label: 'Stock Locations', icon: MapPin, permission: 'admin:locations' },
+  { id: 'DAYBOOK', label: 'Day Book', icon: BookOpen, permission: 'report:financial' },
+  { id: 'STOREFRONT', label: 'Storefront', icon: Globe, permission: 'admin:locations' },
+  { id: 'SERVICES', label: 'APIs & Services', icon: Key, permission: 'admin:users' },
+  { id: 'USERS', label: 'Team & Users', icon: Users, permission: 'admin:users' },
+  { id: 'ROLES', label: 'Roles & Permissions', icon: Shield, permission: 'admin:users' },
   { id: 'SUPPORT', label: 'Help & Support', icon: LifeBuoy },
   // BILLING and API were shipped as navigable tabs whose only content was "This section is
   // under construction", which reads to a paying customer as an unfinished product. Neither
@@ -54,6 +55,13 @@ const CATALOG_TABS = [
 export default function Settings() {
   const { user, refreshUser } = useAuth();
   const [activeDomain, setActiveDomain] = useState('GENERAL');
+  const { can } = usePermission();
+
+  // Only the sections this person's role can actually use. Listing Day Book to somebody
+  // without report:financial offers them a door that opens onto a refusal -- and they have no
+  // way to know that before pressing it. GENERAL and SUPPORT carry no permission: they hold a
+  // person's own profile and password, so everybody keeps somewhere to be.
+  const visibleDomains = SETTINGS_DOMAINS.filter(d => can(d.permission));
   const [activeCatalogTab, setActiveCatalogTab] = useState('SIZE');
   
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -126,7 +134,7 @@ export default function Settings() {
             </h3>
           </div>
           
-          {SETTINGS_DOMAINS.map(domain => {
+          {visibleDomains.map(domain => {
             const Icon = domain.icon;
             const isActive = activeDomain === domain.id;
             return (

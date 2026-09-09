@@ -3,6 +3,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Loader2, ArrowRight, Building2, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import AuthShell, { authField, authLabel, authPrimary } from '../components/AuthShell';
+import { firstLandingPath } from '../lib/access';
 
 export default function Login() {
   const { login } = useAuth();
@@ -35,7 +36,15 @@ export default function Login() {
         setWorkspaceChoices(result.workspaces);
         return;
       }
-      navigate(redirectTo, { replace: true });
+      // Where they asked to go, if they asked for somewhere specific. Otherwise the first
+      // page their role can actually open: hard-coding /dashboard meant a role without
+      // dashboard:view hit a wall on its very first screen, before doing anything at all.
+      const landing = redirectTo === '/dashboard'
+        ? firstLandingPath(permission => !permission
+            || (result?.permissions || []).includes('*')
+            || (result?.permissions || []).includes(permission))
+        : redirectTo;
+      navigate(landing, { replace: true });
     } catch (err) {
       setError(err?.message || 'Invalid email or password.');
     } finally {

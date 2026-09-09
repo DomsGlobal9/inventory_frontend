@@ -1,26 +1,19 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ShieldAlert } from 'lucide-react';
+import NoAccess from '../components/NoAccess';
 
+/**
+ * Landed somewhere their role does not reach -- a bookmark, a link a colleague sent, a role
+ * that changed since they last looked.
+ *
+ * This used to be a red-orange "Access denied" with a "Back to Dashboard" button, which was a
+ * trap: somebody without dashboard:view was sent to a page that would bounce them straight
+ * back here. NoAccess works out a page they can actually open from what they hold.
+ */
 export default function Unauthorized() {
-  const navigate = useNavigate();
-
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '80px 24px',
-      textAlign: 'center',
-      color: 'var(--text-secondary)',
-    }}>
-      <ShieldAlert size={48} style={{ marginBottom: '16px', color: 'var(--warning-color, #f59e0b)' }} />
-      <h2 style={{ margin: '0 0 8px', color: 'var(--text-primary)' }}>Access denied</h2>
-      <p style={{ margin: '0 0 24px', maxWidth: '400px' }}>
-        Your account doesn't have permission to view this page. If you think this is a mistake, ask an administrator to update your role.
-      </p>
-      <button className="btn-primary" onClick={() => navigate('/dashboard')}>Back to Dashboard</button>
-    </div>
+    <NoAccess
+      variant="page"
+      message="This part of the app isn't part of your role. Ask whoever manages your team if you need it."
+    />
   );
 }

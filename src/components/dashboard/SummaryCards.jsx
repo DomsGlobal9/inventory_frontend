@@ -6,10 +6,24 @@ import { formatINR, formatNumber } from '../../utils/formatUtils';
 import WidgetSkeleton from './WidgetSkeleton';
 import { useNavigate } from 'react-router-dom';
 import { useLocationContext } from '../../contexts/LocationContext';
+import NoAccess from '../NoAccess';
+import { isPermissionError } from '../../lib/access';
 
-export default function SummaryCards({ data, isLoading, isError }) {
+export default function SummaryCards({ data, isLoading, isError, error, noAccess }) {
   const navigate = useNavigate();
   const { currentLocation } = useLocationContext();
+
+  // Known before asking, so the panel is there immediately rather than after a refused
+  // round trip. The 403 path below still exists for the case this cannot see coming: a role
+  // changed while the person had the page open.
+  if (noAccess) {
+    return (
+      <NoAccess
+        height="122px"
+        message="Stock value, open orders and dead stock aren't part of your role. Ask whoever manages your team."
+      />
+    );
+  }
   if (isLoading) {
     return (
       <div className="dashboard-grid">
@@ -24,6 +38,14 @@ export default function SummaryCards({ data, isLoading, isError }) {
         ))}
       </div>
     );
+  }
+
+  // These five tiles are the shop's money -- stock value, open orders, dead stock. A role
+  // without report:financial is not meant to see them, and saying so plainly is right. Saying
+  // "Failed to load dashboard metrics" in red is not: it is neither a failure nor a metric
+  // problem, and it sends the person to look for a bug that is not there.
+  if (isPermissionError(error)) {
+    return <NoAccess error={error} height="122px" />;
   }
 
   if (isError) {

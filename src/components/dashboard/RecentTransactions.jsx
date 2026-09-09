@@ -6,11 +6,11 @@ import WidgetSkeleton from './WidgetSkeleton';
 import ErrorCard from './ErrorCard';
 
 export default function RecentTransactions() {
-  const { data: transactions, isLoading, isError } = useRecentTransactions(10);
+  const { data: transactions, isLoading, isError, error } = useRecentTransactions(10);
   const navigate = useNavigate();
 
   if (isLoading) return <WidgetSkeleton height="400px" />;
-  if (isError) return <ErrorCard message="Failed to load transactions." height="400px" />;
+  if (isError) return <ErrorCard message="Failed to load transactions." height="400px" error={error} />;
 
   return (
     <div className="stat-card" style={{ gap: '24px', display: 'flex', flexDirection: 'column', height: '400px' }}>

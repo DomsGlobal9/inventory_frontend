@@ -299,74 +299,97 @@ function TryOnArt() {
           <span style={{ width: '34%', height: '1cqw', borderRadius: '99px', background: 'var(--border-light)' }} />
         </div>
         {/* the piece, on the person
-            What makes a shape read as a person is not the outline, it is the separations:
-            a neck between head and shoulders, arms that stand away from the torso with a gap
-            of background showing through, and a waist the fabric falls from. Drawn as one
-            silhouette it was a slab with a head on it. */}
+            Drawn the way a fashion illustration is drawn, because the previous two attempts
+            were not. Colouring the whole figure in the brand green produced a lime person,
+            which reads as a cartoon alien rather than a customer: skin is not a brand colour.
+            A croquis is a neutral silhouette -- small head, long neck, no face -- and the
+            GARMENT carries the colour. So the figure here is soft charcoal and the saree is a
+            deep green with a gold border, which is what a Kanchipuram actually looks like, and
+            what this shop actually sells.
+
+            The bare midriff between the blouse and the skirt is doing real work: it is the one
+            gap that says saree rather than dress, and it breaks the block the earlier version
+            became. */}
         <svg
           viewBox="0 0 100 190" preserveAspectRatio="xMidYMid slice" aria-hidden="true"
           style={{ position: 'absolute', inset: '9% 0 0', width: '100%', height: '91%' }}
         >
           <defs>
             <linearGradient id="tryOnRoom" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="var(--brand)" stopOpacity="0.16" />
-              <stop offset="100%" stopColor="var(--brand)" stopOpacity="0.04" />
+              <stop offset="0%" stopColor="#F3F1EA" />
+              <stop offset="100%" stopColor="#E4E9DC" />
             </linearGradient>
-            <linearGradient id="tryOnCloth" x1="0.15" y1="0" x2="0.85" y2="1">
-              <stop offset="0%" stopColor="var(--brand)" stopOpacity="0.95" />
-              <stop offset="100%" stopColor="var(--brand)" stopOpacity="0.6" />
+            <linearGradient id="tryOnSilk" x1="0.2" y1="0" x2="0.8" y2="1">
+              <stop offset="0%" stopColor="#1D5C2A" />
+              <stop offset="55%" stopColor="#154A20" />
+              <stop offset="100%" stopColor="#0E3517" />
+            </linearGradient>
+            <linearGradient id="tryOnPallu" x1="0" y1="0" x2="1" y2="0.6">
+              <stop offset="0%" stopColor="#20682F" />
+              <stop offset="100%" stopColor="#123F1B" />
             </linearGradient>
             <linearGradient id="tryOnScan" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#ffffff" stopOpacity="0" />
-              <stop offset="50%" stopColor="#ffffff" stopOpacity="0.6" />
-              <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+              <stop offset="0%" stopColor="#A6D92B" stopOpacity="0" />
+              <stop offset="50%" stopColor="#EAF7C4" stopOpacity="0.75" />
+              <stop offset="100%" stopColor="#A6D92B" stopOpacity="0" />
             </linearGradient>
 
-            {/* The union of every part of her, so the light travels over the figure and not
-                across the empty room behind it. */}
+            {/* The union of her, so the light travels over the figure and not the room. */}
             <clipPath id="tryOnFigure">
-              <circle cx="50" cy="21" r="9.5" />
-              <rect x="46" y="28" width="8" height="7" />
-              <path d="M50 33 c7 0 13 3 17 8 l2 3 -3 26 h-32 l-3 -26 l2 -3 c4 -5 10 -8 17 -8 z" />
-              <path d="M35 41 q-5 4 -5 10 l-1 37 q0 3 3 3 t3 -3 l1 -35 q0 -6 4 -9 z" />
-              <path d="M65 41 q5 4 5 10 l1 37 q0 3 -3 3 t-3 -3 l-1 -35 q0 -6 -4 -9 z" />
-              <path d="M36 66 h28 l12 124 h-52 z" />
+              <ellipse cx="50" cy="15" rx="5.6" ry="7" />
+              <path d="M47.6 21 h4.8 v11 h-4.8 z" />
+              <path d="M50 31 C57 31 62 34 63 39 L64 52 C64 58 62 62 60 66 C62 70 63 74 63 79 L63 86 L37 86 L37 79 C37 74 38 70 40 66 C38 62 36 58 36 52 L37 39 C38 34 43 31 50 31 Z" />
+              <path d="M37 40 C33 42 31 46 31 51 L29 88 C28.6 91 30 93 32 93 C34 93 35.4 91 35 88 L35 52 C35 47 36 43 39 41 Z" />
+              <path d="M63 40 C67 42 69 46 69 51 L71 88 C71.4 91 70 93 68 93 C66 93 64.6 91 65 88 L65 52 C65 47 64 43 61 41 Z" />
+              <path d="M37 70 L63 70 L70 190 L30 190 Z" />
             </clipPath>
           </defs>
 
           <rect width="100" height="190" fill="url(#tryOnRoom)" />
+          {/* the floor she is standing on, so she is in a room and not floating */}
+          <ellipse cx="50" cy="188" rx="30" ry="5" fill="#1F1B16" opacity="0.07" />
 
-          {/* hair, then face, so the hair frames it */}
-          <path d="M50 10 c8 0 12 6 12 12 0 4 -1 8 -2 11 l-2 -13 c-2 -3 -4 -4 -8 -4 s-6 1 -8 4 l-2 13 c-1 -3 -2 -7 -2 -11 0 -6 4 -12 12 -12 z"
-            fill="var(--brand)" fillOpacity="0.95" />
-          <circle cx="50" cy="21" r="9.5" fill="var(--brand)" fillOpacity="0.55" />
-          {/* the neck, which is the separation that makes the head a head */}
-          <rect x="46" y="28" width="8" height="7" fill="var(--brand)" fillOpacity="0.45" />
+          {/* the figure: one soft charcoal, no face. A croquis has no features -- the moment
+              you draw eyes at this size you get a cartoon. */}
+          <g fill="#3B352E" fillOpacity="0.88">
+            {/* the bun, behind the head, before the head is drawn over it */}
+            <circle cx="50" cy="21.5" r="3.4" />
+            <ellipse cx="50" cy="15" rx="5.6" ry="7" />
+            {/* the long neck a croquis is drawn with */}
+            <path d="M47.6 21 h4.8 v11 h-4.8 z" />
+            {/* torso, pinched at the waist so the saree has something to fall from */}
+            <path d="M50 31 C57 31 62 34 63 39 L64 52 C64 58 62 62 60 66 C62 70 63 74 63 79 L63 86 L37 86 L37 79 C37 74 38 70 40 66 C38 62 36 58 36 52 L37 39 C38 34 43 31 50 31 Z" />
+          </g>
 
-          {/* arms, behind the body and a shade back, so they read as separate limbs */}
-          <path d="M35 41 q-5 4 -5 10 l-1 37 q0 3 3 3 t3 -3 l1 -35 q0 -6 4 -9 z"
-            fill="var(--brand)" fillOpacity="0.5" />
-          <path d="M65 41 q5 4 5 10 l1 37 q0 3 -3 3 t-3 -3 l-1 -35 q0 -6 -4 -9 z"
-            fill="var(--brand)" fillOpacity="0.5" />
+          {/* arms, a shade back and clearly clear of the body -- the gap of background between
+              arm and waist is what stops the whole thing reading as one block */}
+          <g fill="#3B352E" fillOpacity="0.62">
+            <path d="M37 40 C33 42 31 46 31 51 L29 88 C28.6 91 30 93 32 93 C34 93 35.4 91 35 88 L35 52 C35 47 36 43 39 41 Z" />
+            <path d="M63 40 C67 42 69 46 69 51 L71 88 C71.4 91 70 93 68 93 C66 93 64.6 91 65 88 L65 52 C65 47 64 43 61 41 Z" />
+          </g>
 
-          {/* the piece itself: blouse to the waist, then the fall of the skirt */}
-          <path d="M50 33 c7 0 13 3 17 8 l2 3 -3 26 h-32 l-3 -26 l2 -3 c4 -5 10 -8 17 -8 z"
-            fill="url(#tryOnCloth)" />
-          <path d="M36 66 h28 l12 124 h-52 z" fill="url(#tryOnCloth)" />
+          {/* the blouse */}
+          <path d="M50 31 C57 31 62 34 63 39 L64 52 L36 52 L37 39 C38 34 43 31 50 31 Z" fill="url(#tryOnSilk)" />
+          {/* and the skirt, falling straight the way silk does rather than belling out */}
+          <path d="M37 70 L63 70 L70 190 L30 190 Z" fill="url(#tryOnSilk)" />
 
-          {/* the pallu, over one shoulder and down past the hip -- the line that says saree
-              rather than dress */}
-          <path d="M62 36 c7 5 9 14 7 22 l-13 50 -3 82 -8 0 4 -84 13 -50 c1 -6 0 -12 -4 -16 z"
-            fill="#ffffff" fillOpacity="0.26" />
+          {/* the gold border, along the hem and up the edge of the drape. A Kanchipuram is
+              known by its border more than by its colour. */}
+          <path d="M30.6 178 L69.4 178" stroke="#D9B76A" strokeWidth="4" strokeOpacity="0.85" fill="none" />
+          <path d="M30.2 184 L69.8 184" stroke="#EBD79E" strokeWidth="1.2" strokeOpacity="0.7" fill="none" />
 
-          {/* folds, so the skirt has a direction to fall in */}
-          <path d="M44 78 l-4 110" stroke="#ffffff" strokeOpacity="0.16" strokeWidth="1.2" fill="none" />
-          <path d="M54 78 l3 110" stroke="#ffffff" strokeOpacity="0.12" strokeWidth="1.2" fill="none" />
-          <path d="M38 58 q12 5 24 0" stroke="#ffffff" strokeOpacity="0.22" strokeWidth="1.2" fill="none" />
+          {/* the pallu, over the left shoulder and falling in front */}
+          <path d="M40 33 L52 32 L51 46 L47 190 L35 190 L38 47 Z" fill="url(#tryOnPallu)" />
+          <path d="M50.4 46 L46.6 190" stroke="#D9B76A" strokeWidth="1.6" strokeOpacity="0.8" fill="none" />
+
+          {/* folds, so the silk has a direction to fall in */}
+          <path d="M43 86 L40 188" stroke="#000000" strokeOpacity="0.14" strokeWidth="1" fill="none" />
+          <path d="M57 86 L61 188" stroke="#000000" strokeOpacity="0.1" strokeWidth="1" fill="none" />
+          <path d="M56 74 Q60 78 62 84" stroke="#ffffff" strokeOpacity="0.12" strokeWidth="1" fill="none" />
 
           {/* the scan still passing over her */}
           <g clipPath="url(#tryOnFigure)">
-            <rect className="lpScan" width="100" height="30" y="-30" fill="url(#tryOnScan)" />
+            <rect className="lpScan" width="100" height="26" y="-26" fill="url(#tryOnScan)" />
           </g>
         </svg>
 

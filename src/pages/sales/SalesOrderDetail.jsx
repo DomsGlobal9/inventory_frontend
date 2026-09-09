@@ -97,7 +97,7 @@ export default function SalesOrderDetail() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           
           <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-            <div style={{ padding: '24px', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="table-container" style={{ padding: '24px', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>Line Items</h3>
             </div>
 
@@ -242,7 +242,7 @@ export default function SalesOrderDetail() {
       {isDispatching && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div className="card" style={{ width: '600px', maxWidth: '90vw', padding: '24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+            <div className="table-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
               <h3 style={{ margin: 0, fontSize: '20px' }}>Create Dispatch</h3>
               <button onClick={() => setIsDispatching(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}>
                 <XCircle size={24} color="var(--text-secondary)" />

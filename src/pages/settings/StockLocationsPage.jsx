@@ -144,7 +144,7 @@ export default function StockLocationsPage() {
         />
       </div>
 
-      <div style={{ borderRadius: '12px', border: '1px solid var(--border-light)', overflow: 'hidden', background: 'var(--bg-card)' }}>
+      <div className="table-container" style={{ borderRadius: '12px', border: '1px solid var(--border-light)', overflow: 'auto hidden', background: 'var(--bg-card)' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
             <tr style={{ background: 'var(--bg-input)', borderBottom: '1px solid var(--border-light)' }}>

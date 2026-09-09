@@ -377,7 +377,7 @@ export default function TeamManager() {
           <Loader2 size={24} className="animate-spin" />
         </div>
       ) : (
-        <div style={{ border: '1px solid var(--border-light)', borderRadius: '12px', overflow: 'visible' }}>
+        <div className="table-container" style={{ border: '1px solid var(--border-light)', borderRadius: '12px', overflow: 'visible' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
               <tr style={{ background: 'var(--bg-input)' }}>

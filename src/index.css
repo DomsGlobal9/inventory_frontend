@@ -413,6 +413,61 @@ tr:hover td {
   padding-bottom: 40px;
 }
 
+/* Tables scroll sideways at ANY width rather than only below 768px.
+ *
+ * A 416px table inside a 375px viewport with no scroller does not overflow the page -- it is
+ * CLIPPED, and the right-hand columns simply cannot be reached. That is what /settings/locations
+ * did, and the columns it hid were the ones with the buttons in them.
+ *
+ * It was scoped to max-width:768px, which also left every tablet out: an iPad Pro 11 in
+ * portrait is 834px and got the desktop rules on a screen narrower than a laptop. A table that
+ * fits does not scroll, so there is no cost to this applying everywhere. */
+.table-container {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ─── Tablet ─────────────────────────────────────────────────────────────────
+ *
+ * 769px to 1024px had no rules at all, so an iPad in portrait rendered the full desktop
+ * layout: a fixed sidebar taking a fifth of the width, and content squeezed into what was
+ * left. These give that range room without dropping it to the phone layout. */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .main-content { padding: 20px 16px; }
+  /* Two columns rather than three or four -- at 768-1024 a four-up grid gives each card
+     about 170px, which is narrower than the numbers inside them. */
+  .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .tablet-stack { grid-template-columns: 1fr !important; }
+}
+
+/* ─── Touch ──────────────────────────────────────────────────────────────────
+ *
+ * Anything tapped with a finger rather than clicked with a pointer. Apple's guidance is 44pt
+ * square and Material's is 48dp; the buttons here measured 35px tall and the icon buttons
+ * 32x32, which is a miss often enough to be annoying on a phone held one-handed.
+ *
+ * min-height only, so nothing is stretched sideways out of its layout, plus a square minimum
+ * for the icon-only buttons that carry no text to give them width. */
+@media (pointer: coarse) {
+  button,
+  select,
+  [role="button"],
+  a.btn,
+  .btn,
+  .sidebar a,
+  .mobile-tab-bar button {
+    min-height: 44px;
+  }
+
+  /* An icon button is one whose only child is an svg. :has is supported everywhere this app
+     runs; where it is not, the min-height above still applies. */
+  button:has(> svg:only-child) {
+    min-width: 44px;
+  }
+}
+
 /* ─── Mobile Responsiveness ─── */
 @media (max-width: 768px) {
   /* Below this width .main-content scrolls instead, so the page must not become a second,
@@ -423,6 +478,7 @@ tr:hover td {
   }
 
   .sidebar {
+    padding-left: env(safe-area-inset-left);
     position: fixed;
     z-index: 1000;
     left: 0;
@@ -450,11 +506,15 @@ tr:hover td {
   .top-nav {
     padding: 0 16px;
     padding-top: env(safe-area-inset-top);
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
   }
   
   .main-content {
     padding: 16px 12px;
     padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
     overflow-y: auto !important;
   }
   
@@ -496,13 +556,8 @@ tr:hover td {
     }
   }
 
-  /* Table Scroll Wrapper */
-  .table-container {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 8px; /* Room for scrollbar */
-  }
+  /* Room for the scrollbar, only where a scrollbar takes room. */
+  .table-container { padding-bottom: 8px; }
 
   /* Sticky First Column for Tables */
   .table-container table th:first-child,
@@ -551,8 +606,15 @@ tr:hover td {
     flex: 0 0 auto;
   }
 
+  /* Stops a panel becoming a second, nested VERTICAL scroller inside .main-content.
+   *
+   * It used to say `overflow: visible`, which also switched off horizontal scrolling -- and
+   * SalesOrders carries this class on the same element as .table-container, so its 595px table
+   * was clipped at 320px with no way to reach the right-hand columns. The axis that needed
+   * resetting was always only the vertical one. */
   .mobile-no-scroll {
-    overflow: visible !important;
+    overflow-y: visible !important;
+    overflow-x: auto !important;
     flex: none !important;
     min-height: min-content !important;
     height: auto !important;

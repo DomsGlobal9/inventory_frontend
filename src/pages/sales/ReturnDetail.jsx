@@ -175,7 +175,7 @@ export default function ReturnDetail() {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '24px' }}>
         <div className="card" style={{ padding: '0' }}>
-          <div style={{ padding: '20px', borderBottom: '1px solid var(--border-color)' }}>
+          <div className="table-container" style={{ padding: '20px', borderBottom: '1px solid var(--border-color)' }}>
             <h3 style={{ margin: 0, fontSize: '16px' }}>Returned Items</h3>
           </div>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>

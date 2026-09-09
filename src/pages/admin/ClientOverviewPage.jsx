@@ -182,7 +182,7 @@ export default function ClientOverviewPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '24px', alignItems: 'start' }}>
         {/* Team / staff */}
         <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.05)' }}>
-          <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--bg-input)' }}>
+          <div className="table-container" style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--bg-input)' }}>
             <Users size={18} color="var(--accent-gold)" />
             <h3 style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '15px', margin: 0 }}>Team Members</h3>
           </div>

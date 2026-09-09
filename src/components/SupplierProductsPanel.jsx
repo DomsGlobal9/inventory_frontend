@@ -62,7 +62,7 @@ export default function SupplierProductsPanel({ supplierId, supplierName }) {
             <Loader2 size={24} className="animate-spin" />
           </div>
         ) : links.length === 0 ? (
-          <div style={{ padding: '56px 32px', textAlign: 'center', color: 'var(--text-muted)' }}>
+          <div className="table-container" style={{ padding: '56px 32px', textAlign: 'center', color: 'var(--text-muted)' }}>
             <PackageSearch size={44} style={{ opacity: 0.2, marginBottom: '14px' }} />
             <p style={{ margin: 0, fontSize: '14px', lineHeight: 1.6 }}>
               {search

@@ -189,7 +189,7 @@ export default function ReorderSuggestions() {
                 </div>
               </div>
             </div>
-            <div style={{ fontSize: '15px', color: 'var(--text-secondary)', textAlign: 'right' }}>
+            <div className="table-container" style={{ fontSize: '15px', color: 'var(--text-secondary)', textAlign: 'right' }}>
               {group.lines.length} item{group.lines.length === 1 ? '' : 's'} <br/> 
               <strong style={{ color: 'var(--text-primary)', fontSize: '16px' }}>{money(group.estimatedTotal)}</strong>
             </div>
@@ -272,7 +272,7 @@ export default function ReorderSuggestions() {
         <div className="glass-panel" style={{ padding: 0, border: '1px solid rgba(245, 158, 11, 0.2)', overflow: 'hidden' }}>
           <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(245, 158, 11, 0.1)', background: 'rgba(245, 158, 11, 0.05)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ padding: '8px', background: 'rgba(245, 158, 11, 0.1)', borderRadius: '8px' }}>
+              <div className="table-container" style={{ padding: '8px', background: 'rgba(245, 158, 11, 0.1)', borderRadius: '8px' }}>
                  <AlertTriangle size={18} color="var(--accent-warning)" />
               </div>
               <strong style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)' }}>

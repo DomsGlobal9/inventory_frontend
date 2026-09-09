@@ -137,7 +137,7 @@ export default function CustomerDetail() {
           </div>
 
           <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-            <div style={{ padding: '24px', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="table-container" style={{ padding: '24px', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3 style={{ margin: 0, fontSize: '18px', color: 'var(--text-primary)' }}>
                 {activeTab === 'orders' ? 'Sales Orders' : 'Dispatches'}
               </h3>
@@ -198,7 +198,7 @@ export default function CustomerDetail() {
                 
                 if (allDispatches.length === 0) {
                   return (
-                    <div style={{ padding: '48px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                    <div className="table-container" style={{ padding: '48px', textAlign: 'center', color: 'var(--text-secondary)' }}>
                       No dispatches found for this customer.
                     </div>
                   );

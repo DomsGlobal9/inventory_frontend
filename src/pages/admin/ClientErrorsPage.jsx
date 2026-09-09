@@ -29,7 +29,7 @@ export default function ClientErrorsPage() {
           <div style={{ fontSize: '14px', fontWeight: 500 }}>Loading data...</div>
         </div>
       ) : (
-        <div style={{ border: '1px solid var(--border-light)', borderRadius: '12px', overflow: 'hidden', background: 'var(--bg-card)' }}>
+        <div className="table-container" style={{ border: '1px solid var(--border-light)', borderRadius: '12px', overflow: 'auto hidden', background: 'var(--bg-card)' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
               <tr style={{ background: 'var(--bg-input)' }}>

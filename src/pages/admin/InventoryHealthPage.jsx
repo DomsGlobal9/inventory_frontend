@@ -21,7 +21,7 @@ export default function InventoryHealthPage() {
           <div style={{ fontSize: '14px', fontWeight: 500 }}>Loading data...</div>
         </div>
       ) : (
-        <div style={{ border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', overflow: 'hidden' }}>
+        <div className="table-container" style={{ border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', overflow: 'auto hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
               <tr style={{ background: 'rgba(255,255,255,0.03)' }}>

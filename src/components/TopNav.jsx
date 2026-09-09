@@ -118,12 +118,15 @@ export default function TopNav({ onMenuClick }) {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      padding: '0 48px',
+      padding: 'clamp(0px, 3vw, 48px)',
+      paddingTop: 0,
+      paddingBottom: 0,
       height: '80px',
+      gap: '12px',
       borderBottom: '1px solid var(--border-light)',
       backgroundColor: 'var(--bg-card)'
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: 0 }}>
         {/* Mobile Hamburger Menu */}
         <button 
           className="btn-icon mobile-only-icon" 
@@ -145,8 +148,9 @@ export default function TopNav({ onMenuClick }) {
           border: '1px solid var(--border-light)',
           borderRadius: '8px',
           padding: '10px 16px',
-          width: '400px',
-          maxWidth: '100%'
+          flex: '1 1 180px',
+          minWidth: 0,
+          maxWidth: '400px'
         }}>
           {isSearching ? (
             <Loader2 size={18} className="animate-spin" color="var(--text-secondary)" style={{ marginRight: '12px', flexShrink: 0 }} />
@@ -171,13 +175,13 @@ export default function TopNav({ onMenuClick }) {
         </div>
         
         {locations.length > 0 && (
-          <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-input)', border: '1px solid var(--border-light)', borderRadius: '8px', padding: '0 12px', height: '40px' }}>
-            <MapPin size={16} color="var(--text-secondary)" style={{ marginRight: '8px' }} />
+          <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-input)', border: '1px solid var(--border-light)', borderRadius: '8px', padding: '0 12px', height: '40px', minWidth: 0, flexShrink: 1 }}>
+            <MapPin size={16} color="var(--text-secondary)" style={{ marginRight: '8px', flexShrink: 0 }} />
             <Select 
               value={currentLocation?.id || ''} 
               onChange={(e) => setCurrentLocationId(e.target.value)}
               variant="ghost"
-              style={{ width: '180px' }}
+              style={{ width: '100%', minWidth: '96px', maxWidth: '180px' }}
             >
               {locations.map(loc => (
                 <option key={loc.id} value={loc.id}>{loc.name} ({loc.code})</option>

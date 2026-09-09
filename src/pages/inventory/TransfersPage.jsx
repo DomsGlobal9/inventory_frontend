@@ -124,7 +124,7 @@ export default function TransfersPage() {
   }
 
   return (
-    <div style={{ padding: '24px', maxWidth: '800px', margin: '0 auto' }}>
+    <div style={{ padding: 'clamp(12px, 4vw, 24px)', maxWidth: '800px', margin: '0 auto' }}>
       <div style={{ marginBottom: '24px' }}>
         <h1 style={{ fontSize: '24px', fontWeight: 600 }}>Stock Transfer</h1>
         <p style={{ color: 'var(--text-secondary)' }}>Move inventory between your locations.</p>
@@ -132,7 +132,7 @@ export default function TransfersPage() {
 
       <div className="card" style={{ padding: '24px' }}>
         <form onSubmit={handleSubmit}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '16px', alignItems: 'center', marginBottom: '24px' }}>
+          <div className="mobile-stack-grid" style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '16px', alignItems: 'center', marginBottom: '24px' }}>
             <div className="form-group">
               <label>Origin Location</label>
               <Select required className="input" value={formData.originLocationId} onChange={e => handleOriginChange(e.target.value)}>

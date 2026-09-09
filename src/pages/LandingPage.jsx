@@ -298,49 +298,75 @@ function TryOnArt() {
         <div style={{ height: '4%', display: 'flex', justifyContent: 'center', paddingTop: '1.4cqw' }}>
           <span style={{ width: '34%', height: '1cqw', borderRadius: '99px', background: 'var(--border-light)' }} />
         </div>
-        {/* the piece, on the person -- see the note above TryOnArt */}
+        {/* the piece, on the person
+            What makes a shape read as a person is not the outline, it is the separations:
+            a neck between head and shoulders, arms that stand away from the torso with a gap
+            of background showing through, and a waist the fabric falls from. Drawn as one
+            silhouette it was a slab with a head on it. */}
         <svg
           viewBox="0 0 100 190" preserveAspectRatio="xMidYMid slice" aria-hidden="true"
           style={{ position: 'absolute', inset: '9% 0 0', width: '100%', height: '91%' }}
         >
           <defs>
             <linearGradient id="tryOnRoom" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="var(--brand)" stopOpacity="0.20" />
-              <stop offset="100%" stopColor="var(--brand)" stopOpacity="0.05" />
+              <stop offset="0%" stopColor="var(--brand)" stopOpacity="0.16" />
+              <stop offset="100%" stopColor="var(--brand)" stopOpacity="0.04" />
             </linearGradient>
-            <linearGradient id="tryOnDrape" x1="0.1" y1="0" x2="0.9" y2="1">
+            <linearGradient id="tryOnCloth" x1="0.15" y1="0" x2="0.85" y2="1">
               <stop offset="0%" stopColor="var(--brand)" stopOpacity="0.95" />
-              <stop offset="100%" stopColor="var(--brand)" stopOpacity="0.55" />
+              <stop offset="100%" stopColor="var(--brand)" stopOpacity="0.6" />
             </linearGradient>
             <linearGradient id="tryOnScan" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#ffffff" stopOpacity="0" />
-              <stop offset="50%" stopColor="#ffffff" stopOpacity="0.55" />
+              <stop offset="50%" stopColor="#ffffff" stopOpacity="0.6" />
               <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
             </linearGradient>
-            {/* Everything is clipped to the body, so the light travels over the garment
-                rather than across the whole screen. */}
-            <clipPath id="tryOnBody">
-              <path d="M50 26 c9 0 15 5 19 9 l10 9 c4 4 5 8 4 13 l-5 20 -3 -6 -2 103 h-46 l-2 -103 -3 6 -5 -20 c-1 -5 0 -9 4 -13 l10 -9 c4 -4 10 -9 19 -9 z" />
+
+            {/* The union of every part of her, so the light travels over the figure and not
+                across the empty room behind it. */}
+            <clipPath id="tryOnFigure">
+              <circle cx="50" cy="21" r="9.5" />
+              <rect x="46" y="28" width="8" height="7" />
+              <path d="M50 33 c7 0 13 3 17 8 l2 3 -3 26 h-32 l-3 -26 l2 -3 c4 -5 10 -8 17 -8 z" />
+              <path d="M35 41 q-5 4 -5 10 l-1 37 q0 3 3 3 t3 -3 l1 -35 q0 -6 4 -9 z" />
+              <path d="M65 41 q5 4 5 10 l1 37 q0 3 -3 3 t-3 -3 l-1 -35 q0 -6 -4 -9 z" />
+              <path d="M36 66 h28 l12 124 h-52 z" />
             </clipPath>
           </defs>
 
           <rect width="100" height="190" fill="url(#tryOnRoom)" />
 
-          {/* head and neck */}
-          <circle cx="50" cy="16" r="10" fill="var(--brand)" fillOpacity="0.85" />
-          <rect x="45" y="24" width="10" height="7" fill="var(--brand)" fillOpacity="0.7" />
+          {/* hair, then face, so the hair frames it */}
+          <path d="M50 10 c8 0 12 6 12 12 0 4 -1 8 -2 11 l-2 -13 c-2 -3 -4 -4 -8 -4 s-6 1 -8 4 l-2 13 c-1 -3 -2 -7 -2 -11 0 -6 4 -12 12 -12 z"
+            fill="var(--brand)" fillOpacity="0.95" />
+          <circle cx="50" cy="21" r="9.5" fill="var(--brand)" fillOpacity="0.55" />
+          {/* the neck, which is the separation that makes the head a head */}
+          <rect x="46" y="28" width="8" height="7" fill="var(--brand)" fillOpacity="0.45" />
 
-          {/* the garment on the body */}
-          <g clipPath="url(#tryOnBody)">
-            <rect width="100" height="190" fill="url(#tryOnDrape)" />
-            {/* the pallu, falling over one shoulder -- what makes it a saree and not a tube */}
-            <path d="M62 26 c14 8 20 24 17 44 -3 20 -10 40 -8 66 l-16 0 c-3 -28 3 -50 5 -68 2 -18 0 -31 -8 -40 z"
-              fill="#ffffff" fillOpacity="0.22" />
-            <path d="M30 96 q20 8 40 0" stroke="#ffffff" strokeOpacity="0.25" strokeWidth="1.4" fill="none" />
-            <path d="M30 112 q20 8 40 0" stroke="#ffffff" strokeOpacity="0.18" strokeWidth="1.4" fill="none" />
+          {/* arms, behind the body and a shade back, so they read as separate limbs */}
+          <path d="M35 41 q-5 4 -5 10 l-1 37 q0 3 3 3 t3 -3 l1 -35 q0 -6 4 -9 z"
+            fill="var(--brand)" fillOpacity="0.5" />
+          <path d="M65 41 q5 4 5 10 l1 37 q0 3 -3 3 t-3 -3 l-1 -35 q0 -6 -4 -9 z"
+            fill="var(--brand)" fillOpacity="0.5" />
 
-            {/* the scan still passing over it */}
-            <rect className="lpScan" width="100" height="34" y="-34" fill="url(#tryOnScan)" />
+          {/* the piece itself: blouse to the waist, then the fall of the skirt */}
+          <path d="M50 33 c7 0 13 3 17 8 l2 3 -3 26 h-32 l-3 -26 l2 -3 c4 -5 10 -8 17 -8 z"
+            fill="url(#tryOnCloth)" />
+          <path d="M36 66 h28 l12 124 h-52 z" fill="url(#tryOnCloth)" />
+
+          {/* the pallu, over one shoulder and down past the hip -- the line that says saree
+              rather than dress */}
+          <path d="M62 36 c7 5 9 14 7 22 l-13 50 -3 82 -8 0 4 -84 13 -50 c1 -6 0 -12 -4 -16 z"
+            fill="#ffffff" fillOpacity="0.26" />
+
+          {/* folds, so the skirt has a direction to fall in */}
+          <path d="M44 78 l-4 110" stroke="#ffffff" strokeOpacity="0.16" strokeWidth="1.2" fill="none" />
+          <path d="M54 78 l3 110" stroke="#ffffff" strokeOpacity="0.12" strokeWidth="1.2" fill="none" />
+          <path d="M38 58 q12 5 24 0" stroke="#ffffff" strokeOpacity="0.22" strokeWidth="1.2" fill="none" />
+
+          {/* the scan still passing over her */}
+          <g clipPath="url(#tryOnFigure)">
+            <rect className="lpScan" width="100" height="30" y="-30" fill="url(#tryOnScan)" />
           </g>
         </svg>
 

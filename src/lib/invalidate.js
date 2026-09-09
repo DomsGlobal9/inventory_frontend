@@ -131,7 +131,23 @@ export function optimisticQuantityDelta(queryClient, variables, delta) {
         if (row.variantId !== variables.variantId) return row;
         const quantity = Math.max(Number(row.quantity ?? 0) + delta, 0);
         const averageCost = Number(row.averageCost ?? 0);
-        return { ...row, quantity, inventoryValue: quantity * averageCost };
+
+        // Move the badge with the number it describes.
+        //
+        // Receiving six pieces against a reorder level of five used to leave the row reading
+        // "Low Stock 10" until the refetch caught up, because only the quantity was patched.
+        // A row that contradicts itself is worse than a row that is briefly behind, and this
+        // is the screen whose entire job is saying what is running out. Archived and trashed
+        // stock keeps its own badge -- that one is about the PRODUCT, not the quantity.
+        const threshold = Number(row.lowStockThreshold ?? row.reorderLevel ?? 0);
+        let inventoryStatus = row.inventoryStatus;
+        if (inventoryStatus !== 'ARCHIVED' && threshold >= 0) {
+          if (quantity <= 0) inventoryStatus = 'OUT_OF_STOCK';
+          else if (threshold > 0 && quantity <= threshold) inventoryStatus = 'LOW_STOCK';
+          else if (threshold > 0) inventoryStatus = 'HEALTHY';
+        }
+
+        return { ...row, quantity, inventoryValue: quantity * averageCost, inventoryStatus };
       })
     };
   });

@@ -49,6 +49,12 @@
   --accent-primary-on: var(--brand-on-solid);
   --accent-danger: #ef4444;
   --accent-success: #10b981;
+  /* Used in fifteen places across the app -- the SENSITIVE badge in the platform audit log,
+     reorder warnings, day book notes, the low-margin flag in the variant picker -- and defined
+     in none of them, so every one of those resolved to nothing and rendered uncoloured. Amber,
+     which is what the call sites already assume: VariantSearchModal pairs it with
+     rgba(245, 158, 11, 0.12) as its own background. */
+  --accent-warning: #f59e0b;
   
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
@@ -88,6 +94,12 @@
   --accent-primary-on: var(--brand-on-solid);
   --accent-danger: #ef4444;
   --accent-success: #10b981;
+  /* Used in fifteen places across the app -- the SENSITIVE badge in the platform audit log,
+     reorder warnings, day book notes, the low-margin flag in the variant picker -- and defined
+     in none of them, so every one of those resolved to nothing and rendered uncoloured. Amber,
+     which is what the call sites already assume: VariantSearchModal pairs it with
+     rgba(245, 158, 11, 0.12) as its own background. */
+  --accent-warning: #f59e0b;
   
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
@@ -176,6 +188,40 @@ button {
   box-shadow: 0 4px 12px -2px rgba(0,0,0,0.2);
 }
 .btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* The confirm button on every destructive dialog in this app.
+   It was never defined anywhere -- ConfirmModal has been asking for `btn-danger` since it was
+   written, and ProductDetails uses it for Permanently Delete. With no rule to match, the
+   button fell back to white text on no background, which on a white card is invisible: the
+   dialog looked like it had a Cancel button and nothing else. On a dark theme it happened to
+   read as white-on-dark and looked deliberate, which is why it survived.
+
+   Solid red rather than a red outline, because this is the button that ends things and it
+   should be the one your eye lands on -- and because a ghost button beside a solid Cancel
+   reads as the lesser of the two, which is backwards. */
+.btn-danger {
+  background-color: var(--accent-danger, #ef4444);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 13px;
+  border: 1px solid transparent;
+  box-shadow: 0 2px 8px -2px rgba(239, 68, 68, 0.4);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px -2px rgba(239, 68, 68, 0.5);
+}
+
+.btn-danger:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;

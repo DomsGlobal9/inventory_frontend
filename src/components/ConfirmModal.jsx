@@ -62,7 +62,11 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, title, messag
           style={{
             backgroundColor: 'var(--bg-card)', borderRadius: '12px',
             width: '100%', maxWidth: '400px', border: '1px solid var(--border-light)',
-            boxShadow: 'var(--shadow-modal)', display: 'flex', flexDirection: 'column'
+            boxShadow: 'var(--shadow-modal)', display: 'flex', flexDirection: 'column',
+            // Never taller than the window, so the buttons cannot end up below the fold.
+            // A long message on a short window pushed Cancel and the confirm button off the
+            // bottom of the screen, which looks exactly like a dialog with no way to say yes.
+            maxHeight: 'calc(100vh - 32px)', overflow: 'hidden'
           }}
         >
           <div style={{ padding: '24px', borderBottom: '1px solid var(--border-light)', position: 'relative', display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -80,7 +84,7 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, title, messag
             </button>
           </div>
           
-          <div style={{ padding: '24px', color: 'var(--text-secondary)', fontSize: '15px', lineHeight: '1.5' }}>
+          <div style={{ padding: '24px', color: 'var(--text-secondary)', fontSize: '15px', lineHeight: '1.5', overflowY: 'auto' }}>
             {message}
             {requireTypeToConfirm && (
               <div style={{ marginTop: '16px' }}>
@@ -109,7 +113,13 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, title, messag
               onClick={handleConfirm}
               className={confirmStyle === 'danger' ? 'btn-danger' : 'btn-primary'}
               style={{
-                ...(confirmStyle === 'danger' ? { backgroundColor: 'var(--accent-warning)', color: '#fff', border: 'none' } : {}),
+                // The colour is the .btn-danger class's job. This used to force
+                // backgroundColor: var(--accent-warning) inline, a variable that did not exist
+                // -- so the background resolved to transparent while color:#fff stayed, and the
+                // confirm button on every destructive dialog was white text on a white card.
+                // People reported the dialog as having no delete button at all. An inline style
+                // also beat the class, so defining .btn-danger alone would not have fixed it.
+                // Warning is amber and this button is not a warning, it is the destructive one.
                 display: 'flex', alignItems: 'center', gap: '8px',
                 opacity: (busy || (requireTypeToConfirm && typedText !== requireTypeToConfirm)) ? 0.5 : 1,
                 cursor: (busy || (requireTypeToConfirm && typedText !== requireTypeToConfirm)) ? 'not-allowed' : 'pointer'

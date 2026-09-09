@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { usePurchaseOrder, useCreatePurchaseOrder, useUpdatePurchaseOrderStatus, useReceiveGoods } from '../hooks/usePurchaseOrders';
+import { usePurchaseOrder, useCreatePurchaseOrder, useUpdatePurchaseOrderStatus, useReceiveGoods, useEmailPurchaseOrder } from '../hooks/usePurchaseOrders';
 import { useSuppliers } from '../hooks/useSuppliers';
-import { ArrowLeft, CheckCircle2, Box, Truck, Plus, Save, Download, Loader2, MessageCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Box, Truck, Plus, Save, Download, Loader2, MessageCircle, Mail } from 'lucide-react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import toast from 'react-hot-toast';
 import PurchaseOrderPDF from '../components/PurchaseOrderPDF';
@@ -27,6 +27,7 @@ export default function PurchaseOrderDetails() {
   const createPO = useCreatePurchaseOrder();
   const updateStatus = useUpdatePurchaseOrderStatus();
   const receiveGoods = useReceiveGoods();
+  const emailPO = useEmailPurchaseOrder();
 
   const [formData, setFormData] = useState({
     supplierId: '',
@@ -96,6 +97,25 @@ export default function PurchaseOrderDetails() {
     navigate('/inventory/purchase-orders');
   };
 
+  const supplierEmail = po?.supplier?.email?.trim();
+
+  const handleEmailSupplier = () => {
+    // Confirmed rather than fired on the first click, because unlike every other button on
+    // this page it reaches outside the shop. An order sent to the wrong supplier cannot be
+    // recalled, so the address is shown in the question.
+    setConfirmState({
+      isOpen: true,
+      title: 'Email this order to the supplier',
+      message: `The full order will be emailed to ${supplierEmail}.
+
+This actually sends it. Once it goes, the order is marked as Sent and you can start receiving stock against it.`,
+      confirmText: 'Send it',
+      onConfirm: async () => {
+        await emailPO.mutateAsync({ id });
+      }
+    });
+  };
+
   const handleMarkSent = async () => {
     setConfirmState({
       isOpen: true,
@@ -105,7 +125,7 @@ export default function PurchaseOrderDetails() {
       // and until now there was no way to send a PO from the app at all. With a real send
       // button beside it, the difference has to be stated rather than left for the user to
       // discover when the supplier says they never received anything.
-      message: 'This only records that the order has been sent -- it does not deliver anything to the supplier.\n\nIf you have not sent it yet, use "Send on WhatsApp" first.\n\nOnce marked as sent, you can start receiving stock against this order.',
+      message: 'This only records that the order has been sent -- it does not deliver anything to the supplier.\n\nUse this when you have already sent the order some other way, by phone or in person. To actually send it from here, use "Email to supplier" or "Send on WhatsApp".\n\nOnce marked as sent, you can start receiving stock against this order.',
       confirmText: 'Confirm',
       onConfirm: async () => {
         await updateStatus.mutateAsync({ id, status: 'SENT' });
@@ -272,6 +292,34 @@ export default function PurchaseOrderDetails() {
               }}>
                 {po.status.replace('_', ' ')}
               </span>
+              {/* The one button on this page that actually delivers the order. Placed first
+                  because it is the channel a supplier is most likely to keep a record of, and
+                  because unlike the two beside it, it needs no second step from the user.
+                  Disabled rather than hidden when the supplier has no email, so the reason is
+                  readable instead of the button simply not being there. */}
+              {po.status === 'DRAFT' && (
+                <button
+                  onClick={handleEmailSupplier}
+                  disabled={!supplierEmail || emailPO.isPending}
+                  className="btn-secondary"
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '8px',
+                    opacity: (!supplierEmail || emailPO.isPending) ? 0.5 : 1,
+                    cursor: (!supplierEmail || emailPO.isPending) ? 'not-allowed' : 'pointer'
+                  }}
+                  title={
+                    supplierEmail
+                      ? `Email the order to ${supplierEmail}`
+                      : `${po?.supplier?.name || 'This supplier'} has no email address -- add one on the supplier to send from here`
+                  }
+                >
+                  {emailPO.isPending
+                    ? <Loader2 size={16} className="animate-spin" />
+                    : <Mail size={16} />}
+                  {emailPO.isPending ? 'Sending...' : 'Email to supplier'}
+                </button>
+              )}
+
               {/* Opens WhatsApp with the order pre-filled; the user presses Send. Placed
                   before "Mark as Sent" because that is the real order of events -- send it,
                   then record that you did. Disabled rather than hidden when the supplier has

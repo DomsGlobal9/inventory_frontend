@@ -81,3 +81,27 @@ export const useReceiveGoods = () => {
     }
   });
 };
+
+export const useEmailPurchaseOrder = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id }) => {
+      const response = await api.post(`/purchase-orders/${id}/email`);
+      return response;
+    },
+    onSuccess: (response, variables) => {
+      toast.success(response?.message || 'Order emailed to the supplier');
+      queryClient.invalidateQueries({ queryKey: ['purchase-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['purchase-orders', variables.id] });
+      // Sending a Draft moves it to SENT, which is the same set of derived views a manual
+      // "Mark as Sent" moves: money committed to orders, and the day book's PO counts.
+      invalidateDerivedViews(queryClient);
+    },
+    onError: (error) => {
+      // The backend says exactly what is wrong -- no supplier email, no items, mail not
+      // configured -- and those are all things the merchant can act on, so show them rather
+      // than a generic failure.
+      toast.error(error?.message || 'Could not email the order');
+    }
+  });
+};

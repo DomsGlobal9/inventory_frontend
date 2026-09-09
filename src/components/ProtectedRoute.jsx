@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { holdsEverything } from '../lib/authority';
 import { LocationProvider } from '../contexts/LocationContext';
 
 import PageLoader from '../components/PageLoader';
@@ -18,8 +19,8 @@ export default function ProtectedRoute({ requiredRole, requiredPermission }) {
   }
 
   if (user) {
-    if (user.roles?.includes('SUPER_ADMIN')) {
-      // SUPER_ADMIN bypass
+    if (holdsEverything(user)) {
+      // The owner's '*' grant passes every route.
     } else {
       if (requiredRole && !user.roles?.includes(requiredRole)) {
         return <Navigate to="/unauthorized" replace />;

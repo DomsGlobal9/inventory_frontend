@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { api } from '../lib/api';
+import { holdsEverything } from '../lib/authority';
 
 const STORAGE_KEY = 'scaleezy_auth_user';
 
@@ -79,10 +80,10 @@ export function AuthProvider({ children }) {
     roles: user?.roles || [],
     permissions: user?.permissions || [],
     // Single source of truth for "can this user do X", so screens stop showing buttons
-    // that the backend will only reject. SUPER_ADMIN is treated as holding everything,
-    // matching how requirePermission resolves it server-side.
+    // that the backend will only reject. The owner's '*' grant passes everything, matching
+    // how requirePermission resolves it server-side.
     hasPermission: (permission) =>
-      (user?.roles || []).includes('SUPER_ADMIN') || (user?.permissions || []).includes(permission),
+      holdsEverything(user) || (user?.permissions || []).includes(permission),
     isAuthenticated: !!user,
     isLoading,
     login,

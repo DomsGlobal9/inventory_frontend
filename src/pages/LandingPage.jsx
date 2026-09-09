@@ -421,6 +421,27 @@ const FEATURES = [
   }
 ];
 
+/**
+ * What drifts around the closing panel.
+ *
+ * The things a clothing shop actually handles -- a garment, a spool, a price tag, a parcel, a
+ * receipt, a phone. Emoji rather than illustrations: already on every device, nothing to load,
+ * sharp at any size, and no asset that can go missing. Positions are percentages of the panel
+ * and several sit past its edge, so it reads as depth rather than as stickers in a border.
+ */
+const DRIFTERS = [
+  { icon: '🧵', left: '3%',  top: '16%', rot: -14, min: 26, vw: 3.4, max: 52 },
+  { icon: '👗', left: '11%', top: '58%', rot: 10,  min: 30, vw: 4.0, max: 62 },
+  { icon: '👜', left: '-2%', top: '76%', rot: -8,  min: 26, vw: 3.4, max: 52 },
+  { icon: '🧣', left: '21%', top: '6%',  rot: 16,  min: 22, vw: 2.9, max: 44 },
+  { icon: '📦', left: '4%',  top: '38%', rot: 8,   min: 24, vw: 3.1, max: 48 },
+  { icon: '🏷', left: '84%', top: '12%', rot: 12,  min: 26, vw: 3.4, max: 52 },
+  { icon: '📱', left: '92%', top: '44%', rot: -10, min: 26, vw: 3.4, max: 52 },
+  { icon: '🧾', left: '78%', top: '72%', rot: -16, min: 24, vw: 3.1, max: 48 },
+  { icon: '👠', left: '90%', top: '82%', rot: 14,  min: 26, vw: 3.4, max: 52 },
+  { icon: '✂️', left: '73%', top: '30%', rot: -6, min: 20, vw: 2.6, max: 40 }
+];
+
 const FAQS = [
   {
     q: 'Do I have to enter what my stock cost?',
@@ -476,6 +497,16 @@ export default function LandingPage() {
     @media (max-width: 719px) {
       .lp-row > * { order: 0 !important; }
     }
+    @keyframes lpFloat {
+      0%, 100% { translate: 0 0; }
+      50%      { translate: 0 -10px; }
+    }
+    .lp-drift { animation: lpFloat 7s ease-in-out infinite; }
+    /* Motion here is decoration, and decoration is the first thing to drop for anyone who has
+       asked their device to stop moving things. */
+    @media (prefers-reduced-motion: reduce) { .lp-drift { animation: none; } }
+    /* On a narrow screen they would sit on the words instead of around them. */
+    @media (max-width: 639px) { .lp-drift { display: none; } }
   `;
 
   return (
@@ -617,37 +648,146 @@ export default function LandingPage() {
       </section>
 
       {/* ── Closing ─────────────────────────────────────────────────────── */}
-      <section style={{ padding: 'clamp(64px, 10vw, 120px) 0', background: 'var(--bg-card)', borderTop: '1px solid var(--border-light)' }}>
-        <div style={{ ...shell, textAlign: 'center' }}>
-          <h2 style={{
-            fontSize: 'clamp(28px, 4.6vw, 48px)', fontWeight: 500, lineHeight: 1.14,
-            letterSpacing: '-0.02em', color: 'var(--text-primary)', margin: '0 auto', maxWidth: '18ch'
+      {/* One panel, the things a clothing shop actually handles drifting around its edges.
+          Emoji rather than illustrations on purpose: they are already on every device, they
+          cost nothing to load, they stay sharp at any size, and there is no asset to go
+          missing. Some sit half outside the panel so it reads as depth rather than as a
+          border with stickers inside it. */}
+      <section style={{ padding: 'clamp(40px, 6vw, 72px) 0 clamp(56px, 8vw, 96px)' }}>
+        <div style={shell}>
+          <div style={{
+            position: 'relative', overflow: 'hidden',
+            borderRadius: 'clamp(24px, 4vw, 40px)',
+            padding: 'clamp(56px, 9vw, 116px) clamp(20px, 5vw, 64px)',
+            textAlign: 'center',
+            background: `
+              radial-gradient(90% 120% at 15% 0%, color-mix(in srgb, var(--accent-gold) 26%, transparent) 0%, transparent 58%),
+              radial-gradient(80% 110% at 85% 100%, color-mix(in srgb, var(--accent-gold) 18%, transparent) 0%, transparent 55%),
+              var(--bg-card)`,
+            border: '1px solid var(--border-light)'
           }}>
-            Start with what is on your shelves today
-          </h2>
-          <p style={{ fontSize: '17px', color: 'var(--text-secondary)', lineHeight: 1.6, maxWidth: '52ch', margin: '22px auto 0' }}>
-            Add your products, enter what you are holding, and the rest follows. No card, and
-            nothing to install.
-          </p>
-          <Link to="/signup" style={{
-            display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '36px',
-            padding: '16px 34px', borderRadius: '999px', fontSize: '16px', fontWeight: 600,
-            background: 'var(--text-primary)', color: 'var(--bg-dark)', textDecoration: 'none'
-          }}>
-            Create your workspace <ArrowRight size={17} />
-          </Link>
+            {DRIFTERS.map((d, i) => (
+              <span key={i} aria-hidden="true" className="lp-drift" style={{
+                position: 'absolute', left: d.left, top: d.top,
+                fontSize: `clamp(${d.min}px, ${d.vw}vw, ${d.max}px)`,
+                transform: `rotate(${d.rot}deg)`,
+                filter: 'drop-shadow(0 10px 18px rgba(0,0,0,0.22))',
+                animationDelay: `${i * 0.45}s`,
+                userSelect: 'none', pointerEvents: 'none', lineHeight: 1
+              }}>{d.icon}</span>
+            ))}
+
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <div style={{
+                width: '68px', height: '68px', margin: '0 auto 26px',
+                borderRadius: '18px', background: 'var(--bg-dark)',
+                border: '1px solid var(--border-light)',
+                boxShadow: '0 14px 30px -8px rgba(0,0,0,0.35)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center'
+              }}>
+                <img src="/scaleezy-logo.png" alt="" style={{ width: '44px', objectFit: 'contain' }} />
+              </div>
+
+              <p style={{ fontSize: '12px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--accent-gold)', fontWeight: 700, margin: '0 0 16px' }}>
+                Try Scaleezy
+              </p>
+              <h2 style={{
+                fontSize: 'clamp(26px, 4.4vw, 46px)', fontWeight: 500, lineHeight: 1.14,
+                letterSpacing: '-0.02em', color: 'var(--text-primary)', margin: '0 auto', maxWidth: '20ch'
+              }}>
+                Ready to know exactly what you are holding?
+              </h2>
+              <p style={{ fontSize: 'clamp(15px, 1.9vw, 17px)', color: 'var(--text-secondary)', lineHeight: 1.6, maxWidth: '46ch', margin: '20px auto 0' }}>
+                Add your products, enter what is on the shelves, and the rest follows. No card,
+                and nothing to install.
+              </p>
+              <Link to="/signup" style={{
+                display: 'inline-flex', alignItems: 'center', gap: '9px', marginTop: '34px',
+                padding: '15px 34px', borderRadius: '999px', fontSize: '16px', fontWeight: 700,
+                background: 'var(--text-primary)', color: 'var(--bg-dark)', textDecoration: 'none',
+                boxShadow: '0 12px 26px -8px rgba(0,0,0,0.4)'
+              }}>
+                Get started <ArrowRight size={17} />
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* ── Footer ──────────────────────────────────────────────────────── */}
-      <footer style={{ borderTop: '1px solid var(--border-light)', padding: '48px 0' }}>
-        <div style={{ ...shell, display: 'flex', flexWrap: 'wrap', gap: '20px', alignItems: 'center', justifyContent: 'space-between' }}>
-          <img src="/scaleezy-logo.png" alt="Scaleezy" style={{ height: '28px', objectFit: 'contain', opacity: 0.6 }} />
-          <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '13.5px' }}>
-            © {new Date().getFullYear()} Scaleezy Inventory
-          </p>
+      {/* Only links that go somewhere. A footer full of plausible headings that 404 is worse
+          than a short one -- it is the first promise the product breaks. */}
+      <footer style={{ borderTop: '1px solid var(--border-light)', background: 'var(--bg-card)' }}>
+        <div style={{ ...shell, paddingTop: '56px', paddingBottom: '32px' }}>
+          <div style={{
+            display: 'grid', gap: 'clamp(32px, 5vw, 64px)',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))'
+          }}>
+            <div style={{ maxWidth: '34ch' }}>
+              <img src="/scaleezy-logo.png" alt="Scaleezy" style={{ height: '30px', objectFit: 'contain', marginBottom: '16px' }} />
+              <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '14px', lineHeight: 1.65 }}>
+                Stock, costs and margins for clothing retail. Counted honestly, priced properly,
+                and the same on every screen you open.
+              </p>
+            </div>
+
+            {[
+              {
+                heading: 'Get started',
+                links: [
+                  { label: 'Create a workspace', to: '/signup' },
+                  { label: 'Log in', to: '/login' }
+                ]
+              },
+              {
+                heading: 'What it does',
+                links: [
+                  { label: 'Stock ledger', to: '/signup' },
+                  { label: 'Purchase orders', to: '/signup' },
+                  { label: 'Try-on for shoppers', to: '/signup' }
+                ]
+              }
+            ].map((col, i) => (
+              <div key={i}>
+                <h3 style={{ fontSize: '12px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, margin: '0 0 16px' }}>
+                  {col.heading}
+                </h3>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '11px' }}>
+                  {col.links.map((l, j) => (
+                    <li key={j}>
+                      <Link to={l.to} style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '14.5px' }}>
+                        {l.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+
+            <div>
+              <h3 style={{ fontSize: '12px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, margin: '0 0 16px' }}>
+                Talk to us
+              </h3>
+              <a href="mailto:inventory.scaleezy@gmail.com" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '14.5px' }}>
+                inventory.scaleezy@gmail.com
+              </a>
+            </div>
+          </div>
+
+          <div style={{
+            marginTop: '48px', paddingTop: '24px', borderTop: '1px solid var(--border-light)',
+            display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'space-between', alignItems: 'center'
+          }}>
+            <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '13px' }}>
+              © {new Date().getFullYear()} Scaleezy Inventory
+            </p>
+            <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '13px' }}>
+              Built for shops that count what they hold
+            </p>
+          </div>
         </div>
       </footer>
+
     </div>
   );
 }

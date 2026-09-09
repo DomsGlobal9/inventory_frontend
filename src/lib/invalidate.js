@@ -55,6 +55,54 @@ export function invalidateDerivedViews(queryClient) {
  * this only removes the visible lag.
  */
 /**
+ * Patch one row of a cached list straight away, and hand back what to restore if it fails.
+ *
+ * The pattern this replaces is everywhere in these hooks: mutate, invalidate, wait. On a
+ * database this far away that is a second or more of a screen showing the opposite of what
+ * the person just chose -- and a toggle that does not move is a toggle that gets pressed
+ * twice. Team member status had no toast either, so the row changing WAS the only feedback,
+ * and it arrived last.
+ *
+ * Deliberately narrow. It patches rows that already exist; it does not invent them. Creating
+ * and deleting change the shape of a list -- and its counts, and its empty state -- so those
+ * stay on the server's answer, where being right matters more than being quick.
+ *
+ *   const ctx = optimisticRowPatch(qc, ['team','members'], r => r.id === id, { status });
+ *   ...
+ *   onError: (e, vars, ctx) => restoreRows(qc, ctx)
+ */
+export function optimisticRowPatch(queryClient, queryKey, matches, patch) {
+  const snapshots = [];
+
+  queryClient.setQueriesData({ queryKey }, (old) => {
+    if (!old) return old;
+    snapshots.push(old);
+
+    const apply = (row) => (matches(row) ? { ...row, ...patch } : row);
+
+    // This API wraps its lists differently depending on the endpoint -- a bare array, a
+    // { data: [] } envelope, an { items: [] } page, an { alerts: [] } -- so rather than
+    // assume one, find the array and patch it. Patching nothing silently would look exactly
+    // like the delay this exists to remove, which is the hardest kind of bug to notice.
+    if (Array.isArray(old)) return old.map(apply);
+    if (old && typeof old === 'object') {
+      const listKey = Object.keys(old).find(k => Array.isArray(old[k]));
+      if (listKey) return { ...old, [listKey]: old[listKey].map(apply) };
+    }
+    return old;
+  });
+
+  return { queryKey, snapshots };
+}
+
+/** Put back what optimisticRowPatch replaced, when the server refuses. */
+export function restoreRows(queryClient, context) {
+  if (!context?.snapshots?.length) return;
+  let i = 0;
+  queryClient.setQueriesData({ queryKey: context.queryKey }, () => context.snapshots[i++]);
+}
+
+/**
  * Move a row's quantity by a known delta, before the server has answered.
  *
  * patchInventoryRows below applies the server's numbers, which is the truth -- but it can only

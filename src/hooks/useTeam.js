@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { api } from '../lib/api';
+import { optimisticRowPatch, restoreRows } from '../lib/invalidate';
 
 export const useTeamMembers = () => {
   return useQuery({
@@ -37,8 +38,16 @@ export const useUpdateTeamMemberRole = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ userId, roleId }) => (await api.patch(`/team/members/${userId}/role`, { roleId })).data,
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['team', 'members'] }); toast.success('Role updated'); },
-    onError: (error) => toast.error(error?.message || 'Failed to update role')
+    // The row shows the new role immediately. roleId is what the list renders from, so this
+    // is the same value the refetch will bring back.
+    onMutate: ({ userId, roleId }) =>
+      optimisticRowPatch(queryClient, ['team', 'members'], r => r.id === userId, { roleId }),
+    onError: (error, _vars, context) => {
+      restoreRows(queryClient, context);
+      toast.error(error?.message || 'Failed to update role');
+    },
+    onSuccess: () => toast.success('Role updated'),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['team', 'members'] })
   });
 };
 
@@ -46,8 +55,15 @@ export const useSetTeamMemberStatus = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ userId, status }) => (await api.patch(`/team/members/${userId}/status`, { status })).data,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['team', 'members'] }),
-    onError: (error) => toast.error(error?.message || 'Failed to update status')
+    // This one had no toast at all, so the row changing was the ONLY sign anything happened --
+    // and it arrived a round trip late. A toggle that does not move gets pressed again.
+    onMutate: ({ userId, status }) =>
+      optimisticRowPatch(queryClient, ['team', 'members'], r => r.id === userId, { status }),
+    onError: (error, _vars, context) => {
+      restoreRows(queryClient, context);
+      toast.error(error?.message || 'Failed to update status');
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['team', 'members'] })
   });
 };
 

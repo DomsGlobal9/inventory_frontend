@@ -45,7 +45,7 @@ function Frame({ children, label }) {
         position: 'relative', width: '100%', aspectRatio: '520 / 360',
         containerType: 'inline-size',
         borderRadius: '24px', overflow: 'hidden',
-        background: 'radial-gradient(120% 100% at 78% 0%, color-mix(in srgb, var(--accent-gold) 12%, transparent) 0%, transparent 62%), var(--bg-input)',
+        background: 'radial-gradient(120% 100% at 78% 0%, color-mix(in srgb, var(--brand) 12%, transparent) 0%, transparent 62%), var(--bg-input)',
         border: '1px solid var(--border-light)'
       }}
     >
@@ -176,7 +176,7 @@ function MarginArt() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '2.4cqw' }}>
           <span style={{
             fontSize: '2.6cqw', fontWeight: 700, color: 'var(--text-primary)',
-            border: '1.5px solid var(--accent-gold)', borderRadius: '1.8cqw', padding: '1.2cqw 2.4cqw'
+            border: '1.5px solid var(--brand-ink)', borderRadius: '1.8cqw', padding: '1.2cqw 2.4cqw'
           }}>60 %</span>
           <span style={{ ...muted, fontSize: '3cqw' }}>→</span>
           <span style={{ fontSize: '3.6cqw', fontWeight: 700, color: 'var(--text-primary)' }}>₹4,160</span>
@@ -196,8 +196,8 @@ function PurchaseArt() {
           <span style={{ fontSize: '3.4cqw', fontWeight: 700, color: 'var(--text-primary)' }}>Purchase order</span>
           <span style={{
             fontSize: '1.9cqw', fontWeight: 700, letterSpacing: '0.08em', padding: '0.7cqw 1.8cqw',
-            borderRadius: '99px', color: 'var(--accent-gold)',
-            background: 'color-mix(in srgb, var(--accent-gold) 18%, transparent)'
+            borderRadius: '99px', color: 'var(--brand-ink)',
+            background: 'color-mix(in srgb, var(--brand) 18%, transparent)'
           }}>DRAFT</span>
         </div>
         <div style={{ ...muted, fontSize: '2.2cqw', marginTop: '1cqw' }}>to your supplier</div>
@@ -249,7 +249,7 @@ function LocationsArt() {
     <div style={{ padding: '3.4cqw 3.8cqw' }}>
       <div style={{
         width: '7cqw', height: '7cqw', borderRadius: '2cqw', marginBottom: '2.4cqw',
-        background: 'color-mix(in srgb, var(--accent-gold) 20%, transparent)',
+        background: 'color-mix(in srgb, var(--brand) 20%, transparent)',
         display: 'flex', alignItems: 'center', justifyContent: 'center'
       }}>
         <span style={{ fontSize: '3.4cqw' }}>{label === 'Your shop' ? '🏬' : '📦'}</span>
@@ -267,7 +267,7 @@ function LocationsArt() {
       {/* stock crossing between them */}
       <div style={{
         position: 'absolute', left: '45%', right: '45%', top: '26%', height: '2px',
-        background: 'repeating-linear-gradient(90deg, var(--accent-gold) 0 4px, transparent 4px 9px)',
+        background: 'repeating-linear-gradient(90deg, var(--brand) 0 4px, transparent 4px 9px)',
         opacity: 0.85
       }} />
 
@@ -301,12 +301,12 @@ function TryOnArt() {
         {/* the piece, on the person */}
         <div style={{
           position: 'absolute', inset: '9% 8% 0', borderRadius: '3cqw 3cqw 0 0',
-          background: 'linear-gradient(170deg, color-mix(in srgb, var(--accent-gold) 55%, transparent), color-mix(in srgb, var(--accent-gold) 18%, transparent))'
+          background: 'linear-gradient(170deg, color-mix(in srgb, var(--brand) 55%, transparent), color-mix(in srgb, var(--brand) 18%, transparent))'
         }} />
         <div style={{
           position: 'absolute', left: '50%', top: '13%', transform: 'translateX(-50%)',
           width: '26%', aspectRatio: '1', borderRadius: '50%',
-          background: 'color-mix(in srgb, var(--accent-gold) 70%, transparent)'
+          background: 'color-mix(in srgb, var(--brand) 70%, transparent)'
         }} />
       </div>
 
@@ -347,7 +347,7 @@ function PlatformArt() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '2.4cqw' }}>
             <span style={{
               width: '5.4cqw', height: '5.4cqw', borderRadius: '1.8cqw', flexShrink: 0,
-              background: `color-mix(in srgb, var(--accent-gold) ${22 + i * 16}%, transparent)`
+              background: `color-mix(in srgb, var(--brand) ${22 + i * 16}%, transparent)`
             }} />
             <div style={{ flex: 1 }}>
               <div style={{ height: '1.8cqw', width: `${52 + i * 12}%`, borderRadius: '99px', background: 'var(--border-light)' }} />
@@ -362,7 +362,7 @@ function PlatformArt() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '2.4cqw' }}>
           <span style={{
             width: '5cqw', height: '5cqw', borderRadius: '50%', flexShrink: 0,
-            background: 'color-mix(in srgb, var(--accent-gold) 20%, transparent)',
+            background: 'color-mix(in srgb, var(--brand) 20%, transparent)',
             display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.6cqw'
           }}>🔒</span>
           <span style={{ fontSize: '2.4cqw', lineHeight: 1.45, color: 'var(--text-primary)' }}>
@@ -375,6 +375,20 @@ function PlatformArt() {
 }
 
 /* ─── The page ───────────────────────────────────────────────────────────── */
+
+/**
+ * The five things the product answers, fanned across the hero.
+ *
+ * Illustrative figures, not anyone's. A public page has no business carrying a real shop's
+ * stock value, and the first draft of this one did.
+ */
+const HERO_CARDS = [
+  { label: 'ON HAND',    value: '1,284', note: 'pieces, counted', tone: 'plain', rot: -3.5, dy: 14 },
+  { label: 'WORTH',      value: '\u20b98.4L', note: 'and it says how it knows', tone: 'plain', rot: -1.5, dy: 4 },
+  { label: 'MARGIN',     value: '38.1%', note: 'on every piece', tone: 'good', rot: 0, dy: -6 },
+  { label: 'THIS ORDER', value: '\u20b9150', note: 'a piece \u2014 too thin', tone: 'bad', rot: 1.8, dy: 4 },
+  { label: 'TRY-ONS',    value: '312', note: 'from the tag, this month', tone: 'plain', rot: 3.5, dy: 15 }
+];
 
 const FEATURES = [
   {
@@ -478,25 +492,54 @@ export default function LandingPage() {
 
   if (!isLoading && isAuthenticated) return <Navigate to="/dashboard" replace />;
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.1 } }
-  };
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { y: 0, opacity: 1, transition: { type: 'spring', stiffness: 100 } }
-  };
 
-  const shell = { maxWidth: '1120px', margin: '0 auto', padding: '0 24px' };
+  // Wider than it was. At 1120px a large monitor showed more empty margin than page, which is
+  // not restraint, it is unused space.
+  const shell = { maxWidth: '1280px', margin: '0 auto', padding: '0 clamp(20px, 3vw, 40px)' };
 
   // Alternating left/right is a wide-screen idea. Stacked into one column it just means half
   // the sections show a picture before saying what it is a picture of, so it is switched off
   // below the point where the grid stops being two columns. An inline style cannot hold a
   // media query, hence the tag.
   const responsiveCss = `
+    /*
+      The logo's own two greens, scoped to this page.
+
+      --brand is the lime from the top half of the mark. It is a FILL colour: at 4.5:1 against
+      white it fails badly for small text, so it is used for large display type, bars, washes
+      and anything on a dark ground -- never for a caption.
+
+      --brand-ink is the deep green from the bottom half, which is what carries small text on a
+      light background. On a dark background the pair swap roles, which is why this is a token
+      and not a hex code repeated twenty times.
+    */
+    .lp {
+      --brand: #A6D92B;
+      --brand-deep: #164B1E;
+      --brand-ink: #164B1E;
+      --brand-on-solid: #FFFFFF;
+      --brand-solid: #164B1E;
+    }
+    :root[data-theme='dark'] .lp {
+      --brand-ink: #A6D92B;
+      --brand-solid: #A6D92B;
+      --brand-on-solid: #0B2410;
+    }
+
     @media (max-width: 719px) {
       .lp-row > * { order: 0 !important; }
     }
+
+    /* Base state is the finished state, so nothing here is required for the words to be read. */
+    @keyframes lpRise {
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: none; }
+    }
+    .lp-rise   { animation: lpRise .62s cubic-bezier(.22,1,.36,1) both; }
+    .lp-rise-2 { animation-delay: .10s; }
+    .lp-rise-3 { animation-delay: .20s; }
+    .lp-rise-4 { animation-delay: .32s; }
+    @media (prefers-reduced-motion: reduce) { .lp-rise { animation: none; } }
     @keyframes lpFloat {
       0%, 100% { translate: 0 0; }
       50%      { translate: 0 -10px; }
@@ -507,13 +550,23 @@ export default function LandingPage() {
     @media (prefers-reduced-motion: reduce) { .lp-drift { animation: none; } }
     /* On a narrow screen they would sit on the words instead of around them. */
     @media (max-width: 639px) { .lp-drift { display: none; } }
+
+    /* The hero strip runs off both edges. The two outermost cards are the ones to drop as the
+       screen narrows, because they are the ones already half off the screen. */
+    @media (max-width: 1023px) { .lp-strip-0, .lp-strip-4 { display: none; } }
+    @media (max-width: 719px)  { .lp-strip-1, .lp-strip-3 { display: none; } }
+    @media (max-width: 719px)  { .lp-strip { padding-bottom: 8px; } }
+    .lp-strip-card { transition: transform .35s cubic-bezier(.22,1,.36,1); }
+    @media (hover: hover) {
+      .lp-strip-card:hover { transform: rotate(0deg) translateY(-10px) !important; }
+    }
   `;
 
   return (
     // Scrolls itself, not the window. The app shell gives html and body `overflow: hidden`
     // ("zero global scroll" -- index.css), so a page that expects the window to scroll simply
     // does not, and everything past the first screen is unreachable.
-    <div style={{ backgroundColor: 'var(--bg-dark)', height: '100vh', overflowY: 'auto', overflowX: 'hidden' }}>
+    <div className="lp" style={{ backgroundColor: 'var(--bg-dark)', height: '100vh', overflowY: 'auto', overflowX: 'hidden' }}>
       <Helmet>
         <title>Scaleezy Inventory — know what you are holding</title>
         <meta name="description" content="Inventory for clothing retail: an immutable ledger, honest stock valuation, margins before you buy, purchase orders you can send, multi-location stock, and QR try-on for shoppers." />
@@ -531,29 +584,102 @@ export default function LandingPage() {
         </div>
         <div style={{ display: 'flex', gap: '16px' }}>
           <Link to="/login" className="btn-secondary" style={{ whiteSpace: 'nowrap' }}>Log In</Link>
-          <Link to="/signup" className="btn-primary" style={{ whiteSpace: 'nowrap' }}>Get Started</Link>
+          <Link to="/signup" style={{
+            whiteSpace: 'nowrap', padding: '10px 22px', borderRadius: '999px',
+            fontSize: '14px', fontWeight: 700, textDecoration: 'none',
+            background: 'var(--brand-solid)', color: 'var(--brand-on-solid)'
+          }}>Get Started</Link>
         </div>
       </nav>
 
-      {/* Hero Section -- unchanged from the original page. */}
-      <section style={{ padding: 'clamp(80px, 15vw, 140px) 24px', textAlign: 'center', maxWidth: '1000px', margin: '0 auto' }}>
-        <motion.div variants={containerVariants} initial="hidden" animate="visible">
-          <motion.h1 variants={itemVariants} style={{ fontSize: 'clamp(40px, 8vw, 64px)', fontWeight: 800, marginBottom: '24px', lineHeight: 1.1, color: 'var(--text-primary)' }}>
-            Total stock control. <br />
-            <span style={{ color: 'var(--accent-gold)' }}>Effortless scaling.</span>
-          </motion.h1>
-          <motion.p variants={itemVariants} style={{ fontSize: 'clamp(18px, 4vw, 22px)', color: 'var(--text-secondary)', marginBottom: '48px', maxWidth: '650px', margin: '0 auto 48px auto', lineHeight: 1.6 }}>
-            Scaleezy Inventory is the definitive operating system for modern retail. Say goodbye to spreadsheet chaos and hello to an immutable ledger and real-time insights.
-          </motion.p>
-          <motion.div variants={itemVariants} style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/signup" className="btn-primary" style={{ padding: '16px 36px', fontSize: '18px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              Start for free <ArrowRight size={20} />
-            </Link>
-            <Link to="/login" className="btn-secondary" style={{ padding: '16px 36px', fontSize: '18px' }}>
-              Live Demo
-            </Link>
-          </motion.div>
-        </motion.div>
+      {/* Hero */}
+      {/* Full bleed on purpose. The wording is unchanged; what changed is that it no longer
+          sits in a 1000px column with the rest of a wide screen left empty. The strip beneath
+          runs past both edges, so the page starts by showing the product rather than only
+          describing it, and a wide monitor gets more of it rather than more margin. */}
+      <section style={{ position: 'relative', overflow: 'hidden', paddingBottom: 'clamp(40px, 6vw, 76px)' }}>
+        {/* light thrown from behind the headline */}
+        <div aria-hidden="true" style={{
+          position: 'absolute', inset: '-30% -10% auto', height: '150%', pointerEvents: 'none',
+          background: `
+            radial-gradient(52% 46% at 50% 34%, color-mix(in srgb, var(--brand) 22%, transparent) 0%, transparent 70%),
+            radial-gradient(38% 34% at 18% 12%, color-mix(in srgb, var(--brand) 12%, transparent) 0%, transparent 70%)`
+        }} />
+
+        <div style={{ position: 'relative', padding: 'clamp(64px, 11vw, 128px) 24px clamp(36px, 5vw, 64px)', textAlign: 'center' }}>
+          <div>
+            <h1 className="lp-rise" style={{
+              fontSize: 'clamp(40px, 8.4vw, 96px)', fontWeight: 800, marginBottom: '24px',
+              lineHeight: 1.04, letterSpacing: '-0.03em', color: 'var(--text-primary)'
+            }}>
+              Total stock control. <br />
+              <span style={{ color: 'var(--brand-ink)' }}>Effortless scaling.</span>
+            </h1>
+            <p className="lp-rise lp-rise-2" style={{
+              fontSize: 'clamp(17px, 1.9vw, 22px)', color: 'var(--text-secondary)',
+              maxWidth: '62ch', margin: '0 auto 44px', lineHeight: 1.6
+            }}>
+              Scaleezy Inventory is the definitive operating system for modern retail. Say goodbye
+              to spreadsheet chaos and hello to an immutable ledger and real-time insights.
+            </p>
+            <div className="lp-rise lp-rise-3" style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+              {/* The brand's own green, not the app's default dark button. On the one page a
+                  visitor sees before they know what Scaleezy is, the call to action should be
+                  the colour of the logo above it. */}
+              <Link to="/signup" style={{
+                padding: '16px 38px', borderRadius: '999px', fontSize: '17px', fontWeight: 700,
+                display: 'inline-flex', alignItems: 'center', gap: '10px', textDecoration: 'none',
+                background: 'var(--brand-solid)', color: 'var(--brand-on-solid)',
+                boxShadow: '0 16px 34px -12px color-mix(in srgb, var(--brand-solid) 65%, transparent)'
+              }}>
+                Start for free <ArrowRight size={19} />
+              </Link>
+              <Link to="/login" style={{
+                padding: '16px 38px', borderRadius: '999px', fontSize: '17px', fontWeight: 500,
+                textDecoration: 'none', color: 'var(--text-primary)',
+                border: '1px solid var(--border-light)', background: 'var(--bg-card)'
+              }}>
+                Live Demo
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* The product itself, fanned across the whole width and running off both sides so it
+            reads as a shelf continuing past the screen rather than as five cards in a box. */}
+        <div
+          className="lp-strip lp-rise lp-rise-4"
+          style={{
+            display: 'flex', gap: 'clamp(12px, 1.6vw, 26px)', alignItems: 'center',
+            justifyContent: 'center', padding: '0 12px', marginTop: 'clamp(8px, 2vw, 26px)'
+          }}
+        >
+          {HERO_CARDS.map((c, i) => (
+            <div key={i} className={`lp-strip-card lp-strip-${i}`} style={{
+              flex: '0 0 auto', width: 'clamp(150px, 15.5vw, 236px)',
+              background: 'var(--bg-card)', border: '1px solid var(--border-light)',
+              borderRadius: 'clamp(14px, 1.5vw, 22px)', padding: 'clamp(14px, 1.5vw, 22px)',
+              boxShadow: '0 26px 50px -20px rgba(0,0,0,0.42), 0 2px 8px rgba(0,0,0,0.07)',
+              transform: `rotate(${c.rot}deg) translateY(${c.dy}px)`
+            }}>
+              <div style={{ fontSize: 'clamp(8.5px, 0.78vw, 10.5px)', letterSpacing: '0.14em', color: 'var(--text-muted)', fontWeight: 700 }}>
+                {c.label}
+              </div>
+              <div style={{
+                fontSize: 'clamp(20px, 2.3vw, 34px)', fontWeight: 700, lineHeight: 1.15,
+                margin: 'clamp(6px, 0.7vw, 10px) 0 clamp(4px, 0.5vw, 7px)',
+                color: c.tone === 'good' ? 'var(--accent-success, #10b981)'
+                  : c.tone === 'bad' ? 'var(--accent-danger, #ef4444)'
+                  : 'var(--text-primary)'
+              }}>
+                {c.value}
+              </div>
+              <div style={{ fontSize: 'clamp(10.5px, 1vw, 13px)', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
+                {c.note}
+              </div>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* ── Features, one idea per screen ───────────────────────────────── */}
@@ -578,7 +704,7 @@ export default function LandingPage() {
               viewport={{ once: true, amount: 0.1 }} transition={{ duration: 0.4 }}
               style={{ order: i % 2 === 1 ? 2 : 1 }}
             >
-              <p style={{ fontSize: '12px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--accent-gold)', margin: '0 0 16px', fontWeight: 600 }}>
+              <p style={{ fontSize: '12px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--brand-ink)', margin: '0 0 16px', fontWeight: 600 }}>
                 {f.eyebrow}
               </p>
               <h2 style={{
@@ -605,7 +731,7 @@ export default function LandingPage() {
       {/* ── FAQ ─────────────────────────────────────────────────────────── */}
       <section style={{ padding: 'clamp(56px, 9vw, 104px) 0', borderTop: '1px solid var(--border-light)' }}>
         <div style={{ ...shell, maxWidth: '820px' }}>
-          <p style={{ fontSize: '12px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--accent-gold)', margin: '0 0 16px', fontWeight: 600 }}>
+          <p style={{ fontSize: '12px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--brand-ink)', margin: '0 0 16px', fontWeight: 600 }}>
             Frequently asked questions
           </p>
           <h2 style={{ fontSize: 'clamp(26px, 3.6vw, 40px)', fontWeight: 500, letterSpacing: '-0.015em', color: 'var(--text-primary)', margin: '0 0 40px' }}>
@@ -661,8 +787,8 @@ export default function LandingPage() {
             padding: 'clamp(56px, 9vw, 116px) clamp(20px, 5vw, 64px)',
             textAlign: 'center',
             background: `
-              radial-gradient(90% 120% at 15% 0%, color-mix(in srgb, var(--accent-gold) 26%, transparent) 0%, transparent 58%),
-              radial-gradient(80% 110% at 85% 100%, color-mix(in srgb, var(--accent-gold) 18%, transparent) 0%, transparent 55%),
+              radial-gradient(90% 120% at 15% 0%, color-mix(in srgb, var(--brand) 26%, transparent) 0%, transparent 58%),
+              radial-gradient(80% 110% at 85% 100%, color-mix(in srgb, var(--brand) 18%, transparent) 0%, transparent 55%),
               var(--bg-card)`,
             border: '1px solid var(--border-light)'
           }}>
@@ -688,7 +814,7 @@ export default function LandingPage() {
                 <img src="/scaleezy-logo.png" alt="" style={{ width: '44px', objectFit: 'contain' }} />
               </div>
 
-              <p style={{ fontSize: '12px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--accent-gold)', fontWeight: 700, margin: '0 0 16px' }}>
+              <p style={{ fontSize: '12px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--brand-ink)', fontWeight: 700, margin: '0 0 16px' }}>
                 Try Scaleezy
               </p>
               <h2 style={{
@@ -704,8 +830,8 @@ export default function LandingPage() {
               <Link to="/signup" style={{
                 display: 'inline-flex', alignItems: 'center', gap: '9px', marginTop: '34px',
                 padding: '15px 34px', borderRadius: '999px', fontSize: '16px', fontWeight: 700,
-                background: 'var(--text-primary)', color: 'var(--bg-dark)', textDecoration: 'none',
-                boxShadow: '0 12px 26px -8px rgba(0,0,0,0.4)'
+                background: 'var(--brand-solid)', color: 'var(--brand-on-solid)', textDecoration: 'none',
+                boxShadow: '0 14px 30px -10px color-mix(in srgb, var(--brand-solid) 60%, transparent)'
               }}>
                 Get started <ArrowRight size={17} />
               </Link>
@@ -716,74 +842,81 @@ export default function LandingPage() {
 
       {/* ── Footer ──────────────────────────────────────────────────────── */}
       {/* Only links that go somewhere. A footer full of plausible headings that 404 is worse
-          than a short one -- it is the first promise the product breaks. */}
-      <footer style={{ borderTop: '1px solid var(--border-light)', background: 'var(--bg-card)' }}>
-        <div style={{ ...shell, paddingTop: '56px', paddingBottom: '32px' }}>
+          than a short one: it is the first promise the product breaks, and it breaks it before
+          anyone has signed up. So the space goes on saying what the thing does instead of on
+          columns of dead words. */}
+      <footer style={{ position: 'relative', overflow: 'hidden', borderTop: '1px solid var(--border-light)', background: 'var(--bg-card)' }}>
+        <div aria-hidden="true" style={{
+          position: 'absolute', inset: 'auto -10% -60% -10%', height: '120%', pointerEvents: 'none',
+          background: 'radial-gradient(50% 60% at 50% 100%, color-mix(in srgb, var(--brand) 13%, transparent) 0%, transparent 70%)'
+        }} />
+
+        <div style={{ ...shell, position: 'relative', paddingTop: 'clamp(56px, 7vw, 88px)', paddingBottom: '32px' }}>
+          {/* The name, at the size a name deserves at the bottom of a page. */}
           <div style={{
-            display: 'grid', gap: 'clamp(32px, 5vw, 64px)',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))'
+            display: 'flex', flexWrap: 'wrap', gap: 'clamp(24px, 4vw, 56px)',
+            alignItems: 'flex-end', justifyContent: 'space-between',
+            paddingBottom: 'clamp(32px, 4vw, 52px)', borderBottom: '1px solid var(--border-light)'
           }}>
-            <div style={{ maxWidth: '34ch' }}>
-              <img src="/scaleezy-logo.png" alt="Scaleezy" style={{ height: '30px', objectFit: 'contain', marginBottom: '16px' }} />
-              <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '14px', lineHeight: 1.65 }}>
-                Stock, costs and margins for clothing retail. Counted honestly, priced properly,
-                and the same on every screen you open.
+            <div style={{ maxWidth: '30ch' }}>
+              <img src="/scaleezy-logo.png" alt="Scaleezy" style={{ height: 'clamp(30px, 3.4vw, 42px)', objectFit: 'contain', marginBottom: '18px' }} />
+              <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: 'clamp(15px, 1.5vw, 17px)', lineHeight: 1.6 }}>
+                Stock, costs and margins for clothing retail — counted honestly, and the same on
+                every screen you open.
               </p>
             </div>
 
-            {[
-              {
-                heading: 'Get started',
-                links: [
-                  { label: 'Create a workspace', to: '/signup' },
-                  { label: 'Log in', to: '/login' }
-                ]
-              },
-              {
-                heading: 'What it does',
-                links: [
-                  { label: 'Stock ledger', to: '/signup' },
-                  { label: 'Purchase orders', to: '/signup' },
-                  { label: 'Try-on for shoppers', to: '/signup' }
-                ]
-              }
-            ].map((col, i) => (
-              <div key={i}>
-                <h3 style={{ fontSize: '12px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, margin: '0 0 16px' }}>
-                  {col.heading}
-                </h3>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '11px' }}>
-                  {col.links.map((l, j) => (
-                    <li key={j}>
-                      <Link to={l.to} style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '14.5px' }}>
-                        {l.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-
-            <div>
-              <h3 style={{ fontSize: '12px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, margin: '0 0 16px' }}>
-                Talk to us
-              </h3>
-              <a href="mailto:inventory.scaleezy@gmail.com" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '14.5px' }}>
-                inventory.scaleezy@gmail.com
-              </a>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <Link to="/signup" style={{
+                display: 'inline-flex', alignItems: 'center', gap: '9px',
+                padding: '14px 28px', borderRadius: '999px', fontSize: '15.5px', fontWeight: 700,
+                background: 'var(--brand-solid)', color: 'var(--brand-on-solid)', textDecoration: 'none'
+              }}>
+                Create a workspace <ArrowRight size={16} />
+              </Link>
+              <Link to="/login" style={{
+                padding: '14px 28px', borderRadius: '999px', fontSize: '15.5px', fontWeight: 500,
+                color: 'var(--text-primary)', textDecoration: 'none', border: '1px solid var(--border-light)'
+              }}>
+                Log in
+              </Link>
             </div>
           </div>
 
+          {/* What it does, as short lines rather than as links that lead back to the same page. */}
           <div style={{
-            marginTop: '48px', paddingTop: '24px', borderTop: '1px solid var(--border-light)',
-            display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'space-between', alignItems: 'center'
+            display: 'grid', gap: 'clamp(20px, 3vw, 40px)',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+            padding: 'clamp(32px, 4vw, 48px) 0'
+          }}>
+            {[
+              { k: 'Counts', v: 'A ledger nothing overwrites' },
+              { k: 'Values', v: 'And says how much is a guess' },
+              { k: 'Buys', v: 'Orders you can actually send' },
+              { k: 'Spans', v: 'Every shop you keep stock in' },
+              { k: 'Sells', v: 'Try-on straight from the tag' }
+            ].map((c, i) => (
+              <div key={i}>
+                <div style={{ fontSize: '12px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--brand-ink)', fontWeight: 700, marginBottom: '10px' }}>
+                  {c.k}
+                </div>
+                <div style={{ fontSize: '14.5px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                  {c.v}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{
+            paddingTop: '24px', borderTop: '1px solid var(--border-light)',
+            display: 'flex', flexWrap: 'wrap', gap: '14px', justifyContent: 'space-between', alignItems: 'center'
           }}>
             <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '13px' }}>
               © {new Date().getFullYear()} Scaleezy Inventory
             </p>
-            <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '13px' }}>
-              Built for shops that count what they hold
-            </p>
+            <a href="mailto:inventory.scaleezy@gmail.com" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '13.5px' }}>
+              inventory.scaleezy@gmail.com
+            </a>
           </div>
         </div>
       </footer>

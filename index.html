@@ -2,9 +2,148 @@
 <html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Scaleezy Inventory</title>
+
+    <!-- One path, every size. See the note inside the file. -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)" />
+
+    <title>Scaleezy Inventory — stock, costs and margins for clothing retail</title>
+    <meta name="description" content="Inventory built for clothing shops: a stock ledger nothing overwrites, honest valuation that says how much of itself is a guess, margins before you buy, purchase orders you can actually send, stock across several shops, and QR try-on for customers." />
+
+    <!--
+      Canonical, because this is a single-page app: /?ref=x, /?utm_source=y and / are the same
+      page, and without this each one is a separate URL competing with the others for the same
+      words.
+    -->
+    <link rel="canonical" href="https://inventory.scaleezy.com/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Scaleezy Inventory" />
+    <meta property="og:url" content="https://inventory.scaleezy.com/" />
+    <meta property="og:title" content="Scaleezy Inventory — know what you are holding" />
+    <meta property="og:description" content="Stock, costs and margins for clothing retail. Counted honestly, priced properly, and the same on every screen you open." />
+    <meta property="og:image" content="https://inventory.scaleezy.com/scaleezy-logo.png" />
+    <meta property="og:locale" content="en_IN" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Scaleezy Inventory — know what you are holding" />
+    <meta name="twitter:description" content="Stock, costs and margins for clothing retail. Counted honestly, priced properly, and the same on every screen you open." />
+    <meta name="twitter:image" content="https://inventory.scaleezy.com/scaleezy-logo.png" />
+
+    <!--
+      Structured data, written here rather than injected by React.
+
+      Search crawlers do render JavaScript, but on their own schedule and not always on the
+      first pass. Anything that decides how a result LOOKS is worth putting in the served HTML
+      where it is read immediately, rather than in a bundle that has to execute first.
+
+      The questions below are the same ones on the page. They have to be: marking up an answer
+      a visitor cannot find is the thing this format is policed for.
+    -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://inventory.scaleezy.com/#org",
+          "name": "Scaleezy",
+          "url": "https://inventory.scaleezy.com/",
+          "logo": "https://inventory.scaleezy.com/scaleezy-logo.png",
+          "email": "inventory.scaleezy@gmail.com"
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://inventory.scaleezy.com/#site",
+          "url": "https://inventory.scaleezy.com/",
+          "name": "Scaleezy Inventory",
+          "publisher": { "@id": "https://inventory.scaleezy.com/#org" },
+          "inLanguage": "en"
+        },
+        {
+          "@type": "SoftwareApplication",
+          "name": "Scaleezy Inventory",
+          "applicationCategory": "BusinessApplication",
+          "applicationSubCategory": "Inventory Management",
+          "operatingSystem": "Web browser",
+          "url": "https://inventory.scaleezy.com/",
+          "publisher": { "@id": "https://inventory.scaleezy.com/#org" },
+          "description": "Inventory for clothing retail: an immutable stock ledger, honest valuation, margins before you buy, purchase orders you can send, multi-location stock and QR try-on for shoppers.",
+          "featureList": [
+            "Immutable stock ledger",
+            "Honest stock valuation with disclosure",
+            "Cost and margin per variant",
+            "Purchase orders by email or WhatsApp",
+            "Stock across several locations",
+            "QR try-on for shoppers",
+            "Separate data per business"
+          ],
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "INR",
+            "description": "Free to start. No card required."
+          }
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Do I have to enter what my stock cost?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No. You can add products with just a quantity and start using it today. Stock you have not costed is valued at what it sells for, and the app tells you how many units that applies to, so you always know which part of the figure is solid. Add the cost whenever you like and it will value what you are already holding."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What happens to stock I already have when I start?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "You enter it as opening stock, with a cost if you know it. If you do not know it yet, the pieces are counted but left unvalued rather than recorded as free, and your first purchase at a real price will not be dragged down by them."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can two of my shops share one account?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. Add a location for each shop. Stock, prices and reorder levels are kept per location, transfers move stock between them, and the dashboard shows both the shop you are standing in and the business as a whole."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can my staff see everything?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Only what you allow. Roles decide who can change prices, receive stock, see costs or manage the team, and what they do is recorded in the activity feed."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What is the try-on for?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "A customer scans a code on the garment and sees it on themselves, from their own photo, in about a minute. It works in any phone browser with no app and no sign-up. You are charged per try-on and can see the count at any time."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Is my data separate from other businesses?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes, and it is checked rather than assumed. Every request carries the business it belongs to, and the tests that ship with this product try to reach one shop's data from another and require it to fail."
+              }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>

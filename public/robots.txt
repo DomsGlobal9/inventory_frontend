@@ -1,4 +1,27 @@
+# Scaleezy Inventory
+#
+# Three pages are public. Everything else needs a session, so a crawler that follows those
+# links is bounced to /login and records a soft 404 -- which spends crawl budget that should
+# have gone on the pages meant to be found. They are refused here instead.
+#
+# This is a hint to well-behaved crawlers, not a security control. Nothing below is protected
+# BY this file; it is protected by the session check on every one of those routes.
+
 User-agent: *
-Allow: /
+Allow: /$
+Allow: /login
+Allow: /signup
+
+Disallow: /dashboard
+Disallow: /products
+Disallow: /inventory
+Disallow: /orders
+Disallow: /returns
+Disallow: /customers
+Disallow: /settings
+Disallow: /add
+Disallow: /preview
+Disallow: /platformconsole
+Disallow: /unauthorized
 
 Sitemap: https://inventory.scaleezy.com/sitemap.xml

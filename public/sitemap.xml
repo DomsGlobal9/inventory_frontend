@@ -1,19 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<!--
+  Only pages a signed-out visitor can actually open.
+
+  Everything else in this app is behind a session, and listing an auth-walled URL here does not
+  get it indexed -- the crawler follows it, is bounced to /login, and files it as a soft 404.
+  Enough of those and the pages that DO matter are crawled less often. A short honest sitemap
+  outranks a long hopeful one.
+-->
+<urlset
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
   <url>
     <loc>https://inventory.scaleezy.com/</loc>
-    <lastmod>2026-09-07</lastmod>
+    <lastmod>2026-09-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://inventory.scaleezy.com/scaleezy-logo.png</image:loc>
+      <image:title>Scaleezy Inventory</image:title>
+      <image:caption>Stock, costs and margins for clothing retail</image:caption>
+    </image:image>
   </url>
-  <url>
-    <loc>https://inventory.scaleezy.com/login</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
+
   <url>
     <loc>https://inventory.scaleezy.com/signup</loc>
+    <lastmod>2026-09-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://inventory.scaleezy.com/login</loc>
+    <lastmod>2026-09-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
   </url>
 </urlset>

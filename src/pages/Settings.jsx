@@ -9,6 +9,8 @@ import ChangeOwnPassword from '../components/ChangeOwnPassword';
 import ServicesPanel from '../components/ServicesPanel';
 import SupportPanel from '../components/SupportPanel';
 import TeamManager from '../components/TeamManager';
+import RoleManager from '../components/RoleManager';
+import { holdsEverything } from '../lib/authority';
 import { useAuth } from '../context/AuthContext';
 import { useUpdateMyProfile } from '../hooks/useTeam';
 
@@ -20,6 +22,7 @@ const SETTINGS_DOMAINS = [
   { id: 'STOREFRONT', label: 'Storefront', icon: Globe },
   { id: 'SERVICES', label: 'APIs & Services', icon: Key },
   { id: 'USERS', label: 'Team & Users', icon: Users },
+  { id: 'ROLES', label: 'Roles & Permissions', icon: Shield },
   { id: 'SUPPORT', label: 'Help & Support', icon: LifeBuoy },
   // BILLING and API were shipped as navigable tabs whose only content was "This section is
   // under construction", which reads to a paying customer as an unfinished product. Neither
@@ -36,7 +39,7 @@ const SETTINGS_DOMAINS = [
  * chain had to be extended by hand every time a domain gained content -- and when Day Book was
  * added it was not, so the page rendered the day book AND the placeholder underneath it.
  */
-const IMPLEMENTED_DOMAINS = new Set(['GENERAL', 'CATALOG', 'LOCATIONS', 'DAYBOOK', 'STOREFRONT', 'SERVICES', 'USERS', 'SUPPORT']);
+const IMPLEMENTED_DOMAINS = new Set(['GENERAL', 'CATALOG', 'LOCATIONS', 'DAYBOOK', 'STOREFRONT', 'SERVICES', 'USERS', 'ROLES', 'SUPPORT']);
 
 const CATALOG_TABS = [
   { id: 'SIZE', label: 'Sizes', icon: Scissors, description: 'Manage available sizes across your products' },
@@ -57,11 +60,13 @@ export default function Settings() {
   const [profileForm, setProfileForm] = useState({ name: user?.name || '' });
   const updateProfileMutation = useUpdateMyProfile();
 
-  const isSuperAdmin = user?.roles?.includes('SUPER_ADMIN');
+  const isSuperAdmin = holdsEverything(user);
   // Passwords are set once by a Super Admin/Admin and stay permanent -- nobody edits their
   // own, so Team & Users is the only place a password is ever touched, and only these two
   // roles can reach it (a Super Admin still outranks an Admin there -- see team.service.ts).
-  const canManageTeam = isSuperAdmin || user?.roles?.includes('ADMIN');
+  // The permission, not the role name. A shop that composes its own "Floor manager" role with
+  // admin:users should reach this screen; a shop that renames ADMIN should not lose it.
+  const canManageTeam = isSuperAdmin || (user?.permissions || []).includes('admin:users');
 
   const handleSaveProfile = async () => {
     try {
@@ -330,6 +335,19 @@ export default function Settings() {
                 <div style={{ textAlign: 'center', padding: '32px', color: 'var(--text-secondary)' }}>
                   <Shield size={32} style={{ opacity: 0.4, margin: '0 auto 12px' }} />
                   <p>Only a Super Admin or Admin can manage team members and roles.</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeDomain === 'ROLES' && (
+            <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '32px' }}>
+              {canManageTeam ? (
+                <RoleManager />
+              ) : (
+                <div style={{ textAlign: 'center', padding: '32px', color: 'var(--text-secondary)' }}>
+                  <Shield size={32} style={{ opacity: 0.4, margin: '0 auto 12px' }} />
+                  <p>You need permission to manage the team before you can change what roles can do.</p>
                 </div>
               )}
             </div>

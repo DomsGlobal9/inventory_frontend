@@ -225,6 +225,11 @@ button {
   padding: 10px 14px;
   border-radius: 6px;
   font-size: 14px;
+  /* Form controls do not inherit the page font on their own, and a <textarea> falls back to
+     the browser default -- which is monospace. Every notes box in this app was rendering in
+     Courier while the label above it was in the body font. Inputs and selects were less
+     obvious about it but were doing the same thing. */
+  font-family: inherit;
   transition: border-color 0.2s, box-shadow 0.2s;
   outline: none;
 }

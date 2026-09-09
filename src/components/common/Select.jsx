@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronDown, Check } from 'lucide-react';
 
 const styles = `
@@ -55,11 +56,13 @@ const styles = `
   }
   
   .custom-select-dropdown {
-    position: absolute;
-    top: calc(100% + 4px);
-    left: 0;
-    width: 100%;
-    max-height: 250px;
+    /* Fixed, and rendered into document.body, rather than absolute inside the field.
+       An absolutely-positioned menu is clipped by the nearest scrolling ancestor, and a
+       dropdown inside a modal is nearly always inside one. Measured in the return dialog on
+       a short window: a seven-option list was squeezed into 84 pixels, about two options at a
+       time, because the modal body it sat in was only 127 tall. Its position and height are
+       set from JS against the real viewport instead. */
+    position: fixed;
     overflow-y: auto;
     background: var(--bg-card, #0a0a0a);
     border: 1px solid var(--border-light, rgba(255, 255, 255, 0.1));
@@ -106,6 +109,8 @@ const styles = `
 export default function Select({ value, onChange, children, className = '', style, disabled, required, variant = 'default' }) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
+  const dropdownRef = useRef(null);
+  const [menuBox, setMenuBox] = useState(null);
 
   // Parse standard <option> children into a usable array
   const options = React.Children.toArray(children)
@@ -117,14 +122,68 @@ export default function Select({ value, onChange, children, className = '', styl
 
   const selectedOption = options.find(opt => String(opt.value) === String(value)) || options[0];
 
+  /**
+   * Work out where the menu should sit, in viewport coordinates.
+   *
+   * Below the field when there is room, above it when there is not, and never taller than the
+   * space available. Without the flip, a field near the bottom of the window opens its menu
+   * downwards into nothing; without the cap it runs off the screen.
+   */
+  const positionMenu = useCallback(() => {
+    const trigger = containerRef.current;
+    if (!trigger) return;
+    const r = trigger.getBoundingClientRect();
+    const GAP = 4;
+    const MARGIN = 8;   // never touch the very edge of the window
+    const IDEAL = 250;
+
+    const spaceBelow = window.innerHeight - r.bottom - GAP - MARGIN;
+    const spaceAbove = r.top - GAP - MARGIN;
+    const openUp = spaceBelow < Math.min(IDEAL, spaceAbove);
+    const maxHeight = Math.max(Math.min(IDEAL, openUp ? spaceAbove : spaceBelow), 96);
+
+    setMenuBox({
+      left: r.left,
+      width: r.width,
+      maxHeight,
+      openUp,
+      top: openUp ? null : r.bottom + GAP,
+      bottom: openUp ? window.innerHeight - r.top + GAP : null
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    positionMenu();
+    // The field can move out from under the menu: a modal body scrolls, the window resizes,
+    // the page behind scrolls. Capture phase, so scrolls inside any container are caught and
+    // not just those on window.
+    const onMove = () => positionMenu();
+    window.addEventListener('scroll', onMove, true);
+    window.addEventListener('resize', onMove);
+    return () => {
+      window.removeEventListener('scroll', onMove, true);
+      window.removeEventListener('resize', onMove);
+    };
+  }, [isOpen, positionMenu]);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
+      // The menu is portalled out of this component's DOM, so containerRef no longer contains
+      // it. Without this first check, clicking an option counted as clicking outside and shut
+      // the menu before the choice could register.
+      if (dropdownRef.current && dropdownRef.current.contains(event.target)) return;
       if (containerRef.current && !containerRef.current.contains(event.target)) {
         setIsOpen(false);
       }
     };
+    const handleEscape = (event) => { if (event.key === 'Escape') setIsOpen(false); };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
   }, []);
 
   const handleSelect = (optValue) => {
@@ -154,23 +213,35 @@ export default function Select({ value, onChange, children, className = '', styl
           <ChevronDown size={16} className="custom-select-icon" />
         </div>
         
-        <div className={`custom-select-dropdown ${isOpen ? 'open' : ''}`}>
-          {options.map((opt, i) => {
-            const isSelected = String(opt.value) === String(value);
-            return (
-              <div 
-                key={i} 
-                className={`custom-select-option ${isSelected ? 'selected' : ''}`}
-                onClick={() => handleSelect(opt.value)}
-              >
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {opt.label}
-                </span>
-                {isSelected && <Check size={14} />}
-              </div>
-            );
-          })}
-        </div>
+        {isOpen && menuBox && createPortal(
+          <div
+            ref={dropdownRef}
+            className="custom-select-dropdown open"
+            style={{
+              left: menuBox.left,
+              width: menuBox.width,
+              maxHeight: menuBox.maxHeight,
+              ...(menuBox.openUp ? { bottom: menuBox.bottom } : { top: menuBox.top })
+            }}
+          >
+            {options.map((opt, i) => {
+              const isSelected = String(opt.value) === String(value);
+              return (
+                <div
+                  key={i}
+                  className={`custom-select-option ${isSelected ? 'selected' : ''}`}
+                  onClick={() => handleSelect(opt.value)}
+                >
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {opt.label}
+                  </span>
+                  {isSelected && <Check size={14} />}
+                </div>
+              );
+            })}
+          </div>,
+          document.body
+        )}
         
         {/* Hidden native select for form submissions and required validation if used in native forms */}
         <select 

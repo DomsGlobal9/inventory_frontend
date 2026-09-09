@@ -21,16 +21,48 @@ export default function ActiveAudit() {
   // One <input> per audit row, so a scan can drop the cursor straight into the count box.
   const countInputRefs = useRef({});
   const [localCounts, setLocalCounts] = useState({});
+  // What the SERVER last confirmed for each row, kept beside what is on screen.
+  //
+  // Without this the two were indistinguishable, and that hid a bad failure: each row saves
+  // on blur, fire and forget, while completing the audit applies the numbers the SERVER
+  // holds. So a save that failed left the counted figure sitting on screen looking counted,
+  // the audit completed against the old number, and the stock adjustment was silently wrong
+  // -- with a toast that had long since disappeared as the only warning.
+  const [serverCounts, setServerCounts] = useState({});
+  // 'saving' | 'error' per row, so a row can say for itself where it got to.
+  const [saveState, setSaveState] = useState({});
   const [confirmState, setConfirmState] = useState({ isOpen: false });
 
+  // A ref alongside the state so the merge below can read the PREVIOUS server values without
+  // listing them as a dependency, which would re-run the effect against its own output.
+  const serverCountsRef = useRef({});
+
   useEffect(() => {
-    if (data?.items) {
-      const counts = {};
-      data.items.forEach(item => {
-        counts[item.id] = item.countedQty ?? '';
+    if (!data?.items) return;
+
+    const fromServer = {};
+    data.items.forEach(item => { fromServer[item.id] = item.countedQty ?? ''; });
+
+    // Merge, do not overwrite.
+    //
+    // This used to assign the server's numbers straight over localCounts on every change to
+    // `data`. Any refetch during a count -- and this list does refetch -- wiped whatever had
+    // been typed and not yet saved. Somebody halfway down a stockroom shelf would look up and
+    // find their figures replaced by the old ones, with nothing said about it.
+    //
+    // Now a row only takes the server's value when the person is not mid-edit on it.
+    setLocalCounts(prev => {
+      const next = { ...fromServer };
+      Object.keys(prev).forEach(itemId => {
+        const wasDirty = prev[itemId] !== undefined
+          && String(prev[itemId]) !== String(serverCountsRef.current[itemId] ?? '');
+        if (wasDirty) next[itemId] = prev[itemId];
       });
-      setLocalCounts(counts);
-    }
+      return next;
+    });
+
+    serverCountsRef.current = fromServer;
+    setServerCounts(fromServer);
   }, [data]);
 
   const handleStart = async () => {
@@ -46,7 +78,16 @@ export default function ActiveAudit() {
       ...prev,
       [itemId]: value
     }));
+    // Typing again clears a previous failure marker -- the row is being worked on, not stuck.
+    setSaveState(prev => (prev[itemId] ? { ...prev, [itemId]: undefined } : prev));
   };
+
+  // A row is unsaved when what is in the box differs from what the server confirmed.
+  const isRowUnsaved = (itemId) =>
+    String(localCounts[itemId] ?? '') !== String(serverCounts[itemId] ?? '');
+
+  const unsavedRows = () =>
+    (data?.items || []).filter(i => isRowUnsaved(i.id) || saveState[i.id] === 'error');
 
   const handleSaveItem = async (itemId) => {
     const value = localCounts[itemId];
@@ -58,14 +99,38 @@ export default function ActiveAudit() {
     // specially). Previously this just returned here with nothing saved, leaving the
     // input showing blank while the server still held the old count.
     const countedQty = value === '' ? null : Number(value);
+    setSaveState(prev => ({ ...prev, [itemId]: 'saving' }));
     try {
       await updateMutation.mutateAsync({ countId: id, itemId, countedQty });
+      // Record what the server now holds, so the row reads as saved rather than merely typed.
+      setServerCounts(prev => ({ ...prev, [itemId]: value }));
+      serverCountsRef.current = { ...serverCountsRef.current, [itemId]: value };
+      setSaveState(prev => ({ ...prev, [itemId]: undefined }));
     } catch (error) {
+      // Keep the number the person counted -- it is the only copy of it -- but mark the row so
+      // it is obvious the figure has not reached the server, and stop the audit being
+      // completed against numbers that were never stored.
+      setSaveState(prev => ({ ...prev, [itemId]: 'error' }));
       console.error(error);
     }
   };
 
   const handleComplete = async () => {
+    // Completing applies the SERVER's numbers. If a row's count never got there, completing now
+    // would adjust stock to a figure nobody counted while the screen went on showing the one
+    // they did. Name the rows rather than refusing in general terms.
+    const stuck = unsavedRows();
+    if (stuck.length > 0) {
+      const names = stuck.slice(0, 3).map(i => i.sku).join(', ');
+      toast.error(
+        stuck.length === 1
+          ? stuck[0].sku + ' has not been saved yet. Click into its count box and press Tab to save it, then complete the audit.'
+          : stuck.length + ' counts have not been saved yet (' + names + (stuck.length > 3 ? ', ...' : '') + '). Save them before completing the audit.',
+        { duration: 8000 }
+      );
+      return;
+    }
+
     setConfirmState({
       isOpen: true,
       title: 'Complete Audit',
@@ -233,21 +298,48 @@ export default function ActiveAudit() {
                       </div>
                     </td>
                     <td style={{ textAlign: 'center' }}>
-                      <input 
-                        type="number"
-                        min="0"
-                        ref={(el) => { countInputRefs.current[item.id] = el; }}
-                        value={counted}
-                        onChange={(e) => handleCountChange(item.id, e.target.value)}
-                        onBlur={() => handleSaveItem(item.id)}
-                        disabled={audit.status !== 'IN_PROGRESS'}
-                        style={{ 
-                          width: '80px', padding: '8px', textAlign: 'center', 
-                          borderRadius: '6px', border: '1px solid var(--border-light)',
-                          backgroundColor: 'var(--bg-input)', color: 'var(--text-primary)',
-                          fontWeight: '600', fontSize: '16px'
-                        }}
-                      />
+                      {(() => {
+                        const rowState = saveState[item.id];
+                        const unsaved = isRowUnsaved(item.id);
+                        // Red when the save failed, amber while it is unsaved, normal once the
+                        // server has it. A counted number that exists only on screen should not
+                        // look identical to one that is safely stored.
+                        const borderColor = rowState === 'error'
+                          ? 'var(--accent-danger, #ef4444)'
+                          : (unsaved ? 'var(--accent-gold, #f59e0b)' : 'var(--border-light)');
+                        return (
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                            <input
+                              type="number"
+                              min="0"
+                              ref={(el) => { countInputRefs.current[item.id] = el; }}
+                              value={counted}
+                              onChange={(e) => handleCountChange(item.id, e.target.value)}
+                              onBlur={() => handleSaveItem(item.id)}
+                              disabled={audit.status !== 'IN_PROGRESS'}
+                              style={{
+                                width: '80px', padding: '8px', textAlign: 'center',
+                                borderRadius: '6px', border: `1px solid ${borderColor}`,
+                                backgroundColor: 'var(--bg-input)', color: 'var(--text-primary)',
+                                fontWeight: '600', fontSize: '16px'
+                              }}
+                            />
+                            {rowState === 'error' ? (
+                              <button
+                                onClick={() => handleSaveItem(item.id)}
+                                style={{ fontSize: '10px', color: 'var(--accent-danger, #ef4444)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
+                                title="This count did not reach the server. Click to try again."
+                              >
+                                not saved - retry
+                              </button>
+                            ) : rowState === 'saving' ? (
+                              <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>saving...</span>
+                            ) : unsaved ? (
+                              <span style={{ fontSize: '10px', color: 'var(--accent-gold, #f59e0b)' }}>unsaved</span>
+                            ) : null}
+                          </div>
+                        );
+                      })()}
                     </td>
                     <td style={{ textAlign: 'center' }}>
                       {hasValue ? (

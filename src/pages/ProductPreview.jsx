@@ -53,7 +53,34 @@ export default function ProductPreview() {
     });
   });
 
-  const estimatedValue = totalUnits * (parseFloat(productData.price) || 0);
+  // Value the opening stock cell by cell, rather than units x base price.
+  //
+  // The old line here was `totalUnits * price`, which is only correct when every size and
+  // colour sells for the same money. Ticking "different price per size or colour" and
+  // entering 3000/3200/3400/3600 across four colours still showed 26 x 3000 -- an estimate
+  // wrong by 8,800 rupees on the one screen a merchant reads before publishing. The SAVE
+  // path below already resolves the per-variant price correctly, so the number shown and
+  // the number written disagreed.
+  //
+  // Same fallback rule as buildVariants: a per-variant price when one was typed, otherwise
+  // the base price. Keeping the two in step is the whole point.
+  let estimatedValue = 0;
+  Object.entries(productData.units || {}).forEach(([colorCode, sizeObj]) => {
+    Object.entries(sizeObj || {}).forEach(([size, val]) => {
+      const qty = parseInt(val || 0, 10) || 0;
+      const perVariant = productData.perVariantPricing
+        ? Number(productData.variantPrices?.[colorCode]?.[size] || 0)
+        : 0;
+      estimatedValue += qty * (perVariant > 0 ? perVariant : (parseFloat(productData.price) || 0));
+    });
+  });
+
+  // What the same stock COST, which is the figure Inventory shows once this is saved --
+  // it values stock at cost, never at retail. Showing only the retail number here meant
+  // seeing 78,000 on this screen and 46,800 on the next one with nothing to explain the
+  // gap, which reads as the save having gone wrong.
+  const openingCost = Number(productData.costPrice || 0);
+  const estimatedCostValue = openingCost > 0 ? totalUnits * openingCost : 0;
 
   const hasPhotos = (productData.imageUrls?.length > 0) ||
     Object.values(productData.sourceUploadFiles || {}).some(Boolean);
@@ -98,9 +125,19 @@ export default function ProductPreview() {
         const colorInfo = getColorInfo(colorCode);
         productData.selectedSizes.forEach(size => {
           const qty = parseInt(productData.units?.[colorCode]?.[size] || '0', 10);
-          // Generate a clean SKU
-          const safeName = colorInfo.name.toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 3);
-          const sku = `${productCode}-${safeName}-${size}`;
+          // Generate a clean SKU.
+          //
+          // The colour was already being stripped to letters and digits; the SIZE was not, so
+          // "Free Size" produced PRD-000002-BLU-Free Size -- a stock code with a space in it.
+          // A SKU is not decoration: it goes into barcodes, into CSV columns that are read
+          // back by column position, into search boxes and into URLs, and a space breaks all
+          // four in ways that only show up later and far from here. Sizes that are already
+          // plain (S, M, L, XL, 32, 34) come through this untouched.
+          const safe = (value, len) =>
+            String(value || '').toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, len);
+          const safeName = safe(colorInfo.name, 3);
+          const safeSize = safe(size, 8) || 'STD';
+          const sku = `${productCode}-${safeName}-${safeSize}`;
           // The per-variant price when one was typed, otherwise nothing -- leaving it unset
           // means the variant falls back to the product's base price, which is what a shop
           // selling every size at one price wants and is how the backend resolves it anyway.
@@ -454,11 +491,29 @@ export default function ProductPreview() {
               </label>
             </div>
           )}
-          <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ color: 'var(--accent-gold)' }}>EST. VALUE</span>
-            <span style={{ fontSize: '20px' }}>
-              ₹{estimatedValue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-            </span>
+          <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ color: 'var(--accent-gold)' }}>WORTH AT SELLING PRICE</span>
+              <span style={{ fontSize: '20px' }}>
+                ₹{estimatedValue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+              </span>
+            </div>
+            {estimatedCostValue > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
+                <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>What it cost you</span>
+                <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
+                  ₹{estimatedCostValue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+            )}
+            {estimatedCostValue > 0 && estimatedValue > estimatedCostValue && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+                <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>Profit if it all sells</span>
+                <span style={{ fontSize: '14px' }}>
+                  ₹{(estimatedValue - estimatedCostValue).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>

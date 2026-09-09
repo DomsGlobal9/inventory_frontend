@@ -219,6 +219,26 @@ export default function VariantTable({ productId, productName, productBasePrice,
     return { label: `${pct.toFixed(1)}%`, color, pct };
   };
 
+  // The markup this row ALREADY carries, shown as the box's placeholder.
+  //
+  // "Add profit" is a calculator, not a stored field, so the box is empty until somebody
+  // types in it -- but an empty box next to a filled cost and a filled price looks like
+  // missing data, not like an idle calculator. A row bought at 1800 and sold at 3600 now
+  // shows a greyed-out 100, which is the answer to the question the merchant is actually
+  // asking: how much am I adding? Typing still overwrites it; nothing is saved from it.
+  //
+  // Markup on cost, deliberately -- the same basis applyProfitPercent uses below, so typing
+  // back the number shown reproduces the price that is already there. The margin-on-price
+  // view of the same row is the "your share %" column.
+  const currentMarkupOf = (v) => {
+    const cost = effectiveCostOf(v).value;
+    const price = effectivePriceOf(v);
+    if (cost <= 0 || !Number.isFinite(price) || price <= 0) return '';
+    const pct = ((price - cost) / cost) * 100;
+    if (!Number.isFinite(pct)) return '';
+    return pct % 1 === 0 ? String(pct) : pct.toFixed(1);
+  };
+
   // Type a profit % -> fills the selling price as cost + that % OF COST (markup), the way
   // a shop owner means "I buy at 350, I add 40%, I sell at 490". Note this is markup, not
   // accounting margin: the same 40% expressed as margin-on-price would be ₹583, which is
@@ -755,7 +775,7 @@ export default function VariantTable({ productId, productName, productBasePrice,
                                 type="number"
                                 className="input-field"
                                 value={pctValue}
-                                placeholder="—"
+                                placeholder={currentMarkupOf(v) || '—'}
                                 min="0"
                                 step="1"
                                 disabled={cost.value <= 0}
@@ -763,7 +783,9 @@ export default function VariantTable({ productId, productName, productBasePrice,
                                 onWheel={(e) => e.target.blur()}
                                 style={{ width: '64px', padding: '6px 8px', fontSize: '13px' }}
                                 title={cost.value > 0
-                                  ? 'Profit on top of what you paid. Type 40 to sell at what you paid plus 40%. Fills in what you sell at -- still needs confirming.'
+                                  ? (currentMarkupOf(v)
+                                      ? `You are adding ${currentMarkupOf(v)}% on top of what you paid. Type a new number to work out a new selling price -- it still needs confirming.`
+                                      : 'Profit on top of what you paid. Type 40 to sell at what you paid plus 40%. Fills in what you sell at -- still needs confirming.')
                                   : 'Enter a cost first (or receive stock through a Purchase Order) so profit can be calculated on it.'}
                               />
                               <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>%</span>

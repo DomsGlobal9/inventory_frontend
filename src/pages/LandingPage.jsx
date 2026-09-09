@@ -298,16 +298,68 @@ function TryOnArt() {
         <div style={{ height: '4%', display: 'flex', justifyContent: 'center', paddingTop: '1.4cqw' }}>
           <span style={{ width: '34%', height: '1cqw', borderRadius: '99px', background: 'var(--border-light)' }} />
         </div>
-        {/* the piece, on the person */}
+        {/* the piece, on the person -- see the note above TryOnArt */}
+        <svg
+          viewBox="0 0 100 190" preserveAspectRatio="xMidYMid slice" aria-hidden="true"
+          style={{ position: 'absolute', inset: '9% 0 0', width: '100%', height: '91%' }}
+        >
+          <defs>
+            <linearGradient id="tryOnRoom" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--brand)" stopOpacity="0.20" />
+              <stop offset="100%" stopColor="var(--brand)" stopOpacity="0.05" />
+            </linearGradient>
+            <linearGradient id="tryOnDrape" x1="0.1" y1="0" x2="0.9" y2="1">
+              <stop offset="0%" stopColor="var(--brand)" stopOpacity="0.95" />
+              <stop offset="100%" stopColor="var(--brand)" stopOpacity="0.55" />
+            </linearGradient>
+            <linearGradient id="tryOnScan" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#ffffff" stopOpacity="0" />
+              <stop offset="50%" stopColor="#ffffff" stopOpacity="0.55" />
+              <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+            </linearGradient>
+            {/* Everything is clipped to the body, so the light travels over the garment
+                rather than across the whole screen. */}
+            <clipPath id="tryOnBody">
+              <path d="M50 26 c9 0 15 5 19 9 l10 9 c4 4 5 8 4 13 l-5 20 -3 -6 -2 103 h-46 l-2 -103 -3 6 -5 -20 c-1 -5 0 -9 4 -13 l10 -9 c4 -4 10 -9 19 -9 z" />
+            </clipPath>
+          </defs>
+
+          <rect width="100" height="190" fill="url(#tryOnRoom)" />
+
+          {/* head and neck */}
+          <circle cx="50" cy="16" r="10" fill="var(--brand)" fillOpacity="0.85" />
+          <rect x="45" y="24" width="10" height="7" fill="var(--brand)" fillOpacity="0.7" />
+
+          {/* the garment on the body */}
+          <g clipPath="url(#tryOnBody)">
+            <rect width="100" height="190" fill="url(#tryOnDrape)" />
+            {/* the pallu, falling over one shoulder -- what makes it a saree and not a tube */}
+            <path d="M62 26 c14 8 20 24 17 44 -3 20 -10 40 -8 66 l-16 0 c-3 -28 3 -50 5 -68 2 -18 0 -31 -8 -40 z"
+              fill="#ffffff" fillOpacity="0.22" />
+            <path d="M30 96 q20 8 40 0" stroke="#ffffff" strokeOpacity="0.25" strokeWidth="1.4" fill="none" />
+            <path d="M30 112 q20 8 40 0" stroke="#ffffff" strokeOpacity="0.18" strokeWidth="1.4" fill="none" />
+
+            {/* the scan still passing over it */}
+            <rect className="lpScan" width="100" height="34" y="-34" fill="url(#tryOnScan)" />
+          </g>
+        </svg>
+
+        {/* what it is doing, said on the screen itself */}
         <div style={{
-          position: 'absolute', inset: '9% 8% 0', borderRadius: '3cqw 3cqw 0 0',
-          background: 'linear-gradient(170deg, color-mix(in srgb, var(--brand) 55%, transparent), color-mix(in srgb, var(--brand) 18%, transparent))'
-        }} />
-        <div style={{
-          position: 'absolute', left: '50%', top: '13%', transform: 'translateX(-50%)',
-          width: '26%', aspectRatio: '1', borderRadius: '50%',
-          background: 'color-mix(in srgb, var(--brand) 70%, transparent)'
-        }} />
+          position: 'absolute', left: '8%', right: '8%', bottom: '5%',
+          display: 'flex', alignItems: 'center', gap: '1.4cqw',
+          padding: '1.6cqw 2cqw', borderRadius: '2cqw',
+          background: 'color-mix(in srgb, var(--bg-card) 82%, transparent)',
+          border: '1px solid var(--border-light)'
+        }}>
+          <span className="lpPulse" style={{
+            width: '1.6cqw', height: '1.6cqw', borderRadius: '50%',
+            background: 'var(--brand)', flexShrink: 0
+          }} />
+          <span style={{ fontSize: '1.9cqw', color: 'var(--text-primary)', fontWeight: 600, whiteSpace: 'nowrap' }}>
+            Trying it on&hellip;
+          </span>
+        </div>
       </div>
 
       {/* the tag, floating in front */}
@@ -620,6 +672,24 @@ export default function LandingPage() {
     .lp-rise-3 { animation-delay: .20s; }
     .lp-rise-4 { animation-delay: .32s; }
     @media (prefers-reduced-motion: reduce) { .lp-rise { animation: none; } }
+    /* The scan travelling down the garment, and the dot that says it is still working.
+       Both stop for anyone who has asked their system for less motion -- see the
+       prefers-reduced-motion block below, where the figure simply sits there fully rendered. */
+    @keyframes lpScanSweep {
+      0%   { transform: translateY(0); }
+      100% { transform: translateY(224px); }
+    }
+    @keyframes lpPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.45; transform: scale(0.8); }
+    }
+    .lpScan { animation: lpScanSweep 2.6s cubic-bezier(.4,0,.6,1) infinite; }
+    .lpPulse { animation: lpPulse 1.4s ease-in-out infinite; }
+    @media (prefers-reduced-motion: reduce) {
+      .lpScan { animation: none; opacity: 0; }
+      .lpPulse { animation: none; }
+    }
+
     @keyframes lpFloat {
       0%, 100% { translate: 0 0; }
       50%      { translate: 0 -10px; }
@@ -660,7 +730,18 @@ export default function LandingPage() {
       {/* Navigation */}
       <nav style={{ padding: 'clamp(14px, 3vw, 20px) clamp(16px, 4vw, 48px)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-light)', backgroundColor: 'var(--bg-dark)', position: 'sticky', top: 0, zIndex: 50 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <img src="/scaleezy-logo.png" alt="Scaleezy Logo" style={{ height: '48px', objectFit: 'contain' }} />
+          <Link to="/" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px', textDecoration: 'none' }}>
+            <img src="/scaleezy-logo.png" alt="Scaleezy" style={{ height: 'clamp(30px, 5vw, 40px)', objectFit: 'contain', display: 'block' }} />
+            <span style={{
+              fontSize: 'clamp(9px, 1.5vw, 11px)', fontWeight: 700, letterSpacing: '0.22em',
+              textTransform: 'uppercase', color: 'var(--text-secondary)',
+              // Nudged to sit under the wordmark rather than under the mark, which is where the
+              // eye expects a product name to hang.
+              paddingLeft: '2px', lineHeight: 1
+            }}>
+              Inventory
+            </span>
+          </Link>
         </div>
         <div style={{ display: 'flex', gap: '16px' }}>
           <Link to="/login" className="btn-secondary" style={{ whiteSpace: 'nowrap' }}>Log In</Link>

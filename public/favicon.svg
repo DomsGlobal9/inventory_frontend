@@ -23,12 +23,14 @@
     One stroked path, not a filled outline. The S is a constant width ribbon, and a stroke is
     what keeps that width honest through both turns. Butt caps give the flat ends the mark has.
   -->
-  <path
-    d="M348 168 H222 a44 44 0 0 0 0 88 h68 a44 44 0 0 1 0 88 H164"
-    fill="none"
-    stroke="url(#s)"
-    stroke-width="76"
-    stroke-linecap="butt"
-    stroke-linejoin="round"
-  />
+  <g transform="translate(256 256) scale(1.58) translate(-256 -256)">
+    <path
+      d="M348 168 H222 a44 44 0 0 0 0 88 h68 a44 44 0 0 1 0 88 H164"
+      fill="none"
+      stroke="url(#s)"
+      stroke-width="76"
+      stroke-linecap="butt"
+      stroke-linejoin="round"
+    />
+  </g>
 </svg>

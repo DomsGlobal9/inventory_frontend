@@ -160,7 +160,7 @@ export default function StorefrontManager() {
                   `be used again. Its delivery history is kept.\n\nThis cannot be undone -- reconnecting ` +
                   `means creating a new connection and re-syncing the catalogue.`,
                 confirmText: 'Revoke',
-                onConfirm: () => lifecycle.mutate({ id: connection.id, action: 'revoke' })
+                onConfirm: () => lifecycle.mutateAsync({ id: connection.id, action: 'revoke' })
               });
             } else {
               lifecycle.mutate({ id: connection.id, action });

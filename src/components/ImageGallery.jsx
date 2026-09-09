@@ -48,9 +48,7 @@ export default function ImageGallery({ productId }) {
       message: 'Are you sure you want to delete this image?',
       confirmText: 'Delete',
       confirmStyle: 'danger',
-      onConfirm: () => {
-        deleteMutation.mutate(imageId);
-      }
+      onConfirm: () => deleteMutation.mutateAsync(imageId)
     });
   };
 

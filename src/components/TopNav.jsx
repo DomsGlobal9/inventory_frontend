@@ -255,6 +255,7 @@ export default function TopNav({ onMenuClick }) {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
+                      if (markAllAlertsRead.isPending) return;
                       markAllAlertsRead.mutate();
                     }}
                     style={{ background: 'none', border: 'none', color: 'var(--accent-primary)', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 500 }}
@@ -297,10 +298,18 @@ export default function TopNav({ onMenuClick }) {
                           >
                             <Pin size={13} fill={alert.isPinned ? 'var(--accent-gold)' : 'none'} />
                           </button>
+                          {/* Scoped to this alert -- see AlertCenter for why the shared
+                              isPending alone is the wrong test. */}
                           <button
                             title="Dismiss"
                             onClick={(e) => { e.stopPropagation(); deleteAlert.mutate(alert.id); }}
-                            style={{ background: 'none', border: 'none', padding: '2px', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex' }}
+                            disabled={deleteAlert.isPending && deleteAlert.variables === alert.id}
+                            style={{
+                              background: 'none', border: 'none', padding: '2px', display: 'flex',
+                              color: 'var(--text-muted)',
+                              opacity: deleteAlert.isPending && deleteAlert.variables === alert.id ? 0.4 : 1,
+                              cursor: deleteAlert.isPending && deleteAlert.variables === alert.id ? 'wait' : 'pointer'
+                            }}
                           >
                             <X size={13} />
                           </button>

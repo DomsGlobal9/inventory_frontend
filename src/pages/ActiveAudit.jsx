@@ -71,13 +71,12 @@ export default function ActiveAudit() {
       title: 'Complete Audit',
       message: 'Are you sure you want to complete this audit? This will generate automatic inventory adjustments for any discrepancies and cannot be undone.',
       confirmText: 'Complete Audit',
+      // Not caught here on purpose. The mutation already toasts what went wrong, and letting
+      // the rejection reach the modal is what keeps it open so the person can read the message
+      // and try again -- swallowing it closed the modal as though the audit had completed.
       onConfirm: async () => {
-        try {
-          await completeMutation.mutateAsync({ id, completedBy: user?.name || user?.id });
-          navigate('/inventory/audits');
-        } catch (error) {
-          console.error(error);
-        }
+        await completeMutation.mutateAsync({ id, completedBy: user?.name || user?.id });
+        navigate('/inventory/audits');
       }
     });
   };

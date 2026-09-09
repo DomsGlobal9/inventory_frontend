@@ -68,7 +68,9 @@ export default function ProductDetails() {
           message: 'Are you sure you want to move this product to the trash? It will be hidden from operations.',
           confirmText: 'Move to Trash',
           confirmStyle: 'danger',
-          onConfirm: () => trashMutation.mutate(id)
+          // mutateAsync, not mutate: the modal waits on what this returns, so its button can
+          // show it is working instead of vanishing onto a screen that has not changed yet.
+          onConfirm: () => trashMutation.mutateAsync(id)
         });
         break;
       case 'hardDelete':
@@ -79,11 +81,7 @@ export default function ProductDetails() {
           confirmText: 'Delete Permanently',
           confirmStyle: 'danger',
           requireTypeToConfirm: 'CONFIRM',
-          onConfirm: () => {
-            hardDeleteMutation.mutate(id, {
-              onSuccess: () => navigate('/products')
-            });
-          }
+          onConfirm: () => hardDeleteMutation.mutateAsync(id).then(() => navigate('/products'))
         });
         break;
     }

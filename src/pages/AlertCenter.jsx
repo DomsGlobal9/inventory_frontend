@@ -160,11 +160,22 @@ export default function AlertCenter() {
                     >
                       <Pin size={16} fill={v.isPinned ? 'var(--accent-gold)' : 'none'} />
                     </button>
+                    {/* Disabled per row, not per screen. deleteAlert.isPending is shared by
+                        every row, so disabling on that alone would freeze the whole list while
+                        one alert is dismissed; comparing the id it was called with narrows it
+                        to the row actually being removed. Without this, a second click on a
+                        slow connection deletes nothing and shows an error for work that in
+                        fact succeeded. */}
                     <button
                       className="btn-icon"
                       title="Dismiss"
                       onClick={() => deleteAlert.mutate(v.id)}
-                      style={{ color: 'var(--text-muted)' }}
+                      disabled={deleteAlert.isPending && deleteAlert.variables === v.id}
+                      style={{
+                        color: 'var(--text-muted)',
+                        opacity: deleteAlert.isPending && deleteAlert.variables === v.id ? 0.4 : 1,
+                        cursor: deleteAlert.isPending && deleteAlert.variables === v.id ? 'wait' : 'pointer'
+                      }}
                     >
                       <X size={16} />
                     </button>

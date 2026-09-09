@@ -126,14 +126,11 @@ export default function CatalogManager({ type }) {
         message: `It stops appearing when someone is adding a product. Products already using ${editingItem.label} keep it and are not changed. You can turn it back on at any time.`,
         confirmText: `Disable ${editingItem.label}`,
         confirmStyle: 'warning',
-        onConfirm: () => {
-          updateMutation.mutate({ id: editingItem.id, isActive: false }, {
-            onSuccess: () => {
-              setConfirmState({ isOpen: false });
-              handleCloseModal();
-            }
-          });
-        }
+        onConfirm: () => updateMutation.mutateAsync({ id: editingItem.id, isActive: false })
+          .then(() => {
+            setConfirmState({ isOpen: false });
+            handleCloseModal();
+          })
       });
     } else {
       updateMutation.mutate({ id: editingItem.id, isActive: true }, {
@@ -151,14 +148,11 @@ export default function CatalogManager({ type }) {
       message: `${editingItem.label} is removed from this ${getTypeName(type).toLowerCase()} list for good. Nothing is using it, so no product changes — but it cannot be brought back, and you would have to add it again from scratch.`,
       confirmText: `Delete ${editingItem.label}`,
       confirmStyle: 'danger',
-      onConfirm: () => {
-        deleteMutation.mutate(editingItem.id, {
-          onSuccess: () => {
-            setConfirmState({ isOpen: false });
-            handleCloseModal();
-          }
-        });
-      }
+      onConfirm: () => deleteMutation.mutateAsync(editingItem.id)
+        .then(() => {
+          setConfirmState({ isOpen: false });
+          handleCloseModal();
+        })
     });
   };
 

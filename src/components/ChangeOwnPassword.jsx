@@ -48,7 +48,7 @@ export default function ChangeOwnPassword() {
     <form onSubmit={submit} style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid var(--border-light)' }}>
       <h4 style={{ margin: '0 0 4px', fontSize: '15px', color: 'var(--text-primary)' }}>Change my password</h4>
       <p style={{ margin: '0 0 14px', fontSize: '12.5px', color: 'var(--text-secondary)' }}>
-        Only you can change this. It takes effect the next time you sign in.
+        Enter your current password, then the new one. It works from the next time you sign in.
       </p>
 
       <div style={{ maxWidth: '360px' }}>

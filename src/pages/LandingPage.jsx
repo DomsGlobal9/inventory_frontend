@@ -642,6 +642,39 @@ export default function LandingPage() {
   const { isAuthenticated, isLoading } = useAuth();
   const [openFaq, setOpenFaq] = useState(null);
 
+  // These three must stay ABOVE the early return below.
+  //
+  // They were beneath it, and that is a crash rather than a style point: a signed-in visitor
+  // takes the Navigate branch, so on that render the three hooks never run, React counts fewer
+  // hooks than the render before, and the whole page goes to the error boundary --
+  // "Rendered fewer hooks than expected". Hooks run unconditionally or they do not work.
+  // The bar steps aside on the way down and comes back on the way up.
+  //
+  // Three details that decide whether this feels right or merely works. The top of the page
+  // always shows it, so a small bounce at the very top cannot leave it hidden. Movements under
+  // a few pixels are ignored, because a trackpad and a thumb both produce a stream of tiny
+  // jitters and reacting to those makes the bar flicker. And it is only ever hidden below the
+  // first screenful, so nobody loses the navigation before they have scrolled anywhere.
+  const scrollerRef = useRef(null);
+  const lastY = useRef(0);
+  const [navHidden, setNavHidden] = useState(false);
+
+  useEffect(() => {
+    const el = scrollerRef.current;
+    if (!el) return undefined;
+
+    const onScroll = () => {
+      const y = el.scrollTop;
+      const delta = y - lastY.current;
+      if (y < 96) setNavHidden(false);
+      else if (Math.abs(delta) > 6) setNavHidden(delta > 0);
+      lastY.current = y;
+    };
+
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => el.removeEventListener('scroll', onScroll);
+  }, []);
+
   if (!isLoading && isAuthenticated) return <Navigate to="/dashboard" replace />;
 
   // Wider than it was. At 1120px a large monitor showed more empty margin than page, which is
@@ -694,6 +727,27 @@ export default function LandingPage() {
       .lpProgress { animation: none; width: 72%; }
     }
 
+    /* The nav's two links. Sized in one place rather than inline, so the phone and the desktop
+       versions sit next to each other and can be compared. */
+    .lp-login {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 11px 18px; border-radius: 999px;
+      border: 1px solid var(--border-light);
+      background: var(--bg-card); color: var(--text-primary);
+      font-size: 14px; font-weight: 600; text-decoration: none;
+      min-height: 44px;
+    }
+    .lp-cta { padding: 11px 22px; font-size: 14px; min-height: 44px; }
+
+    @media (max-width: 560px) {
+      /* One button, not two. The outline comes off Log In so the eye has somewhere to land. */
+      .lp-login {
+        border-color: transparent; background: transparent;
+        padding: 11px 6px; color: var(--text-secondary);
+      }
+      .lp-cta { padding: 11px 16px; font-size: 13.5px; }
+    }
+
     @keyframes lpFloat {
       0%, 100% { translate: 0 0; }
       50%      { translate: 0 -10px; }
@@ -721,32 +775,6 @@ export default function LandingPage() {
     }
   `;
 
-  // The bar steps aside on the way down and comes back on the way up.
-  //
-  // Three details that decide whether this feels right or merely works. The top of the page
-  // always shows it, so a small bounce at the very top cannot leave it hidden. Movements under
-  // a few pixels are ignored, because a trackpad and a thumb both produce a stream of tiny
-  // jitters and reacting to those makes the bar flicker. And it is only ever hidden below the
-  // first screenful, so nobody loses the navigation before they have scrolled anywhere.
-  const scrollerRef = useRef(null);
-  const lastY = useRef(0);
-  const [navHidden, setNavHidden] = useState(false);
-
-  useEffect(() => {
-    const el = scrollerRef.current;
-    if (!el) return undefined;
-
-    const onScroll = () => {
-      const y = el.scrollTop;
-      const delta = y - lastY.current;
-      if (y < 96) setNavHidden(false);
-      else if (Math.abs(delta) > 6) setNavHidden(delta > 0);
-      lastY.current = y;
-    };
-
-    el.addEventListener('scroll', onScroll, { passive: true });
-    return () => el.removeEventListener('scroll', onScroll);
-  }, []);
 
   return (
     // Scrolls itself, not the window. The app shell gives html and body `overflow: hidden`
@@ -793,10 +821,10 @@ export default function LandingPage() {
           <BrandLockup size="md" />
         </Link>
         <div style={{ display: 'flex', gap: '16px' }}>
-          <Link to="/login" className="btn-secondary" style={{ whiteSpace: 'nowrap' }}>Log In</Link>
-          <Link to="/signup" style={{
-            whiteSpace: 'nowrap', padding: '10px 22px', borderRadius: '999px',
-            fontSize: '14px', fontWeight: 700, textDecoration: 'none',
+          <Link to="/login" className="lp-login" style={{ whiteSpace: 'nowrap' }}>Log In</Link>
+          <Link to="/signup" className="lp-cta" style={{
+            whiteSpace: 'nowrap', borderRadius: '999px', fontWeight: 700, textDecoration: 'none',
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             background: 'var(--brand-solid)', color: 'var(--brand-on-solid)'
           }}>Get Started</Link>
         </div>

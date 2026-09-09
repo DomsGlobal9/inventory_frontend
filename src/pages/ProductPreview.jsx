@@ -218,7 +218,7 @@ export default function ProductPreview() {
       if (orderIndex === 0) return; // nothing to report
       const total = VIEW_ORDER.filter(v => generatedViews[v]?.startsWith('data:')).length + sourceFiles.length;
       if (orderIndex < total) {
-        toast.error(`${total - orderIndex} of ${total} images failed to upload -- you can add them manually from the product's Images tab.`);
+        toast.error(`${total - orderIndex} of ${total} images failed to upload — you can add them manually from the product's Images tab.`);
       }
     };
 
@@ -278,7 +278,7 @@ export default function ProductPreview() {
                   .join('; ');
                 toast.error(
                   `Product created, but ${skipped} of ${variants.length} variants did not save` +
-                  `${why ? ` -- ${why}` : ''}. Add them from the product page.`,
+                  `${why ? ` — ${why}` : ''}. Add them from the product page.`,
                   { duration: 12000 }
                 );
               }
@@ -289,7 +289,7 @@ export default function ProductPreview() {
                   .map((s) => `${s.sku} (${s.quantity})`).slice(0, 3).join(', ');
                 toast.error(
                   `These variants were created but their opening stock was not added: ${list}. ` +
-                  `Set the quantity from the product page -- do not add the variants again.`,
+                  `Set the quantity from the product page — do not add the variants again.`,
                   { duration: 14000 }
                 );
               }
@@ -570,7 +570,7 @@ export default function ProductPreview() {
               style={{ width: '100%', marginTop: '12px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}
               onClick={() => handlePublish({ publish: false })}
               disabled={isPending || !canSaveDraft}
-              title={!canSaveDraft ? 'Add a product name and category first' : 'Save without publishing -- it stays out of your active catalogue'}
+              title={!canSaveDraft ? 'Add a product name and category first' : 'Save without publishing — it stays out of your active catalogue'}
             >
               SAVE AS DRAFT
             </button>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Package, Box, History, Image as ImageIcon, Copy, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -61,29 +62,54 @@ export default function ProductDetails() {
       case 'restore':
         restoreMutation.mutate(id);
         break;
-      case 'trash':
+      case 'trash': {
+        // Say what it means for THIS product, not in the abstract. "Hidden from operations"
+        // is not a sentence anybody running a shop would say, and it does not mention that
+        // this particular product is holding stock -- 23 pieces, in the case that prompted
+        // this. Whether stock is involved is the thing that decides if trashing is a tidy-up
+        // or a mistake.
+        const units = product.variantSummary?.totalUnits || 0;
+        const stockLine = units > 0
+          ? ` It still has ${units} ${units === 1 ? 'piece' : 'pieces'} in stock, and those stay where they are — trashing does not write them off.`
+          : '';
         setConfirmState({
           isOpen: true,
           title: 'Move to Trash',
-          message: 'Are you sure you want to move this product to the trash? It will be hidden from operations.',
+          message:
+            `"${product.title}" will stop appearing when you take stock in or out, raise a purchase order, or sell.` +
+            stockLine +
+            ' You can put it back from the Trash tab at any time.',
           confirmText: 'Move to Trash',
           confirmStyle: 'danger',
-          // mutateAsync, not mutate: the modal waits on what this returns, so its button can
-          // show it is working instead of vanishing onto a screen that has not changed yet.
-          onConfirm: () => trashMutation.mutateAsync(id)
+          // mutate, not mutateAsync. The page behind this modal now changes the moment the
+          // action is taken, so holding the modal open for the round trip put a "Working..."
+          // button on top of a page that already said TRASHED -- measured at about ten
+          // seconds of the two contradicting each other. A failure rolls the page back and
+          // says so, which is the honest signal; the modal has done its job once the
+          // question is answered.
+          onConfirm: () => { trashMutation.mutate(id); }
         });
         break;
-      case 'hardDelete':
+      }
+      case 'hardDelete': {
+        const variants = product.variantSummary?.variantCount || 0;
         setConfirmState({
           isOpen: true,
           title: 'Permanently Delete',
-          message: 'This action cannot be undone. All variants and images will be permanently removed.',
+          message:
+            `"${product.title}" (${product.productCode}) will be erased for good, along with ` +
+            `${variants} ${variants === 1 ? 'size/colour' : 'sizes and colours'} and every photograph of it. ` +
+            'There is no undo and no copy kept anywhere. If you only want it out of the way, cancel this and leave it in the Trash instead.',
           confirmText: 'Delete Permanently',
           confirmStyle: 'danger',
           requireTypeToConfirm: 'CONFIRM',
+          // This one keeps waiting on purpose: it is irreversible, and it navigates away.
+          // Leaving the page before knowing it actually happened is how you end up unsure
+          // whether a thing still exists.
           onConfirm: () => hardDeleteMutation.mutateAsync(id).then(() => navigate('/products'))
         });
         break;
+      }
     }
   };
 
@@ -144,9 +170,23 @@ export default function ProductDetails() {
             </button>
           )}
           {!product.canHardDelete && product.status === 'TRASHED' && (
-            <button className="btn-secondary" style={{ opacity: 0.5, cursor: 'not-allowed' }} title={`Cannot delete: ${product.hardDeleteReason}`}>
-              Permanently Delete
-            </button>
+            // Was a button that merely LOOKED disabled -- no disabled attribute, no handler --
+            // so pressing it did nothing at all and the reason lived in a title tooltip, which
+            // does not exist on a touch screen and is missed on a desktop. Somebody trying to
+            // delete something got silence. Now the reason is on the page, and pressing it
+            // says the same thing out loud.
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
+              <button
+                className="btn-secondary"
+                style={{ opacity: 0.5, cursor: 'not-allowed' }}
+                onClick={() => toast(product.hardDeleteReason || 'This product cannot be deleted yet.', { icon: 'ℹ️' })}
+              >
+                Permanently Delete
+              </button>
+              <span style={{ fontSize: '11px', color: 'var(--text-muted)', maxWidth: '220px' }}>
+                {product.hardDeleteReason}
+              </span>
+            </div>
           )}
         </div>
       </motion.div>

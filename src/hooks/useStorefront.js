@@ -94,7 +94,7 @@ export const useTestConnection = () => {
         // nowhere to go.
         toast.error(
           `Your storefront did not accept the test${result?.responseStatus ? ` (HTTP ${result.responseStatus})` : ''}` +
-          `${result?.error ? ` -- ${result.error}` : ''}`,
+          `${result?.error ? ` — ${result.error}` : ''}`,
           { duration: 12000 }
         );
       }

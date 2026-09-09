@@ -55,7 +55,7 @@ export const useBulkCreateVariants = (productId: string) => {
           .join('; ');
         toast.error(
           `${payload.created} of ${payload.created + payload.skipped} variants saved. ` +
-          `${payload.skipped} failed${why ? ` -- ${why}` : ''}. Please add the missing ones again.`,
+          `${payload.skipped} failed${why ? ` — ${why}` : ''}. Please add the missing ones again.`,
           { duration: 10000 }
         );
       } else {
@@ -69,7 +69,7 @@ export const useBulkCreateVariants = (productId: string) => {
           .map((s: any) => `${s.sku} (${s.quantity})`).slice(0, 3).join(', ');
         toast.error(
           `Created, but no opening stock was added for: ${list}. ` +
-          `Set the quantity from the product page -- do not add these again.`,
+          `Set the quantity from the product page — do not add these again.`,
           { duration: 14000 }
         );
       }
@@ -115,7 +115,7 @@ export const useBulkUpdateVariants = () => {
           .join('; ');
         toast.error(
           `${payload.updated} of ${payload.updated + payload.skipped} rows applied. ` +
-          `${payload.skipped} failed${why ? ` -- ${why}` : ''}.`,
+          `${payload.skipped} failed${why ? ` — ${why}` : ''}.`,
           { duration: 12000 }
         );
       } else {

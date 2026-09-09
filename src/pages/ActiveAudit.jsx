@@ -176,7 +176,7 @@ export default function ActiveAudit() {
     } else if (filteredItems.length === 0) {
       toast.error(`No item in this audit matches "${scanned}".`);
     } else {
-      toast(`${filteredItems.length} items match "${scanned}" -- pick one below.`);
+      toast(`${filteredItems.length} items match "${scanned}" — pick one below.`);
     }
   };
 

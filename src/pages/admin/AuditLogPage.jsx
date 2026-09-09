@@ -1,8 +1,23 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, ScrollText, ShieldCheck, Activity, Building2, Info, Clock, User } from 'lucide-react';
+import { Loader2, ScrollText, ShieldCheck, Activity, Building2, Info, Clock, User, KeyRound } from 'lucide-react';
 import { useAdminAuditLog } from '../../hooks/admin/useAdminConsole';
 import PageGuide from '../../components/admin/PageGuide';
+
+/**
+ * The console actions that deserve to be found at a glance.
+ *
+ * Not every staff action -- replying to a support ticket is staff work and unremarkable. These
+ * are the ones a client would want to know about: reading or replacing someone's password,
+ * cutting a shop off, and erasing one.
+ */
+const SENSITIVE_ACTIONS = new Set([
+  'VIEW_PASSWORD',
+  'RESET_USER_PASSWORD',
+  'RESET_PLATFORM_ADMIN_PASSWORD',
+  'SUSPEND_CLIENT',
+  'DELETE_CLIENT'
+]);
 
 export default function AuditLogPage() {
   const { data, isLoading } = useAdminAuditLog();
@@ -42,6 +57,17 @@ export default function AuditLogPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 {data.map((event, i) => {
                   const isSession = event.type === 'ADMIN_SESSION';
+                  // A Scaleezy action against a client, as opposed to a shop's own team going
+                  // about their day.
+                  const isAdminAction = event.type === 'ADMIN_ACTION';
+                  // The handful worth finding at a glance. Someone scanning this page is
+                  // usually scanning it because they are worried, and a password read must not
+                  // look the same as a shopkeeper editing a product.
+                  const isSensitive = isAdminAction && SENSITIVE_ACTIONS.has(event.action);
+                  const isStaff = isSession || isAdminAction;
+                  const accent = isSensitive ? 'var(--accent-warning)'
+                    : isStaff ? 'var(--accent-gold)'
+                    : 'var(--text-secondary)';
                   
                   return (
                     <div
@@ -51,23 +77,29 @@ export default function AuditLogPage() {
                         background: 'var(--bg-input)', border: '1px solid var(--border-light)', borderRadius: '12px',
                         transition: 'transform 0.2s', position: 'relative'
                       }}
-                      onMouseOver={e => e.currentTarget.style.borderColor = isSession ? 'var(--accent-gold)' : 'rgba(255,255,255,0.15)'}
+                      onMouseOver={e => e.currentTarget.style.borderColor = isStaff ? accent : 'rgba(255,255,255,0.15)'}
                       onMouseOut={e => e.currentTarget.style.borderColor = 'var(--border-light)'}
                     >
                       <div style={{
                         width: '36px', height: '36px', borderRadius: '10px', flexShrink: 0,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        background: isSession ? 'rgba(226, 193, 113, 0.15)' : 'var(--bg-dark)',
-                        border: `1px solid ${isSession ? 'rgba(226, 193, 113, 0.3)' : 'var(--border-light)'}`
+                        background: isSensitive ? 'rgba(239, 68, 68, 0.15)'
+                          : isStaff ? 'rgba(226, 193, 113, 0.15)' : 'var(--bg-dark)',
+                        border: `1px solid ${isStaff ? accent : 'var(--border-light)'}`
                       }}>
-                        {isSession ? <ShieldCheck size={18} color="var(--accent-gold)" /> : <Activity size={18} color="var(--text-secondary)" />}
+                        {isSensitive ? <KeyRound size={18} color={accent} />
+                          : isStaff ? <ShieldCheck size={18} color={accent} />
+                          : <Activity size={18} color="var(--text-secondary)" />}
                       </div>
 
                       <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                          <span style={{ fontSize: '14px', color: isSession ? 'var(--accent-gold)' : 'var(--text-primary)', fontWeight: 600 }}>
+                          <span style={{ fontSize: '14px', color: isStaff ? accent : 'var(--text-primary)', fontWeight: 600 }}>
                             {event.title}
                           </span>
+                          {isSensitive && (
+                            <span style={{ fontSize: '10px', fontWeight: 700, color: '#fff', background: 'var(--accent-warning)', padding: '2px 8px', borderRadius: '4px', letterSpacing: '0.05em' }}>SENSITIVE</span>
+                          )}
                           {isSession && !event.endedAt && (
                             <span style={{ fontSize: '10px', fontWeight: 700, color: '#000', background: 'var(--accent-success)', padding: '2px 8px', borderRadius: '4px', letterSpacing: '0.05em' }}>ACTIVE</span>
                           )}

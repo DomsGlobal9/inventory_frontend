@@ -468,6 +468,16 @@ export default function LandingPage() {
 
   const shell = { maxWidth: '1120px', margin: '0 auto', padding: '0 24px' };
 
+  // Alternating left/right is a wide-screen idea. Stacked into one column it just means half
+  // the sections show a picture before saying what it is a picture of, so it is switched off
+  // below the point where the grid stops being two columns. An inline style cannot hold a
+  // media query, hence the tag.
+  const responsiveCss = `
+    @media (max-width: 719px) {
+      .lp-row > * { order: 0 !important; }
+    }
+  `;
+
   return (
     // Scrolls itself, not the window. The app shell gives html and body `overflow: hidden`
     // ("zero global scroll" -- index.css), so a page that expects the window to scroll simply
@@ -481,14 +491,16 @@ export default function LandingPage() {
         <meta property="og:description" content="Know what you are holding, what it cost, and what it is worth." />
       </Helmet>
 
+      <style>{responsiveCss}</style>
+
       {/* Navigation */}
-      <nav style={{ padding: '20px 48px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-light)', backgroundColor: 'var(--bg-dark)', position: 'sticky', top: 0, zIndex: 50 }}>
+      <nav style={{ padding: 'clamp(14px, 3vw, 20px) clamp(16px, 4vw, 48px)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-light)', backgroundColor: 'var(--bg-dark)', position: 'sticky', top: 0, zIndex: 50 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <img src="/scaleezy-logo.png" alt="Scaleezy Logo" style={{ height: '48px', objectFit: 'contain' }} />
         </div>
         <div style={{ display: 'flex', gap: '16px' }}>
-          <Link to="/login" className="btn-secondary">Log In</Link>
-          <Link to="/signup" className="btn-primary">Get Started</Link>
+          <Link to="/login" className="btn-secondary" style={{ whiteSpace: 'nowrap' }}>Log In</Link>
+          <Link to="/signup" className="btn-primary" style={{ whiteSpace: 'nowrap' }}>Get Started</Link>
         </div>
       </nav>
 
@@ -520,7 +532,7 @@ export default function LandingPage() {
           background: i % 2 === 1 ? 'var(--bg-card)' : 'transparent',
           borderTop: '1px solid var(--border-light)'
         }}>
-          <div style={{
+          <div className="lp-row" style={{
             ...shell,
             display: 'grid', gap: 'clamp(32px, 6vw, 72px)', alignItems: 'center',
             gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))'

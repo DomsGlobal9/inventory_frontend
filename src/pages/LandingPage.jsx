@@ -5,6 +5,7 @@ import { ArrowRight, Plus, Minus } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '../context/AuthContext';
 import Humaaan from '../components/landing/Humaaan';
+import BrandLockup from '../components/BrandLockup';
 
 /**
  * The page a shopkeeper meets before they have an account.
@@ -697,12 +698,21 @@ export default function LandingPage() {
       0%, 100% { translate: 0 0; }
       50%      { translate: 0 -10px; }
     }
-    .lp-drift { animation: lpFloat 7s ease-in-out infinite; }
+    .lp-drift { animation: lpFloat 5s ease-in-out infinite; }
     /* Motion here is decoration, and decoration is the first thing to drop for anyone who has
        asked their device to stop moving things. */
     @media (prefers-reduced-motion: reduce) { .lp-drift { animation: none; } }
-    /* On a narrow screen they would sit on the words instead of around them. */
-    @media (max-width: 639px) { .lp-drift { display: none; } }
+    /* On a phone they were hidden outright, which left the panel bare. They stay -- smaller,
+       and softened, because at this width some of them fall behind the words rather than
+       around them. The copy sits on z-index 1 above them, so it stays readable; these become
+       texture instead of objects. */
+    @media (max-width: 639px) {
+      .lp-drift {
+        opacity: 0.42;
+        filter: none;
+        font-size: 22px !important;
+      }
+    }
 
     /* The hero strip runs off both edges. The two outermost cards are the ones to drop as the
        screen narrows, because they are the ones already half off the screen. */
@@ -727,23 +737,8 @@ export default function LandingPage() {
 
       {/* Navigation */}
       <nav style={{ padding: 'clamp(14px, 3vw, 20px) clamp(16px, 4vw, 48px)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-light)', backgroundColor: 'var(--bg-dark)', position: 'sticky', top: 0, zIndex: 50 }}>
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(9px, 1.6vw, 14px)', textDecoration: 'none' }}>
-          <img
-            src="/scaleezy-logo.png"
-            alt="Scaleezy"
-            style={{ height: 'clamp(26px, 4.4vw, 34px)', objectFit: 'contain', display: 'block' }}
-          />
-          {/* the hairline that makes the two one lockup rather than two logos */}
-          <span aria-hidden="true" style={{
-            width: '1px', height: 'clamp(18px, 3vw, 24px)',
-            background: 'var(--border-light)', flexShrink: 0
-          }} />
-          <span style={{
-            fontSize: 'clamp(15px, 2.4vw, 20px)', fontWeight: 600, letterSpacing: '-0.01em',
-            color: 'var(--brand-strong, #164B1E)', lineHeight: 1, whiteSpace: 'nowrap'
-          }}>
-            Inventory
-          </span>
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', flexShrink: 0 }}>
+          <BrandLockup size="md" />
         </Link>
         <div style={{ display: 'flex', gap: '16px' }}>
           <Link to="/login" className="btn-secondary" style={{ whiteSpace: 'nowrap' }}>Log In</Link>
@@ -998,7 +993,7 @@ export default function LandingPage() {
             paddingBottom: 'clamp(32px, 4vw, 52px)', borderBottom: '1px solid var(--border-light)'
           }}>
             <div style={{ maxWidth: '30ch' }}>
-              <img src="/scaleezy-logo.png" alt="Scaleezy" style={{ height: 'clamp(30px, 3.4vw, 42px)', objectFit: 'contain', marginBottom: '18px' }} />
+              <BrandLockup size="lg" style={{ marginBottom: '18px' }} />
               <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: 'clamp(15px, 1.5vw, 17px)', lineHeight: 1.6 }}>
                 Stock, costs and margins for clothing retail — counted honestly, and the same on
                 every screen you open.

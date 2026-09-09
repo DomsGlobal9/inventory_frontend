@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { Building2, Users, Rocket, HeartPulse, ScrollText, Bug, LifeBuoy, LogOut, ShieldCheck, Sun, Moon, Inbox } from 'lucide-react';
+import { Building2, Users, Rocket, HeartPulse, ScrollText, Bug, LifeBuoy, LogOut, ShieldCheck, Sun, Moon, Inbox, Menu, X } from 'lucide-react';
 import { usePlatformAdmin } from '../context/PlatformAdminContext';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -26,14 +26,59 @@ export default function AdminConsoleLayout() {
   // the client app's toggle then appeared dead on its first click.
   const { theme, toggleTheme } = useTheme();
 
+  // The console had no mobile layout at all: a 260px sidebar that could not shrink, inside a
+  // 100vw row. On a 375px phone that left 115px for the page, and there was no way to put the
+  // sidebar away. Below 900px it becomes a drawer.
+  const [navOpen, setNavOpen] = useState(false);
+
   const handleLogout = async () => {
     await logout();
     navigate('/platformconsole/login', { replace: true });
   };
 
   return (
-    <div style={{ display: 'flex', height: '100vh', width: '100vw', backgroundColor: 'var(--bg-dark)', color: 'var(--text-primary)', fontFamily: 'Inter, -apple-system, sans-serif' }}>
-      <aside style={{ width: '260px', flexShrink: 0, borderRight: '1px solid var(--border-light)', backgroundColor: 'var(--bg-card)', display: 'flex', flexDirection: 'column' }}>
+    <div className="console-shell" style={{ display: 'flex', height: '100vh', width: '100%', backgroundColor: 'var(--bg-dark)', color: 'var(--text-primary)', fontFamily: 'Inter, -apple-system, sans-serif' }}>
+      <style>{`
+        .console-menu { display: none; }
+        .console-scrim { display: none; }
+        @media (max-width: 900px) {
+          .console-menu {
+            display: inline-flex; align-items: center; justify-content: center;
+            position: fixed; top: 12px; left: 12px; z-index: 1002;
+            width: 44px; height: 44px; border-radius: 10px;
+            background: var(--bg-card); border: 1px solid var(--border-light);
+            color: var(--text-primary); cursor: pointer;
+          }
+          .console-aside {
+            position: fixed; top: 0; bottom: 0; left: 0; z-index: 1001;
+            transform: translateX(-100%);
+            transition: transform 0.25s ease;
+            box-shadow: 2px 0 16px rgba(0,0,0,0.28);
+            padding-left: env(safe-area-inset-left);
+          }
+          .console-aside.open { transform: translateX(0); }
+          .console-scrim {
+            display: block; position: fixed; inset: 0; z-index: 1000;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(2px);
+          }
+          .console-main {
+            padding: 68px max(16px, env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)) !important;
+          }
+        }
+        @media (prefers-reduced-motion: reduce) { .console-aside { transition: none; } }
+      `}</style>
+
+      <button
+        className="console-menu"
+        onClick={() => setNavOpen(o => !o)}
+        aria-label={navOpen ? 'Close menu' : 'Open menu'}
+      >
+        {navOpen ? <X size={20} /> : <Menu size={20} />}
+      </button>
+
+      {navOpen && <div className="console-scrim" onClick={() => setNavOpen(false)} />}
+
+      <aside className={`console-aside${navOpen ? ' open' : ''}`} style={{ width: '260px', flexShrink: 0, borderRight: '1px solid var(--border-light)', backgroundColor: 'var(--bg-card)', display: 'flex', flexDirection: 'column' }}>
         <div style={{ height: '72px', display: 'flex', alignItems: 'center', gap: '10px', padding: '0 24px', borderBottom: '1px solid var(--border-light)' }}>
           <ShieldCheck size={22} color="var(--accent-gold)" />
           <span style={{ fontWeight: 600, fontSize: '15px', color: 'var(--text-primary)' }}>Platform Console</span>
@@ -46,6 +91,7 @@ export default function AdminConsoleLayout() {
               <NavLink
                 key={item.path}
                 to={item.path}
+                onClick={() => setNavOpen(false)}
                 style={({ isActive }) => ({
                   display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 12px', borderRadius: '8px',
                   color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
@@ -88,7 +134,7 @@ export default function AdminConsoleLayout() {
         </div>
       </aside>
 
-      <main style={{ flex: 1, overflowY: 'auto', padding: '32px 40px', backgroundColor: 'var(--bg-dark)' }}>
+      <main className="console-main" style={{ flex: 1, minWidth: 0, overflowY: 'auto', padding: '32px 40px', backgroundColor: 'var(--bg-dark)' }}>
         <Outlet />
       </main>
     </div>

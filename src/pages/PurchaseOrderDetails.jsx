@@ -460,7 +460,7 @@ This actually sends it. Once it goes, the order is marked as Sent and you can st
                 <thead>
                   <tr>
                     <th style={{ paddingBottom: '12px', fontWeight: '500', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-light)' }}>Item</th>
-                    <th style={{ paddingBottom: '12px', fontWeight: '500', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-light)', textAlign: 'right' }}>Cost</th>
+                    <th style={{ paddingBottom: '12px', fontWeight: '500', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-light)', textAlign: 'right' }}>You pay</th>
                     <th style={{ paddingBottom: '12px', fontWeight: '500', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-light)', textAlign: 'right' }}>Ordered</th>
                     <th style={{ paddingBottom: '12px', fontWeight: '500', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-light)', textAlign: 'right' }}>Total</th>
                     {!isNew && <th style={{ paddingBottom: '12px', fontWeight: '500', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-light)', textAlign: 'right' }}>Received</th>}

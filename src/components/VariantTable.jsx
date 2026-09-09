@@ -614,10 +614,10 @@ export default function VariantTable({ productId, productName, productBasePrice,
                 <th>Color</th>
                 <th>Total Stock</th>
                 <th>Status</th>
-                <th>Cost</th>
-                <th>Profit %</th>
-                <th>Selling Price</th>
-                <th>Margin %</th>
+                <th>You pay</th>
+                <th>Add profit</th>
+                <th>You sell at</th>
+                <th>Your share %</th>
                 <th style={{ textAlign: 'right' }}>Settings & Actions</th>
               </tr>
             </thead>
@@ -763,7 +763,7 @@ export default function VariantTable({ productId, productName, productBasePrice,
                                 onWheel={(e) => e.target.blur()}
                                 style={{ width: '64px', padding: '6px 8px', fontSize: '13px' }}
                                 title={cost.value > 0
-                                  ? 'Profit added on top of cost. Type 40 to sell at cost + 40%. Fills the Selling Price -- still needs confirming.'
+                                  ? 'Profit on top of what you paid. Type 40 to sell at what you paid plus 40%. Fills in what you sell at -- still needs confirming.'
                                   : 'Enter a cost first (or receive stock through a Purchase Order) so profit can be calculated on it.'}
                               />
                               <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>%</span>
@@ -856,16 +856,20 @@ export default function VariantTable({ productId, productName, productBasePrice,
                         // them is cheaper than making someone work it out.
                         const explain = margin.pct === null
                           ? (cost.value > 0
-                              ? 'No price to compare the cost against yet.'
-                              : 'No cost recorded for this item yet.')
-                          : `Selling at ₹${Number(price).toFixed(2)}, costing ₹${cost.value.toFixed(2)} (${cost.source}). `
-                            + `That leaves ₹${(Number(price) - cost.value).toFixed(2)} on every piece.`;
+                              ? 'No price to compare against what you paid yet.'
+                              : 'Tell us what you paid for this one.')
+                          : `You sell at ₹${Number(price).toFixed(2)} and you paid ₹${cost.value.toFixed(2)} (${cost.source}).`;
+                        const keptEach = margin.pct === null ? null : Number(price) - cost.value;
                         return (
-                          <span
-                            title={explain}
-                            style={{ fontSize: '13px', fontWeight: 600, color: margin.color, cursor: 'help' }}
-                          >
-                            {margin.label}
+                          <span title={explain} style={{ display: 'inline-block', cursor: 'help' }}>
+                            <span style={{ fontSize: '13px', fontWeight: 600, color: margin.color }}>
+                              {margin.label}
+                            </span>
+                            {keptEach !== null && (
+                              <span style={{ display: 'block', fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px', lineHeight: 1.35 }}>
+                                {`₹${keptEach.toFixed(0)} of every ₹${Number(price).toFixed(0)} you sell`}
+                              </span>
+                            )}
                           </span>
                         );
                       })()}

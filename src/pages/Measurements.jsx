@@ -167,7 +167,7 @@ export default function Measurements() {
               were recorded as costing nothing. Optional, and the hint says what it is for
               rather than nagging. */}
           <div style={{ width: '170px' }}>
-            <label className="input-label">Cost Price (₹)</label>
+            <label className="input-label">You pay (₹)</label>
             <input
               type="number"
               className="input-field"
@@ -177,7 +177,7 @@ export default function Measurements() {
             />
             <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
               {Number(productData.costPrice) > 0 && Number(productData.price) > 0
-                ? `${(((Number(productData.price) - Number(productData.costPrice)) / Number(productData.price)) * 100).toFixed(0)}% margin`
+                ? `you keep ${(((Number(productData.price) - Number(productData.costPrice)) / Number(productData.price)) * 100).toFixed(0)}% of what you sell it for`
                 : 'Optional — used for profit and stock value'}
             </div>
           </div>

@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, Building2, Users, Package, AlertTriangle, IndianRupee, ChevronRight, ShieldCheck, Mail } from 'lucide-react';
+import { Loader2, Building2, Users, Package, AlertTriangle, IndianRupee, ChevronRight, ShieldCheck, Mail, Search } from 'lucide-react';
 import { useAdminClients } from '../../hooks/admin/useAdminConsole';
 import PageGuide from '../../components/admin/PageGuide';
 
@@ -13,6 +13,26 @@ const ONBOARDING_STYLE = {
 export default function ClientsPage() {
   const { data, isLoading } = useAdminClients();
   const navigate = useNavigate();
+  const [query, setQuery] = useState('');
+
+  /**
+   * Find a tenant without scrolling past the other forty-seven.
+   *
+   * This page had no search at all -- it rendered every tenant as a card and left you to
+   * eyeball them, while the Users page beside it has had a search box the whole time. With 48
+   * tenants that is already the slowest way to answer "how is this shop doing"; it does not
+   * get better.
+   *
+   * Matches the workspace id, the contact's name and their email, because those are the three
+   * things somebody arrives holding -- a support email will name one of them.
+   */
+  const clients = (data || []).filter(c => {
+    const q = query.trim().toLowerCase();
+    if (!q) return true;
+    return [c.clientId, c.adminName, c.adminEmail]
+      .filter(Boolean)
+      .some(field => String(field).toLowerCase().includes(q));
+  });
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
@@ -28,14 +48,33 @@ export default function ClientsPage() {
         </p>
       </div>
 
+      {!isLoading && (
+        <div style={{ position: 'relative', maxWidth: '420px' }}>
+          <Search size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+          <input
+            className="input-field"
+            style={{ paddingLeft: '40px' }}
+            placeholder="Search by workspace, contact name, or email..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </div>
+      )}
+
       {isLoading ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '80px 20px', color: 'var(--text-muted)' }}>
           <Loader2 size={32} className="animate-spin" style={{ marginBottom: '16px', color: 'var(--accent-gold)' }} />
           <div style={{ fontSize: '14px', fontWeight: 500 }}>Loading data...</div>
         </div>
       ) : (
+        clients.length === 0 ? (
+          // A grid that simply renders nothing looks like a page that failed to load.
+          <div style={{ padding: '60px 20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '14px' }}>
+            No client matches "{query}".
+          </div>
+        ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
-          {data?.map(client => {
+          {clients.map(client => {
             // Suspension outranks onboarding on this badge. They answer different questions --
             // "how far have they got with setting up" versus "can anyone here sign in at all" --
             // and when the answer to the second is no, it is the one that matters. A suspended
@@ -126,6 +165,7 @@ export default function ClientsPage() {
             );
           })}
         </div>
+        )
       )}
       <PageGuide title="About Clients">
         <p>This tab lists every tenant (boutique) configured in the ScaleEzy platform.</p>

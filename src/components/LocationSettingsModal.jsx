@@ -121,7 +121,14 @@ export function LocationSettingsModal({ variant, onClose, onSaveSuccess }) {
                     <button 
                       onClick={() => handleSave(loc.id)}
                       disabled={savingId === loc.id}
-                      style={{ padding: '8px 12px', borderRadius: '4px', background: 'var(--accent-primary)', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                      style={{
+                        padding: '9px 16px', borderRadius: '999px',
+                        background: 'var(--accent-primary)', color: 'var(--accent-primary-on)',
+                        border: 'none', fontWeight: 600, fontSize: '13.5px', fontFamily: 'inherit',
+                        cursor: savingId === loc.id ? 'wait' : 'pointer',
+                        opacity: savingId === loc.id ? 0.7 : 1,
+                        display: 'flex', alignItems: 'center', gap: '7px', flexShrink: 0
+                      }}
                     >
                       {savingId === loc.id ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
                       Save

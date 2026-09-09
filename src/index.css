@@ -33,6 +33,20 @@
   --brand-ink: #A6D92B;
   --brand-solid: #A6D92B;
   --brand-on-solid: #0B2410;
+
+  /*
+    Used in four places and defined in none, until now.
+
+    An undefined custom property with no fallback makes the whole declaration invalid, and the
+    property then falls back to its inherited or initial value. So `background: var(--accent-primary)`
+    with `color: #fff` rendered white text on no background -- an invisible Save button on the
+    location settings modal -- and `2px solid var(--accent-primary)` left the dashboard's active
+    tab with no underline at all. Nothing errors; the styles simply do not exist.
+
+    Pointed at the brand rather than given its own colour, so there is one accent and not two.
+  */
+  --accent-primary: var(--brand-solid);
+  --accent-primary-on: var(--brand-on-solid);
   --accent-danger: #ef4444;
   --accent-success: #10b981;
   
@@ -68,6 +82,10 @@
   --brand-ink: #164B1E;
   --brand-solid: #164B1E;
   --brand-on-solid: #FFFFFF;
+
+  /* Same reason as the note above. */
+  --accent-primary: var(--brand-solid);
+  --accent-primary-on: var(--brand-on-solid);
   --accent-danger: #ef4444;
   --accent-success: #10b981;
   

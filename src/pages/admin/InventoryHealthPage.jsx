@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Loader2, AlertTriangle } from 'lucide-react';
 import { useAdminClients } from '../../hooks/admin/useAdminConsole';
 import PageGuide from '../../components/admin/PageGuide';
+import { formatINR } from '../../utils/formatUtils';
 
 export default function InventoryHealthPage() {
   const { data, isLoading } = useAdminClients();
@@ -41,7 +42,7 @@ export default function InventoryHealthPage() {
                 >
                   <td style={{ padding: '10px 16px', fontFamily: 'monospace', color: 'var(--accent-gold)' }}>{c.clientId}</td>
                   <td style={{ padding: '10px 16px', color: 'var(--text-secondary)' }}>{c.activeProductCount}</td>
-                  <td style={{ padding: '10px 16px', color: 'var(--text-secondary)' }}>₹{Number(c.inventoryValue).toLocaleString('en-IN')}</td>
+                  <td style={{ padding: '10px 16px', color: 'var(--text-secondary)' }}>{formatINR(c.inventoryValue)}</td>
                   <td style={{ padding: '10px 16px' }}>
                     {c.activeAlertCount > 0 ? (
                       <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'var(--accent-danger)', fontWeight: 600 }}>

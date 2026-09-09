@@ -6,6 +6,7 @@ import { useAdminClient, useAssumeClient } from '../../hooks/admin/useAdminConso
 import ClientDangerZone from '../../components/admin/ClientDangerZone';
 import ClientServiceKeys from '../../components/admin/ClientServiceKeys';
 import UserPasswordManager from '../../components/admin/UserPasswordManager';
+import { formatINR } from '../../utils/formatUtils';
 
 const ONBOARDING_STYLE = {
   NOT_STARTED: { label: 'Not Started', color: 'var(--text-secondary)', bg: 'var(--bg-input)' },
@@ -147,7 +148,7 @@ export default function ClientOverviewPage() {
             <div style={{ background: 'var(--bg-input)', padding: '6px', borderRadius: '6px', color: 'var(--accent-gold)' }}><IndianRupee size={16} /></div> 
             Total Inventory Value
           </div>
-          <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>₹{Number(data.inventoryValue).toLocaleString('en-IN')}</div>
+          <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>{formatINR(data.inventoryValue)}</div>
 
           {/* How much of that number is a guess.
               When a shop never records a unit cost, the valuation falls through to what they

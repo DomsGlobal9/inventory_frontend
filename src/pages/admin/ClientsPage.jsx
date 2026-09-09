@@ -36,7 +36,14 @@ export default function ClientsPage() {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
           {data?.map(client => {
-            const onboarding = ONBOARDING_STYLE[client.onboardingStatus] || ONBOARDING_STYLE.NOT_STARTED;
+            // Suspension outranks onboarding on this badge. They answer different questions --
+            // "how far have they got with setting up" versus "can anyone here sign in at all" --
+            // and when the answer to the second is no, it is the one that matters. A suspended
+            // tenant used to be indistinguishable from a working one on this page: same card,
+            // same "In Progress" badge, same user count, and the word suspended nowhere.
+            const onboarding = client.suspended
+              ? { label: 'Suspended', color: 'var(--accent-danger)', bg: 'rgba(239, 68, 68, 0.1)' }
+              : (ONBOARDING_STYLE[client.onboardingStatus] || ONBOARDING_STYLE.NOT_STARTED);
             
             return (
               <div
@@ -109,6 +116,7 @@ export default function ClientsPage() {
                 <div style={{ padding: '12px 16px', borderTop: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-input)' }}>
                    <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
                       {client.userCount} user{client.userCount !== 1 ? 's' : ''}
+                      {client.suspended && ' — none can sign in'}
                    </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 500, color: 'var(--text-secondary)' }}>
                     View details <ChevronRight size={14} />

@@ -80,7 +80,7 @@ export default function LeadsPage() {
         <Inbox size={22} color="var(--accent-gold)" /> Leads
       </h1>
       <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginBottom: '24px' }}>
-        Signup enquiries from the public site. Nothing is provisioned until you convert one -- contact them first, then create their workspace here.
+        Signup enquiries from the public site. Nothing is provisioned until you convert one — contact them first, then create their workspace here.
       </p>
 
       {credentials && (

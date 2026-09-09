@@ -127,10 +127,13 @@ export default function SalesOrderDetail() {
                     // or just use fulfilledQty for dispatched. We assume fulfilledQty exists or we use reservations.
                     // For Sprint 4, we use fulfilledQty which we should be maintaining. Wait, did we add fulfilledQty update?
                     // The schema has fulfilledQty. We can just use item.fulfilledQty for UI, but wait, the backend doesn't update fulfilledQty yet!
-                    // Let's use the reservations data if it's there. The backend includes items, but not items.reservations.
-                    // Actually, the user's schema has `fulfilledQty` on SalesOrderItem, but we didn't update it in DispatchService.
-                    // For now, let's just show what we have. If we need to, we can just show item.fulfilledQty.
-                    // Actually, we didn't update item.fulfilledQty in DispatchService. We should have. Let's just show it.
+                    // fulfilledQty is the single source for both columns here: DISPATCHED is
+                    // this number, RESERVED is the ordered quantity minus it. DispatchService
+                    // does maintain it -- verified against the database, where dispatching one
+                    // of two moved the line to fulfilledQty 1 and the order to
+                    // PARTIALLY_DISPATCHED. (The notes previously here said it did not, which
+                    // was wrong and would have sent the next reader looking for a bug that is
+                    // not there.)
                     return (
                     <tr key={item.id} style={{ borderBottom: '1px solid var(--border-light)' }}>
                       <td style={{ padding: '16px 24px', fontWeight: '500' }}>{item.variant?.sku}</td>

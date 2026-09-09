@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, CheckCircle, AlertTriangle, Box, Truck, Edit3 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { api } from '../../lib/api';
 import { usePermission } from '../../hooks/usePermission';
 import { invalidateDerivedViews } from '../../lib/invalidate';
@@ -33,28 +34,79 @@ export default function ReturnDetail() {
     invalidateDerivedViews(queryClient);
   };
 
+  const RETURN_KEY = ['return', id];
+
+  /**
+   * Move the return on screen now, and hand back what to restore if the server disagrees.
+   *
+   * A return is walked through in three presses -- received, inspected, completed -- and each
+   * one was measured at fifteen to twenty seconds before the screen changed, because each
+   * waited for the round trip and then a refetch on top of it. Three presses, a minute of a
+   * screen that looks like it ignored you, on the desk where somebody is working through a
+   * pile of returned parcels.
+   *
+   * The status and the dispositions are the person's own decision being echoed back, so there
+   * is nothing to guess. What a completed return does to STOCK is left to the server and
+   * refetched: restocking is a real inventory movement and belongs to whoever does the
+   * arithmetic, not to this screen.
+   */
+  const patchReturn = (patch) => {
+    const previous = queryClient.getQueryData(RETURN_KEY);
+    queryClient.setQueryData(RETURN_KEY, (old) => {
+      if (!old?.data) return old;
+      const next = typeof patch === 'function' ? patch(old.data) : patch;
+      return { ...old, data: { ...old.data, ...next } };
+    });
+    return previous;
+  };
+
+  // None of these had an onError at all, so a refusal changed nothing on screen and said
+  // nothing -- the only difference between "still saving" and "quietly failed" was patience.
+  const undo = (previous, error, fallback) => {
+    if (previous !== undefined) queryClient.setQueryData(RETURN_KEY, previous);
+    toast.error(error?.message || fallback);
+  };
+
   const receiveMutation = useMutation({
     mutationFn: async () => {
       return api.post(`/returns/${id}/receive`);
     },
-    onSuccess: () => refreshReturn()
+    onMutate: () => ({ previous: patchReturn({ status: 'RECEIVED' }) }),
+    onError: (error, _v, context) => undo(context?.previous, error, 'Could not mark this return as received.'),
+    onSettled: () => refreshReturn()
   });
 
   const inspectMutation = useMutation({
     mutationFn: async (dispositions) => {
       return api.post(`/returns/${id}/inspect`, { itemsDisposition: dispositions });
     },
-    onSuccess: () => {
-      refreshReturn();
-      setInspectModalOpen(false);
-    }
+    onMutate: (dispositions) => {
+      const chosen = new Map((dispositions || []).map(d => [d.salesReturnItemId, d.disposition]));
+      return {
+        previous: patchReturn((ret) => ({
+          status: 'INSPECTED',
+          items: (ret.items || []).map(item =>
+            chosen.has(item.id) ? { ...item, disposition: chosen.get(item.id) } : item
+          )
+        }))
+      };
+    },
+    onError: (error, _v, context) => {
+      undo(context?.previous, error, 'Could not save those decisions.');
+      // Reopened so the decisions are still there to correct, rather than lost to a closed modal.
+      setInspectModalOpen(true);
+    },
+    onSuccess: () => setInspectModalOpen(false),
+    onSettled: () => refreshReturn()
   });
 
   const completeMutation = useMutation({
     mutationFn: async () => {
       return api.post(`/returns/${id}/complete`);
     },
-    onSuccess: () => refreshReturn()
+    onMutate: () => ({ previous: patchReturn({ status: 'COMPLETED', completedAt: new Date().toISOString() }) }),
+    onError: (error, _v, context) => undo(context?.previous, error, 'Could not complete this return.'),
+    onSettled: () => refreshReturn()
   });
 
   if (isLoading) {

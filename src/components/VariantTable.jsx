@@ -13,6 +13,22 @@ import { useAuth } from '../context/AuthContext';
 import VariantSuppliersPanel from './VariantSuppliersPanel';
 import PageLoader from './PageLoader';
 
+/**
+ * Sub-text under a money box, holding its line whether or not there is anything to say.
+ *
+ * Table cells centre what is in them. A cell with a note is taller than one without, so the
+ * boxes in a row sat at different heights depending on which notes applied -- the cost box
+ * high because it explains itself, the price box low because it usually does not.
+ */
+const CellNote = ({ children, color }) => (
+  <span style={{
+    fontSize: '10px', lineHeight: '14px', minHeight: '14px', display: 'block',
+    color: color || 'var(--text-muted)'
+  }}>
+    {children || '\u00a0'}
+  </span>
+);
+
 export default function VariantTable({ productId, productName, productBasePrice, highlightVariantId }) {
   // Stamped into the barcode-label PDF metadata; must be the real tenant.
   const { clientId } = useAuth();
@@ -684,7 +700,7 @@ export default function VariantTable({ productId, productName, productBasePrice,
                         {status.label}
                       </span>
                     </td>
-                    <td>
+                    <td style={{ verticalAlign: 'top' }}>
                       {(() => {
                         const cost = effectiveCostOf(v);
                         const costDirty = isCostDirty(v);
@@ -721,16 +737,14 @@ export default function VariantTable({ productId, productName, productBasePrice,
                                 </>
                               )}
                             </div>
-                            {cost.value > 0 && (
-                              <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
-                                using ₹{cost.value.toFixed(2)} ({cost.source})
-                              </span>
-                            )}
+                            <CellNote>
+                              {cost.value > 0 ? `based on ₹${cost.value.toFixed(2)} — ${cost.source}` : ''}
+                            </CellNote>
                           </div>
                         );
                       })()}
                     </td>
-                    <td>
+                    <td style={{ verticalAlign: 'top' }}>
                       {(() => {
                         const cost = effectiveCostOf(v);
                         const pctValue = profitInputs[v.id] ?? '';
@@ -754,14 +768,12 @@ export default function VariantTable({ productId, productName, productBasePrice,
                               />
                               <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>%</span>
                             </div>
-                            {cost.value <= 0 && (
-                              <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>need a cost</span>
-                            )}
+                            <CellNote>{cost.value <= 0 ? 'needs what you paid' : ''}</CellNote>
                           </div>
                         );
                       })()}
                     </td>
-                    <td>
+                    <td style={{ verticalAlign: 'top' }}>
                       {(() => {
                         const dirty = isPriceDirty(v);
                         const shownValue = priceDrafts[v.id] !== undefined ? priceDrafts[v.id] : savedPriceOf(v);
@@ -821,21 +833,17 @@ export default function VariantTable({ productId, productName, productBasePrice,
                         const override = locationPriceOf(v);
                         const setting = locationSettingFor(v);
                         const unavailable = setting && setting.isAvailable === false;
-                        if (override === null && !unavailable) return null;
-                        return (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', marginTop: '4px' }}>
-                            {override !== null && (
-                              <span style={{ fontSize: '10px', color: 'var(--accent-gold)' }}>
-                                {currentLocation?.name || 'This location'} sells at ₹{override.toFixed(2)}
-                              </span>
-                            )}
-                            {unavailable && (
-                              <span style={{ fontSize: '10px', color: 'var(--accent-danger, #ef4444)' }}>
-                                Not sold at {currentLocation?.name || 'this location'}
-                              </span>
-                            )}
-                          </div>
-                        );
+                        if (unavailable) {
+                          return <CellNote color="var(--accent-danger, #ef4444)">
+                            Not sold at {currentLocation?.name || 'this location'}
+                          </CellNote>;
+                        }
+                        if (override !== null) {
+                          return <CellNote color="var(--brand-ink)">
+                            {currentLocation?.name || 'This location'} sells at ₹{override.toFixed(2)}
+                          </CellNote>;
+                        }
+                        return <CellNote />;
                       })()}
                     </td>
                     <td>

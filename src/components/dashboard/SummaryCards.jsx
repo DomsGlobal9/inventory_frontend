@@ -5,9 +5,11 @@ import SummaryCard from './SummaryCard';
 import { formatINR, formatNumber } from '../../utils/formatUtils';
 import WidgetSkeleton from './WidgetSkeleton';
 import { useNavigate } from 'react-router-dom';
+import { useLocationContext } from '../../contexts/LocationContext';
 
 export default function SummaryCards({ data, isLoading, isError }) {
   const navigate = useNavigate();
+  const { currentLocation } = useLocationContext();
   if (isLoading) {
     return (
       <div className="dashboard-grid">
@@ -42,7 +44,17 @@ export default function SummaryCards({ data, isLoading, isError }) {
 
   const cards = [
     {
-      title: "Inventory Value",
+      // Named for what it covers, not just "Inventory Value".
+      //
+      // The figure is scoped to the location chosen at the top of the screen, which is right
+      // for someone standing in that shop -- but the title said "Inventory Value", so it read
+      // as the whole business. A shop with two locations saw 20,73,986 here while the platform
+      // console showed 41,47,972, and both were correct. That is the worst kind of
+      // disagreement: nothing is broken, so there is nothing to find, and the merchant is left
+      // believing one of their screens is lying.
+      title: currentLocation && safeData?.companyWideValue != null
+        ? `Inventory Value · ${currentLocation.name}`
+        : "Inventory Value",
       value: formatINR(safeData?.inventoryValue),
       // Two different ways this number can mislead, and the shopkeeper is told which applies.
       // Nothing known at all means the stock counts as ₹0 and a full shelf looks like an empty
@@ -56,6 +68,12 @@ export default function SummaryCards({ data, isLoading, isError }) {
           ? `${formatNumber(safeData.unitsValuedAtPrice)} units are valued at their selling price ` +
             `because no cost was recorded. Add a unit cost when you stock in for a truer figure.`
           : null,
+      // Shown only when it says something the headline does not: a location is selected and
+      // the shop has more than one. Without it there is nowhere in the merchant's own app that
+      // their whole business's stock value appears.
+      secondaryNote: safeData?.companyWideValue != null
+        ? `${formatINR(safeData.companyWideValue)} across all locations`
+        : null,
       icon: IndianRupee,
       colorClass: '#3b82f6',
       bgColorClass: 'rgba(59, 130, 246, 0.1)',
@@ -108,6 +126,7 @@ export default function SummaryCards({ data, isLoading, isError }) {
             title={card.title}
             value={card.value}
             note={card.note}
+            secondaryNote={card.secondaryNote}
             icon={card.icon}
             colorClass={card.colorClass}
             bgColorClass={card.bgColorClass}

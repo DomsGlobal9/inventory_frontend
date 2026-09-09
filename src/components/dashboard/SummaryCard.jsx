@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-export default function SummaryCard({ title, value, note, icon: Icon, colorClass, bgColorClass, onClick }) {
+export default function SummaryCard({ title, value, note, secondaryNote, icon: Icon, colorClass, bgColorClass, onClick }) {
   return (
     <motion.div 
       className="stat-card" 
@@ -42,6 +42,13 @@ export default function SummaryCard({ title, value, note, icon: Icon, colorClass
           {note && (
             <p style={{ margin: '6px 0 0', fontSize: '11.5px', color: 'var(--text-muted, var(--text-secondary))', lineHeight: 1.4 }}>
               {note}
+            </p>
+          )}
+          {/* A second fact about the same figure, not a caveat about it -- so it gets its own
+              line rather than being appended to the sentence above. */}
+          {secondaryNote && (
+            <p style={{ margin: '4px 0 0', fontSize: '11.5px', color: 'var(--text-secondary)', lineHeight: 1.4, fontWeight: 500 }}>
+              {secondaryNote}
             </p>
           )}
         </div>

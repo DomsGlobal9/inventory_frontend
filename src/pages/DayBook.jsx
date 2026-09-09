@@ -241,6 +241,20 @@ export default function DayBook() {
             <Stat label="Profit" value={money(d.sales.grossProfit)}
               tone={d.sales.grossProfit >= 0 ? 'good' : 'bad'} />
           </div>
+          {/* Said plainly, because the alternative is a merchant believing they made 5,000
+              profit on a 5,000 sale. Stock that was never costed contributes nothing to "what
+              it cost you", so its entire selling price sits in the profit above. */}
+          {d.sales.unitsSoldWithoutCost > 0 && (
+            <div style={{
+              margin: '0 20px 18px', padding: '10px 14px', borderRadius: '8px',
+              background: 'var(--bg-input)', border: '1px solid var(--border-light)',
+              fontSize: '13px', color: 'var(--text-secondary)'
+            }}>
+              This profit is higher than the real one. {num(d.sales.unitsSoldWithoutCost)} of the
+              units sold had no cost recorded, so their full selling price is counted as profit.
+              Add a cost price to those items to see the true figure.
+            </div>
+          )}
           {d.sales.orders.length > 0 && (
             <SimpleTable
               head={['Dispatch', 'Order', 'Customer', 'Units', 'Value']}

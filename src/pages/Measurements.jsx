@@ -187,15 +187,18 @@ export default function Measurements() {
               reordering could not suggest who to buy from. */}
           <div style={{ width: '200px' }}>
             <label className="input-label">Supplier</label>
+            {/* This Select builds its list from <option> CHILDREN and hands onChange a mock
+                event, not a bare value -- passing it an options array rendered an empty
+                dropdown that still looked correct on the page. */}
             <Select
               value={productData.supplierId}
-              onChange={(value) => updateProductData('supplierId', value)}
-              options={[
-                { value: '', label: 'Not from a supplier' },
-                ...suppliers.map(sup => ({ value: sup.id, label: sup.name }))
-              ]}
-              placeholder="Who you buy this from"
-            />
+              onChange={(e) => updateProductData('supplierId', e.target.value)}
+            >
+              <option value="">Not from a supplier</option>
+              {suppliers.map(sup => (
+                <option key={sup.id} value={sup.id}>{sup.name}</option>
+              ))}
+            </Select>
             <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
               Optional — lets you reorder without retyping
             </div>

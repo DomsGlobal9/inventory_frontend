@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local environment. Never commit these -- this file was tracked until 2026-09-11,
+# which published a Supabase anon key to the repository.
+.env
+.env.local
+.env.*.local
+!.env.example

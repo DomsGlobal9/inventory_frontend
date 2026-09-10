@@ -199,7 +199,10 @@ export const useDeleteVariant = (productId: string) => {
       toast.success('Variant deleted successfully');
     },
     onError: (error: any) => {
-      const msg = error.response?.data?.message || error.message || 'Failed to delete variant';
+      // error.response never exists here -- the interceptor rejects with the body -- so the
+      // axios-shaped lookup was dead code that only survived because the fallback caught it.
+      // Removed rather than left: it is the shape people copy from.
+      const msg = error?.message || 'Failed to delete variant';
       toast.error(msg);
     }
   });

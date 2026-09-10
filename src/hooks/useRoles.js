@@ -21,8 +21,22 @@ export const usePermissionCatalogue = () => useQuery({
   staleTime: 10 * 60 * 1000
 });
 
+/**
+ * `error.message`, not `error.response.data.message`.
+ *
+ * lib/api.ts's interceptor rejects with the already-unwrapped response BODY, so `error` IS
+ * `{ success, message }` and `error.response` does not exist. Reaching for the axios shape
+ * therefore always returned undefined and fell through to the generic fallback -- so the roles
+ * screen could only ever say "Could not create the role", never the reason.
+ *
+ * Which is the worst place to lose it. The role service refuses with sentences written to be
+ * read: "You cannot give a role something you do not have yourself: See cost prices", or
+ * "Total access cannot be granted from this screen." Those explain what to do instead; the
+ * fallback explains nothing. The same trap is written up in useSalesOrders.js, which had it
+ * fixed already.
+ */
 const onError = (fallback) => (error) =>
-  toast.error(error?.response?.data?.message || fallback);
+  toast.error(error?.message || fallback);
 
 export const useCreateRole = () => {
   const qc = useQueryClient();

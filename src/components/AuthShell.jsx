@@ -163,6 +163,24 @@ export default function AuthShell({ eyebrow, title, subtitle, points = [], child
           box-shadow: 0 40px 80px -40px rgba(0,0,0,.45), 0 2px 10px rgba(0,0,0,.05);
         }
         .auth-foot { margin: 22px 0 0; font-size: 14.5px; color: var(--text-secondary); text-align: center; }
+        /**
+         * A thumb-sized target without a thumb-sized link.
+         *
+         * "Sign in" here measured 20px tall on a 320px phone -- and it is the ONLY way from
+         * this page to the other one, so somebody who opened the wrong form has one small word
+         * to hit. The padding grows the tap area to 44px, the negative margin takes the space
+         * back out of the layout, so it reads exactly as before and is twice as easy to hit.
+         *
+         * The app already applies a 44px minimum to buttons and sidebar links below 768px; the
+         * signed-out pages were never included.
+         */
+        .auth-foot a {
+          display: inline-block;
+          padding: 12px 6px;
+          margin: -12px 0;
+          font-weight: 600;
+          color: var(--brand-ink);
+        }
 
         .auth-field:focus {
           border-color: var(--brand-ink) !important;

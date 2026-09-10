@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Loader2, Inbox, Mail, Phone, Building2, Check, Copy, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAdminLeads, useUpdateLead, useConvertLead } from '../../hooks/admin/useAdminConsole';
+import ConfirmModal from '../../components/ConfirmModal';
 
 const STATUSES = ['NEW', 'CONTACTED', 'QUALIFIED', 'CONVERTED', 'REJECTED'];
 
@@ -25,6 +26,8 @@ export default function LeadsPage() {
   const [expandedId, setExpandedId] = useState(null);
   const [noteDrafts, setNoteDrafts] = useState({});
   const [credentials, setCredentials] = useState(null);
+  // The lead awaiting a yes on the convert dialog, or null.
+  const [leadToConvert, setLeadToConvert] = useState(null);
 
   const { data, isLoading } = useAdminLeads({ status: statusFilter || undefined, search: search || undefined, page });
   const updateLead = useUpdateLead();
@@ -40,16 +43,21 @@ export default function LeadsPage() {
   const changeFilter = (next) => { setStatusFilter(next); setPage(1); };
   const changeSearch = (next) => { setSearch(next); setPage(1); };
 
-  const handleConvert = (lead) => {
-    // Converting provisions a real workspace and issues credentials -- not something to do
-    // by mis-clicking a row, so it is confirmed explicitly.
-    const ok = window.confirm(
-      `Create a workspace for "${lead.companyName}" and generate login credentials for ${lead.email}?`
-    );
-    if (!ok) return;
+  /**
+   * Converting provisions a real workspace and issues credentials -- not something to do by
+   * mis-clicking a row, so it is confirmed explicitly.
+   *
+   * This was window.confirm(). The browser's box is titled with the bare hostname, ignores
+   * the console's styling entirely, and freezes the tab until answered -- and because it is
+   * synchronous, provisioning only began after it closed, so an admin creating a workspace
+   * watched a still screen with no sign the work had started. ConfirmModal awaits the
+   * mutation instead, showing "Working..." until the workspace exists.
+   */
+  const handleConvert = (lead) => setLeadToConvert(lead);
 
-    convertLead.mutate({ id: lead.id }, {
-      onSuccess: (res) => {
+  const runConvert = async () => {
+    const lead = leadToConvert;
+    return convertLead.mutateAsync({ id: lead.id }).then((res) => {
         // `res` is already the payload: lib/api.ts's response interceptor returns
         // response.data (the {success, data} envelope) and the hook's mutationFn takes .data
         // off that. Reaching for res.data here again yielded undefined, and the panel
@@ -59,7 +67,6 @@ export default function LeadsPage() {
         // Clients -> this client -> view password, which the panel says.
         setCredentials({ ...res, companyName: lead.companyName });
         toast.success(`Workspace "${res.clientId}" created`);
-      }
     });
   };
 
@@ -327,6 +334,18 @@ export default function LeadsPage() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={!!leadToConvert}
+        onClose={() => setLeadToConvert(null)}
+        onConfirm={runConvert}
+        title="Create this workspace?"
+        message={leadToConvert
+          ? `A workspace will be created for "${leadToConvert.companyName}" and login credentials issued to ${leadToConvert.email}. The password is shown once, here.`
+          : ''}
+        confirmText="Create workspace"
+        confirmStyle="primary"
+      />
     </div>
   );
 }

@@ -8,6 +8,7 @@ import { useDayBook } from '../hooks/useDayBook';
 import { useLocationContext } from '../contexts/LocationContext';
 import { useAuth } from '../context/AuthContext';
 import { buildWhatsAppUrl } from '../utils/whatsappUtils';
+import toast from 'react-hot-toast';
 import { pdf } from '@react-pdf/renderer';
 import DayBookPDF from '../components/DayBookPDF';
 
@@ -115,7 +116,10 @@ export default function DayBook() {
       a.remove();
     } catch (err) {
       console.error('Day book PDF failed', err);
-      alert('Could not build the PDF. Please try again.');
+      // A toast, not alert(): the native box is a grey system dialog that does not belong to
+      // this app, and it blocks the whole tab until it is dismissed -- for a message that only
+      // needs to be read.
+      toast.error('Could not build the PDF. Please try again.');
     } finally {
       // Revoking immediately can cancel the download in some browsers, so it is deferred.
       if (url) setTimeout(() => URL.revokeObjectURL(url), 10000);

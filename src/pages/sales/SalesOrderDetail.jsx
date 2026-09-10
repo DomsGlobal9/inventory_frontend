@@ -7,6 +7,8 @@ import { usePermission } from '../../hooks/usePermission';
 import { formatINR } from '../../utils/formatUtils';
 
 import PageLoader from '../../components/PageLoader';
+import ConfirmModal from '../../components/ConfirmModal';
+import toast from 'react-hot-toast';
 
 export default function SalesOrderDetail() {
   const { id } = useParams();
@@ -19,23 +21,43 @@ export default function SalesOrderDetail() {
 
   const [isDispatching, setIsDispatching] = useState(false);
   const [dispatchQuantities, setDispatchQuantities] = useState({});
+  // Which irreversible action is waiting on a yes: 'confirm', 'cancel', or none.
+  // One piece of state rather than a boolean each, because the two can never be open at once
+  // and a single value cannot drift into a state where both are true.
+  const [pendingAction, setPendingAction] = useState(null);
 
   if (isLoading) {
     return <PageLoader text="LOADING ORDERS..." />;
   }
   if (!order) return <div style={{ padding: '48px', textAlign: 'center', color: 'red' }}>Order not found</div>;
 
-  const handleConfirmOrder = () => {
-    if (window.confirm("Are you sure you want to confirm this order? This will reserve inventory stock.")) {
-      confirmMutation.mutate(id);
+  /**
+   * Both of these used to be window.confirm(). Three things were wrong with that: the box is
+   * the browser's, so it carries the site's bare hostname and none of this app's design; it
+   * freezes the entire tab until answered; and because confirm() is synchronous the mutation
+   * fired only after it closed, leaving the user on an unchanged screen with no indication
+   * anything had started -- for an action that reserves or releases real stock.
+   *
+   * ConfirmModal awaits the mutation, so the button says "Working..." while the request is in
+   * flight and the dialog stays open if it fails.
+   */
+  const ACTIONS = {
+    confirm: {
+      title: 'Confirm this order?',
+      message: 'Inventory stock will be reserved against this order and will no longer be available to sell elsewhere.',
+      confirmText: 'Confirm order',
+      confirmStyle: 'primary',
+      run: () => confirmMutation.mutateAsync(id)
+    },
+    cancel: {
+      title: 'Cancel this order?',
+      message: 'All stock reserved for this order will be released back into available inventory. This cannot be undone.',
+      confirmText: 'Cancel order',
+      confirmStyle: 'danger',
+      run: () => cancelMutation.mutateAsync(id)
     }
   };
-
-  const handleCancelOrder = () => {
-    if (window.confirm("Are you sure you want to cancel this order? All reserved stock will be released.")) {
-      cancelMutation.mutate(id);
-    }
-  };
+  const action = pendingAction ? ACTIONS[pendingAction] : null;
 
   // What's left to ship on a line. Every quantity shown on this page used to be the full
   // ordered qty regardless of what had already gone out, so after a partial dispatch the
@@ -63,7 +85,7 @@ export default function SalesOrderDetail() {
     });
 
     if (itemsToDispatch.length === 0) {
-      alert("Please enter a quantity greater than 0 for at least one item.");
+      toast.error('Enter a quantity greater than 0 for at least one item.');
       return;
     }
 
@@ -195,7 +217,7 @@ export default function SalesOrderDetail() {
                   <button
                     className="btn-primary"
                     style={{ width: '100%', padding: '12px', fontSize: '15px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}
-                    onClick={handleConfirmOrder}
+                    onClick={(() => setPendingAction('confirm'))}
                     disabled={confirmMutation.isPending || order.items?.length === 0}
                   >
                     {confirmMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle size={18} />}
@@ -224,7 +246,7 @@ export default function SalesOrderDetail() {
                   <button
                     className="btn-secondary"
                     style={{ width: '100%', padding: '12px', fontSize: '15px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', color: 'var(--accent-danger)', borderColor: 'var(--accent-danger)' }}
-                    onClick={handleCancelOrder}
+                    onClick={(() => setPendingAction('cancel'))}
                     disabled={cancelMutation.isPending}
                   >
                     {cancelMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : <XCircle size={18} />}
@@ -307,6 +329,16 @@ export default function SalesOrderDetail() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={!!action}
+        onClose={() => setPendingAction(null)}
+        onConfirm={() => action.run()}
+        title={action?.title}
+        message={action?.message}
+        confirmText={action?.confirmText}
+        confirmStyle={action?.confirmStyle}
+      />
 
     </div>
   );

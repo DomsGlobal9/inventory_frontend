@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Loader2, Star, Trash2, Phone, Truck, PackageCheck } from 'lucide-react';
 import {
   useVariantSuppliers,
@@ -6,6 +6,7 @@ import {
   useUnlinkSupplierProduct
 } from '../hooks/useSuppliers';
 import { toWhatsAppNumber } from '../utils/whatsappUtils';
+import ConfirmModal from './ConfirmModal';
 
 /**
  * Answers "who do we buy this item from?" for one variant.
@@ -22,6 +23,8 @@ export default function VariantSuppliersPanel({ variantId, sku }) {
   const { data: links = [], isLoading } = useVariantSuppliers(variantId);
   const setPreferred = useSetPreferredSupplier();
   const unlink = useUnlinkSupplierProduct();
+  // The link awaiting a yes on the remove dialog, or null.
+  const [linkToRemove, setLinkToRemove] = useState(null);
 
   if (isLoading) {
     return (
@@ -133,13 +136,9 @@ export default function VariantSuppliersPanel({ variantId, sku }) {
                 className="btn-icon"
                 title={`Remove ${link.supplier?.name} as a supplier of this item`}
                 disabled={unlink.isPending}
-                onClick={() => {
-                  // Removing a source is not destructive to any order already placed, but it
-                  // does change what gets suggested later, so it is confirmed.
-                  if (window.confirm(`Remove ${link.supplier?.name} as a supplier of this item?`)) {
-                    unlink.mutate(link.id);
-                  }
-                }}
+                // Removing a source is not destructive to any order already placed, but it
+                // does change what gets suggested later, so it is confirmed.
+                onClick={() => setLinkToRemove({ id: link.id, name: link.supplier?.name })}
                 style={{ color: 'var(--accent-danger)' }}
               >
                 <Trash2 size={14} />
@@ -148,6 +147,18 @@ export default function VariantSuppliersPanel({ variantId, sku }) {
           </div>
         );
       })}
+
+      <ConfirmModal
+        isOpen={!!linkToRemove}
+        onClose={() => setLinkToRemove(null)}
+        onConfirm={() => unlink.mutateAsync(linkToRemove.id)}
+        title="Remove this supplier?"
+        message={linkToRemove
+          ? `${linkToRemove.name || 'This supplier'} will no longer be listed as a source for ${sku || 'this item'}. Orders already placed are unaffected.`
+          : ''}
+        confirmText="Remove"
+        confirmStyle="danger"
+      />
     </div>
   );
 }

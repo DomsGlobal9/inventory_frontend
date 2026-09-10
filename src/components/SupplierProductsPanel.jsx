@@ -6,6 +6,7 @@ import {
   useSetPreferredSupplier,
   useUnlinkSupplierProduct
 } from '../hooks/useSuppliers';
+import ConfirmModal from './ConfirmModal';
 
 /**
  * What we buy from one supplier.
@@ -23,6 +24,9 @@ export default function SupplierProductsPanel({ supplierId, supplierName }) {
   const { data: links = [], isLoading } = useSupplierProducts(supplierId, search || undefined);
   const setPreferred = useSetPreferredSupplier();
   const unlink = useUnlinkSupplierProduct();
+  // The link awaiting a yes on the remove dialog, or null. Holds the whole row so the
+  // dialog can name the item after the table behind it has re-rendered.
+  const [linkToRemove, setLinkToRemove] = useState(null);
   const navigate = useNavigate();
 
   const stockOf = (variant) =>
@@ -148,11 +152,7 @@ export default function SupplierProductsPanel({ supplierId, supplierName }) {
                           title="Remove this item from the supplier"
                           disabled={unlink.isPending}
                           style={{ color: 'var(--accent-danger)' }}
-                          onClick={() => {
-                            if (window.confirm(`Remove ${variant.sku} from ${supplierName || 'this supplier'}?`)) {
-                              unlink.mutate(link.id);
-                            }
-                          }}
+                          onClick={() => setLinkToRemove({ id: link.id, sku: variant.sku })}
                         >
                           <Trash2 size={14} />
                         </button>
@@ -165,6 +165,18 @@ export default function SupplierProductsPanel({ supplierId, supplierName }) {
           </table>
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={!!linkToRemove}
+        onClose={() => setLinkToRemove(null)}
+        onConfirm={() => unlink.mutateAsync(linkToRemove.id)}
+        title="Remove this item?"
+        message={linkToRemove
+          ? `${linkToRemove.sku} will no longer be listed as something you buy from ${supplierName || 'this supplier'}. The item itself is not affected.`
+          : ''}
+        confirmText="Remove"
+        confirmStyle="danger"
+      />
     </div>
   );
 }

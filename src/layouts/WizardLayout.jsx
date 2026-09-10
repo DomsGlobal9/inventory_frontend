@@ -38,7 +38,7 @@ export default function WizardLayout({ title, subtitle }) {
               gap: 16px;
               position: sticky;
               top: 0;
-              background: var(--bg-body);
+              background: var(--bg-card);
               z-index: 10;
               margin-top: -16px;
               padding-top: 16px;

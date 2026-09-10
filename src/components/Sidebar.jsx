@@ -122,7 +122,7 @@ export default function Sidebar({ isOpen }) {
         <div style={{ 
           display: 'flex', alignItems: 'center', gap: '10px', 
           padding: '8px', borderRadius: '12px',
-          backgroundColor: 'var(--bg-body)', 
+          backgroundColor: 'var(--bg-card)', 
           border: '1px solid var(--border-light)',
           transition: 'all 0.2s'
         }}>

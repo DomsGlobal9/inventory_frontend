@@ -80,7 +80,7 @@ const CustomerModal = ({ isOpen, onClose, customer }) => {
 
   return (
     <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-      <div style={{ background: 'var(--surface)', borderRadius: '12px', width: '500px', maxWidth: '90vw', boxShadow: 'var(--shadow-lg)' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: '12px', width: '500px', maxWidth: '90vw', boxShadow: 'var(--shadow-modal)' }}>
         
         <div style={{ padding: '24px', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>

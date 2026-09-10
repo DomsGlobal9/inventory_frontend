@@ -535,7 +535,7 @@ tr:hover td {
     left: 0;
     top: 0;
     bottom: 0;
-    background: var(--bg-body);
+    background: var(--bg-card);
     box-shadow: 2px 0 12px rgba(0,0,0,0.1);
     transform: translateX(-100%);
     transition: transform 0.3s ease;
@@ -616,7 +616,7 @@ tr:hover td {
     position: sticky;
     left: 0;
     z-index: 2;
-    background: var(--bg-surface);
+    background: var(--bg-card);
     border-right: 1px solid var(--border-light);
   }
 
@@ -631,7 +631,7 @@ tr:hover td {
   .mobile-sticky-footer {
     position: sticky;
     bottom: 0;
-    background: var(--bg-surface);
+    background: var(--bg-card);
     padding: 16px;
     margin: 16px -16px -16px -16px;
     border-top: 1px solid var(--border-light);

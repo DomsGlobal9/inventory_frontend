@@ -246,7 +246,7 @@ export default function PlatformAdminsPage() {
       )}
 
       {showForm && (
-        <form onSubmit={submit} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '16px', padding: '24px', marginBottom: '32px', boxShadow: 'var(--shadow-sm)' }}>
+        <form onSubmit={submit} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '16px', padding: '24px', marginBottom: '32px', boxShadow: 'var(--shadow-panel)' }}>
           <h3 style={{ margin: '0 0 20px', fontSize: '18px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <UserPlus size={18} color="var(--accent-gold)" /> Add a new platform admin
           </h3>
@@ -302,11 +302,11 @@ export default function PlatformAdminsPage() {
               gap: '24px',
               position: 'relative',
               overflow: 'hidden',
-              boxShadow: 'var(--shadow-sm)',
+              boxShadow: 'var(--shadow-panel)',
               transition: 'transform 0.2s, box-shadow 0.2s'
             }}
-            onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = 'var(--shadow-md)'; }}
-            onMouseOut={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'var(--shadow-sm)'; }}
+            onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = 'var(--shadow-dropdown)'; }}
+            onMouseOut={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'var(--shadow-panel)'; }}
             >
               {/* Left Status Border Indicator */}
               <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: '4px', background: admin.status === 'ACTIVE' ? 'var(--accent-success)' : 'var(--text-muted)' }} />

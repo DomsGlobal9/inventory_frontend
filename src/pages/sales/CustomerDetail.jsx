@@ -173,12 +173,12 @@ export default function CustomerDetail() {
           <div style={{ display: 'flex', borderBottom: '1px solid var(--border-light)', gap: '32px' }}>
             <button 
               onClick={() => setActiveTab('orders')}
-              style={{ padding: '12px 0', border: 'none', background: 'transparent', borderBottom: activeTab === 'orders' ? '2px solid var(--primary)' : '2px solid transparent', color: activeTab === 'orders' ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: '500', fontSize: '15px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+              style={{ padding: '12px 0', border: 'none', background: 'transparent', borderBottom: activeTab === 'orders' ? '2px solid var(--accent-primary)' : '2px solid transparent', color: activeTab === 'orders' ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: '500', fontSize: '15px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
               <ShoppingBag size={18} /> Sales Orders
             </button>
             <button 
               onClick={() => setActiveTab('dispatches')}
-              style={{ padding: '12px 0', border: 'none', background: 'transparent', borderBottom: activeTab === 'dispatches' ? '2px solid var(--primary)' : '2px solid transparent', color: activeTab === 'dispatches' ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: '500', fontSize: '15px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+              style={{ padding: '12px 0', border: 'none', background: 'transparent', borderBottom: activeTab === 'dispatches' ? '2px solid var(--accent-primary)' : '2px solid transparent', color: activeTab === 'dispatches' ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: '500', fontSize: '15px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
               <Truck size={18} /> Dispatches
             </button>
           </div>
@@ -194,7 +194,7 @@ export default function CustomerDetail() {
               customer.salesOrders && customer.salesOrders.length > 0 ? (
                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                   <thead>
-                    <tr style={{ backgroundColor: 'var(--surface-hover)' }}>
+                    <tr style={{ backgroundColor: 'var(--bg-hover)' }}>
                       <th style={{ padding: '12px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px' }}>ORDER #</th>
                       <th style={{ padding: '12px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px' }}>DATE</th>
                       <th style={{ padding: '12px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px' }}>STATUS</th>
@@ -254,7 +254,7 @@ export default function CustomerDetail() {
                 return (
                   <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                     <thead>
-                      <tr style={{ backgroundColor: 'var(--surface-hover)' }}>
+                      <tr style={{ backgroundColor: 'var(--bg-hover)' }}>
                         <th style={{ padding: '12px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px' }}>DISPATCH #</th>
                         <th style={{ padding: '12px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px' }}>ORDER #</th>
                         <th style={{ padding: '12px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px' }}>DATE</th>

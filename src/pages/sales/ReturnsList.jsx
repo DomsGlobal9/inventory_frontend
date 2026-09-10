@@ -17,11 +17,11 @@ export default function ReturnsList() {
 
   const getStatusColor = (status) => {
     switch(status) {
-      case 'REQUESTED': return 'var(--warning-color)';
-      case 'RECEIVED': return 'var(--info-color)';
+      case 'REQUESTED': return 'var(--accent-warning)';
+      case 'RECEIVED': return 'var(--accent-primary)';
       case 'INSPECTED': return 'var(--primary-color)';
-      case 'COMPLETED': return 'var(--success-color)';
-      case 'REJECTED': return 'var(--danger-color)';
+      case 'COMPLETED': return 'var(--accent-success)';
+      case 'REJECTED': return 'var(--accent-danger)';
       default: return 'var(--text-secondary)';
     }
   };
@@ -47,7 +47,7 @@ export default function ReturnsList() {
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid var(--border-light)', backgroundColor: 'var(--surface-hover)' }}>
+              <tr style={{ borderBottom: '1px solid var(--border-light)', backgroundColor: 'var(--bg-hover)' }}>
                 <th style={{ padding: '16px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px' }}>RETURN #</th>
                 <th style={{ padding: '16px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px' }}>ORDER #</th>
                 <th style={{ padding: '16px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px' }}>CUSTOMER</th>
@@ -67,7 +67,7 @@ export default function ReturnsList() {
               returns.map(ret => (
                 <tr 
                   key={ret.id} 
-                  style={{ borderBottom: '1px solid var(--border-color)', cursor: 'pointer' }}
+                  style={{ borderBottom: '1px solid var(--border-light)', cursor: 'pointer' }}
                   onClick={() => navigate(`/returns/${ret.id}`)}
                   className="table-row-hover"
                 >

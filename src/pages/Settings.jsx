@@ -225,7 +225,7 @@ export default function Settings() {
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '600px' }}>
-                <div style={{ position: 'relative', border: '1px solid var(--border-light)', borderRadius: '16px', background: 'var(--bg-card)', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
+                <div style={{ position: 'relative', border: '1px solid var(--border-light)', borderRadius: '16px', background: 'var(--bg-card)', overflow: 'hidden', boxShadow: 'var(--shadow-panel)' }}>
                   {/* Banner Header */}
                   <div style={{ height: '72px', background: 'linear-gradient(135deg, rgba(226, 193, 113, 0.2) 0%, rgba(226, 193, 113, 0.05) 100%)', borderBottom: '1px solid var(--border-light)' }}></div>
                   

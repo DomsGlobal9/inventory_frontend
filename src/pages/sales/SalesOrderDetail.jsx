@@ -103,7 +103,7 @@ export default function SalesOrderDetail() {
 
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
               <thead>
-                <tr style={{ backgroundColor: 'var(--surface-hover)' }}>
+                <tr style={{ backgroundColor: 'var(--bg-hover)' }}>
                   <th style={{ padding: '16px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px' }}>SKU</th>
                   <th style={{ padding: '16px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px' }}>PRODUCT</th>
                   <th style={{ padding: '16px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px', textAlign: 'right' }}>QTY</th>
@@ -141,10 +141,10 @@ export default function SalesOrderDetail() {
                       <td style={{ padding: '16px 24px', textAlign: 'right' }}>{item.quantity}</td>
                       {order.status !== 'DRAFT' && (
                         <>
-                          <td style={{ padding: '16px 24px', textAlign: 'right', color: 'var(--warning)', fontWeight: '500' }}>
+                          <td style={{ padding: '16px 24px', textAlign: 'right', color: 'var(--accent-warning)', fontWeight: '500' }}>
                             {remainingQty(item)}
                           </td>
-                          <td style={{ padding: '16px 24px', textAlign: 'right', color: 'var(--success)', fontWeight: '500' }}>
+                          <td style={{ padding: '16px 24px', textAlign: 'right', color: 'var(--accent-success)', fontWeight: '500' }}>
                             {item.fulfilledQty || 0}
                           </td>
                         </>
@@ -223,7 +223,7 @@ export default function SalesOrderDetail() {
                 {can('sales_order:cancel') && (
                   <button
                     className="btn-secondary"
-                    style={{ width: '100%', padding: '12px', fontSize: '15px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', color: 'var(--error)', borderColor: 'var(--error)' }}
+                    style={{ width: '100%', padding: '12px', fontSize: '15px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', color: 'var(--accent-danger)', borderColor: 'var(--accent-danger)' }}
                     onClick={handleCancelOrder}
                     disabled={cancelMutation.isPending}
                   >

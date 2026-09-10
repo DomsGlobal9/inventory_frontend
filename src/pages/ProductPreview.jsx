@@ -462,7 +462,7 @@ export default function ProductPreview() {
         
         <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '24px' }}>
           <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>BASE PRICE</span>
-          <p style={{ fontSize: '32px', fontFamily: 'var(--font-serif)', marginTop: '8px' }}>
+          <p style={{ fontSize: '32px', fontFamily: 'var(--font-sans)', marginTop: '8px' }}>
             ₹{parseFloat(productData.price || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
           </p>
         </div>

@@ -118,21 +118,21 @@ export default function ReturnDetail() {
 
   const getStatusColor = (status) => {
     switch(status) {
-      case 'REQUESTED': return 'var(--warning-color)';
-      case 'RECEIVED': return 'var(--info-color)';
+      case 'REQUESTED': return 'var(--accent-warning)';
+      case 'RECEIVED': return 'var(--accent-primary)';
       case 'INSPECTED': return 'var(--primary-color)';
-      case 'COMPLETED': return 'var(--success-color)';
-      case 'REJECTED': return 'var(--danger-color)';
+      case 'COMPLETED': return 'var(--accent-success)';
+      case 'REJECTED': return 'var(--accent-danger)';
       default: return 'var(--text-secondary)';
     }
   };
 
   const getDispositionBadge = (disp) => {
     switch(disp) {
-      case 'RESTOCK': return <span style={{ color: 'var(--success-color)' }}>Restock</span>;
-      case 'DAMAGED': return <span style={{ color: 'var(--danger-color)' }}>Damaged</span>;
+      case 'RESTOCK': return <span style={{ color: 'var(--accent-success)' }}>Restock</span>;
+      case 'DAMAGED': return <span style={{ color: 'var(--accent-danger)' }}>Damaged</span>;
       case 'SCRAP': return <span style={{ color: 'var(--text-secondary)' }}>Scrap</span>;
-      default: return <span style={{ color: 'var(--warning-color)' }}>Pending Inspection</span>;
+      default: return <span style={{ color: 'var(--accent-warning)' }}>Pending Inspection</span>;
     }
   };
 
@@ -227,12 +227,12 @@ export default function ReturnDetail() {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '24px' }}>
         <div className="card" style={{ padding: '0' }}>
-          <div className="table-container" style={{ padding: '20px', borderBottom: '1px solid var(--border-color)' }}>
+          <div className="table-container" style={{ padding: '20px', borderBottom: '1px solid var(--border-light)' }}>
             <h3 style={{ margin: 0, fontSize: '16px' }}>Returned Items</h3>
           </div>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid var(--border-color)', textAlign: 'left', backgroundColor: 'var(--surface-color)' }}>
+              <tr style={{ borderBottom: '1px solid var(--border-light)', textAlign: 'left', backgroundColor: 'var(--bg-card)' }}>
                 <th style={{ padding: '12px 20px', color: 'var(--text-secondary)', fontWeight: 500 }}>Product</th>
                 <th style={{ padding: '12px 20px', color: 'var(--text-secondary)', fontWeight: 500 }}>Qty</th>
                 <th style={{ padding: '12px 20px', color: 'var(--text-secondary)', fontWeight: 500 }}>Disposition</th>
@@ -240,10 +240,10 @@ export default function ReturnDetail() {
             </thead>
             <tbody>
               {ret.items.map(item => (
-                <tr key={item.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                <tr key={item.id} style={{ borderBottom: '1px solid var(--border-light)' }}>
                   <td style={{ padding: '16px 20px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <div style={{ width: '40px', height: '40px', backgroundColor: 'var(--border-color)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div style={{ width: '40px', height: '40px', backgroundColor: 'var(--border-light)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <Box size={20} color="var(--text-secondary)" />
                       </div>
                       <div>
@@ -299,7 +299,7 @@ export default function ReturnDetail() {
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
               {ret.items.map(item => (
-                <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', border: '1px solid var(--border-color)', borderRadius: '6px' }}>
+                <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', border: '1px solid var(--border-light)', borderRadius: '6px' }}>
                   <div>
                     <div style={{ fontWeight: 500 }}>{item.dispatchItem?.salesOrderItem?.variant?.sku}</div>
                     <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Qty: {item.quantity}</div>

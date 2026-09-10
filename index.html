@@ -4,9 +4,21 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
-    <!-- One path, every size. See the note inside the file. -->
+    <!--
+      One SVG for the browsers that take one, and real files for the ones that do not.
+
+      This was the SVG alone. A browser that ignores an SVG favicon falls back to requesting
+      /favicon.ico by convention -- no link tag needed -- and that 404'd, so the browser kept
+      whatever icon it already had cached for the origin. On localhost that is regularly the
+      Vite logo left behind by another app on the same port, which is why the tab "sometimes"
+      showed one. Safari and iOS also will not read an SVG for the home-screen icon at all.
+
+      Order matters: the SVG is declared first so anything that understands it prefers the one
+      that stays sharp at every size, and .ico is the floor rather than the choice.
+    -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon-180.png" />
     <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
     <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)" />
 

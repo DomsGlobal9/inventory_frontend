@@ -66,8 +66,25 @@ export default function AuthShell({ eyebrow, title, subtitle, points = [], child
   return (
     <div className="auth-page">
       <style>{`
+        /**
+         * Its own scroll container, because the app deliberately has none.
+         *
+         * index.css gives html, body and #root 'overflow: hidden' -- "zero global scroll" --
+         * so the table screens can manage their own scrolling. That means growing the page
+         * taller does nothing here: whatever hangs below the fold is CLIPPED, not scrolled to.
+         * Reports and the Day Book already hit this and have .page-scroll for it; this is the
+         * same answer for the signed-out pages.
+         *
+         * dvh as well as vh: on a phone 100vh is the height the window would have with the
+         * browser's own bars hidden, so the last 60-80px of a 100vh page sits underneath the
+         * address bar. dvh is the height actually visible.
+         */
         .auth-page {
-          min-height: 100vh; width: 100%; position: relative; overflow-x: hidden;
+          height: 100vh;
+          height: 100dvh;
+          overflow-y: auto;
+          overscroll-behavior: contain;
+          width: 100%; position: relative; overflow-x: hidden;
           background: var(--bg-dark); display: flex; flex-direction: column;
         }
         /* The same light thrown from behind as the landing page's hero, so arriving here does
@@ -79,12 +96,37 @@ export default function AuthShell({ eyebrow, title, subtitle, points = [], child
             radial-gradient(36% 40% at 88% 96%, color-mix(in srgb, var(--brand) 13%, transparent) 0%, transparent 66%);
         }
 
-        .auth-head { position: relative; padding: clamp(22px, 3vw, 34px) clamp(20px, 4vw, 52px); }
+        /* flex: none, so the header keeps its height instead of being squeezed when the form
+           below it is tall. */
+        .auth-head { flex: none; position: relative; padding: clamp(22px, 3vw, 34px) clamp(20px, 4vw, 52px); }
 
+        /**
+         * Centred when there is room, scrollable when there is not.
+         *
+         * This was 'flex: 1' with 'align-content: center', and the two together made a form
+         * taller than the window unreachable. 'flex: 1' is shorthand for '1 1 0%' -- grow to
+         * fill, and shrink to nothing -- so this row was pinned to exactly the space left over
+         * after the header, whatever its contents needed. 'align-content: center' then centred
+         * the overflow, pushing the bottom of the card past the window while the page's
+         * scrollHeight stayed equal to the viewport, so there was nothing to scroll to.
+         *
+         * Measured at 1000x620, which is an ordinary laptop with a browser toolbar: the card is
+         * 706px tall, ran 184px past the bottom, and the Send request button could not be
+         * reached at all. Adding a validation message under a field makes the card taller
+         * still, so the page got worse exactly when somebody needed it most.
+         *
+         * 'flex: 1 0 auto' grows to fill the leftover space but never shrinks below what the
+         * content needs, so the page itself becomes taller and scrolls. 'safe center' keeps the
+         * centring while refusing to push content off the START edge -- the failure that cannot
+         * be scrolled back to. Browsers without 'safe' fall back to the plain 'center' above it,
+         * which is what they do today, so nothing regresses.
+         */
         .auth-body {
-          position: relative; flex: 1; width: 100%; max-width: 1200px; margin: 0 auto;
-          padding: 0 clamp(20px, 4vw, 52px) clamp(48px, 7vw, 88px);
-          display: grid; align-items: center; align-content: center;
+          position: relative; flex: 1 0 auto; width: 100%; max-width: 1200px; margin: 0 auto;
+          padding: clamp(16px, 3vw, 32px) clamp(20px, 4vw, 52px) clamp(48px, 7vw, 88px);
+          display: grid; align-items: center;
+          align-content: center;
+          align-content: safe center;
           gap: clamp(40px, 7vw, 96px);
           grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr);
         }

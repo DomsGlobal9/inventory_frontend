@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LifeBuoy, Building2, ArrowLeft, Send, Loader2, Clock } from 'lucide-react';
 import {
@@ -30,6 +30,33 @@ function StatusBadge({ status }) {
 
 function TicketDetail({ ticketId, onBack }) {
   const { data: ticket, isLoading } = useAdminSupportTicket(ticketId);
+
+  /**
+   * Follow the conversation down as it grows.
+   *
+   * Nothing scrolled this list, so a message arriving below the fold simply did not appear --
+   * you had to notice and scroll to it. Together with the reply not showing until a refetch,
+   * that is why reloading the page felt like the way to read your own chat.
+   *
+   * Only follows when the reader is already at the bottom. Somebody who has scrolled up to
+   * re-read something earlier should not be yanked back down every three seconds by the poll,
+   * so "near the bottom" (within 80px) is the test rather than "there are new messages".
+   */
+  const scrollerRef = useRef(null);
+  const stickToBottom = useRef(true);
+  const messageCount = ticket?.messages?.length ?? 0;
+
+  const onScroll = () => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    stickToBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+  };
+
+  useEffect(() => {
+    const el = scrollerRef.current;
+    if (el && stickToBottom.current) el.scrollTop = el.scrollHeight;
+  }, [messageCount]);
+
   const [reply, setReply] = useState('');
   const replyMutation = useAdminReplySupportTicket();
   const statusMutation = useAdminUpdateTicketStatus();
@@ -95,7 +122,11 @@ function TicketDetail({ ticketId, onBack }) {
         {/* Main Chat Area */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '12px', overflow: 'hidden' }}>
           
-          <div style={{ flex: 1, overflowY: 'auto', padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px', background: 'var(--bg-dark)' }}>
+          <div
+            ref={scrollerRef}
+            onScroll={onScroll}
+            style={{ flex: 1, minHeight: 0, overflowY: 'auto', overscrollBehavior: 'contain', padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px', background: 'var(--bg-dark)' }}
+          >
             <div style={{ textAlign: 'center', marginBottom: '8px' }}>
               <span style={{ fontSize: '11px', background: 'var(--bg-card)', padding: '4px 12px', borderRadius: '12px', color: 'var(--text-muted)', border: '1px solid var(--border-light)' }}>
                 Ticket Opened • {new Date(ticket.createdAt).toLocaleDateString()}

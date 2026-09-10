@@ -55,20 +55,62 @@ export const useAdminSupportTicket = (ticketId) => {
     queryKey: ['admin', 'support-tickets', ticketId],
     queryFn: async () => (await api.get(`/admin/support-tickets/${ticketId}`)).data,
     enabled: !!ticketId,
-    refetchInterval: 15000
+    // Same reasoning as the client's own ticket view: an open chat window should not make
+    // somebody wait fifteen seconds for a reply that has already been sent.
+    refetchInterval: 3000,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true
   });
 };
 
+/**
+ * Put a message on screen the moment it is sent.
+ *
+ * Sending used to fire the request, wait for it, then invalidate and wait for a refetch --
+ * two round trips on a database that answers in seconds. You typed, pressed send, the box
+ * emptied, and nothing appeared. The natural reading is that it did not go, so people send it
+ * again; the natural fix people found was refreshing the page.
+ *
+ * The message is shown immediately with a temporary id, marked as sending so it is honest
+ * about not being confirmed yet, and replaced by the server's own copy when the refetch
+ * lands. A failure takes it back off and says why, rather than leaving a message that looks
+ * delivered and is not.
+ */
 export const useAdminReplySupportTicket = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ ticketId, body }) => (await api.post(`/admin/support-tickets/${ticketId}/messages`, { body })).data,
-    onSuccess: (_data, { ticketId }) => {
+    // See the note on this file: a chat message must appear when it is sent.
+    onMutate: async ({ ticketId, body }) => {
+      const key = ['admin', 'support-tickets', ticketId];
+      await queryClient.cancelQueries({ queryKey: key });
+      const previous = queryClient.getQueryData(key);
+
+      queryClient.setQueryData(key, (old) => {
+        if (!old) return old;
+        const target = old.messages ? old : (old.data?.messages ? old.data : null);
+        if (!target) return old;
+        const pending = {
+          id: `pending-${Date.now()}`,
+          authorType: 'PLATFORM',
+          authorName: 'You',
+          body,
+          createdAt: new Date().toISOString(),
+          pending: true
+        };
+        const next = { ...target, messages: [...target.messages, pending] };
+        return old.messages ? next : { ...old, data: next };
+      });
+
+      return { key, previous };
+    },
+    onError: (error, _vars, context) => {
+      if (context?.previous !== undefined) queryClient.setQueryData(context.key, context.previous);
+      toast.error(error?.message || 'Could not send that message.');
+    },
+    onSettled: (_data, _err, { ticketId }) => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'support-tickets', ticketId] });
       queryClient.invalidateQueries({ queryKey: ['admin', 'support-tickets'] });
-    },
-    onError: (error) => {
-      toast.error(error?.message || 'Failed to send reply');
     }
   });
 };

@@ -11,6 +11,8 @@ import { useCatalogData } from '../hooks/useCatalogConfig';
 import { useLocationContext } from '../contexts/LocationContext';
 import { useAuth } from '../context/AuthContext';
 import VariantSuppliersPanel from './VariantSuppliersPanel';
+import { buildVariantSku } from '../utils/skuUtils';
+import { useSuppliers } from '../hooks/useSuppliers';
 import PageLoader from './PageLoader';
 
 /**
@@ -29,7 +31,7 @@ const CellNote = ({ children, color }) => (
   </span>
 );
 
-export default function VariantTable({ productId, productName, productBasePrice, highlightVariantId }) {
+export default function VariantTable({ productId, productName, productCode, productBasePrice, highlightVariantId }) {
   // Stamped into the barcode-label PDF metadata; must be the real tenant.
   const { clientId } = useAuth();
   const { data, isLoading, isError } = useVariants(productId);
@@ -37,6 +39,8 @@ export default function VariantTable({ productId, productName, productBasePrice,
   const bulkCreateMutation = useBulkCreateVariants(productId);
   const updateVariantMutation = useUpdateVariant(productId);
   const { currentLocation } = useLocationContext();
+  // Only read while the generator is open; the list is small and cached by the hook.
+  const { data: suppliers = [] } = useSuppliers();
 
   // Scroll the scanned variant into view once the table has rendered it.
   const scannedRowRef = useRef(null);
@@ -55,6 +59,18 @@ export default function VariantTable({ productId, productName, productBasePrice,
   const [activeShadeColor, setActiveShadeColor] = useState(null); // base color whose shades are open
   const [units, setUnits] = useState({}); // { colorCode: { size: qty } }
   const [applyToAllLocations, setApplyToAllLocations] = useState(false);
+  // What these pieces COST. The Add Product wizard has always asked for this and sends it so
+  // the opening stock is valued; this panel never did, so every variant added after publish
+  // entered at zero and the first purchase order averaged against a cost that was never true.
+  // 229 of the 273 variants in the live catalogue have no cost for exactly this reason.
+  const [genCostPrice, setGenCostPrice] = useState('');
+  // Per-variant selling price, keyed the same way as `units`. Empty means "use the product's
+  // base price", which is how the backend resolves it and what a shop with one price wants.
+  const [genPrices, setGenPrices] = useState({}); // { colorCode: { size: price } }
+  const [genPerVariantPricing, setGenPerVariantPricing] = useState(false);
+  // Who these are bought from. The wizard sends a supplier when creating a product; without
+  // it here, anything added later arrives unsourced -- only 71 of 273 variants are linked.
+  const [genSupplierId, setGenSupplierId] = useState('');
   const [deleteTarget, setDeleteTarget] = useState(null); // { id, sku }
   const [selectedVariants, setSelectedVariants] = useState([]); // array of variant ids
   const [isPrinting, setIsPrinting] = useState(false);
@@ -104,6 +120,13 @@ export default function VariantTable({ productId, productName, productBasePrice,
     setUnits({});
     setActiveShadeColor(null);
     setApplyToAllLocations(false);
+    // The new fields belong here too. A cost or a supplier left behind from the last batch
+    // would be applied silently to the next one -- the kind of wrong number nobody looks for
+    // because they never typed it.
+    setGenCostPrice('');
+    setGenPrices({});
+    setGenPerVariantPricing(false);
+    setGenSupplierId('');
   };
 
   const handleUnitChange = (colorCode, size, value) => {
@@ -114,30 +137,50 @@ export default function VariantTable({ productId, productName, productBasePrice,
   const handleGenerate = () => {
     if (selectedSizes.length === 0 || selectedColors.length === 0) return;
 
+    // Without the product's real code there is no correct SKU to build, and inventing one is
+    // what put twenty-four mismatched variants in the catalogue. Refuse rather than guess.
+    if (!productCode) {
+      toast.error('Cannot add variants: this product has no product code. Reload the page and try again.');
+      return;
+    }
+
+    const cost = Number(genCostPrice || 0);
+
     const payload = [];
     selectedColors.forEach(color => {
       selectedSizes.forEach(size => {
-        // e.g. SE-001-RED-S
-        const skuPart = `SE-${Math.floor(Math.random() * 1000)}-${color.name.toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0,3)}-${size}`;
-        const quantity = parseInt(units[color.code]?.[size] || '0', 10);
+        const quantity = parseInt(units[color.code]?.[size] || '0', 10) || 0;
+        const perVariant = genPerVariantPricing
+          ? Number(genPrices[color.code]?.[size] || 0)
+          : 0;
         payload.push({
-          sku: skuPart,
+          // Same rule as the Add Product wizard, from one shared place so the two cannot
+          // drift again: PRD-000054-BLA-XS, never SE-<random>-BLA-Free Size.
+          sku: buildVariantSku(productCode, color.name, size),
           size: size,
           colorName: color.name,
           hexCode: color.value,
           quantity,
           reorderLevel: 5,
-          priceOverride: undefined
+          // Omitted rather than sent as 0: an unset selling price means "use the product's
+          // base price", which is how the backend resolves it. Sending 0 would mean free.
+          ...(perVariant > 0 ? { sellingPrice: perVariant } : {}),
+          // Sent so the opening stock is VALUED. This is the field whose absence priced a
+          // 4,999 saree at 98 rupees on the first purchase order.
+          ...(cost > 0 ? { costPrice: cost } : {})
         });
       });
     });
 
-    bulkCreateMutation.mutate({ variants: payload, applyToAllLocations }, {
-      onSuccess: () => {
-        setShowGenerator(false);
-        resetGenerator();
+    bulkCreateMutation.mutate(
+      { variants: payload, applyToAllLocations, supplierId: genSupplierId || undefined },
+      {
+        onSuccess: () => {
+          setShowGenerator(false);
+          resetGenerator();
+        }
       }
-    });
+    );
   };
 
   const getStatus = (v) => {
@@ -581,6 +624,114 @@ export default function VariantTable({ productId, productName, productBasePrice,
                   </tbody>
                 </table>
               </div>
+            </div>
+          )}
+
+          {selectedSizes.length > 0 && selectedColors.length > 0 && (
+            <div style={{ marginBottom: '24px' }}>
+              <p style={{ fontSize: '11px', letterSpacing: '0.05em', color: 'var(--text-secondary)', marginBottom: '10px', textTransform: 'uppercase' }}>
+                4. Cost and Supplier
+              </p>
+              <div className="mobile-col" style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
+                <div style={{ flex: '1 1 200px', minWidth: 0 }}>
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-muted)', marginBottom: '6px' }}>
+                    What you pay per piece
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    className="input-field"
+                    placeholder="0.00"
+                    value={genCostPrice}
+                    onChange={(e) => setGenCostPrice(e.target.value)}
+                    style={{ width: '100%', padding: '8px' }}
+                  />
+                  <CellNote>
+                    {Number(genCostPrice) > 0
+                      ? 'Opening stock will be valued at this cost.'
+                      : 'Leave empty only if these pieces genuinely cost nothing.'}
+                  </CellNote>
+                </div>
+                <div style={{ flex: '1 1 220px', minWidth: 0 }}>
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-muted)', marginBottom: '6px' }}>
+                    Bought from (optional)
+                  </label>
+                  <select
+                    className="input-field"
+                    value={genSupplierId}
+                    onChange={(e) => setGenSupplierId(e.target.value)}
+                    style={{ width: '100%', padding: '8px' }}
+                  >
+                    <option value="">No supplier</option>
+                    {suppliers.map(sup => (
+                      <option key={sup.id} value={sup.id}>{sup.name}</option>
+                    ))}
+                  </select>
+                  <CellNote>Links every variant below to this supplier.</CellNote>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {selectedSizes.length > 0 && selectedColors.length > 0 && (
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '10px' }}>
+                <input
+                  type="checkbox"
+                  checked={genPerVariantPricing}
+                  onChange={(e) => setGenPerVariantPricing(e.target.checked)}
+                />
+                <span style={{ fontSize: '11px', letterSpacing: '0.05em', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>
+                  5. Price each one differently (optional)
+                </span>
+              </label>
+              {!genPerVariantPricing ? (
+                <CellNote>
+                  {`Every new variant sells at the product's base price` +
+                    (Number(productBasePrice) > 0 ? ` of Rs ${Number(productBasePrice).toLocaleString('en-IN')}` : '') + '.'}
+                </CellNote>
+              ) : (
+                <div className="table-container" style={{ overflowX: 'auto', border: '1px solid var(--border-light)', borderRadius: '6px', backgroundColor: 'var(--bg-card)' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', minWidth: '400px' }}>
+                    <thead style={{ background: 'var(--bg-input)' }}>
+                      <tr>
+                        <th style={{ padding: '10px', borderBottom: '1px solid var(--border-light)', borderRight: '1px solid var(--border-light)', textAlign: 'left', fontSize: '12px', color: 'var(--text-secondary)' }}>Variant</th>
+                        {selectedSizes.map(size => (
+                          <th key={size} style={{ padding: '10px', borderBottom: '1px solid var(--border-light)', fontSize: '13px', fontWeight: 600 }}>{size}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedColors.map(color => (
+                        <tr key={color.code} style={{ borderBottom: '1px solid var(--border-light)' }}>
+                          <td style={{ padding: '10px', borderRight: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', gap: '8px', textAlign: 'left' }}>
+                            <div style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: color.value, border: '1px solid var(--border-light)', flexShrink: 0 }} />
+                            <span style={{ fontSize: '13px' }}>{color.name}</span>
+                          </td>
+                          {selectedSizes.map(size => (
+                            <td key={size} style={{ padding: '6px' }}>
+                              <input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                className="input-field"
+                                placeholder={Number(productBasePrice) > 0 ? String(productBasePrice) : '0'}
+                                value={genPrices[color.code]?.[size] || ''}
+                                onChange={(e) => setGenPrices(prev => ({
+                                  ...prev,
+                                  [color.code]: { ...(prev[color.code] || {}), [size]: e.target.value }
+                                }))}
+                                style={{ textAlign: 'center', width: '84px', padding: '6px', margin: '0 auto' }}
+                              />
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           )}
 

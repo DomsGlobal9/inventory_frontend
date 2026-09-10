@@ -33,8 +33,12 @@ export const useBulkCreateVariants = (productId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ variants, applyToAllLocations = false }: { variants: any[]; applyToAllLocations?: boolean }) =>
-      bulkCreateVariants(productId, variants, applyToAllLocations),
+    // supplierId is threaded through because bulkCreateVariants accepts it and the backend
+    // implements it -- it was simply never passed here, so variants added to an existing
+    // product could not be sourced at all while ones created with the product could.
+    mutationFn: ({ variants, applyToAllLocations = false, supplierId }:
+      { variants: any[]; applyToAllLocations?: boolean; supplierId?: string }) =>
+      bulkCreateVariants(productId, variants, applyToAllLocations, supplierId),
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.variants(productId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.product(productId) });

@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { useProduct } from '../context/ProductContext';
 import { useCreateProduct, useUpdateProduct } from '../hooks/useProducts';
 import { mapProductFormToApiPayload } from '../mappers/product.mapper';
+import { buildVariantSku } from '../utils/skuUtils';
 import { bulkCreateVariants } from '../services/variant.service';
 import { uploadImageFile, dataUrlToFile } from '../services/image.service';
 import { useCatalogData } from '../hooks/useCatalogConfig';
@@ -125,19 +126,9 @@ export default function ProductPreview() {
         const colorInfo = getColorInfo(colorCode);
         productData.selectedSizes.forEach(size => {
           const qty = parseInt(productData.units?.[colorCode]?.[size] || '0', 10);
-          // Generate a clean SKU.
-          //
-          // The colour was already being stripped to letters and digits; the SIZE was not, so
-          // "Free Size" produced PRD-000002-BLU-Free Size -- a stock code with a space in it.
-          // A SKU is not decoration: it goes into barcodes, into CSV columns that are read
-          // back by column position, into search boxes and into URLs, and a space breaks all
-          // four in ways that only show up later and far from here. Sizes that are already
-          // plain (S, M, L, XL, 32, 34) come through this untouched.
-          const safe = (value, len) =>
-            String(value || '').toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, len);
-          const safeName = safe(colorInfo.name, 3);
-          const safeSize = safe(size, 8) || 'STD';
-          const sku = `${productCode}-${safeName}-${safeSize}`;
+          // Shared with the "Generate Variants" panel on an existing product, which used to
+          // build SKUs by its own different rules -- see utils/skuUtils.js.
+          const sku = buildVariantSku(productCode, colorInfo.name, size);
           // The per-variant price when one was typed, otherwise nothing -- leaving it unset
           // means the variant falls back to the product's base price, which is what a shop
           // selling every size at one price wants and is how the backend resolves it anyway.
@@ -223,6 +214,20 @@ export default function ProductPreview() {
     };
 
     if (productData.id) {
+      // EDITING AN EXISTING PRODUCT SAVES FIELDS ONLY -- NOT VARIANTS.
+      //
+      // `buildVariants` above is computed for the create path below and is deliberately not
+      // used here: mapProductFormToApiPayload carries no variants and no supplierId, and
+      // calling bulkCreateVariants on an already-published product would re-submit SKUs that
+      // exist, which the server renames to `-2` rather than rejects. That turns an edit into
+      // a silent duplication.
+      //
+      // Nothing reaches this branch today -- loadProductForEdit is defined in ProductContext
+      // and called from nowhere, and no other code sets productData.id -- so this is a trap
+      // for whoever wires up "Edit product", not a live bug. When that happens, new colour and
+      // size combinations must be diffed against the product's existing variants and only the
+      // genuinely new ones sent; adding them from the product page (VariantTable's generator,
+      // which now carries cost, price and supplier) is the supported route in the meantime.
       updateMutation.mutate(
         { id: productData.id, data: payload },
         {

@@ -104,8 +104,14 @@ function TicketDetail({ ticketId, onBack }) {
   };
 
   useEffect(() => {
-    const el = scrollerRef.current;
-    if (el && stickToBottom.current) el.scrollTop = el.scrollHeight;
+    // After paint, not during it. Running synchronously read a scrollHeight that did not yet
+    // include the message just added, so the list scrolled to where the bottom USED to be and
+    // stopped one message short -- which looks identical to the bug this is meant to fix.
+    const raf = requestAnimationFrame(() => {
+      const el = scrollerRef.current;
+      if (el && stickToBottom.current) el.scrollTop = el.scrollHeight;
+    });
+    return () => cancelAnimationFrame(raf);
   }, [messageCount]);
 
   const [reply, setReply] = useState('');

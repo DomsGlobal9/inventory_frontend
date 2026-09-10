@@ -113,16 +113,21 @@ export function restoreRows(queryClient, context) {
  * So the delta is applied first from what was asked for, and the response corrects it after.
  * Returns the previous cache entries so a failure can put them back.
  *
+ * Returns the same { queryKey, snapshots } shape optimisticRowPatch does, so restoreRows can
+ * undo it. It used to return a bare array, which restoreRows cannot read -- and the two stock
+ * hooks that call this were the only optimistic mutations in the app with no rollback at all.
+ *
  * Average cost is deliberately NOT guessed here. Receiving at a different unit cost moves a
  * weighted average, and the arithmetic for that lives on the server; inventing a number that
  * the response then corrects would be a figure about money that was briefly wrong. The
  * quantity is what the eye is on, and the quantity is knowable.
  */
 export function optimisticQuantityDelta(queryClient, variables, delta) {
-  if (!variables?.variantId || !Number.isFinite(delta)) return [];
+  const queryKey = ['inventory-variants'];
+  if (!variables?.variantId || !Number.isFinite(delta)) return { queryKey, snapshots: [] };
 
   const snapshots = [];
-  queryClient.setQueriesData({ queryKey: ['inventory-variants'] }, (old) => {
+  queryClient.setQueriesData({ queryKey }, (old) => {
     if (!old?.items) return old;
     snapshots.push(old);
     return {
@@ -151,7 +156,7 @@ export function optimisticQuantityDelta(queryClient, variables, delta) {
       })
     };
   });
-  return snapshots;
+  return { queryKey, snapshots };
 }
 
 export function patchInventoryRows(queryClient, variables, result) {

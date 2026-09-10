@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import toast from 'react-hot-toast';
-import { invalidateDerivedViews, patchInventoryRows, optimisticQuantityDelta } from '../lib/invalidate';
+import { invalidateDerivedViews, patchInventoryRows, optimisticQuantityDelta, restoreRows } from '../lib/invalidate';
 
 export function useInventoryVariants(filters) {
   const queryObj = Object.fromEntries(
@@ -61,7 +61,17 @@ export function useStockIn() {
       invalidateDerivedViews(queryClient); // Dashboard + reports + inventory rollups
       toast.success('Stock added successfully');
     },
-    onError: (error) => {
+    onError: (error, variables, context) => {
+      // Put the row back. onMutate moves the quantity before the server has answered, and
+      // nothing undid that when the answer was no -- so a refused movement left the shelf
+      // showing a figure that had never happened, alongside a toast saying it had failed.
+      // The number is the thing being looked at; a red message next to a changed quantity
+      // reads as "it saved but something else went wrong".
+      //
+      // It matters more now than it did: stock movements are properly validated, so
+      // fractional pieces and negative costs are refused where they used to be accepted,
+      // and a refusal is something a shop will actually meet.
+      restoreRows(queryClient, context?.snapshots);
       toast.error(error?.message || 'Failed to add stock');
     }
   });
@@ -84,7 +94,17 @@ export function useStockOut() {
       invalidateDerivedViews(queryClient); // Dashboard + reports + inventory rollups
       toast.success('Stock deducted successfully');
     },
-    onError: (error) => {
+    onError: (error, variables, context) => {
+      // Put the row back. onMutate moves the quantity before the server has answered, and
+      // nothing undid that when the answer was no -- so a refused movement left the shelf
+      // showing a figure that had never happened, alongside a toast saying it had failed.
+      // The number is the thing being looked at; a red message next to a changed quantity
+      // reads as "it saved but something else went wrong".
+      //
+      // It matters more now than it did: stock movements are properly validated, so
+      // fractional pieces and negative costs are refused where they used to be accepted,
+      // and a refusal is something a shop will actually meet.
+      restoreRows(queryClient, context?.snapshots);
       toast.error(error?.message || 'Failed to deduct stock');
     }
   });

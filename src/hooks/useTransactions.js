@@ -14,8 +14,20 @@ export function useTransactions(filters) {
   return useQuery({
     queryKey: ['transactions', queryObj],
     queryFn: async () => {
-      const response = await api.get(`/inventory/transactions?${queryParams}`);
-      return response.data;
+      /*
+       * Return the whole body, not body.data.
+       *
+       * api.ts's response interceptor already returns response.data, so `api.get` hands back
+       * the BODY -- { success, data: [...] }. Taking .data here unwrapped it a second time, so
+       * this resolved to the bare array, and TransactionHistory's `data?.data || []` then read
+       * .data off an array, got undefined, and fell back to the empty list. Every time.
+       *
+       * The result was an Inventory History tab that said "No transactions found." on a
+       * product with four movements in the database, whatever the Type and Reason filters
+       * were set to -- a screen that states, in words, something untrue about the shop's
+       * stock. Reported from production on PRD-000002, which has had four rows since 7 Sept.
+       */
+      return api.get(`/inventory/transactions?${queryParams}`);
     }
   });
 }

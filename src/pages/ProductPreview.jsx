@@ -10,6 +10,7 @@ import { bulkCreateVariants } from '../services/variant.service';
 import { uploadImageFile, dataUrlToFile } from '../services/image.service';
 import { useCatalogData } from '../hooks/useCatalogConfig';
 import { useLocationContext } from '../contexts/LocationContext';
+import { useMediaQuery } from '../hooks/useMediaQuery';
 import ImageLightbox from '../components/ImageLightbox';
 
 const VIEW_ORDER = ['front', 'left', 'right', 'back'];
@@ -18,6 +19,15 @@ export default function ProductPreview() {
   const { productData, resetProductData } = useProduct();
   const navigate = useNavigate();
   const { colors } = useCatalogData();
+  /*
+   * Once the three columns stack, their widths are no longer a column width -- they are the
+   * width of a card on a phone, and three different ones read as a ragged edge rather than
+   * a layout. The caps are what keep the images and the checklist from sprawling ACROSS a
+   * desktop; stacked, there is nothing to sprawl across, so they come off and every panel
+   * lines up on the same two edges.
+   */
+  const isNarrowScreen = useMediaQuery('(max-width: 768px)');
+  const columnCap = (cap) => (isNarrowScreen ? '100%' : cap);
   const { currentLocation } = useLocationContext();
   const [applyToAllLocations, setApplyToAllLocations] = useState(false);
   const [lightboxSrc, setLightboxSrc] = useState(null);
@@ -418,7 +428,7 @@ export default function ProductPreview() {
       */}
       <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
       {/* Left: Product Images */}
-      <div style={{ flex: '1 1 300px', maxWidth: '400px', minWidth: 0 }}>
+      <div style={{ flex: '1 1 300px', maxWidth: columnCap('400px'), minWidth: 0 }}>
         <div className="glass-panel" style={{ position: 'relative', height: '500px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
           {previewImages && previewImages.length > 0 ? (
             <>
@@ -430,7 +440,15 @@ export default function ProductPreview() {
           )}
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
-          {(previewImages || []).slice(1, 4).map((url, i) => (
+          {/*
+            Every photo, not the first three.
+            slice(1, 4) capped this at one enlarged primary plus three thumbnails, so a
+            product uploaded with six photographs previewed as four and said nothing about
+            the other two. This is the screen whose whole job is to show what is about to be
+            published, and it was quietly showing less than that. The grid already wraps, so
+            the rest simply continue onto the next row.
+          */}
+          {(previewImages || []).slice(1).map((url, i) => (
             <div key={i} className="glass-panel" style={{ position: 'relative', aspectRatio: '3/4', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <img src={url} alt={`Thumbnail ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               <EyeOverlay src={url} alt={`Thumbnail ${i + 1}`} />
@@ -562,7 +580,7 @@ export default function ProductPreview() {
       </div>
       
       {/* Right Sidebar: Status & Checklist */}
-      <div style={{ flex: '1 1 280px', maxWidth: '300px', minWidth: 0 }}>
+      <div style={{ flex: '1 1 280px', maxWidth: columnCap('300px'), minWidth: 0 }}>
         <div className="glass-panel" style={{ padding: '24px', position: 'sticky', top: '24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>STATUS</span>

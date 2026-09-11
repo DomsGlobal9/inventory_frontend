@@ -116,11 +116,28 @@ function fileToBase64(file) {
 export default function GarmentPhotoshootUploader({ onGenerationComplete }) {
   const { productData, updateProductData } = useProduct();
   
-  const [files, setFiles] = useState({
-    "full-dress": null,
-    "top-front": null,
-    "top-back": null,
-    bottom: null,
+  /*
+   * Restored from the wizard rather than started empty.
+   *
+   * These slots used to live only in this component, which had two consequences. Coming
+   * back through "Back to Edit" showed empty slots even though the files were still held
+   * in productData, and -- because the component starts blank on every mount -- an effect
+   * that wrote this state out would have wiped them. That is the remount problem the guard
+   * on the plain-photo effect below was added to dodge.
+   *
+   * Reading them back fixes both: the slots show what you chose, and writing them out
+   * afterwards is then safe because there is nothing blank to overwrite them with.
+   */
+  const [files, setFiles] = useState(() => {
+    const empty = { "full-dress": null, "top-front": null, "top-back": null, bottom: null };
+    const stored = productData.sourceUploadFiles;
+    // The plain path stores an array; only the slot map belongs here.
+    if (!stored || Array.isArray(stored) || typeof stored !== 'object') return empty;
+    const restored = { ...empty };
+    for (const [key, value] of Object.entries(stored)) {
+      if (value instanceof File) restored[key] = value;
+    }
+    return restored;
   });
   const [previews, setPreviews] = useState({});
   const [uploadedStates, setUploadedStates] = useState({});
@@ -136,6 +153,8 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete }) {
   const [plainPhotos, setPlainPhotos] = useState([]);
   const [plainPreviews, setPlainPreviews] = useState([]);
   const [plainDragOver, setPlainDragOver] = useState(false);
+  // Lets a tap on the box open the gallery without the box being a <label>.
+  const plainGalleryInputRef = useRef(null);
 
   const fields = useMemo(() => {
     if (isSaree) {
@@ -198,6 +217,28 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete }) {
     return () => { urls.forEach((u) => { try { URL.revokeObjectURL(u); } catch { /* ignore */ } }); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [plainPhotos, tryOnEligible]);
+
+  /*
+   * The slot uploads are photographs of the product whether or not anybody presses
+   * Generate.
+   *
+   * They used to reach the wizard from one place only: the COMPLETE handler of the
+   * generation job. So a shopkeeper who uploaded a saree, saw the slot say "Ready", and
+   * went straight to Review met a preview with no picture in it, "At Least 1 Photo"
+   * unticked, and a greyed-out Publish button -- with nothing on screen connecting any of
+   * that to the Generate step they had skipped. The checklist and the button agreed with
+   * each other, which is why it read as the app being broken rather than as a step being
+   * missed.
+   *
+   * Publishing already handles this correctly: persistImages uploads these as the
+   * product's GALLERY photos when no generated views exist, and as RAW_UPLOAD references
+   * when they do. Only the handing-over was missing.
+   */
+  useEffect(() => {
+    if (!tryOnEligible) return;
+    updateProductData('sourceUploadFiles', files);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [files, tryOnEligible]);
 
   const addPlainPhotos = (fileList) => {
     // NOT f.type.startsWith('image/'): a camera capture on iOS arrives as
@@ -428,88 +469,115 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete }) {
           {plainPhotos.map((file, i) => (
             <div key={i} className="glass-panel" style={{ position: 'relative', height: '160px', overflow: 'hidden' }}>
               <img src={plainPreviews[i]} alt={`Product ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              <button
-                onClick={() => setLightboxSrc(plainPreviews[i])}
-                title="View full size"
-                style={{
-                  position: 'absolute', top: '8px', right: '40px',
-                  width: '28px', height: '28px', borderRadius: '50%',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: 'rgba(0,0,0,0.6)', border: 'none', color: '#fff', cursor: 'pointer'
-                }}
-              >
-                <Eye size={14} />
-              </button>
-              <button
-                onClick={() => removePlainPhoto(i)}
-                style={{
-                  position: 'absolute', top: '8px', right: '8px',
-                  width: '28px', height: '28px', borderRadius: '50%',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: 'rgba(255,0,0,0.8)', border: 'none', color: '#fff', cursor: 'pointer'
-                }}
-              >
-                <X size={14} />
-              </button>
+              {/*
+                Laid out by a flex row rather than by two right offsets.
+                These were positioned at right: 8px and right: 40px, a 32px step that assumed
+                the buttons stay 28px wide. On a touch device they do not: the tap-target rule
+                in index.css grows an icon button to 44px square, so the two circles grew into
+                each other and overlapped by 12px -- on phones only, which is exactly where
+                they are tapped with a thumb. A gap cannot be outgrown.
+              */}
+              <div style={{ position: 'absolute', top: '8px', right: '8px', display: 'flex', gap: '6px' }}>
+                <button
+                  onClick={() => setLightboxSrc(plainPreviews[i])}
+                  title="View full size"
+                  style={{
+                    width: '28px', height: '28px', borderRadius: '50%',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: 'rgba(0,0,0,0.6)', border: 'none', color: '#fff', cursor: 'pointer'
+                  }}
+                >
+                  <Eye size={14} />
+                </button>
+                <button
+                  onClick={() => removePlainPhoto(i)}
+                  title="Remove this photo"
+                  style={{
+                    width: '28px', height: '28px', borderRadius: '50%',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: 'rgba(255,0,0,0.8)', border: 'none', color: '#fff', cursor: 'pointer'
+                  }}
+                >
+                  <X size={14} />
+                </button>
+              </div>
             </div>
           ))}
 
-          <label
+          {/*
+            One box, both ways in -- the same shape as the fixed slots further down, so the
+            two upload screens behave alike.
+
+            It was a <label> wrapped around the whole dashed box, which is why the camera
+            had to live outside as a second tile: anything nested inside a label opens that
+            label's own picker on tap, so a camera button placed in there would have opened
+            the gallery instead. A plain <div> with two labelled buttons inside removes that
+            constraint, and the box as a whole still opens the gallery when tapped so the
+            "tap anywhere" affordance is not lost.
+          */}
+          <div
             className="glass-panel"
+            onClick={() => plainGalleryInputRef.current?.click()}
             style={{
               height: '160px',
               border: plainDragOver ? '2px solid var(--accent-gold)' : '1px dashed var(--border-focus)',
               backgroundColor: plainDragOver ? 'rgba(212, 175, 55, 0.08)' : undefined,
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', textAlign: 'center', padding: '16px', gap: '8px'
+              cursor: 'pointer', textAlign: 'center', padding: '16px', gap: '10px'
             }}
           >
-            <ImageIcon size={28} color="var(--text-secondary)" />
+            <ImageIcon size={26} color="var(--text-secondary)" />
             <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
               {plainPhotos.length === 0 ? 'Add Photos' : 'Add More'}
             </span>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              style={{ display: 'none' }}
-              onChange={(e) => { if (e.target.files?.length) addPlainPhotos(e.target.files); e.target.value = ''; }}
-            />
-          </label>
 
-          {/*
-            The camera as its own tile rather than a second control inside the one above:
-            that one is a <label> wrapping the whole dashed box, so anything nested in it
-            opens the picker on tap. Two labels side by side keep the two choices separable.
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <label
+                className="btn-secondary"
+                onClick={(e) => e.stopPropagation()}
+                style={{ cursor: 'pointer', padding: '8px 14px', fontSize: '12px' }}
+              >
+                UPLOAD
+                {/* `multiple`: choosing several photographs in one go is the whole point of
+                    this screen, as opposed to the fixed slots below. */}
+                <input
+                  ref={plainGalleryInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  style={{ display: 'none' }}
+                  onChange={(e) => { if (e.target.files?.length) addPlainPhotos(e.target.files); e.target.value = ''; }}
+                />
+              </label>
 
-            Phones and tablets only -- `capture` does nothing on a desktop browser, and a
-            camera button that opens a file dialog is worse than no camera button.
+              {/*
+                Phones and tablets only -- `capture` does nothing on a desktop browser, and
+                a camera button that opens a file dialog is worse than no camera button.
 
-            No `multiple`: a capture is one photograph. Asking for several from one tap is
-            not a thing a camera can do, and some browsers ignore `capture` entirely when
-            `multiple` is present, which would quietly turn this back into a file picker.
-          */}
-          {isTouch && (
-            <label
-              className="glass-panel"
-              style={{
-                border: '1px dashed var(--border-focus)', borderRadius: '12px',
-                height: '96px', display: 'flex', flexDirection: 'column',
-                alignItems: 'center', justifyContent: 'center',
-                cursor: 'pointer', textAlign: 'center', padding: '16px', gap: '8px'
-              }}
-            >
-              <Camera size={28} color="var(--text-secondary)" />
-              <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Take Photo</span>
-              <input
-                type="file"
-                accept="image/*"
-                capture="environment"
-                style={{ display: 'none' }}
-                onChange={(e) => { if (e.target.files?.length) addPlainPhotos(e.target.files); e.target.value = ''; }}
-              />
-            </label>
-          )}
+                No `multiple` here: a capture is one photograph, and some browsers ignore
+                `capture` entirely when `multiple` is present, which would quietly turn this
+                back into a second file picker. Tapping it again adds the next shot, so
+                several photos still arrive one at a time.
+              */}
+              {isTouch && (
+                <label
+                  className="btn-secondary"
+                  onClick={(e) => e.stopPropagation()}
+                  style={{ cursor: 'pointer', padding: '8px 14px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <Camera size={14} />
+                  CAMERA
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    style={{ display: 'none' }}
+                    onChange={(e) => { if (e.target.files?.length) addPlainPhotos(e.target.files); e.target.value = ''; }}
+                  />
+                </label>
+              )}
+            </div>
+          </div>
         </div>
 
         <ImageLightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} />

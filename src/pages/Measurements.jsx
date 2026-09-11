@@ -207,7 +207,7 @@ export default function Measurements() {
       {/* Size Chart Modal */}
       {showSizeChart && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
-          <div className="glass-panel" style={{ width: '600px', padding: '32px', backgroundColor: 'var(--bg-card)' }}>
+          <div className="glass-panel" style={{ width: '600px', maxWidth: 'calc(100vw - 32px)', maxHeight: 'calc(100vh - 32px)', overflowY: 'auto', padding: '32px', backgroundColor: 'var(--bg-card)' }}>
             <h2 style={{ fontSize: '24px', marginBottom: '4px' }}>{sizeChart.title} (Inches)</h2>
             <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: 0, marginBottom: '16px' }}>
               A starting point, not a standard. Your own sizes live in Settings under Catalog

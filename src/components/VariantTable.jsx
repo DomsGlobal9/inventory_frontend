@@ -1151,18 +1151,21 @@ export default function VariantTable({ productId, productName, productCode, prod
           }}
         />
         <motion.div
-          initial={{ opacity: 0, scale: 0.92 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.92 }}
+          initial={{ opacity: 0, scale: 0.92, x: '-50%', y: '-50%' }}
+          animate={{ opacity: 1, scale: 1, x: '-50%', y: '-50%' }}
+          exit={{ opacity: 0, scale: 0.92, x: '-50%', y: '-50%' }}
           style={{
             position: 'fixed', top: '50%', left: '50%',
-            transform: 'translate(-50%, -50%)',
             width: '420px',
+            maxWidth: 'calc(100vw - 32px)',
+            maxHeight: 'calc(100vh - 32px)',
+            overflowY: 'auto',
             backgroundColor: 'var(--bg-card)',
             border: '1px solid rgba(239,68,68,0.3)',
             borderRadius: '12px',
             zIndex: 1000,
-            overflow: 'hidden',
+            // No `overflow: hidden` here: it is shorthand and resets the overflowY above,
+            // so on a short screen this box could neither grow nor scroll.
           }}
         >
           {/* Header */}
@@ -1244,11 +1247,17 @@ export default function VariantTable({ productId, productName, productCode, prod
           onClick={() => setStockBreakdownVariant(null)}
           style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 999, backdropFilter: 'blur(4px)' }}
         />
+        {/* The centring lives in the motion props, not in a CSS transform. Framer Motion
+            writes the element's transform itself to animate scale, so a translate(-50%,-50%)
+            in style is overwritten the moment the animation runs -- which left this box
+            pinned with its top-left corner at the centre of the screen instead of its
+            middle. On a phone that put it at x=188 of 375, half of it off the edge; on a
+            desktop it was simply always off-centre. */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '400px', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '12px', zIndex: 1000, overflow: 'hidden' }}
+          initial={{ opacity: 0, scale: 0.95, x: '-50%', y: '-50%' }}
+          animate={{ opacity: 1, scale: 1, x: '-50%', y: '-50%' }}
+          exit={{ opacity: 0, scale: 0.95, x: '-50%', y: '-50%' }}
+          style={{ position: 'fixed', top: '50%', left: '50%', width: '400px', maxWidth: 'calc(100vw - 32px)', maxHeight: 'calc(100vh - 32px)', overflowY: 'auto', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '12px', zIndex: 1000 }}
         >
           <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h3 style={{ margin: 0, fontSize: '16px' }}>Stock Breakdown</h3>

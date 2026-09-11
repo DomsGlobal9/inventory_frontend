@@ -54,7 +54,7 @@ export default function StockMovementModal({ isOpen, onClose, productId }) {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
           className="glass-panel" 
-          style={{ width: '480px', padding: '32px', position: 'relative' }}
+          style={{ width: '480px', maxWidth: 'calc(100vw - 32px)', maxHeight: 'calc(100vh - 32px)', overflowY: 'auto', padding: '32px', position: 'relative' }}
         >
           <button 
             onClick={onClose} 

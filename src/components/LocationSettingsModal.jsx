@@ -67,7 +67,7 @@ export function LocationSettingsModal({ variant, onClose, onSaveSuccess }) {
         initial={{ opacity: 0, scale: 0.95, x: '-50%', y: '-50%' }}
         animate={{ opacity: 1, scale: 1, x: '-50%', y: '-50%' }}
         exit={{ opacity: 0, scale: 0.95, x: '-50%', y: '-50%' }}
-        style={{ position: 'fixed', top: '50%', left: '50%', width: '500px', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '12px', zIndex: 1000, overflow: 'hidden' }}
+        style={{ position: 'fixed', top: '50%', left: '50%', width: '500px', maxWidth: 'calc(100vw - 32px)', maxHeight: 'calc(100vh - 32px)', overflowY: 'auto', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '12px', zIndex: 1000 }}
       >
         <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>

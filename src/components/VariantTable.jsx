@@ -9,6 +9,7 @@ import { LocationSettingsModal } from './LocationSettingsModal';
 import { useVariants, useBulkCreateVariants, useDeleteVariant, useUpdateVariant } from '../hooks/useVariants';
 import { useCatalogData } from '../hooks/useCatalogConfig';
 import { useLocationContext } from '../contexts/LocationContext';
+import { useVisibleRowWidth } from '../hooks/useVisibleRowWidth';
 import { useAuth } from '../context/AuthContext';
 import VariantSuppliersPanel from './VariantSuppliersPanel';
 import { buildVariantSku } from '../utils/skuUtils';
@@ -39,6 +40,8 @@ export default function VariantTable({ productId, productName, productCode, prod
   const bulkCreateMutation = useBulkCreateVariants(productId);
   const updateVariantMutation = useUpdateVariant(productId);
   const { currentLocation } = useLocationContext();
+  // Lets the expanded supplier row size itself to the part of the table you can see.
+  const scrollRef = useVisibleRowWidth();
   // Only read while the generator is open; the list is small and cached by the hook.
   const { data: suppliers = [] } = useSuppliers();
 
@@ -767,7 +770,7 @@ export default function VariantTable({ productId, productName, productCode, prod
           <p style={{ color: 'var(--text-muted)' }}>No variants generated yet.</p>
         </div>
       ) : (
-        <div className="table-container" style={{ overflowX: 'auto' }}>
+        <div className="table-container" ref={scrollRef} style={{ overflowX: 'auto' }}>
           <motion.table initial="hidden" animate="show" variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.05 } } }} style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px' }}>
             <thead>
               <tr>
@@ -1087,6 +1090,10 @@ export default function VariantTable({ productId, productName, productCode, prod
                       {/* Spans the full table: the 11 data columns plus the leading
                           checkbox column. */}
                       <td colSpan={12} style={{ padding: 0, background: 'var(--bg-input)', borderBottom: '1px solid var(--border-light)' }}>
+                        {/* Sized to the visible width rather than the table's, so the
+                            supplier rows and their buttons stay where you are looking
+                            instead of a thousand pixels to the right on a phone. */}
+                        <div className="fullrow-content">
                         <div style={{ padding: '10px 20px 0', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)' }}>
                           Suppliers for {v.sku}
                         </div>
@@ -1106,6 +1113,7 @@ export default function VariantTable({ productId, productName, productCode, prod
                              being accepted sight-unseen. */
                           sellingPrice={effectivePriceOf(v)}
                         />
+                        </div>
                       </td>
                     </tr>
                   )}

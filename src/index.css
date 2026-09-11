@@ -497,6 +497,23 @@ tr:hover td {
   -webkit-overflow-scrolling: touch;
 }
 
+/* Content of a row that spans every column.
+ *
+ * The cell is as wide as the table, so on a narrow screen anything inside it can sit far
+ * off to the right of the part you can see -- an expanded panel's buttons, or a centred
+ * "no items found" that is centred on a width nobody is looking at. Sticky pins the
+ * wrapper to the left edge of the scroll window and --fullrow-w (written by
+ * useVisibleRowWidth on the scrolling container) makes it exactly as wide as that window.
+ *
+ * The 100% fallback is the old behaviour, so a table whose container has no hook attached
+ * renders exactly as it did before. */
+.fullrow-content {
+  position: sticky;
+  left: 0;
+  width: var(--fullrow-w, 100%);
+  max-width: 100%;
+}
+
 /* ─── Tablet ─────────────────────────────────────────────────────────────────
  *
  * 769px to 1024px had no rules at all, so an iPad in portrait rendered the full desktop
@@ -524,6 +541,10 @@ tr:hover td {
   [role="button"],
   a.btn,
   .btn,
+  /* Links styled as buttons. The bare `button` selector above already covers
+     <button class="btn-secondary">, so this was only ever missed for the anchor form of
+     the same thing -- which is what Share on the Daybook is, and it measured 35px. */
+  a[class*="btn-"],
   .sidebar a,
   .mobile-tab-bar button {
     min-height: 44px;
@@ -533,6 +554,16 @@ tr:hover td {
      runs; where it is not, the min-height above still applies. */
   button:has(> svg:only-child) {
     min-width: 44px;
+  }
+
+  /* Checkboxes were not in this list at all and render 18x18 -- half of WCAG 2.5.8's 24px
+     minimum, and they sit in dense table rows where a missed tap selects the wrong line.
+     24px rather than 44px on purpose: these live inside row grids that a 44px control would
+     visibly stretch, and 24px is the size the standard actually asks for. */
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-width: 24px;
+    min-height: 24px;
   }
 }
 

@@ -298,7 +298,11 @@ This actually sends it. Once it goes, the order is marked as Sent and you can st
           Back
         </button>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        {/* Wraps, because on a phone this row held 519px of buttons in 346px of space and
+            simply cut the last two off: "Mark as Sent" and "Download PDF" were not merely
+            awkward to reach, they were unreachable, and the page did not scroll sideways to
+            reveal them. */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
           <div>
             <h1 style={{ fontSize: '28px', margin: 0, color: 'var(--text-primary)' }}>
               {isNew ? 'Create Purchase Order' : po.poNumber}
@@ -311,7 +315,7 @@ This actually sends it. Once it goes, the order is marked as Sent and you can st
           </div>
           
           {!isNew && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
               <span style={{ 
                 padding: '6px 12px', 
                 borderRadius: '20px', 

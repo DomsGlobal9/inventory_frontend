@@ -290,7 +290,7 @@ export default function DayBook() {
       )}
 
       {/* ── In and out, by reason ───────────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px', marginBottom: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(320px, 100%), 1fr))', gap: '16px', marginBottom: '16px' }}>
         <ReasonPanel title="Stock that came in" icon={TrendingUp} tone="in"
           lines={d?.stockIn?.lines || []} totalUnits={d?.stockIn?.totalUnits} totalValue={d?.stockIn?.totalValue} />
         <ReasonPanel title="Stock that went out" icon={TrendingDown} tone="out"

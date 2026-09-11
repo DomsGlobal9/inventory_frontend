@@ -70,7 +70,10 @@ export default function SupplierDetails() {
     <motion.div variants={container} initial="hidden" animate="show" style={{ display: 'flex', flexDirection: 'column', gap: '24px', height: '100%', paddingBottom: '32px' }}>
       
       {/* Header */}
-      <motion.div variants={item} style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+      {/* Wraps: at 320px the supplier's name and code pushed Edit Supplier 39px past the
+          right edge, where nothing scrolled to reach it -- editing a supplier was simply
+          unavailable on a small phone. */}
+      <motion.div variants={item} style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
         <button className="btn-icon" onClick={() => navigate('/inventory/suppliers')} style={{ backgroundColor: 'var(--bg-card)' }}>
           <ArrowLeft size={20} />
         </button>
@@ -96,7 +99,7 @@ export default function SupplierDetails() {
         </div>
       </motion.div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(300px, 100%), 1fr))', gap: '24px' }}>
         {/* Contact Info */}
         <motion.div variants={item} className="glass-panel" style={{ padding: '24px' }}>
           <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-light)', paddingBottom: '12px' }}>Contact Details</h3>

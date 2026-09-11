@@ -122,7 +122,7 @@ export default function Dashboard() {
               <motion.div variants={item}>
                 <RecentTransactions />
               </motion.div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(320px, 100%), 1fr))', gap: '24px' }}>
                 <motion.div variants={item}>
                   <LowStockWidget />
                 </motion.div>
@@ -132,7 +132,7 @@ export default function Dashboard() {
           )}
 
           {activeTab === 'inventory' && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(400px, 100%), 1fr))', gap: '24px' }}>
               <motion.div variants={item}>
                 <LowStockWidget />
               </motion.div>
@@ -143,7 +143,7 @@ export default function Dashboard() {
           )}
 
           {activeTab === 'analytics' && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(400px, 100%), 1fr))', gap: '24px' }}>
               <motion.div variants={item}>
                 <InventoryTrendChart />
               </motion.div>

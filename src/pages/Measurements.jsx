@@ -6,6 +6,7 @@ import { useProduct } from '../context/ProductContext';
 import { useCatalogData } from '../hooks/useCatalogConfig';
 import { useSuppliers } from '../hooks/useSuppliers';
 import Select from '../components/common/Select';
+import { useMediaQuery } from '../hooks/useMediaQuery';
 
 const FREE_SIZE = 'Free Size';
 
@@ -71,6 +72,8 @@ const SIZE_CHARTS = {
 export default function Measurements() {
   const navigate = useNavigate();
   const { productData, updateProductData } = useProduct();
+  // Phones get a stacked version of the units matrix; everything wider keeps the table.
+  const isNarrowScreen = useMediaQuery('(max-width: 768px)');
   const [activeColor, setActiveColor] = useState(null);
   const [showSizeChart, setShowSizeChart] = useState(false);
   const { sizesFor, colors: COLORS_PALETTE } = useCatalogData();
@@ -354,14 +357,23 @@ export default function Measurements() {
 
         {/* ROW 2: Compact Colors */}
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px', flexWrap: 'wrap' }}>
             <label className="input-label" style={{ margin: 0 }}>Select Colors</label>
             <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Click to view shades • Double-click to select base color</span>
           </div>
           
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '24px' }}>
+          {/*
+            Wraps, and the swatches refuse to be squeezed.
+            On a phone these two sat side by side with nowhere to go: the shades drawer was
+            pushed off the right edge, and the swatch grid -- a flex item with nothing
+            stopping it shrinking -- was crushed to one circle wide, so ten colours became a
+            tall vertical column down the left of the screen. flexWrap moves the drawer
+            underneath; flexShrink: 0 keeps the palette its natural width instead of
+            collapsing to make room for a sibling that has already moved away.
+          */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', flexWrap: 'wrap' }}>
             {/* Color Swatches */}
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', maxWidth: '300px' }}>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', maxWidth: '300px', flexShrink: 0 }}>
               {COLORS_PALETTE.map(color => (
                 <button
                   key={color.code}
@@ -384,9 +396,9 @@ export default function Measurements() {
 
             {/* Inline Shades Drawer */}
             {activeColor && (
-              <div className="animate-fade-in" style={{ padding: '8px 16px', background: 'var(--bg-input)', borderRadius: '6px', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div className="animate-fade-in" style={{ padding: '8px 16px', background: 'var(--bg-input)', borderRadius: '6px', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', maxWidth: '100%' }}>
                 <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: '500' }}>{activeColor.name} Shades:</span>
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                   {activeColor.shades.map((shade, idx) => {
                     const shadeCode = `${activeColor.name.toLowerCase()}_${shade}`;
                     const selected = isColorSelected(shadeCode);
@@ -451,6 +463,76 @@ export default function Measurements() {
           {(productData.selectedSizes.length === 0 || productData.selectedColors.length === 0) ? (
             <div style={{ padding: '32px', background: 'var(--bg-input)', borderRadius: '6px', border: '1px dashed var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Select at least one Size and Color to input stock units.</span>
+            </div>
+          ) : isNarrowScreen ? (
+            /*
+              The same grid, stacked, for phones only -- the table above is untouched and is
+              still what a desktop gets.
+              A matrix wants two axes and a phone has room for one. At 375px the table was
+              500px wide inside a 270px window, with a sticky 200px label column pinned over
+              it, so the quantity box you were aiming for slid underneath the colour name as
+              soon as you scrolled sideways to reach it. Nothing was broken; it was simply
+              unusable with a thumb.
+              One card per colour, one line per size, no sideways scrolling anywhere.
+            */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {productData.selectedColors.map(colorCode => {
+                const info = getColorInfo(colorCode);
+                return (
+                  <div key={colorCode} style={{ border: '1px solid var(--border-light)', borderRadius: '8px', background: 'var(--bg-card)', overflow: 'hidden' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', background: 'var(--bg-input)', borderBottom: '1px solid var(--border-light)' }}>
+                      <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: info.value, border: '1px solid var(--border-light)', flexShrink: 0 }} />
+                      <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>{info.name}</span>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      {productData.selectedSizes.map(size => (
+                        <div
+                          key={size}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap',
+                            padding: '10px 14px', borderTop: '1px solid var(--border-light)'
+                          }}
+                        >
+                          <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', minWidth: '38px', flexShrink: 0 }}>
+                            {size}
+                          </span>
+
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: '1 1 0', minWidth: 0 }}>
+                            <span style={{ fontSize: '12px', color: 'var(--text-muted)', flexShrink: 0 }}>Units</span>
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              className="input-field"
+                              placeholder="0"
+                              title="How many pieces"
+                              value={productData.units[colorCode]?.[size] || ''}
+                              onChange={(e) => handleUnitChange(size, colorCode, e.target.value)}
+                              style={{ textAlign: 'center', width: '100%', minWidth: 0, padding: '8px' }}
+                            />
+                          </label>
+
+                          {productData.perVariantPricing && (
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: '1 1 0', minWidth: 0 }}>
+                              <span style={{ fontSize: '12px', color: 'var(--text-muted)', flexShrink: 0 }}>Price</span>
+                              <input
+                                type="text"
+                                inputMode="numeric"
+                                className="input-field"
+                                placeholder="Base"
+                                title="What this exact size and colour sells for. Leave blank to use the base price."
+                                value={productData.variantPrices?.[colorCode]?.[size] || ''}
+                                onChange={(e) => handleVariantPriceChange(size, colorCode, e.target.value)}
+                                style={{ textAlign: 'center', width: '100%', minWidth: 0, padding: '8px', fontSize: '13px' }}
+                              />
+                            </label>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <div className="table-container" style={{ overflowX: 'auto', border: '1px solid var(--border-light)', borderRadius: '6px', backgroundColor: 'var(--bg-card)' }}>

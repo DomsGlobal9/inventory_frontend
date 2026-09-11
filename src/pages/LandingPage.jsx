@@ -499,7 +499,7 @@ function TryTheMargin() {
       borderRadius: 'clamp(20px, 3vw, 32px)', border: '1px solid var(--border-light)',
       background: 'var(--bg-card)', padding: 'clamp(24px, 4vw, 48px)',
       display: 'grid', gap: 'clamp(24px, 4vw, 56px)',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', alignItems: 'center'
+      gridTemplateColumns: 'repeat(auto-fit, minmax(min(280px, 100%), 1fr))', alignItems: 'center'
     }}>
       <div>
         <p style={{ fontSize: '12px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--brand-ink)', margin: '0 0 14px', fontWeight: 700 }}>
@@ -896,7 +896,7 @@ export default function LandingPage() {
           <div className="lp-row" style={{
             ...shell,
             display: 'grid', gap: 'clamp(32px, 6vw, 72px)', alignItems: 'center',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))'
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(320px, 100%), 1fr))'
           }}>
             {/* Text first in the DOM on every row, so a phone always reads the idea before the
                 picture of it. The visual order alternates on wide screens only. */}

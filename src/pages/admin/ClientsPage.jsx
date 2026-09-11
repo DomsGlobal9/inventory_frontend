@@ -73,7 +73,7 @@ export default function ClientsPage() {
             No client matches "{query}".
           </div>
         ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(280px, 100%), 1fr))', gap: '16px' }}>
           {clients.map(client => {
             // Suspension outranks onboarding on this badge. They answer different questions --
             // "how far have they got with setting up" versus "can anyone here sign in at all" --

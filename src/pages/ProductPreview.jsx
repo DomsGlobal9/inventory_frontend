@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Image as ImageIcon, CheckCircle, Loader2, ArrowLeft, Eye } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -85,6 +85,33 @@ export default function ProductPreview() {
 
   const hasPhotos = (productData.imageUrls?.length > 0) ||
     Object.values(productData.sourceUploadFiles || {}).some(Boolean);
+
+  /*
+   * What this page can actually show you.
+   *
+   * imageUrls is written by one path only -- the AI garment generation -- so for every
+   * ordinary upload it is empty, and this page rendered a grey placeholder icon while its
+   * own checklist ticked "At Least 1 Photo" off the list two columns away. hasPhotos above
+   * already knew to look in sourceUploadFiles; the picture did not. So a shopkeeper who had
+   * just chosen four photographs was shown a preview with no photographs in it, immediately
+   * before being asked to publish.
+   *
+   * sourceUploadFiles is a plain array on the ordinary path and a map keyed by view on the
+   * AI one, which is why Object.values covers both.
+   */
+  const uploadedFileUrls = useMemo(() => {
+    if (productData.imageUrls?.length > 0) return [];
+    const files = Object.values(productData.sourceUploadFiles || {}).filter(f => f instanceof File);
+    return files.map(f => URL.createObjectURL(f));
+  }, [productData.imageUrls, productData.sourceUploadFiles]);
+
+  // Object URLs hold their file in memory until revoked, and this page is reached repeatedly
+  // via Back to Edit.
+  useEffect(() => () => {
+    uploadedFileUrls.forEach(u => { try { URL.revokeObjectURL(u); } catch { /* ignore */ } });
+  }, [uploadedFileUrls]);
+
+  const previewImages = productData.imageUrls?.length > 0 ? productData.imageUrls : uploadedFileUrls;
 
   // Single source of truth for both the checklist display and whether Publish is
   // actually clickable -- these used to drift apart (checklist showed complete while
@@ -378,27 +405,38 @@ export default function ProductPreview() {
         </button>
       </div>
 
-      <div style={{ display: 'flex', gap: '48px' }}>
+      {/*
+        Three columns that become three rows when there is no room for three columns.
+        This was one unwrapping flex row with 48px gutters: on a 375px phone the
+        1 : 2 : 1 split left roughly 62px, 124px and 62px, so the photo thumbnails
+        rendered 25px wide, "Total Variants (Sizes x Colors)" broke across four lines and
+        the publishing checklist -- the thing the page exists to get you through -- was a
+        62px ribbon. Nothing overflowed; it was all on screen and none of it was legible.
+
+        flex-basis rather than a media query so each column asks for the width it actually
+        needs and drops to its own row when the screen cannot give it.
+      */}
+      <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
       {/* Left: Product Images */}
-      <div style={{ flex: '1', maxWidth: '400px' }}>
+      <div style={{ flex: '1 1 300px', maxWidth: '400px', minWidth: 0 }}>
         <div className="glass-panel" style={{ position: 'relative', height: '500px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
-          {productData.imageUrls && productData.imageUrls.length > 0 ? (
+          {previewImages && previewImages.length > 0 ? (
             <>
-              <img src={productData.imageUrls[0]} alt="Main product" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              <EyeOverlay src={productData.imageUrls[0]} alt="Main product" />
+              <img src={previewImages[0]} alt="Main product" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <EyeOverlay src={previewImages[0]} alt="Main product" />
             </>
           ) : (
             <ImageIcon size={64} color="var(--border-focus)" />
           )}
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
-          {(productData.imageUrls || []).slice(1, 4).map((url, i) => (
+          {(previewImages || []).slice(1, 4).map((url, i) => (
             <div key={i} className="glass-panel" style={{ position: 'relative', aspectRatio: '3/4', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <img src={url} alt={`Thumbnail ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               <EyeOverlay src={url} alt={`Thumbnail ${i + 1}`} />
             </div>
           ))}
-          {(!productData.imageUrls || productData.imageUrls.length <= 1) && [1, 2, 3].map(i => (
+          {(!previewImages || previewImages.length <= 1) && [1, 2, 3].map(i => (
             <div key={i} className="glass-panel" style={{ aspectRatio: '3/4', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <ImageIcon size={24} color="var(--border-focus)" />
             </div>
@@ -407,7 +445,7 @@ export default function ProductPreview() {
       </div>
 
       {/* Center: Details */}
-      <div style={{ flex: '2', display: 'flex', flexDirection: 'column', gap: '32px' }}>
+      <div style={{ flex: '2 1 340px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: '32px' }}>
         <div style={{ borderBottom: '1px solid var(--border-light)', paddingBottom: '24px' }}>
           <span style={{ fontSize: '12px', color: 'var(--text-secondary)', letterSpacing: '0.1em' }}>
             {productData.category} &nbsp;•&nbsp; {productData.brand || 'No Brand'}
@@ -420,7 +458,7 @@ export default function ProductPreview() {
           </p>
         </div>
         
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(150px, 100%), 1fr))', gap: '20px 32px' }}>
           <div>
             <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>PRODUCT TYPE</span>
             <p style={{ marginTop: '8px', fontSize: '16px' }}>{productData.productType || 'N/A'}</p>
@@ -524,7 +562,7 @@ export default function ProductPreview() {
       </div>
       
       {/* Right Sidebar: Status & Checklist */}
-      <div style={{ flex: '1', maxWidth: '300px' }}>
+      <div style={{ flex: '1 1 280px', maxWidth: '300px', minWidth: 0 }}>
         <div className="glass-panel" style={{ padding: '24px', position: 'sticky', top: '24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>STATUS</span>

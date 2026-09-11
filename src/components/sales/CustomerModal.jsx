@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { firstMissingField, missingFieldMessage } from '../../lib/formGuard';
+import toast from 'react-hot-toast';
 import { X, Save, Loader2, User, AlertCircle } from 'lucide-react';
 import { useCreateCustomer, useUpdateCustomer } from '../../hooks/useCustomers';
 
@@ -62,6 +64,10 @@ const CustomerModal = ({ isOpen, onClose, customer }) => {
    */
   const handleSubmit = (e) => {
     e.preventDefault();
+    // The browser no longer draws this warning (the form carries noValidate) -- see
+    // lib/formGuard. Same `required` fields, same rule, said in the app's own voice.
+    const missing = firstMissingField(e.currentTarget);
+    if (missing) { toast.error(missingFieldMessage(missing)); return; }
     setSaveError(null);
     const onError = (error) => setSaveError(
       error?.message || 'That did not save. Try again in a moment.'
@@ -95,7 +101,7 @@ const CustomerModal = ({ isOpen, onClose, customer }) => {
           <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}><X size={20} /></button>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <form onSubmit={handleSubmit} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }} noValidate>
           <div className="form-group">
             <label className="form-label">Contact Name <span style={{ color: 'red' }}>*</span></label>
             <input required type="text" className="input-field" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="e.g. Jane Doe" />

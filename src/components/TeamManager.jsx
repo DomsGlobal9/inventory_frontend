@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { firstMissingField, missingFieldMessage } from '../lib/formGuard';
+import toast from 'react-hot-toast';
 import { UserPlus, Loader2, Mail, MessageCircle, Copy, Check, X, KeyRound, Shield, Clock, ShieldCheck, Activity, ScrollText, Eye, EyeOff, RefreshCw, Send } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -154,6 +156,10 @@ function InviteForm({ roles, onDone }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // The browser no longer draws this warning (the form carries noValidate) -- see
+    // lib/formGuard. Same `required` fields, same rule, said in the app's own voice.
+    const missing = firstMissingField(e.currentTarget);
+    if (missing) { toast.error(missingFieldMessage(missing)); return; }
     if (!name.trim() || !email.trim() || !roleId) return;
     if (passwordMode === 'custom' && customPassword.length < 6) return;
     try {
@@ -183,7 +189,7 @@ function InviteForm({ roles, onDone }) {
 
   return (
     <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(4px)' }} onClick={onDone}>
-      <form onSubmit={handleSubmit} onClick={e => e.stopPropagation()} style={{ display: 'flex', flexDirection: 'column', gap: '14px', width: '100%', maxWidth: '420px', background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '16px', padding: '24px', boxShadow: 'var(--shadow-modal)' }}>
+      <form onSubmit={handleSubmit} onClick={e = noValidate> e.stopPropagation()} style={{ display: 'flex', flexDirection: 'column', gap: '14px', width: '100%', maxWidth: '420px', background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '16px', padding: '24px', boxShadow: 'var(--shadow-modal)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '15px' }}>Add Team Member</div>
         <button type="button" onClick={onDone} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}><X size={18} /></button>

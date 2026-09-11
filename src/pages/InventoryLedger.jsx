@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import LoadFailed from '../components/LoadFailed';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, History, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -17,7 +18,7 @@ export default function InventoryLedger() {
     limit: 50
   });
 
-  const { data, isLoading } = useInventoryTransactions(filters);
+  const { data, isLoading, isError, error, refetch } = useInventoryTransactions(filters);
   // useInventoryTransactions already unwraps to the backend's `data` array directly
   // (GET /inventory/transactions returns { success, total, data: [...], page, limit }
   // — a flat array, unlike /inventory/variants' { items, pagination } shape). Reading
@@ -86,7 +87,7 @@ export default function InventoryLedger() {
       <div className="table-container" style={{ overflowX: 'auto', flex: 1 }}>
         {isLoading ? (
           <PageLoader text="Loading ledger..." />
-        ) : transactions.length === 0 ? (
+        ) : isError ? (<LoadFailed what="stock movements" error={error} onRetry={refetch} />) : transactions.length === 0 ? (
           <div style={{ padding: '48px', textAlign: 'center', color: 'var(--text-muted)' }}>
             No transactions found.
           </div>

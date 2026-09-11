@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
+import LoadFailed from '../../components/LoadFailed';
 import { useNavigate } from 'react-router-dom';
 import { useAdminUsers } from '../../hooks/admin/useAdminConsole';
 import { Loader2, Search, Users as UsersIcon, Mail, Shield, Clock, Building2 } from 'lucide-react';
 import PageGuide from '../../components/admin/PageGuide';
 
 export default function UsersPage() {
-  const { data, isLoading } = useAdminUsers();
+  const { data, isLoading, isError, error, refetch } = useAdminUsers();
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
 
@@ -118,7 +119,7 @@ export default function UsersPage() {
                   </td>
                 </tr>
               ))}
-              {filtered.length === 0 && (
+              {isError ? (<LoadFailed what="users" error={error} onRetry={refetch} colSpan={5} />) : filtered.length === 0 && (
                 <tr>
                   <td colSpan={5} style={{ padding: '48px 24px', textAlign: 'center', color: 'var(--text-muted)' }}>
                     <UsersIcon size={32} style={{ opacity: 0.2, margin: '0 auto 12px' }} />

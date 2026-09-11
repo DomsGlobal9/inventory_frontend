@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { firstMissingField, missingFieldMessage } from '../../lib/formGuard';
 import { useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import { invalidateDerivedViews } from '../../lib/invalidate';
@@ -78,6 +79,10 @@ export default function TransfersPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // The browser no longer draws this warning (the form carries noValidate) -- see
+    // lib/formGuard. Same `required` fields, same rule, said in the app's own voice.
+    const missing = firstMissingField(e.currentTarget);
+    if (missing) { toast.error(missingFieldMessage(missing)); return; }
     if (!formData.originLocationId || !formData.destinationLocationId) {
       return toast.error('Please select origin and destination locations');
     }
@@ -131,7 +136,7 @@ export default function TransfersPage() {
       </div>
 
       <div className="card" style={{ padding: '24px' }}>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} noValidate>
           <div className="mobile-stack-grid" style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '16px', alignItems: 'center', marginBottom: '24px' }}>
             <div className="form-group">
               <label>Origin Location</label>

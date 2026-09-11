@@ -1,4 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
+import { firstMissingField, missingFieldMessage } from '../lib/formGuard';
+import toast from 'react-hot-toast';
+import LoadFailed from './LoadFailed';
 import { LifeBuoy, Plus, ArrowLeft, Send, Loader2, Clock } from 'lucide-react';
 import { useSupportTickets, useSupportTicket, useCreateSupportTicket, useReplySupportTicket } from '../hooks/useSupportTickets';
 import Select from './common/Select';
@@ -39,13 +42,17 @@ function NewTicketForm({ onDone }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // The browser no longer draws this warning (the form carries noValidate) -- see
+    // lib/formGuard. Same `required` fields, same rule, said in the app's own voice.
+    const missing = firstMissingField(e.currentTarget);
+    if (missing) { toast.error(missingFieldMessage(missing)); return; }
     if (!subject.trim() || !description.trim()) return;
     await createMutation.mutateAsync({ subject, description, category, priority });
     onDone();
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '560px' }}>
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '560px' }} noValidate>
       <div>
         <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Subject</label>
         <input type="text" className="input-field" value={subject} onChange={e => setSubject(e.target.value)} placeholder="Short summary of the issue" required />
@@ -218,7 +225,7 @@ function TicketDetail({ ticketId, onBack }) {
 
 export default function SupportPanel() {
   const [view, setView] = useState('LIST'); // LIST | NEW | { ticketId }
-  const { data: tickets, isLoading } = useSupportTickets();
+  const { data: tickets, isLoading, isError, error, refetch } = useSupportTickets();
 
   if (view === 'NEW') {
     return <NewTicketForm onDone={() => setView('LIST')} />;
@@ -242,7 +249,7 @@ export default function SupportPanel() {
         <div style={{ display: 'flex', justifyContent: 'center', padding: '48px', color: 'var(--text-muted)' }}>
           <Loader2 size={24} className="animate-spin" />
         </div>
-      ) : !tickets || tickets.length === 0 ? (
+      ) : !tickets || isError ? (<LoadFailed what="support tickets" error={error} onRetry={refetch} />) : tickets.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '48px 24px', color: 'var(--text-muted)' }}>
           <LifeBuoy size={32} style={{ opacity: 0.3, margin: '0 auto 12px' }} />
           <p style={{ fontSize: '15px', fontWeight: 500 }}>No support tickets yet.</p>

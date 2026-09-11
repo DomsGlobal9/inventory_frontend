@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import LoadFailed from '../../components/LoadFailed';
 import { useNavigate } from 'react-router-dom';
 import { Loader2, Bug, Building2, ChevronDown, ChevronRight } from 'lucide-react';
 import { useAdminClientErrors } from '../../hooks/admin/useAdminConsole';
@@ -10,7 +11,7 @@ const SOURCE_STYLE = {
 };
 
 export default function ClientErrorsPage() {
-  const { data, isLoading } = useAdminClientErrors();
+  const { data, isLoading, isError, error, refetch } = useAdminClientErrors();
   const [expandedId, setExpandedId] = useState(null);
   const navigate = useNavigate();
 
@@ -95,7 +96,7 @@ export default function ClientErrorsPage() {
                   </React.Fragment>
                 );
               })}
-              {(!data || data.length === 0) && (
+              {isError ? (<LoadFailed what="errors" error={error} onRetry={refetch} colSpan={7} />) : (!data || data.length === 0) && (
                 <tr><td colSpan={7} style={{ padding: '48px 24px', textAlign: 'center', color: 'var(--text-muted)' }}>
                   <Bug size={32} style={{ opacity: 0.2, margin: '0 auto 12px' }} />
                   <p style={{ fontSize: '15px', fontWeight: 500 }}>No errors recorded.</p>

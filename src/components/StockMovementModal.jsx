@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { firstMissingField, missingFieldMessage } from '../lib/formGuard';
 import { X, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCreateTransaction } from '../hooks/useTransactions';
@@ -22,6 +23,10 @@ export default function StockMovementModal({ isOpen, onClose, productId }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // The browser no longer draws this warning (the form carries noValidate) -- see
+    // lib/formGuard. Same `required` fields, same rule, said in the app's own voice.
+    const missing = firstMissingField(e.currentTarget);
+    if (missing) { toast.error(missingFieldMessage(missing)); return; }
     if (!formData.variantId) return toast.error('Please select a variant');
 
     createMutation.mutate({
@@ -65,7 +70,7 @@ export default function StockMovementModal({ isOpen, onClose, productId }) {
           ) : variants.length === 0 ? (
             <div style={{ color: 'var(--accent-danger)' }}>Please create variants first before recording stock.</div>
           ) : (
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }} noValidate>
               <div>
                 <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '8px' }}>Select SKU</label>
                 <Select 

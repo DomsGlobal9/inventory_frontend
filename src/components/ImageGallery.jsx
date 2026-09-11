@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import LoadFailed from './LoadFailed';
 import { Upload, X, Star, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useImages, useUploadImage, useDeleteImage, useUpdateImage } from '../hooks/useImages';
@@ -8,7 +9,7 @@ import PageLoader from './PageLoader';
 
 export default function ImageGallery({ productId }) {
   const fileInputRef = useRef(null);
-  const { data, isLoading } = useImages(productId);
+  const { data, isLoading, isError, error, refetch } = useImages(productId);
   const uploadMutation = useUploadImage(productId);
   const deleteMutation = useDeleteImage(productId);
   const updateMutation = useUpdateImage(productId);
@@ -92,7 +93,7 @@ export default function ImageGallery({ productId }) {
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto' }}>
-        {images.length === 0 ? (
+        {isError ? (<LoadFailed what="images" error={error} onRetry={refetch} />) : images.length === 0 ? (
           <div style={{ padding: '48px', textAlign: 'center', border: '1px dashed var(--border-light)', borderRadius: '8px' }}>
             <p style={{ color: 'var(--text-muted)' }}>No images uploaded yet.</p>
           </div>

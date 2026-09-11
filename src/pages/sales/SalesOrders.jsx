@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import LoadFailed from '../../components/LoadFailed';
 import { useNavigate } from 'react-router-dom';
 import { useSalesOrders } from '../../hooks/useSalesOrders';
 import { Search, Filter } from 'lucide-react';
@@ -9,7 +10,7 @@ import Select from '../../components/common/Select';
 export default function SalesOrders() {
   const navigate = useNavigate();
   const [statusFilter, setStatusFilter] = useState('');
-  const { data: orders, isLoading } = useSalesOrders({ status: statusFilter });
+  const { data: orders, isLoading, isError, error, refetch } = useSalesOrders({ status: statusFilter });
 
   const getStatusBadge = (status) => {
     const styles = {
@@ -75,7 +76,7 @@ export default function SalesOrders() {
           <tbody>
             {isLoading ? (
               <tr><td colSpan="6" style={{ padding: '48px', textAlign: 'center', color: 'var(--text-secondary)' }}>Loading orders...</td></tr>
-            ) : orders?.length === 0 ? (
+            ) : isError ? (<LoadFailed what="orders" error={error} onRetry={refetch} colSpan={6} />) : orders?.length === 0 ? (
               <tr><td colSpan="6" style={{ padding: '48px', textAlign: 'center', color: 'var(--text-secondary)' }}>No orders found.</td></tr>
             ) : (
               orders?.map(order => (

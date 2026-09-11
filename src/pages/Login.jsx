@@ -54,6 +54,34 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    /*
+     * Check the fields ourselves, because the form carries noValidate.
+     *
+     * With the browser doing it, an empty field produced its own grey tooltip -- "Please fill
+     * in this field." -- in the operating system's font, anchored to the input, gone on the
+     * next click, and untranslatable. This screen already has somewhere to put a problem: the
+     * error line below the fields, in the app's own type, which stays until it is fixed. Two
+     * different ways of telling somebody the same kind of thing, one of which does not look
+     * like this product at all.
+     *
+     * Same reason the browser's alert() and confirm() were removed everywhere else.
+     */
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
+      setError('Enter the email address you signed up with.');
+      return;
+    }
+    // Deliberately forgiving -- the server is the one that decides whether an address exists.
+    // This only catches what is obviously not an address at all, so a typo is answered here
+    // instead of after a round trip.
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(trimmedEmail)) {
+      setError('That does not look like an email address.');
+      return;
+    }
+    if (!password) {
+      setError('Enter your password.');
+      return;
+    }
     await attemptLogin();
   };
 
@@ -108,7 +136,7 @@ export default function Login() {
           </button>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div>
             <label htmlFor="email" style={authLabel}>Email address</label>
             <input

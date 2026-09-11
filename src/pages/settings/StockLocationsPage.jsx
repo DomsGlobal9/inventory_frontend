@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { firstMissingField, missingFieldMessage } from '../../lib/formGuard';
 import { api } from '../../lib/api';
 import toast from 'react-hot-toast';
 import { Plus, Edit2, Trash2, MapPin, Search } from 'lucide-react';
@@ -50,6 +51,10 @@ export default function StockLocationsPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // The browser no longer draws this warning (the form carries noValidate) -- see
+    // lib/formGuard. Same `required` fields, same rule, said in the app's own voice.
+    const missing = firstMissingField(e.currentTarget);
+    if (missing) { toast.error(missingFieldMessage(missing)); return; }
     try {
       if (editingLocation) {
         await api.put(`/locations/${editingLocation.id}`, formData);
@@ -262,7 +267,7 @@ export default function StockLocationsPage() {
               {editingLocation ? 'Edit Location' : 'Create New Location'}
             </h2>
             
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }} noValidate>
               <div className="form-group">
                 <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '8px' }}>Location Name</label>
                 <input required type="text" className="input-field" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="e.g., Downtown Store" />

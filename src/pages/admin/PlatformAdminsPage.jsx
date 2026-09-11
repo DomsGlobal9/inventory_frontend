@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { firstMissingField, missingFieldMessage } from '../../lib/formGuard';
 import { ShieldCheck, UserPlus, Loader2, KeyRound, Copy, Check, X, AlertTriangle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import {
@@ -190,6 +191,10 @@ export default function PlatformAdminsPage() {
 
   const submit = async (e) => {
     e.preventDefault();
+    // The browser no longer draws this warning (the form carries noValidate) -- see
+    // lib/formGuard. Same `required` fields, same rule, said in the app's own voice.
+    const missing = firstMissingField(e.currentTarget);
+    if (missing) { toast.error(missingFieldMessage(missing)); return; }
     if (!formReady) return;
     const result = await create.mutateAsync({
       name: form.name.trim(),
@@ -246,7 +251,7 @@ export default function PlatformAdminsPage() {
       )}
 
       {showForm && (
-        <form onSubmit={submit} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '16px', padding: '24px', marginBottom: '32px', boxShadow: 'var(--shadow-panel)' }}>
+        <form onSubmit={submit} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '16px', padding: '24px', marginBottom: '32px', boxShadow: 'var(--shadow-panel)' }} noValidate>
           <h3 style={{ margin: '0 0 20px', fontSize: '18px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <UserPlus size={18} color="var(--accent-gold)" /> Add a new platform admin
           </h3>

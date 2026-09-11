@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import LoadFailed from './LoadFailed';
 import { Plus, Filter, Download, ArrowUpRight, ArrowDownRight, Activity } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTransactions } from '../hooks/useTransactions';
@@ -15,7 +16,7 @@ export default function TransactionHistory({ productId, onNewTransaction }) {
     page: 1
   });
 
-  const { data, isLoading } = useTransactions(filters);
+  const { data, isLoading, isError, error, refetch } = useTransactions(filters);
   const transactions = data?.data || [];
 
   const handleFilterChange = (key, value) => {
@@ -108,7 +109,7 @@ export default function TransactionHistory({ productId, onNewTransaction }) {
       </div>
 
       {/* Timeline */}
-      {transactions.length === 0 ? (
+      {isError ? (<LoadFailed what="stock movements" error={error} onRetry={refetch} />) : transactions.length === 0 ? (
         <div style={{ padding: '48px', textAlign: 'center', border: '1px dashed var(--border-light)', borderRadius: '8px' }}>
           <p style={{ color: 'var(--text-muted)' }}>No transactions found.</p>
         </div>

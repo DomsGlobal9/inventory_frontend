@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { firstMissingField, missingFieldMessage } from '../lib/formGuard';
+import toast from 'react-hot-toast';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Edit, Mail, Phone, MapPin, Building, Calendar, FileText, IndianRupee, Clock, Package, X } from 'lucide-react';
@@ -44,6 +46,10 @@ export default function SupplierDetails() {
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
+    // The browser no longer draws this warning (the form carries noValidate) -- see
+    // lib/formGuard. Same `required` fields, same rule, said in the app's own voice.
+    const missing = firstMissingField(e.currentTarget);
+    if (missing) { toast.error(missingFieldMessage(missing)); return; }
     await updateSupplier.mutateAsync({ id, data: editForm });
     setShowEditModal(false);
   };
@@ -259,7 +265,7 @@ export default function SupplierDetails() {
               
               <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '24px' }}>Edit Supplier</h2>
               
-              <form onSubmit={handleEditSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <form onSubmit={handleEditSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }} noValidate>
                 <div>
                   <label className="input-label">Company Name *</label>
                   <input

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { firstMissingField, missingFieldMessage } from '../../lib/formGuard';
+import toast from 'react-hot-toast';
 import { X, Plus, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStockIn, useInventoryMetadata } from '../../hooks/useInventory';
@@ -28,6 +30,10 @@ export default function StockInModal({ variant, onClose }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // The browser no longer draws this warning (the form carries noValidate) -- see
+    // lib/formGuard. Same `required` fields, same rule, said in the app's own voice.
+    const missing = firstMissingField(e.currentTarget);
+    if (missing) { toast.error(missingFieldMessage(missing)); return; }
     stockInMutation.mutate({
       variantId: variant.variantId,
       quantity: Number(formData.quantity),
@@ -68,7 +74,7 @@ export default function StockInModal({ variant, onClose }) {
           <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}><X size={20} /></button>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', overflowY: 'auto', maxHeight: '60vh' }}>
+        <form onSubmit={handleSubmit} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', overflowY: 'auto', maxHeight: '60vh' }} noValidate>
           
           <div className="mobile-stack-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <div className="form-group">

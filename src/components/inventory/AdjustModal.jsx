@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { firstMissingField, missingFieldMessage } from '../../lib/formGuard';
+import toast from 'react-hot-toast';
 import { X, Settings2, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAdjustment, useInventoryMetadata } from '../../hooks/useInventory';
@@ -21,6 +23,10 @@ export default function AdjustModal({ variant, onClose }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // The browser no longer draws this warning (the form carries noValidate) -- see
+    // lib/formGuard. Same `required` fields, same rule, said in the app's own voice.
+    const missing = firstMissingField(e.currentTarget);
+    if (missing) { toast.error(missingFieldMessage(missing)); return; }
     const quantityDelta = Number(formData.countedStock) - variant.quantity;
     
     adjustMutation.mutate({
@@ -62,7 +68,7 @@ export default function AdjustModal({ variant, onClose }) {
           <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}><X size={20} /></button>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', overflowY: 'auto', maxHeight: '60vh' }}>
+        <form onSubmit={handleSubmit} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', overflowY: 'auto', maxHeight: '60vh' }} noValidate>
           
           <div className="form-group">
             <label className="form-label">Counted Physical Stock</label>

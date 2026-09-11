@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { firstMissingField, missingFieldMessage } from '../../lib/formGuard';
 import toast from 'react-hot-toast';
 import { Loader2, UserPlus, Mail, Copy, CheckCircle2, Building2, User, KeyRound, AlertTriangle } from 'lucide-react';
 import { useAdminClients, useOnboardClient } from '../../hooks/admin/useAdminConsole';
@@ -43,6 +44,10 @@ export default function OnboardingPage() {
 
   const handleCreate = async (e) => {
     e.preventDefault();
+    // The browser no longer draws this warning (the form carries noValidate) -- see
+    // lib/formGuard. Same `required` fields, same rule, said in the app's own voice.
+    const missing = firstMissingField(e.currentTarget);
+    if (missing) { toast.error(missingFieldMessage(missing)); return; }
     try {
       const created = await onboardMutation.mutateAsync(form);
       setResult(created);
@@ -91,7 +96,7 @@ export default function OnboardingPage() {
           </div>
           
           <div style={{ padding: '24px' }}>
-            <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }} noValidate>
               <div>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '8px' }}>Company Name</label>
                 <input

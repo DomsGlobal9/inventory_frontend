@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import LoadFailed from '../../components/LoadFailed';
 import { useCustomers } from '../../hooks/useCustomers';
 import { Search, Filter, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -10,7 +11,7 @@ export default function Customers() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
 
-  const { data: customers, isLoading } = useCustomers({
+  const { data: customers, isLoading, isError, error, refetch } = useCustomers({
     search: searchTerm,
     status: statusFilter
   });
@@ -90,7 +91,7 @@ export default function Customers() {
             <tbody>
               {isLoading ? (
                 <tr><td colSpan="6" style={{ padding: '48px', textAlign: 'center', color: 'var(--text-secondary)' }}>Loading customers...</td></tr>
-              ) : customers?.length === 0 ? (
+              ) : isError ? (<LoadFailed what="customers" error={error} onRetry={refetch} colSpan={6} />) : customers?.length === 0 ? (
                 <tr><td colSpan="6" style={{ padding: '48px', textAlign: 'center', color: 'var(--text-secondary)' }}>No customers found.</td></tr>
               ) : (
                 customers?.map(customer => (

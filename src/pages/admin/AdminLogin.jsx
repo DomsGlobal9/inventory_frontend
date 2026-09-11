@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { firstMissingField, missingFieldMessage } from '../../lib/formGuard';
+import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { usePlatformAdmin } from '../../context/PlatformAdminContext';
 import { Loader2, Mail, Lock, ArrowRight, ShieldCheck, Eye, EyeOff } from 'lucide-react';
@@ -22,6 +24,10 @@ export default function AdminLogin() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // The browser no longer draws this warning (the form carries noValidate) -- see
+    // lib/formGuard. Same `required` fields, same rule, said in the app's own voice.
+    const missing = firstMissingField(e.currentTarget);
+    if (missing) { toast.error(missingFieldMessage(missing)); return; }
     setError('');
     setIsSubmitting(true);
     try {
@@ -58,7 +64,7 @@ export default function AdminLogin() {
           <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>Cross-tenant platform administration</p>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }} noValidate>
           <div>
             <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '8px' }}>Email Address</label>
             <div style={{ position: 'relative' }}>

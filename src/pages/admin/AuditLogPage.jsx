@@ -1,4 +1,5 @@
 import React from 'react';
+import LoadFailed from '../../components/LoadFailed';
 import { useNavigate } from 'react-router-dom';
 import { Loader2, ScrollText, ShieldCheck, Activity, Building2, Info, Clock, User, KeyRound } from 'lucide-react';
 import { useAdminAuditLog } from '../../hooks/admin/useAdminConsole';
@@ -20,7 +21,7 @@ const SENSITIVE_ACTIONS = new Set([
 ]);
 
 export default function AuditLogPage() {
-  const { data, isLoading } = useAdminAuditLog();
+  const { data, isLoading, isError, error, refetch } = useAdminAuditLog();
   const navigate = useNavigate();
 
   return (
@@ -48,7 +49,7 @@ export default function AuditLogPage() {
                 <Loader2 size={40} className="animate-spin" style={{ marginBottom: '16px', color: 'var(--accent-gold)' }} />
                 <div style={{ fontSize: '15px', fontWeight: 500 }}>Syncing global activity...</div>
               </div>
-            ) : (!data || data.length === 0) ? (
+            ) : isError ? (<LoadFailed what="the activity log" error={error} onRetry={refetch} />) : (!data || data.length === 0) ? (
               <div style={{ padding: '80px 24px', textAlign: 'center', color: 'var(--text-muted)' }}>
                 <ScrollText size={48} style={{ opacity: 0.2, margin: '0 auto 16px' }} />
                 <div style={{ fontSize: '16px', fontWeight: 500 }}>No activity recorded yet.</div>

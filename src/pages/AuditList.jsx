@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import LoadFailed from '../components/LoadFailed';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
@@ -10,7 +11,7 @@ import { useAuth } from '../context/AuthContext';
 export default function AuditList() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { data, isLoading } = useStockCounts();
+  const { data, isLoading, isError, error, refetch } = useStockCounts();
   const createMutation = useCreateStockCount();
   const [isCreating, setIsCreating] = useState(false);
 
@@ -68,7 +69,7 @@ export default function AuditList() {
       <motion.div variants={item} className="table-container mobile-no-scroll" style={{ flex: 1, overflowY: 'auto' }}>
         {isLoading ? (
           <PageLoader text="Loading audits..." />
-        ) : data?.length === 0 ? (
+        ) : isError ? (<LoadFailed what="audits" error={error} onRetry={refetch} />) : data?.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '64px', color: 'var(--text-muted)' }}>
             <ClipboardList size={48} style={{ opacity: 0.2, marginBottom: '16px' }} />
             <h3>No Audits Found</h3>

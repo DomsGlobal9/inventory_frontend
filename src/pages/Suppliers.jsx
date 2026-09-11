@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { firstMissingField, missingFieldMessage } from '../lib/formGuard';
+import toast from 'react-hot-toast';
+import LoadFailed from '../components/LoadFailed';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Truck, Plus, Search, MoreVertical, Building2, Phone, Mail, X } from 'lucide-react';
@@ -7,7 +10,7 @@ import PageLoader from '../components/PageLoader';
 
 export default function Suppliers() {
   const navigate = useNavigate();
-  const { data: suppliers = [], isLoading } = useSuppliers();
+  const { data: suppliers = [], isLoading, isError, error, refetch } = useSuppliers();
   const createSupplier = useCreateSupplier();
   
   const [searchTerm, setSearchTerm] = useState('');
@@ -21,6 +24,10 @@ export default function Suppliers() {
 
   const handleAddSupplier = async (e) => {
     e.preventDefault();
+    // The browser no longer draws this warning (the form carries noValidate) -- see
+    // lib/formGuard. Same `required` fields, same rule, said in the app's own voice.
+    const missing = firstMissingField(e.currentTarget);
+    if (missing) { toast.error(missingFieldMessage(missing)); return; }
     await createSupplier.mutateAsync(newSupplier);
     setShowAddModal(false);
     setNewSupplier({ name: '', email: '', phone: '', address: '' });
@@ -130,7 +137,7 @@ export default function Suppliers() {
             </div>
           </div>
         ))}
-        {filteredSuppliers.length === 0 && (
+        {isError ? (<LoadFailed what="suppliers" error={error} onRetry={refetch} />) : filteredSuppliers.length === 0 && (
           <div style={{ gridColumn: '1 / -1', padding: '48px', textAlign: 'center', color: 'var(--text-muted)' }}>
             No suppliers found.
           </div>
@@ -162,7 +169,7 @@ export default function Suppliers() {
               
               <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '24px' }}>Add New Supplier</h2>
               
-              <form onSubmit={handleAddSupplier} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <form onSubmit={handleAddSupplier} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }} noValidate>
                 <div>
                   <label className="input-label">Company Name *</label>
                   <input

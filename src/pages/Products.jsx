@@ -1,4 +1,5 @@
 import React from 'react';
+import LoadFailed from '../components/LoadFailed';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Package, Download, Upload } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -13,7 +14,7 @@ export default function Products() {
   const navigate = useNavigate();
   const { resetProductData } = useProduct();
   const [statusFilter, setStatusFilter] = React.useState(''); // Empty means default (ACTIVE, DRAFT)
-  const { data, isLoading } = useProducts({ page: 1, limit: 50, status: statusFilter || undefined });
+  const { data, isLoading, isError, error, refetch } = useProducts({ page: 1, limit: 50, status: statusFilter || undefined });
   
   const [isBulkUpdateModalOpen, setIsBulkUpdateModalOpen] = React.useState(false);
 
@@ -97,7 +98,7 @@ export default function Products() {
       <div className="table-container" style={{ overflowX: 'auto' }}>
         {isLoading ? (
           <PageLoader text="Loading products..." />
-        ) : products.length === 0 ? (
+        ) : isError ? (<LoadFailed what="products" error={error} onRetry={refetch} />) : products.length === 0 ? (
           <div style={{ padding: '48px', textAlign: 'center', color: 'var(--text-muted)' }}>
             No products added yet.
           </div>

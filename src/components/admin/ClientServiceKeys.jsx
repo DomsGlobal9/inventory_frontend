@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { firstMissingField, missingFieldMessage } from '../../lib/formGuard';
+import toast from 'react-hot-toast';
 import { KeyRound, Loader2, Check, Plug, Unplug } from 'lucide-react';
 import {
   useClientServiceKeys, useSetClientServiceKey, useRevokeClientServiceKey,
@@ -56,6 +58,10 @@ function UsageAndLimit({ clientId, service }) {
 
   const save = async (e) => {
     e.preventDefault();
+    // The browser no longer draws this warning (the form carries noValidate) -- see
+    // lib/formGuard. Same `required` fields, same rule, said in the app's own voice.
+    const missing = firstMissingField(e.currentTarget);
+    if (missing) { toast.error(missingFieldMessage(missing)); return; }
     await setLimit.mutateAsync({
       clientId,
       service,
@@ -101,7 +107,7 @@ function UsageAndLimit({ clientId, service }) {
       )}
 
       {editing && (
-        <form onSubmit={save} style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
+        <form onSubmit={save} style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }} noValidate>
           <input className="input-field" type="number" min="0" value={value}
             onChange={e => setValue(e.target.value)}
             placeholder="Blank for unlimited"

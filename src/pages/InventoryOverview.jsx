@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import LoadFailed from '../components/LoadFailed';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Minus, Settings2, History, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -25,7 +26,7 @@ export default function InventoryOverview() {
     limit: 50
   });
 
-  const { data, isLoading } = useInventoryVariants(filters);
+  const { data, isLoading, isError, error, refetch } = useInventoryVariants(filters);
   const variants = data?.items || [];
   
   const [modalState, setModalState] = useState({ type: null, variant: null }); // type: 'IN', 'OUT', 'ADJUST'
@@ -113,7 +114,7 @@ export default function InventoryOverview() {
       <div className="table-container" style={{ overflowX: 'auto', flex: 1 }}>
         {isLoading ? (
           <PageLoader text="Loading inventory..." />
-        ) : variants.length === 0 ? (
+        ) : isError ? (<LoadFailed what="inventory" error={error} onRetry={refetch} />) : variants.length === 0 ? (
           <div style={{ padding: '48px', textAlign: 'center', color: 'var(--text-muted)' }}>
             No inventory records found.
           </div>

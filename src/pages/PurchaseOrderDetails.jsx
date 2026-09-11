@@ -40,9 +40,22 @@ export default function PurchaseOrderDetails() {
 
   useEffect(() => {
     if (isNew && location.state && formData.items.length === 0) {
-      // Alert center prefill integration
+      /*
+       * Arriving here with a line already chosen.
+       *
+       * Built for the Alert Center ("this is low, order more") and now also used from a
+       * variant's supplier list, where the person has already decided both the item AND who
+       * they are buying it from. So the supplier comes across too when it is known -- it was
+       * the one field this prefill never carried, which meant the shortest path to ordering
+       * from a known supplier still ended with picking that supplier out of a dropdown you
+       * had just come from.
+       *
+       * `?? prev.supplierId` rather than a plain assignment: the older callers send no
+       * supplier at all, and must keep landing on an empty picker rather than a cleared one.
+       */
       setFormData(prev => ({
         ...prev,
+        supplierId: location.state.supplierId ?? prev.supplierId,
         items: [{
           variantId: location.state.variantId,
           sku: location.state.sku,
@@ -53,6 +66,10 @@ export default function PurchaseOrderDetails() {
           size: location.state.size || '',
           orderedQty: location.state.orderedQty,
           unitPrice: location.state.costPrice || 0,
+          // Only the variant supplier panel knows this, and only it sends it. The older
+          // callers leave it undefined, which getMarginWarning already reads as "nothing
+          // to compare against" -- the same silence they had before, not a new one.
+          sellingPrice: location.state.sellingPrice ?? null,
           variant: { product: { title: location.state.title } }
         }]
       }));

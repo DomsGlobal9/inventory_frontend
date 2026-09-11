@@ -1090,7 +1090,22 @@ export default function VariantTable({ productId, productName, productCode, prod
                         <div style={{ padding: '10px 20px 0', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)' }}>
                           Suppliers for {v.sku}
                         </div>
-                        <VariantSuppliersPanel variantId={v.id} sku={v.sku} />
+                        <VariantSuppliersPanel
+                          variantId={v.id}
+                          sku={v.sku}
+                          /* Enough to raise a purchase order line without a second
+                             lookup: the panel is already inside the row that knows
+                             all of this. */
+                          variant={v}
+                          productName={productName}
+                          /* The price this variant actually sells for at the selected
+                             location -- the same number the margin column in this row
+                             shows. Carried across so the PO form can warn about ordering
+                             at or above the selling price; without it that warning is
+                             silent on exactly the screen where a supplier's own price is
+                             being accepted sight-unseen. */
+                          sellingPrice={effectivePriceOf(v)}
+                        />
                       </td>
                     </tr>
                   )}

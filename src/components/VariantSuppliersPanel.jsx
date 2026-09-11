@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Loader2, Star, Trash2, Phone, Truck, PackageCheck } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Loader2, Star, Trash2, Phone, Truck, PackageCheck, FileText } from 'lucide-react';
 import {
   useVariantSuppliers,
   useSetPreferredSupplier,
@@ -7,6 +8,7 @@ import {
 } from '../hooks/useSuppliers';
 import { toWhatsAppNumber } from '../utils/whatsappUtils';
 import ConfirmModal from './ConfirmModal';
+import { usePermission } from '../hooks/usePermission';
 
 /**
  * Answers "who do we buy this item from?" for one variant.
@@ -19,7 +21,10 @@ import ConfirmModal from './ConfirmModal';
 const formatMoney = (value) =>
   value == null ? null : `₹${Number(value).toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
 
-export default function VariantSuppliersPanel({ variantId, sku }) {
+export default function VariantSuppliersPanel({ variantId, sku, variant, productName, sellingPrice }) {
+  const navigate = useNavigate();
+  const { can } = usePermission();
+  const canOrder = can('purchase_order:create');
   const { data: links = [], isLoading } = useVariantSuppliers(variantId);
   const setPreferred = useSetPreferredSupplier();
   const unlink = useUnlinkSupplierProduct();
@@ -109,7 +114,63 @@ export default function VariantSuppliersPanel({ variantId, sku }) {
               <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>their price</div>
             </div>
 
-            <div style={{ display: 'flex', gap: '6px' }}>
+            <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+              {/*
+                The shortest path from "who sells me this" to "order it from them".
+                Everything the first line of a purchase order needs is already on screen
+                here, so carrying it across is the difference between one click and
+                re-picking the supplier and the item on a blank form.
+
+                Quantity starts at this supplier's own minimum where they have one -- the
+                panel prints "min 12" two lines up, and starting at 1 only to be told that
+                later is the form knowing something it declines to act on.
+
+                Price starts at THIS supplier's price, not the product's cost: the whole
+                point of ordering from a named supplier is that their price is the one that
+                applies.
+              */}
+              {canOrder && (
+                <button
+                  className="btn-icon"
+                  // An inactive supplier is one the shop has stopped buying from. Ordering
+                  // is still possible from the PO screen if they really mean it; it just is
+                  // not offered as a one-click action from here.
+                  disabled={link.supplier?.isActive === false}
+                  title={link.supplier?.isActive === false
+                    ? `${link.supplier?.name || 'This supplier'} is inactive -- reactivate them to order`
+                    : `Create a purchase order to ${link.supplier?.name || 'this supplier'} for ${sku || 'this item'}`}
+                  onClick={() => navigate('/inventory/purchase-orders/new', {
+                    state: {
+                      supplierId: link.supplier?.id,
+                      variantId,
+                      sku,
+                      variantCode: variant?.variantCode || '',
+                      barcode: variant?.barcode || '',
+                      title: productName || variant?.product?.title || '',
+                      color: variant?.colorName || '',
+                      size: variant?.size || '',
+                      orderedQty: link.minOrderQty || 1,
+                      costPrice: cost ?? 0,
+                      // So the PO form can say "this costs more than you sell it for".
+                      // null rather than 0 when unknown: 0 would read as a free item and
+                      // make every order look like a 100% margin.
+                      sellingPrice: Number.isFinite(Number(sellingPrice)) && Number(sellingPrice) > 0
+                        ? Number(sellingPrice)
+                        : null
+                    }
+                  })}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '6px',
+                    fontSize: '12px', padding: '6px 10px', width: 'auto',
+                    color: link.supplier?.isActive === false ? 'var(--text-muted)' : 'var(--text-primary)',
+                    cursor: link.supplier?.isActive === false ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  <FileText size={14} />
+                  Create PO
+                </button>
+              )}
+
               {waNumber && (
                 <a
                   href={`https://wa.me/${waNumber}`}

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Package, Box, History, Image as ImageIcon, Copy, CheckCircle2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { QRCodeSVG } from 'qrcode.react';
 import { 
   useProduct as useProductHook, 
@@ -245,12 +245,10 @@ export default function ProductDetails() {
 
       {/* Tab Content */}
       <motion.div variants={item} className="mobile-no-scroll" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-        <AnimatePresence mode="wait">
-          <motion.div
+                  <motion.div
             key={activeTab}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.15 }}
             className="mobile-no-scroll"
             style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
@@ -413,7 +411,6 @@ export default function ProductDetails() {
               <TransactionHistory productId={product.id} onNewTransaction={() => setIsStockModalOpen(true)} />
             )}
           </motion.div>
-        </AnimatePresence>
       </motion.div>
       
       <StockMovementModal 

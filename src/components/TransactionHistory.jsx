@@ -114,6 +114,29 @@ export default function TransactionHistory({ productId, onNewTransaction }) {
           <p style={{ color: 'var(--text-muted)' }}>No transactions found.</p>
         </div>
       ) : (
+        /*
+          The ledger needs its own scroller.
+ 
+          The shell gives .main-content `overflow: hidden` -- "zero global scroll" -- because
+          every screen is expected to manage its own. The other three tabs on this page do:
+          Overview's panel, VariantTable's root and ImageGallery's list all carry
+          `overflowY: auto`. This one never did, so a product with a few dozen movements ran
+          off the bottom of the window and the rest was CLIPPED, not scrolled -- unreachable,
+          with nothing on screen to say more existed.
+ 
+          The scroller goes on a wrapper rather than on the timeline itself, because the
+          timeline is the positioning context for the connecting line down its left edge:
+          `bottom: 16px` on that line resolves against the scroll container's visible height,
+          so putting the overflow there would draw the line one screenful long and leave the
+          rest of the list beside nothing.
+ 
+          Keeping the header and the filters outside it means they stay put while the
+          movements move, which is what those filters are for.
+ 
+          mobile-no-scroll because below 768px .main-content scrolls instead, and a second
+          nested vertical scroller there traps the page.
+        */
+        <div className="mobile-no-scroll" style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
         <div style={{ position: 'relative', paddingLeft: '16px' }}>
           {/* Timeline connecting line */}
           <div style={{ position: 'absolute', left: '32px', top: '16px', bottom: '16px', width: '2px', backgroundColor: 'var(--border-light)', zIndex: 0 }} />
@@ -176,6 +199,7 @@ export default function TransactionHistory({ productId, onNewTransaction }) {
               );
             })}
           </motion.div>
+        </div>
         </div>
       )}
     </div>

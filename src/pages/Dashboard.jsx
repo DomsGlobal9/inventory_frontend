@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useDashboardSummary } from '../hooks/useDashboardSummary';
 import PageLoader from '../components/PageLoader';
 import SummaryCards from '../components/dashboard/SummaryCards';
@@ -109,8 +109,7 @@ export default function Dashboard() {
         ))}
       </div>
 
-      <AnimatePresence mode="wait">
-        <motion.div 
+              <motion.div 
           key={activeTab}
           variants={container} 
           initial="hidden" 
@@ -160,7 +159,6 @@ export default function Dashboard() {
             </div>
           )}
         </motion.div>
-      </AnimatePresence>
     </div>
   );
 }

@@ -145,6 +145,19 @@ export default function Select({ value, onChange, children, className = '', styl
     setMenuBox({
       left: r.left,
       width: r.width,
+      /*
+       * How wide the menu is ALLOWED to get.
+       *
+       * The menu used to be exactly as wide as the field, which is fine until the options are
+       * longer than it -- "Supplier Delivery" and "Manual Correction" arrived as "Supplier
+       * D..." and "Manual C...", so the list you open to see the choices was the one place
+       * you could not read them. The field itself can stay narrow; the menu is floating over
+       * the page and costs nothing by being wider.
+       *
+       * Bounded by the distance to the right edge so a long option cannot push the menu off
+       * screen, which would hide the end of it just as effectively.
+       */
+      maxWidth: Math.max(r.width, window.innerWidth - r.left - MARGIN),
       maxHeight,
       openUp,
       top: openUp ? null : r.bottom + GAP,
@@ -219,7 +232,22 @@ export default function Select({ value, onChange, children, className = '', styl
             className="custom-select-dropdown open"
             style={{
               left: menuBox.left,
-              width: menuBox.width,
+              /*
+               * As wide as its longest option, and no wider.
+               *
+               * Not the field's width. Pinning it to the field was the original bug in one
+               * direction -- a narrow field truncated "Supplier Delivery" to "Supplier D..."
+               * -- and using the field as a FLOOR is the same mistake in the other: a wide
+               * field then gives a mostly empty menu with the words huddled on the left.
+               * The menu is floating, so its natural size is the right size.
+               *
+               * The small floor is so a list of short options ("S", "M", "L") is still a
+               * menu-shaped thing to aim at rather than a sliver. The ceiling is the distance
+               * to the right edge, so a long label cannot push it off screen.
+               */
+              minWidth: 120,
+              width: 'max-content',
+              maxWidth: menuBox.maxWidth,
               maxHeight: menuBox.maxHeight,
               ...(menuBox.openUp ? { bottom: menuBox.bottom } : { top: menuBox.top })
             }}
@@ -232,7 +260,7 @@ export default function Select({ value, onChange, children, className = '', styl
                   className={`custom-select-option ${isSelected ? 'selected' : ''}`}
                   onClick={() => handleSelect(opt.value)}
                 >
-                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <span style={{ whiteSpace: 'nowrap' }}>
                     {opt.label}
                   </span>
                   {isSelected && <Check size={14} />}

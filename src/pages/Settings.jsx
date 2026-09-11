@@ -6,6 +6,8 @@ import StockLocationsPage from './settings/StockLocationsPage';
 import DayBook from './DayBook';
 import StorefrontManager from '../components/StorefrontManager';
 import ChangeOwnPassword from '../components/ChangeOwnPassword';
+import CompanyBrandingEditor from '../components/CompanyBrandingEditor';
+import { useBranding } from '../hooks/useBranding';
 import ServicesPanel from '../components/ServicesPanel';
 import SupportPanel from '../components/SupportPanel';
 import TeamManager from '../components/TeamManager';
@@ -69,6 +71,8 @@ export default function Settings() {
   const updateProfileMutation = useUpdateMyProfile();
 
   const isSuperAdmin = holdsEverything(user);
+  // The shop's own name and logo, shown to everyone; changed only by the owner.
+  const { data: branding } = useBranding();
   // Passwords are set once by a Super Admin/Admin and stay permanent -- nobody edits their
   // own, so Team & Users is the only place a password is ever touched, and only these two
   // roles can reach it (a Super Admin still outranks an Admin there -- see team.service.ts).
@@ -242,10 +246,18 @@ export default function Settings() {
                         backgroundColor: 'var(--bg-card)', padding: '4px',
                         display: 'flex', alignItems: 'center', justifyContent: 'center'
                       }}>
+                        {/* The shop's logo where the person's initial used to be.
+                            This circle identifies the account, and an account belongs to a
+                            business rather than to whoever happens to be signed in; the
+                            initial is what it falls back to when no logo has been set yet.
+                            objectFit: contain, not cover -- a logo cropped to fill a circle
+                            is a logo with its edges cut off. */}
                         <div style={{
-                          width: '100%', height: '100%', borderRadius: '50%', background: 'linear-gradient(135deg, var(--bg-input) 0%, var(--bg-dark) 100%)', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', fontWeight: 600, color: 'var(--accent-gold)'
+                          width: '100%', height: '100%', borderRadius: '50%', background: 'linear-gradient(135deg, var(--bg-input) 0%, var(--bg-dark) 100%)', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', fontWeight: 600, color: 'var(--accent-gold)', overflow: 'hidden'
                         }}>
-                          {user?.name ? user.name.charAt(0).toUpperCase() : <UserIcon size={28} />}
+                          {branding?.logoUrl
+                            ? <img src={branding.logoUrl} alt={branding?.businessName || 'Shop logo'} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '6px' }} />
+                            : (user?.name ? user.name.charAt(0).toUpperCase() : <UserIcon size={28} />)}
                         </div>
                       </div>
                       
@@ -287,6 +299,15 @@ export default function Settings() {
                       </div>
                     ) : (
                       <div style={{ marginTop: '4px' }}>
+                        {/* The business above the person: this card answers "whose account is
+                            this, and who am I on it" -- in that order. Hidden rather than
+                            shown empty when no name is set, so a shop that has not filled it
+                            in sees nothing rather than a blank line where a name should be. */}
+                        {branding?.businessName && (
+                          <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '4px' }}>
+                            {branding.businessName}
+                          </div>
+                        )}
                         <h3 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 6px', letterSpacing: '-0.02em' }}>
                           {user?.name || 'Unknown User'}
                         </h3>
@@ -317,6 +338,10 @@ export default function Settings() {
                             help them back in, and the owner is the exception because there is
                             nobody above them to do the resetting. */}
                         {isSuperAdmin && <ChangeOwnPassword />}
+
+                        {/* Same gate as the password control above, for the same reason:
+                            these are the owner's to set, and the backend refuses anyone else. */}
+                        {isSuperAdmin && <CompanyBrandingEditor />}
                       </div>
                     )}
                   </div>

@@ -17,13 +17,27 @@
     </linearGradient>
   </defs>
 
-  <rect width="512" height="512" rx="116" fill="#ffffff"/>
+  <!--
+    The white tile. It is what gives the dark half of the mark something to sit on in a dark
+    tab bar; without it that stroke disappears into the chrome.
+
+    Corner radius eased from 116 to 104 so the mark can be bigger. The two are linked: the
+    ends of the S reach into the corners, so a rounder tile forces a smaller mark.
+  -->
+  <rect width="512" height="512" rx="104" fill="#ffffff"/>
 
   <!--
     One stroked path, not a filled outline. The S is a constant width ribbon, and a stroke is
     what keeps that width honest through both turns. Butt caps give the flat ends the mark has.
   -->
-  <g transform="translate(256 256) scale(1.58) translate(-256 -256)">
+  <!--
+    Scale measured, not guessed. At 1.58 the mark covered 72% of the tile's width and 78% of
+    its height, leaving 72px of white on every side — which at the 16px a browser tab
+    actually draws is 2.3px of padding out of 16, and reads as a small logo adrift in a white
+    square. At 1.80 it covers 82% and 89%, with the corners of the S still clear of the
+    rounded edge.
+  -->
+  <g transform="translate(256 256) scale(1.80) translate(-256 -256)">
     <path
       d="M348 168 H222 a44 44 0 0 0 0 88 h68 a44 44 0 0 1 0 88 H164"
       fill="none"

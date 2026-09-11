@@ -520,14 +520,22 @@ tr:hover td {
 }
 
 /* ─── Mobile Responsiveness ─── */
-@media (max-width: 768px) {
-  /* Below this width .main-content scrolls instead, so the page must not become a second,
-     nested scroll container inside it -- that traps the scroll and strands the footer. */
-  .page-scroll {
-    flex: none;
-    overflow-y: visible;
-  }
-
+/* ─── Sliding sidebar: phones AND tablets ────────────────────────────────────
+ *
+ * These rules used to sit inside the phone block, so anything wider than 768px kept the
+ * sidebar permanently on screen. On an iPad in portrait -- 834px -- that is 240px of
+ * navigation taking most of a third of the width, all the time, leaving the tables and
+ * forms to fight over what is left. The pictures of Settings on an iPad show it: a column
+ * of links, and the panel beside it squeezed to nothing.
+ *
+ * A tablet is held like a phone and has the room of a small laptop, so it wants the phone's
+ * behaviour with the laptop's layout: the sidebar slides in over the page when it is asked
+ * for, and gives all the width back when it is not. MainLayout already closes it on every
+ * route change, so it gets out of the way by itself.
+ *
+ * 1024px rather than 1023: an iPad Pro 12.9 in portrait is exactly 1024, and it is a tablet.
+ */
+@media (max-width: 1024px) {
   .sidebar {
     padding-left: env(safe-area-inset-left);
     position: fixed;
@@ -541,7 +549,7 @@ tr:hover td {
     transition: transform 0.3s ease;
     padding-bottom: env(safe-area-inset-bottom);
   }
-  
+
   .sidebar.open {
     transform: translateX(0);
   }
@@ -553,7 +561,16 @@ tr:hover td {
     z-index: 999;
     backdrop-filter: blur(4px);
   }
-  
+}
+
+@media (max-width: 768px) {
+  /* Below this width .main-content scrolls instead, so the page must not become a second,
+     nested scroll container inside it -- that traps the scroll and strands the footer. */
+  .page-scroll {
+    flex: none;
+    overflow-y: visible;
+  }
+
   .top-nav {
     padding: 0 16px;
     padding-top: env(safe-area-inset-top);

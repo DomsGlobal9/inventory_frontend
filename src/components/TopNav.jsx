@@ -154,8 +154,15 @@ export default function TopNav({ onMenuClick }) {
           <Menu size={24} />
         </button>
         <style>{`
+          /*
+            Shown wherever the sidebar slides instead of staying put, which is now tablets as
+            well as phones (see the 1024px block in index.css). The two breakpoints have to
+            agree: at 769-1024 this button was hidden while the sidebar was permanent, which
+            was consistent -- but the moment the sidebar starts sliding there and this stays
+            hidden, a tablet has navigation it cannot open at all.
+          */
           .mobile-only-icon { display: none; }
-          @media (max-width: 768px) {
+          @media (max-width: 1024px) {
             .mobile-only-icon { display: block; color: var(--text-primary); }
           }
         `}</style>

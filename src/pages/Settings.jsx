@@ -250,13 +250,20 @@ export default function Settings() {
                             This circle identifies the account, and an account belongs to a
                             business rather than to whoever happens to be signed in; the
                             initial is what it falls back to when no logo has been set yet.
-                            objectFit: contain, not cover -- a logo cropped to fill a circle
-                            is a logo with its edges cut off. */}
+
+                            objectFit: cover, with no padding, so the image FILLS the circle
+                            and the circle clips it. It was `contain` with 6px of padding,
+                            which left the logo floating as a small square inside a larger
+                            ring -- the square's own corners were what you saw, because the
+                            image never reached the rounded edge that would have clipped it.
+                            An avatar is an identity chip and is expected to be cropped; the
+                            editor below still shows the whole logo uncropped, which is where
+                            seeing all of it actually matters. */}
                         <div style={{
                           width: '100%', height: '100%', borderRadius: '50%', background: 'linear-gradient(135deg, var(--bg-input) 0%, var(--bg-dark) 100%)', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', fontWeight: 600, color: 'var(--accent-gold)', overflow: 'hidden'
                         }}>
                           {branding?.logoUrl
-                            ? <img src={branding.logoUrl} alt={branding?.businessName || 'Shop logo'} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '6px' }} />
+                            ? <img src={branding.logoUrl} alt={branding?.businessName || 'Shop logo'} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                             : (user?.name ? user.name.charAt(0).toUpperCase() : <UserIcon size={28} />)}
                         </div>
                       </div>

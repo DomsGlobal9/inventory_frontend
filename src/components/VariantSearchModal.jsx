@@ -199,6 +199,28 @@ export default function VariantSearchModal({ isOpen, onClose, onSelect, supplier
                 {visible.map((variant) => (
                   <div 
                     key={variant.id}
+                    /*
+                     * Reachable without a mouse.
+                     *
+                     * This was a bare div with an onClick and a pointer cursor: no role, no
+                     * tabindex, no key handler. The modal contained zero focusable elements
+                     * besides its own search box, so a keyboard user could type a SKU, see the
+                     * result, and have no way to choose it -- meaning no way to add a line to a
+                     * purchase order at all. A screen reader read the row as plain text.
+                     *
+                     * onKeyDown forwards to the existing click handler rather than duplicating
+                     * the selection logic below, which is long and has real rules in it
+                     * (supplier price beats last purchase cost, minimum order quantity is a
+                     * floor). Two copies of that would drift.
+                     */
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        e.currentTarget.click();
+                      }
+                    }}
                     style={{ 
                       padding: '16px 24px', 
                       borderBottom: '1px solid var(--border-light)',
@@ -208,6 +230,10 @@ export default function VariantSearchModal({ isOpen, onClose, onSelect, supplier
                     }}
                     onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
                     onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                    /* Keyboard focus needs the same highlight the mouse gets, or the row a
+                       person is about to choose looks identical to the ones they are not. */
+                    onFocus={e => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                    onBlur={e => e.currentTarget.style.backgroundColor = 'transparent'}
                     onClick={() => {
                       // Smart defaults logic
                       let defaultQty = 1;

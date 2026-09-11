@@ -255,8 +255,24 @@ export default function RoleManager() {
                     ...row,
                     opacity: !p.grantable && !locked ? 0.5 : 1,
                     cursor: disabled ? 'default' : 'pointer',
-                    borderColor: on ? 'var(--border-strong, #d4d4d8)' : 'var(--border-light)',
-                    background: on ? 'var(--bg-subtle, #fafafa)' : 'transparent'
+                    /*
+                      Real theme variables, not invented ones with a light fallback.
+ 
+                      These said var(--bg-subtle, #fafafa) and var(--border-strong, #d4d4d8).
+                      Neither variable exists, so both always used the fallback -- a near-white
+                      box and a light grey border, fixed, in both themes. The label inside is
+                      var(--text-primary), which in dark mode is near-white: every TICKED
+                      permission became white text on a white box while the unticked ones read
+                      normally. On Roles & Permissions in dark mode you could see only the
+                      permissions you had NOT granted.
+ 
+                      verify-css-vars.mjs passes this deliberately -- a var() with a fallback
+                      is "a decision somebody made" -- and that is right, provided the fallback
+                      is theme-neutral. A translucent one (NoAccess uses rgba(0,0,0,0.04)) is;
+                      an opaque light hex is not.
+                    */
+                    borderColor: on ? 'var(--border-focus)' : 'var(--border-light)',
+                    background: on ? 'var(--bg-hover)' : 'transparent'
                   }}
                 >
                   <input
@@ -352,7 +368,9 @@ const pillBase = {
 };
 const pillWarn = { ...pillBase, background: '#fef3c7', color: '#92400e' };
 const pillCost = { ...pillBase, background: '#fee2e2', color: '#991b1b' };
-const pillMuted = { ...pillBase, background: 'var(--bg-subtle, #f4f4f5)', color: 'var(--text-secondary)' };
+// Same reason as the row above: --bg-subtle does not exist, and #f4f4f5 under
+// var(--text-secondary) is grey-on-grey once the theme flips.
+const pillMuted = { ...pillBase, background: 'var(--bg-input)', color: 'var(--text-secondary)' };
 const noteWarn = {
   display: 'flex', gap: 8, alignItems: 'flex-start', padding: '10px 12px', borderRadius: 10,
   background: '#fffbeb', border: '1px solid #fde68a', color: '#92400e', fontSize: 13, marginTop: 8

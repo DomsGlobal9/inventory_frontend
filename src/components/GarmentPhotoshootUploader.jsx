@@ -1,5 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
-import { AlertCircle, CheckCircle, X, Image as ImageIcon, StopCircle, Eye } from "lucide-react";
+import { isImageFile, imageFilesFrom } from '../utils/imageFile';
+import { useIsTouchDevice } from '../hooks/useIsTouchDevice';
+import { AlertCircle, CheckCircle, X, Image as ImageIcon, StopCircle, Eye, Camera } from "lucide-react";
 import { useProduct } from "../context/ProductContext";
 import { api } from "../lib/api";
 import ImageLightbox from "./ImageLightbox";
@@ -149,6 +151,9 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete }) {
     ];
   }, [isSaree]);
 
+  // Offer a camera only where there is one to offer -- see hooks/useIsTouchDevice.
+  const isTouch = useIsTouchDevice();
+
   const [generating, setGenerating] = useState(false);
   const [step, setStep] = useState(null);
   const [status, setStatus] = useState(null);
@@ -195,7 +200,9 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete }) {
   }, [plainPhotos, tryOnEligible]);
 
   const addPlainPhotos = (fileList) => {
-    const imagesOnly = Array.from(fileList).filter((f) => f.type.startsWith('image/'));
+    // NOT f.type.startsWith('image/'): a camera capture on iOS arrives as
+    // application/octet-stream or with no type at all, and this box silently dropped it.
+    const imagesOnly = imageFilesFrom(fileList);
     if (imagesOnly.length === 0) return;
     setPlainPhotos((prev) => [...prev, ...imagesOnly]);
   };
@@ -469,6 +476,40 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete }) {
               onChange={(e) => { if (e.target.files?.length) addPlainPhotos(e.target.files); e.target.value = ''; }}
             />
           </label>
+
+          {/*
+            The camera as its own tile rather than a second control inside the one above:
+            that one is a <label> wrapping the whole dashed box, so anything nested in it
+            opens the picker on tap. Two labels side by side keep the two choices separable.
+
+            Phones and tablets only -- `capture` does nothing on a desktop browser, and a
+            camera button that opens a file dialog is worse than no camera button.
+
+            No `multiple`: a capture is one photograph. Asking for several from one tap is
+            not a thing a camera can do, and some browsers ignore `capture` entirely when
+            `multiple` is present, which would quietly turn this back into a file picker.
+          */}
+          {isTouch && (
+            <label
+              className="glass-panel"
+              style={{
+                border: '1px dashed var(--border-focus)', borderRadius: '12px',
+                height: '96px', display: 'flex', flexDirection: 'column',
+                alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', textAlign: 'center', padding: '16px', gap: '8px'
+              }}
+            >
+              <Camera size={28} color="var(--text-secondary)" />
+              <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Take Photo</span>
+              <input
+                type="file"
+                accept="image/*"
+                capture="environment"
+                style={{ display: 'none' }}
+                onChange={(e) => { if (e.target.files?.length) addPlainPhotos(e.target.files); e.target.value = ''; }}
+              />
+            </label>
+          )}
         </div>
 
         <ImageLightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} />
@@ -514,7 +555,7 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete }) {
                 setDragOverKey(null);
                 if (generating) return;
                 const dropped = e.dataTransfer.files?.[0];
-                if (dropped && dropped.type.startsWith('image/')) handleFileChange(key, dropped);
+                if (dropped && isImageFile(dropped)) handleFileChange(key, dropped);
               }}
               style={{
                 border: borderStyle,
@@ -538,19 +579,56 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete }) {
                   </h3>
                   <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '16px' }}>{hint}</p>
 
-                  <label className="btn-secondary" style={{ cursor: 'pointer', padding: '8px 16px', fontSize: '12px' }}>
-                    UPLOAD
-                    <input
-                      type="file"
-                      style={{ display: 'none' }}
-                      accept="image/*"
-                      onChange={(e) => {
-                        const f = e.target.files?.[0] || null;
-                        if (f) handleFileChange(key, f);
-                      }}
-                      disabled={generating || isUploading}
-                    />
-                  </label>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                    <label className="btn-secondary" style={{ cursor: 'pointer', padding: '8px 16px', fontSize: '12px' }}>
+                      UPLOAD
+                      <input
+                        type="file"
+                        style={{ display: 'none' }}
+                        accept="image/*"
+                        onChange={(e) => {
+                          const f = e.target.files?.[0] || null;
+                          if (f) handleFileChange(key, f);
+                        }}
+                        disabled={generating || isUploading}
+                      />
+                    </label>
+
+                    {/*
+                      Only where there is a camera to open. `capture` is ignored by desktop
+                      browsers, so on a laptop this button would silently be a second, worse
+                      copy of UPLOAD -- two buttons doing the same thing, one of them lying
+                      about what it does. useIsTouchDevice asks about the input device rather
+                      than the window width, so a narrow laptop window does not grow a camera
+                      and a docked tablet loses one.
+
+                      "environment" is the rear camera: somebody photographing a garment is
+                      pointing the phone at it, not at themselves.
+                    */}
+                    {isTouch && (
+                      <label
+                        className="btn-secondary"
+                        style={{ cursor: 'pointer', padding: '8px 16px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                      >
+                        <Camera size={14} />
+                        CAMERA
+                        <input
+                          type="file"
+                          style={{ display: 'none' }}
+                          accept="image/*"
+                          capture="environment"
+                          onChange={(e) => {
+                            const f = e.target.files?.[0] || null;
+                            // No isImageFile guard: the file came from the camera, and on iOS
+                            // it arrives with no usable type. Rejecting it here is the bug
+                            // that guard exists to avoid.
+                            if (f) handleFileChange(key, f);
+                          }}
+                          disabled={generating || isUploading}
+                        />
+                      </label>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <div style={{ position: 'relative', width: '100%', height: '100%' }}>

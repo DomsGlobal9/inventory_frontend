@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, PackageSearch, Star, Trash2, AlertTriangle } from 'lucide-react';
+import { Loader2, PackageSearch, Star, Trash2, AlertTriangle, FileText } from 'lucide-react';
 import {
   useSupplierProducts,
   useSetPreferredSupplier,
   useUnlinkSupplierProduct
 } from '../hooks/useSuppliers';
 import ConfirmModal from './ConfirmModal';
+import { usePermission } from '../hooks/usePermission';
+import { useLocationContext } from '../contexts/LocationContext';
 
 /**
  * What we buy from one supplier.
@@ -19,7 +21,7 @@ import ConfirmModal from './ConfirmModal';
 const formatMoney = (value) =>
   value == null ? null : `₹${Number(value).toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
 
-export default function SupplierProductsPanel({ supplierId, supplierName }) {
+export default function SupplierProductsPanel({ supplierId, supplierName, supplierIsActive = true }) {
   const [search, setSearch] = useState('');
   const { data: links = [], isLoading } = useSupplierProducts(supplierId, search || undefined);
   const setPreferred = useSetPreferredSupplier();
@@ -28,6 +30,30 @@ export default function SupplierProductsPanel({ supplierId, supplierName }) {
   // dialog can name the item after the table behind it has re-rendered.
   const [linkToRemove, setLinkToRemove] = useState(null);
   const navigate = useNavigate();
+  const { can } = usePermission();
+  const { currentLocation } = useLocationContext();
+  const canOrder = can('purchase_order:create');
+
+  /**
+   * What this item actually sells for at the location currently selected.
+   *
+   * Same precedence the backend's resolveVariantForLocation uses, and the same one the
+   * pricing column on the product page follows: a location's override, then the variant's
+   * own price, then the product's base price. The last step is not a nicety -- adding a
+   * product asks for one base price and never for a per-variant price, so most variants
+   * are priced only at product level and would otherwise report no price at all.
+   *
+   * Carried into the purchase order so the form can warn about ordering at a loss.
+   */
+  const sellingPriceOf = (variant) => {
+    const profile = currentLocation?.id
+      ? (variant?.locationProfiles || []).find(pr => pr.locationId === currentLocation.id)
+      : undefined;
+    const override = profile?.priceOverride;
+    if (override !== null && override !== undefined && override !== '') return Number(override);
+    if (variant?.sellingPrice) return Number(variant.sellingPrice);
+    return variant?.product?.basePrice ? Number(variant.product.basePrice) : null;
+  };
 
   const stockOf = (variant) =>
     (variant?.stocks || []).reduce((sum, s) => sum + (s.quantity || 0), 0);
@@ -154,6 +180,44 @@ export default function SupplierProductsPanel({ supplierId, supplierName }) {
                     </td>
                     <td style={{ textAlign: 'right' }}>
                       <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
+                        {/*
+                          The mirror of the Create PO button on the product page's supplier
+                          list. Both screens show the same supplier-and-item pair; only one
+                          of them could act on it, so arriving here with "order 50 of that
+                          from him" meant walking to the product, finding the variant,
+                          opening its supplier list and finding this supplier again.
+
+                          Same rules as the other side deliberately: this supplier's own
+                          negotiated price rather than the product's cost, their minimum
+                          order quantity where they have one, and no one-click order to a
+                          supplier who has been switched off.
+                        */}
+                        {canOrder && (
+                          <button
+                            className="btn-icon"
+                            disabled={!supplierIsActive}
+                            title={!supplierIsActive
+                              ? `${supplierName || 'This supplier'} is inactive -- reactivate them to order`
+                              : `Create a purchase order to ${supplierName || 'this supplier'} for ${variant.sku || 'this item'}`}
+                            onClick={() => navigate('/inventory/purchase-orders/new', {
+                              state: {
+                                supplierId,
+                                variantId: variant.id,
+                                sku: variant.sku,
+                                variantCode: variant.variantCode || '',
+                                barcode: variant.barcode || '',
+                                title: variant.product?.title || '',
+                                color: variant.colorName || '',
+                                size: variant.size || '',
+                                orderedQty: link.minOrderQty || 1,
+                                costPrice: link.costPrice == null ? 0 : Number(link.costPrice),
+                                sellingPrice: sellingPriceOf(variant)
+                              }
+                            })}
+                          >
+                            <FileText size={14} />
+                          </button>
+                        )}
                         {!link.isPreferred && (
                           <button
                             className="btn-icon"

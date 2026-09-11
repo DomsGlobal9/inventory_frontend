@@ -165,7 +165,13 @@ export default function SupplierDetails() {
           the question people come to a supplier page with -- "what do we get from them, and
           what needs reordering" -- whereas the PO list is history. */}
       <motion.div variants={item} style={{ marginBottom: '24px' }}>
-        <SupplierProductsPanel supplierId={supplier.id} supplierName={supplier.name} />
+        <SupplierProductsPanel
+          supplierId={supplier.id}
+          supplierName={supplier.name}
+          /* Whether they are still someone we buy from, so the panel can decline to
+             offer a one-click order to a supplier the shop has switched off. */
+          supplierIsActive={supplier.isActive !== false}
+        />
       </motion.div>
 
       {/* Recent Purchase Orders */}

@@ -1,18 +1,51 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, QueryCache } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import './index.css';
 import App from './App.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { ThemeProvider } from './contexts/ThemeContext.jsx';
+import toast from 'react-hot-toast';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import { installGlobalErrorReporting } from './lib/errorReporter.js';
-import { shouldRetry } from './lib/access.js';
+import { shouldRetry, isPermissionError } from './lib/access.js';
 
 installGlobalErrorReporting();
 
+/**
+ * A request that failed must not look like an empty shelf.
+ *
+ * Nothing surfaced a failed query. The interceptor rejects with a clean { message }, the
+ * component reads `data?.x || []`, and the screen renders its empty state -- so "No
+ * transactions found.", "No products added yet.", "No suppliers found." were printed with
+ * equal confidence whether the answer was genuinely nothing or the request never succeeded.
+ * Nineteen screens are built that way. That is not a rendering bug; it is the app telling a
+ * shopkeeper something untrue about their own shop, quietly, with no way to tell.
+ *
+ * One handler here covers all of them, and every screen added later.
+ *
+ * Three refusals are deliberately silent, because something else already says more than a
+ * toast could:
+ *   - a permission refusal: Guard renders the page that explains it
+ *   - a 401: the interceptor has already sent them to sign in
+ *   - a 404: the screen itself says what was not found, in context
+ *
+ * Keyed on the message so a screen firing several queries at once reports a dropped
+ * connection once, not five times.
+ */
+const queryCache = new QueryCache({
+  onError: (error) => {
+    if (isPermissionError(error)) return;
+    const status = error?.response?.status ?? error?.statusCode;
+    if (status === 401 || status === 404) return;
+    const message = error?.message || 'Something did not load. Check your connection and try again.';
+    toast.error(message, { id: `query:${message}` });
+  }
+});
+
 const queryClient = new QueryClient({
+  queryCache,
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,

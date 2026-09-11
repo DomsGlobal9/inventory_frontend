@@ -190,7 +190,11 @@ export default function Settings() {
                         display: 'flex', alignItems: 'center', gap: '8px',
                         padding: '10px 16px', border: 'none',
                         background: isActive ? 'var(--primary-color)' : 'var(--bg-card)',
-                        color: isActive ? '#fff' : 'var(--text-secondary)',
+                        // --primary-color is an alias for --text-primary, so it INVERTS:
+                        // white in dark mode, near-black in light. '#fff' here made the
+                        // selected tab white-on-white in dark mode -- the one tab you could
+                        // not read was the one you were on. --bg-card inverts with it.
+                        color: isActive ? 'var(--bg-card)' : 'var(--text-secondary)',
                         borderRadius: '24px', cursor: 'pointer',
                         fontWeight: 500, fontSize: '14px', whiteSpace: 'nowrap',
                         transition: 'all 0.2s ease',

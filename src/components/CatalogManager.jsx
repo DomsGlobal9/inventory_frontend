@@ -241,7 +241,9 @@ export default function CatalogManager({ type }) {
           onClick={handleAddStart}
           style={{ 
             display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 20px', 
-            background: 'var(--primary-color)', color: '#fff', border: 'none', borderRadius: '8px',
+            // --bg-card, not '#fff': the background is --primary-color, which is an alias
+            // for --text-primary and therefore white in dark mode. See Settings.jsx.
+            background: 'var(--primary-color)', color: 'var(--bg-card)', border: 'none', borderRadius: '8px',
             fontSize: '14px', cursor: 'pointer', fontWeight: 500, flexShrink: 0
           }}>
           <Plus size={16} /> Add New

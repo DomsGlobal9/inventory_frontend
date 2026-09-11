@@ -185,7 +185,9 @@ function TicketDetail({ ticketId, onBack }) {
             
             <div style={{
               background: m.authorType === 'CLIENT' ? 'var(--primary-color)' : 'var(--bg-input)',
-              color: m.authorType === 'CLIENT' ? '#fff' : 'var(--text-primary)',
+              // The client's own messages sit on --primary-color, which is white in dark
+              // mode -- so '#fff' made them unreadable to the person who wrote them.
+              color: m.authorType === 'CLIENT' ? 'var(--bg-card)' : 'var(--text-primary)',
               borderRadius: '16px', 
               borderTopLeftRadius: m.authorType === 'CLIENT' ? '16px' : '4px',
               borderTopRightRadius: m.authorType === 'CLIENT' ? '4px' : '16px',
@@ -213,7 +215,7 @@ function TicketDetail({ ticketId, onBack }) {
           <button 
             type="submit" 
             disabled={replyMutation.isPending || !reply.trim()} 
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '48px', background: reply.trim() ? 'var(--primary-color)' : 'var(--bg-input)', color: reply.trim() ? '#fff' : 'var(--text-muted)', border: 'none', borderRadius: '12px', cursor: reply.trim() ? 'pointer' : 'not-allowed', transition: 'all 0.2s' }}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '48px', background: reply.trim() ? 'var(--primary-color)' : 'var(--bg-input)', color: reply.trim() ? 'var(--bg-card)' : 'var(--text-muted)', border: 'none', borderRadius: '12px', cursor: reply.trim() ? 'pointer' : 'not-allowed', transition: 'all 0.2s' }}
           >
             {replyMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} style={{ transform: 'translateX(-2px) translateY(2px)' }} />}
           </button>

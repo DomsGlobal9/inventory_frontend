@@ -12,7 +12,12 @@
   
   --text-primary: #ffffff;
   --text-secondary: #a1a1aa;
-  --text-muted: #52525b;
+  /* Raised from #52525b, which was 2.56:1 against --bg-card.
+     Column headers and timestamps are 11-12px, where WCAG AA asks for 4.5:1, so the
+     dimmest text in the app was also the smallest -- "Date", "Product & SKU", "Status"
+     on every table. Still clearly quieter than --text-secondary (#a1a1aa), so the
+     hierarchy between the two survives. */
+  --text-muted: #7b7b86;
   
   /* Alias for primary accent */
   --primary-color: var(--text-primary);
@@ -74,7 +79,12 @@
   
   --text-primary: #18181b;
   --text-secondary: #71717a;
-  --text-muted: #a1a1aa;
+  /* Raised from #a1a1aa (2.56:1 on white) for the same reason as the dark value.
+     Light has less room: --text-secondary is #71717a and already close to the floor at
+     4.88:1, so muted sits just above it rather than well below. Both now pass AA; the
+     visual gap between secondary and muted is narrower here than in dark, which is the
+     honest cost of the light palette being what it is. */
+  --text-muted: #757580;
   
   /* Alias for primary accent */
   --primary-color: var(--text-primary);
@@ -92,14 +102,21 @@
   /* Same reason as the note above. */
   --accent-primary: var(--brand-solid);
   --accent-primary-on: var(--brand-on-solid);
-  --accent-danger: #ef4444;
-  --accent-success: #10b981;
+  /* Darker than the dark theme's #ef4444. These are the 500-level colours, mixed to sit
+     on a dark ground; on white they measured 3.76:1 for 13px text and 3.3:1 inside their
+     own tinted pill, both under AA. The 600/700 shades read the same but survive white. */
+  /* red-700 rather than red-600. The status pills mix their own tint from the ORIGINAL
+     rgba(239,68,68,0.1) in component code, so the pill stays slightly pinker than this
+     colour would make it; 600 landed at 4.24:1 inside that pill, just under AA at 10px.
+     700 clears it without the pills reading as a different colour. */
+  --accent-danger: #b91c1c;
+  --accent-success: #047857;
   /* Used in fifteen places across the app -- the SENSITIVE badge in the platform audit log,
      reorder warnings, day book notes, the low-margin flag in the variant picker -- and defined
      in none of them, so every one of those resolved to nothing and rendered uncoloured. Amber,
      which is what the call sites already assume: VariantSearchModal pairs it with
      rgba(245, 158, 11, 0.12) as its own background. */
-  --accent-warning: #f59e0b;
+  --accent-warning: #b45309;
   
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;

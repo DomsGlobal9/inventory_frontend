@@ -26,6 +26,8 @@ export async function uploadImageFile(productId: string, file: File, opts: {
   altText?: string;
   imageType?: 'COVER' | 'GALLERY' | 'RAW_UPLOAD';
   orderIndex?: number;
+  /** Which size/colour this photograph is of. Omitted for a shot of the product as a whole. */
+  variantId?: string;
 } = {}) {
   // 1. Server computes the path and signs a one-time upload for it.
   const prepared: any = await api.post(`/products/${productId}/images/upload-url`, {
@@ -65,7 +67,10 @@ export async function uploadImageFile(productId: string, file: File, opts: {
     altText: opts.altText || file.name,
     isPrimary: opts.isPrimary || false,
     imageType: opts.imageType || 'GALLERY',
-    orderIndex: opts.orderIndex ?? 0
+    orderIndex: opts.orderIndex ?? 0,
+    // Omitted entirely rather than sent as null: the schema treats the key's absence as
+    // "belongs to the product", and a null would have to be allowed through validation.
+    ...(opts.variantId ? { variantId: opts.variantId } : {})
   });
 }
 

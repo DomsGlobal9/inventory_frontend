@@ -1,52 +1,117 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useMemo } from 'react';
 import LoadFailed from './LoadFailed';
-import { Upload, X, Star, Loader2 } from 'lucide-react';
+import { Upload, X, Star, Loader2, ImageOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useImages, useUploadImage, useDeleteImage, useUpdateImage } from '../hooks/useImages';
+import { useVariants } from '../hooks/useVariants';
 import toast from 'react-hot-toast';
 import ConfirmModal from './ConfirmModal';
 import PageLoader from './PageLoader';
 
+/**
+ * Photographs, arranged by the thing they are photographs OF.
+ *
+ * This was one flat pile per product. The schema has carried a variantId on every image since
+ * the beginning and not one of the 54 images in the database used it -- so a shop selling a
+ * saree in five colours uploaded five pictures into a heap, and nothing on the screen said
+ * which colour still had none. "This product has photos" is not a useful answer when the red
+ * one has three and the blue one has none; the customer looking at blue sees the red saree.
+ *
+ * So a section per variant, always listed even when empty. An empty section is the point: it
+ * is the only way a missing photograph announces itself. Shots that belong to the product as a
+ * whole -- the fabric, the border, the drape -- keep a section of their own.
+ */
+
+const describeVariant = (v) =>
+  [v.colorName, v.size].filter(Boolean).join(' · ') || v.sku;
+
 export default function ImageGallery({ productId }) {
   const fileInputRef = useRef(null);
+  // Which section the file picker was opened from, so the upload lands where it was asked
+  // for. null means the product as a whole.
+  const [uploadTarget, setUploadTarget] = useState(null);
+
   const { data, isLoading, isError, error, refetch } = useImages(productId);
+  const { data: variantData } = useVariants(productId);
   const uploadMutation = useUploadImage(productId);
   const deleteMutation = useDeleteImage(productId);
   const updateMutation = useUpdateImage(productId);
 
   const images = data || [];
+  const variants = variantData?.data || variantData || [];
   const [confirmState, setConfirmState] = useState({ isOpen: false });
+
+  /**
+   * One group per variant plus one for the product, in the order the variants are listed.
+   *
+   * Built from the VARIANTS, not from the images -- that is what makes an empty group appear
+   * at all. Grouping the images alone would show only the colours that already have one,
+   * which is precisely the colours nobody needs reminding about.
+   */
+  const groups = useMemo(() => {
+    const byVariant = new Map();
+    for (const image of images) {
+      const key = image.variantId || null;
+      if (!byVariant.has(key)) byVariant.set(key, []);
+      byVariant.get(key).push(image);
+    }
+
+    const sections = [{
+      key: 'product',
+      variantId: null,
+      title: 'The product as a whole',
+      hint: 'The fabric, the border, the drape — anything not specific to one colour.',
+      images: byVariant.get(null) || []
+    }];
+
+    for (const variant of variants) {
+      sections.push({
+        key: variant.id,
+        variantId: variant.id,
+        title: describeVariant(variant),
+        hint: variant.sku,
+        hexCode: variant.hexCode,
+        images: byVariant.get(variant.id) || []
+      });
+    }
+    return sections;
+  }, [images, variants]);
+
+  const missingCount = groups.filter(g => g.variantId && g.images.length === 0).length;
+
+  const openPicker = (variantId) => {
+    setUploadTarget(variantId);
+    fileInputRef.current?.click();
+  };
 
   const handleFileChange = async (e) => {
     const file = e.target.files?.[0];
+    // Reset the input first: picking the same file twice in a row fires no change event
+    // otherwise, so a failed upload could not simply be retried with the same photo.
+    if (fileInputRef.current) fileInputRef.current.value = '';
     if (!file) return;
 
-    // Check size limit (e.g., 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("File is too large. Maximum size is 5MB.");
+      toast.error('File is too large. Maximum size is 5MB.');
       return;
     }
 
-    // Determine if it should be primary
-    const isPrimary = images.length === 0;
-
-    uploadMutation.mutate({ file, isPrimary });
-    
-    // reset input
-    if (fileInputRef.current) fileInputRef.current.value = '';
+    // The first photo of a set becomes its primary. Counted within the set, because each
+    // variant has its own primary now -- see image.service.
+    const target = uploadTarget;
+    const existing = images.filter(i => (i.variantId || null) === (target || null));
+    uploadMutation.mutate({ file, isPrimary: existing.length === 0, variantId: target || undefined });
   };
 
   const setPrimary = (imageId) => {
-    // We update this image to primary=true. 
-    // A robust backend would unset primary on others automatically.
     updateMutation.mutate({ imageId, data: { isPrimary: true } });
   };
 
   const handleDelete = (imageId) => {
     setConfirmState({
       isOpen: true,
-      title: 'Delete Image',
-      message: 'Are you sure you want to delete this image?',
+      title: 'Delete this photo?',
+      message: 'It is removed from the product and from storage. There is no undo — you would have to upload it again.',
       confirmText: 'Delete',
       confirmStyle: 'danger',
       onConfirm: () => deleteMutation.mutateAsync(imageId)
@@ -55,114 +120,145 @@ export default function ImageGallery({ productId }) {
 
   if (isLoading) return <PageLoader text="LOADING IMAGES..." />;
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.1 } }
-  };
-
   const itemVariants = {
     hidden: { opacity: 0, scale: 0.95 },
     show: { opacity: 1, scale: 1 }
   };
 
+  const renderImage = (image) => (
+    <motion.div
+      variants={itemVariants}
+      initial="hidden"
+      animate="show"
+      key={image.id}
+      exit={{ opacity: 0, scale: 0.9 }}
+      style={{
+        position: 'relative',
+        aspectRatio: '1/1',
+        borderRadius: '8px',
+        overflow: 'hidden',
+        border: image.isPrimary ? '2px solid var(--accent-gold)' : '1px solid var(--border-light)',
+        background: 'var(--bg-input)'
+      }}
+    >
+      <img
+        src={image.url}
+        alt={image.altText || 'Product image'}
+        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+      />
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0,
+        padding: '8px', display: 'flex', justifyContent: 'space-between', gap: '8px',
+        background: 'linear-gradient(to bottom, rgba(0,0,0,0.5), transparent)'
+      }}>
+        {image.isPrimary ? (
+          <span style={{
+            background: 'var(--accent-gold)', color: '#000',
+            padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold',
+            alignSelf: 'center'
+          }}>
+            PRIMARY
+          </span>
+        ) : (
+          <button
+            onClick={() => setPrimary(image.id)}
+            disabled={updateMutation.isPending}
+            style={{ color: '#fff', background: 'rgba(0,0,0,0.5)', padding: '6px', borderRadius: '4px', display: 'flex' }}
+            title="Use this as the main photo"
+          >
+            <Star size={14} />
+          </button>
+        )}
+        <button
+          onClick={() => handleDelete(image.id)}
+          disabled={deleteMutation.isPending}
+          style={{ color: '#fff', background: 'rgba(239, 68, 68, 0.8)', padding: '6px', borderRadius: '4px', display: 'flex' }}
+          title="Delete this photo"
+        >
+          <X size={14} />
+        </button>
+      </div>
+    </motion.div>
+  );
+
   return (
-    <div className="glass-panel" style={{ padding: '32px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+    <div className="glass-panel" style={{ padding: '32px', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', flexWrap: 'wrap', marginBottom: '24px' }}>
         <div>
           <h3 style={{ margin: 0 }}>Product Images</h3>
-          <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: '4px 0 0' }}>Upload and manage product photos.</p>
+          <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: '4px 0 0' }}>
+            {/* The count, not just a list. A shop with twelve colours cannot see at a glance
+                which ones are missing by scrolling; this says so in one line. */}
+            {variants.length === 0
+              ? 'Add sizes and colours first, then each one can have its own photo.'
+              : missingCount > 0
+                ? `${missingCount} of ${variants.length} ${variants.length === 1 ? 'variant has' : 'variants have'} no photo yet.`
+                : 'Every size and colour has at least one photo.'}
+          </p>
         </div>
-        <div>
-          <input 
-            type="file" 
-            ref={fileInputRef} 
-            onChange={handleFileChange} 
-            accept="image/*" 
-            style={{ display: 'none' }} 
-          />
-          <button 
-            className="btn-primary" 
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploadMutation.isPending}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-          >
-            {uploadMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
-            {uploadMutation.isPending ? 'Uploading...' : 'Upload Image'}
-          </button>
-        </div>
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          accept="image/*"
+          style={{ display: 'none' }}
+        />
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto' }}>
-        {isError ? (<LoadFailed what="images" error={error} onRetry={refetch} />) : images.length === 0 ? (
-          <div style={{ padding: '48px', textAlign: 'center', border: '1px dashed var(--border-light)', borderRadius: '8px' }}>
-            <p style={{ color: 'var(--text-muted)' }}>No images uploaded yet.</p>
-          </div>
-        ) : (
-          <motion.div 
-            variants={containerVariants} 
-            initial="hidden" 
-            animate="show"
-            style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '24px' }}
-          >
-            <AnimatePresence>
-              {images.map((image) => (
-                <motion.div 
-                  variants={itemVariants}
-                  key={image.id}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  style={{ 
-                    position: 'relative', 
-                    aspectRatio: '1/1', 
-                    borderRadius: '8px', 
-                    overflow: 'hidden',
-                    border: image.isPrimary ? '2px solid var(--accent-gold)' : '1px solid var(--border-light)',
-                    background: 'var(--bg-input)'
-                  }}
-                >
-                  <img 
-                    src={image.url} 
-                    alt={image.altText || 'Product image'} 
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                  
-                  {/* Overlay Controls */}
-                  <div style={{ 
-                    position: 'absolute', top: 0, left: 0, right: 0, 
-                    padding: '8px', display: 'flex', justifyContent: 'space-between',
-                    background: 'linear-gradient(to bottom, rgba(0,0,0,0.5), transparent)'
-                  }}>
-                    {image.isPrimary ? (
-                      <span style={{ 
-                        background: 'var(--accent-gold)', color: '#000', 
-                        padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold' 
-                      }}>
-                        PRIMARY
-                      </span>
-                    ) : (
-                      <button 
-                        onClick={() => setPrimary(image.id)}
-                        disabled={updateMutation.isPending}
-                        style={{ color: '#fff', background: 'rgba(0,0,0,0.5)', padding: '4px', borderRadius: '4px' }}
-                        title="Set as Primary"
-                      >
-                        <Star size={14} />
-                      </button>
-                    )}
-                    <button 
-                      onClick={() => handleDelete(image.id)}
-                      disabled={deleteMutation.isPending}
-                      style={{ color: '#fff', background: 'rgba(239, 68, 68, 0.8)', padding: '4px', borderRadius: '4px' }}
-                    >
-                      <X size={14} />
-                    </button>
+      <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '28px' }}>
+        {isError ? <LoadFailed what="images" error={error} onRetry={refetch} /> : groups.map(group => (
+          <section key={group.key}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
+                {group.hexCode && (
+                  <span style={{ width: '14px', height: '14px', borderRadius: '50%', background: group.hexCode, border: '1px solid var(--border-light)', flexShrink: 0 }} />
+                )}
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                    {group.title}
+                    <span style={{ marginLeft: '8px', fontSize: '12px', fontWeight: 400, color: 'var(--text-muted)' }}>
+                      {group.images.length > 0
+                        ? `${group.images.length} ${group.images.length === 1 ? 'photo' : 'photos'}`
+                        : 'no photos'}
+                    </span>
                   </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </motion.div>
-        )}
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{group.hint}</div>
+                </div>
+              </div>
+              <button
+                className="btn-secondary"
+                onClick={() => openPicker(group.variantId)}
+                disabled={uploadMutation.isPending}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}
+              >
+                {uploadMutation.isPending && uploadTarget === group.variantId
+                  ? <><Loader2 size={15} className="animate-spin" /> Uploading…</>
+                  : <><Upload size={15} /> Add photo</>}
+              </button>
+            </div>
+
+            {group.images.length === 0 ? (
+              /* Stated, not left blank. An empty row is how a shopkeeper finds the colour
+                 whose photo nobody ever took -- before a customer does. */
+              <div style={{
+                padding: '20px', borderRadius: '8px', border: '1px dashed var(--border-light)',
+                display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text-muted)', fontSize: '13px'
+              }}>
+                <ImageOff size={16} />
+                {group.variantId
+                  ? `No photo of ${group.title} yet. A customer choosing it would see another colour.`
+                  : 'No general photos of this product yet.'}
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(160px, 100%), 1fr))', gap: '16px' }}>
+                <AnimatePresence>{group.images.map(renderImage)}</AnimatePresence>
+              </div>
+            )}
+          </section>
+        ))}
       </div>
-      <ConfirmModal 
+
+      <ConfirmModal
         isOpen={confirmState.isOpen}
         onClose={() => setConfirmState({ isOpen: false })}
         onConfirm={confirmState.onConfirm}

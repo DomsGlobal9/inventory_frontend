@@ -19,9 +19,9 @@ export function useImages(productId) {
 export function useUploadImage(productId) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ file, isPrimary = false, altText = '' }) => {
+    mutationFn: async ({ file, isPrimary = false, altText = '', variantId }) => {
       // No tenant is passed: the server derives the storage path from the session's JWT.
-      const response = await uploadImageFile(productId, file, { isPrimary, altText, imageType: 'GALLERY' });
+      const response = await uploadImageFile(productId, file, { isPrimary, altText, imageType: 'GALLERY', variantId });
       return response.data;
     },
     onSuccess: () => {

@@ -3,12 +3,14 @@ import LoadFailed from '../components/LoadFailed';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Package, Download, Upload, FileSpreadsheet } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useProducts } from '../hooks/useProducts';
+import toast from 'react-hot-toast';
+import { useProducts, useBulkSetProductStatus } from '../hooks/useProducts';
 import { useProduct } from '../context/ProductContext';
 import BulkUpdateModal from '../components/BulkUpdateModal';
 import ProductImportModal from '../components/ProductImportModal';
 import PageLoader from '../components/PageLoader';
 import Select from '../components/common/Select';
+import ConfirmModal from '../components/ConfirmModal';
 
 
 export default function Products() {
@@ -16,11 +18,92 @@ export default function Products() {
   const { resetProductData } = useProduct();
   const [statusFilter, setStatusFilter] = React.useState(''); // Empty means default (ACTIVE, DRAFT)
   const { data, isLoading, isError, error, refetch } = useProducts({ page: 1, limit: 50, status: statusFilter || undefined });
-  
+
   const [isBulkUpdateModalOpen, setIsBulkUpdateModalOpen] = React.useState(false);
   const [isImportOpen, setIsImportOpen] = React.useState(false);
+  const [selected, setSelected] = React.useState(() => new Set());
+  const [confirmState, setConfirmState] = React.useState({ isOpen: false });
+  const bulkStatus = useBulkSetProductStatus();
 
   const products = data?.data || [];
+
+  // A selection belongs to the list it was made from. Changing the filter shows different
+  // products, and acting on ids the merchant can no longer see is how somebody publishes
+  // something they never chose.
+  React.useEffect(() => { setSelected(new Set()); }, [statusFilter]);
+
+  const selectedProducts = products.filter(p => selected.has(p.id));
+  const draftsSelected = selectedProducts.filter(p => p.status === 'DRAFT');
+  const liveSelected = selectedProducts.filter(p => p.status === 'ACTIVE');
+
+  const toggleOne = (id) => setSelected(prev => {
+    const next = new Set(prev);
+    next.has(id) ? next.delete(id) : next.add(id);
+    return next;
+  });
+
+  const allOnPageSelected = products.length > 0 && products.every(p => selected.has(p.id));
+  const toggleAll = () => setSelected(allOnPageSelected ? new Set() : new Set(products.map(p => p.id)));
+
+  /**
+   * Publishing a selection, with the one warning the single-product button also gives.
+   *
+   * Bulk must not become the way round the "this has no photographs" check -- a website full
+   * of blank cards is exactly what that check exists to prevent. It cannot ask once per
+   * product either, so it counts them and asks once.
+   */
+  const runBulk = (status) => {
+    const targets = status === 'ACTIVE' ? draftsSelected : liveSelected;
+    if (targets.length === 0) return;
+
+    const noPhotos = targets.filter(p => !(p.imageCount > 0)).length;
+    const noVariants = targets.filter(p => !(p.variantSummary?.variantCount > 0)).length;
+    const verb = status === 'ACTIVE' ? 'Publish' : 'Unpublish';
+
+    const concerns = [
+      noPhotos > 0 && `${noPhotos} ${noPhotos === 1 ? 'has' : 'have'} no photographs`,
+      noVariants > 0 && `${noVariants} ${noVariants === 1 ? 'has' : 'have'} no sizes or colours`
+    ].filter(Boolean);
+
+    const apply = () => bulkStatus.mutate(
+      { ids: targets.map(p => p.id), status },
+      {
+        onSuccess: (res) => {
+          const r = res?.data ?? res;
+          const word = status === 'ACTIVE' ? 'published' : 'moved back to draft';
+          if (r?.failed?.length) {
+            toast.error(`${r.changed} ${word}. ${r.failed.length} could not be: ${r.failed[0]?.reason}`);
+          } else {
+            toast.success(`${r.changed} ${r.changed === 1 ? 'product' : 'products'} ${word}.`);
+          }
+          setSelected(new Set());
+          setConfirmState({ isOpen: false });
+        }
+      }
+    );
+
+    if (status === 'ACTIVE' && concerns.length) {
+      setConfirmState({
+        isOpen: true,
+        title: `Publish ${targets.length} ${targets.length === 1 ? 'product' : 'products'}?`,
+        message: `Of these, ${concerns.join(' and ')}. They will go live as they are — customers and the try-on codes will find them. You can add what is missing first and publish afterwards.`,
+        confirmText: `Publish ${targets.length} anyway`,
+        confirmStyle: 'warning',
+        onConfirm: apply
+      });
+    } else {
+      setConfirmState({
+        isOpen: true,
+        title: `${verb} ${targets.length} ${targets.length === 1 ? 'product' : 'products'}?`,
+        message: status === 'ACTIVE'
+          ? 'They go on sale immediately, and any connected website is told about them.'
+          : 'They come off the storefront straight away. Their stock and history are untouched, and you can publish them again at any time.',
+        confirmText: `${verb} ${targets.length}`,
+        confirmStyle: status === 'ACTIVE' ? 'primary' : 'warning',
+        onConfirm: apply
+      });
+    }
+  };
 
   const handleExport = () => {
     import('../utils/csvUtils').then(({ exportToCSV }) => {
@@ -117,6 +200,38 @@ export default function Products() {
         </div>
       </div>
 
+      {/* Appears only when something is chosen, and says what it will do to what. A bar that
+          is always there with "0 selected" is a bar that is always in the way. */}
+      {selected.size > 0 && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', flexShrink: 0,
+          padding: '12px 16px', borderRadius: '10px',
+          background: 'var(--bg-input)', border: '1px solid var(--border-light)'
+        }}>
+          <span style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: 500 }}>
+            {selected.size} selected
+          </span>
+          <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+            {draftsSelected.length > 0 && `${draftsSelected.length} draft${draftsSelected.length === 1 ? '' : 's'}`}
+            {draftsSelected.length > 0 && liveSelected.length > 0 && ' · '}
+            {liveSelected.length > 0 && `${liveSelected.length} published`}
+          </span>
+          <div style={{ marginLeft: 'auto', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <button className="btn-secondary" onClick={() => setSelected(new Set())}>Clear</button>
+            {liveSelected.length > 0 && (
+              <button className="btn-secondary" onClick={() => runBulk('DRAFT')} disabled={bulkStatus.isPending}>
+                Unpublish {liveSelected.length}
+              </button>
+            )}
+            {draftsSelected.length > 0 && (
+              <button className="btn-primary" onClick={() => runBulk('ACTIVE')} disabled={bulkStatus.isPending}>
+                {bulkStatus.isPending ? 'Publishing…' : `Publish ${draftsSelected.length}`}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="table-container" style={{ overflowX: 'auto' }}>
         {isLoading ? (
           <PageLoader text="Loading products..." />
@@ -128,6 +243,16 @@ export default function Products() {
           <motion.table variants={container} initial="hidden" animate="show" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr>
+                <th style={{ width: '44px' }}>
+                  <input
+                    type="checkbox"
+                    checked={allOnPageSelected}
+                    onChange={toggleAll}
+                    aria-label="Select every product on this page"
+                    title="Select every product on this page"
+                    style={{ cursor: 'pointer', width: '16px', height: '16px' }}
+                  />
+                </th>
                 <th>Product</th>
                 <th>Category</th>
                 <th>Variants</th>
@@ -142,8 +267,19 @@ export default function Products() {
                   variants={item}
                   key={product.id} 
                   onClick={() => navigate(`/products/${product.id}`)}
-                  style={{ cursor: 'pointer' }}
+                  style={{ cursor: 'pointer', background: selected.has(product.id) ? 'var(--bg-input)' : undefined }}
                 >
+                  {/* stopPropagation: the whole row opens the product, and a tick that also
+                      navigated away would make selecting more than one impossible. */}
+                  <td onClick={(e) => e.stopPropagation()} style={{ width: '44px' }}>
+                    <input
+                      type="checkbox"
+                      checked={selected.has(product.id)}
+                      onChange={() => toggleOne(product.id)}
+                      aria-label={`Select ${product.title}`}
+                      style={{ cursor: 'pointer', width: '16px', height: '16px' }}
+                    />
+                  </td>
                   <td>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <div style={{ width: '40px', height: '40px', background: 'var(--bg-input)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -177,6 +313,16 @@ export default function Products() {
         )}
       </div>
       
+      <ConfirmModal
+        isOpen={confirmState.isOpen}
+        onClose={() => setConfirmState({ isOpen: false })}
+        onConfirm={confirmState.onConfirm}
+        title={confirmState.title}
+        message={confirmState.message}
+        confirmText={confirmState.confirmText}
+        confirmStyle={confirmState.confirmStyle}
+      />
+
       <BulkUpdateModal 
         isOpen={isBulkUpdateModalOpen} 
         onClose={() => setIsBulkUpdateModalOpen(false)} 

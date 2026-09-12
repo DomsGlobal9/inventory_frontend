@@ -31,3 +31,9 @@ export const restoreProduct = async (id: string) => {
 export const hardDeleteProduct = async (id: string) => {
   return api.delete(`/products/${id}/hard`);
 };
+
+/** Publish or unpublish a selection at once. See backend productService.bulkSetStatus. */
+export const bulkSetProductStatus = async (ids: string[], status: 'ACTIVE' | 'DRAFT') => {
+  const response: any = await api.post('/products/bulk-status', { ids, status });
+  return response?.data ?? response;
+};

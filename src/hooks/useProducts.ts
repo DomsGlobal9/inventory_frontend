@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getProducts, getProductById, createProduct, updateProduct, archiveProduct, trashProduct, restoreProduct, hardDeleteProduct } from '../services/product.service';
+import { getProducts, getProductById, createProduct, updateProduct, archiveProduct, trashProduct, restoreProduct, hardDeleteProduct, bulkSetProductStatus } from '../services/product.service';
 import { queryKeys } from '../lib/queryKeys';
 import { toast } from 'react-hot-toast';
 import { invalidateDerivedViews } from '../lib/invalidate';
@@ -203,5 +203,28 @@ export const useHardDeleteProduct = () => {
     },
     onSuccess: () => toast.success('Deleted for good.'),
     onSettled: (_d, _e, id: string) => refreshProducts(queryClient, id)
+  });
+};
+
+/**
+ * Publishing or unpublishing a selection.
+ *
+ * The result is reported rather than assumed: the server changes what it can and names what it
+ * could not, so a merchant who selected a hundred products is told which ones did not go live
+ * instead of being handed a single "done".
+ */
+export const useBulkSetProductStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ ids, status }: { ids: string[]; status: 'ACTIVE' | 'DRAFT' }) =>
+      bulkSetProductStatus(ids, status),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.products });
+      invalidateDerivedViews(queryClient); // active-product count on the dashboard
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || error?.message || 'Could not change those products');
+    }
   });
 };

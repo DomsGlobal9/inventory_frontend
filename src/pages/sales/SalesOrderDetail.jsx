@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSalesOrderDetails, useConfirmOrder, useCancelOrder } from '../../hooks/useSalesOrders';
 import { useCreateDispatch } from '../../hooks/useDispatches';
@@ -25,6 +25,8 @@ export default function SalesOrderDetail() {
   // One piece of state rather than a boolean each, because the two can never be open at once
   // and a single value cannot drift into a state where both are true.
   const [pendingAction, setPendingAction] = useState(null);
+  // Readable in the same tick it is written, unlike state. See handleCreateDispatch.
+  const dispatchInFlight = useRef(false);
 
   if (isLoading) {
     return <PageLoader text="LOADING ORDERS..." />;
@@ -80,6 +82,7 @@ export default function SalesOrderDetail() {
   const anyDiscount = (order.items || []).some(i => discountOf(i) > 0);
 
   const handleOpenDispatch = () => {
+    dispatchInFlight.current = false;
     const initialQs = {};
     (order.items || []).forEach(item => {
       initialQs[item.id] = 0;
@@ -89,6 +92,20 @@ export default function SalesOrderDetail() {
   };
 
   const handleCreateDispatch = () => {
+    /*
+     * One dispatch per press, however fast the pressing is.
+     *
+     * `disabled={dispatchMutation.isPending}` is React state, and state does not take effect
+     * until the next render -- so a double-click sends the request twice. Measured: three clicks
+     * produced one 201 and two 400s. The server was right (its Serializable transaction refused
+     * the duplicates) but the person saw two red toasts for a dispatch that had in fact worked,
+     * and the modal stayed open inviting them to try again.
+     *
+     * A ref is readable in the tick it is written, which is what this needs.
+     */
+    if (dispatchInFlight.current) return;
+    dispatchInFlight.current = true;
+
     const itemsToDispatch = [];
     Object.keys(dispatchQuantities).forEach(itemId => {
       const qty = parseInt(dispatchQuantities[itemId]);
@@ -99,12 +116,18 @@ export default function SalesOrderDetail() {
     });
 
     if (itemsToDispatch.length === 0) {
+      // Nothing was sent, so the guard has to come back off or the button is dead until the
+      // modal is reopened.
+      dispatchInFlight.current = false;
       toast.error('Enter a quantity greater than 0 for at least one item.');
       return;
     }
 
     dispatchMutation.mutate({ salesOrderId: id, items: itemsToDispatch }, {
-      onSuccess: () => setIsDispatching(false)
+      onSuccess: () => setIsDispatching(false),
+      // Released on failure only. After a success the modal closes, and handleOpenDispatch
+      // clears it again the next time it is opened.
+      onError: () => { dispatchInFlight.current = false; }
     });
   };
 

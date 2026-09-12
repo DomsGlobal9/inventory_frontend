@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, X, Loader2 } from 'lucide-react';
 
@@ -16,10 +16,27 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, title, messag
   // modal had already closed as though it had worked.
   const [busy, setBusy] = useState(false);
 
+  /*
+   * The same fact as `busy`, kept where it can be read in the same tick it is written.
+   *
+   * `busy` is state: setBusy(true) does not take effect until React re-renders. A real
+   * double-click delivers two clicks a few milliseconds apart and a triple-click three, all
+   * before that render happens -- so every one of them read busy === false from the same
+   * closure and every one of them called onConfirm.
+   *
+   * Demonstrated, not theorised: three clicks on Confirm Order sent three confirms, and a
+   * 3+2+1 order came back with nine reservation rows holding eighteen units. The server now
+   * refuses the second one outright, which is where correctness belongs -- this stops the
+   * request being made at all, so the person does not see an error for something they did
+   * not really do twice.
+   */
+  const inFlight = useRef(false);
+
   useEffect(() => {
     if (isOpen) {
       setTypedText('');
       setBusy(false);
+      inFlight.current = false;
     }
   }, [isOpen]);
   if (!isOpen) return null;
@@ -28,7 +45,8 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, title, messag
   const closeIfIdle = () => { if (!busy) onClose(); };
 
   const handleConfirm = async () => {
-    if (busy) return;
+    if (inFlight.current) return;
+    inFlight.current = true;
     setBusy(true);
     try {
       await onConfirm();
@@ -38,6 +56,7 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, title, messag
       // the person can read the message and press again, instead of the modal disappearing
       // and leaving them unsure whether anything happened.
       setBusy(false);
+      inFlight.current = false;
     }
   };
 

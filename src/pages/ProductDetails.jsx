@@ -63,20 +63,31 @@ export default function ProductDetails() {
         // sells over the counter has no use for photographs, and the storefront is optional.
         // But publishing a saree with no picture is nearly always an oversight, and this is
         // the last moment anyone would notice.
+        const variantCount = product.variantSummary?.variantCount || 0;
+        const unphotographed = product.variantSummary?.variantsWithoutImages || 0;
         const noPhotos = !(product.imageCount > 0);
-        const noVariants = !(product.variantSummary?.variantCount > 0);
+        const noVariants = variantCount === 0;
         const doPublish = () => updateMutation.mutate(
           { id, data: { status: 'ACTIVE' } },
           { onSuccess: () => toast.success(`${product.title} is live`) }
         );
 
-        if (noPhotos || noVariants) {
-          const missing = [noPhotos && 'no photographs', noVariants && 'no sizes or colours']
-            .filter(Boolean).join(' and ');
+        // "This product has photographs" was too coarse a question. A saree with three photos
+        // of the red one and none of the blue passed it, and the customer who picks blue is
+        // shown red. What matters is how many sizes and colours have nothing of their own.
+        const missing = [
+          noVariants && 'no sizes or colours',
+          noPhotos
+            ? 'no photographs at all'
+            : unphotographed > 0 &&
+              `${unphotographed} of its ${variantCount} sizes and colours with no photograph`
+        ].filter(Boolean);
+
+        if (missing.length) {
           setConfirmState({
             isOpen: true,
             title: `Publish ${product.title}?`,
-            message: `This product has ${missing}. It will go live as it is — customers and the try-on code will find it. You can add ${noPhotos ? 'photos on the Images tab' : 'variants on the Variants tab'} first and publish afterwards.`,
+            message: `This product has ${missing.join(', and ')}. It will go live as it is — customers and the try-on code will find it. You can add what is missing first and publish afterwards.`,
             confirmText: 'Publish anyway',
             confirmStyle: 'warning',
             onConfirm: () => { doPublish(); setConfirmState({ isOpen: false }); }

@@ -16,6 +16,10 @@ const invalidateProductPhotoCounts = (queryClient, productId) => {
   queryClient.invalidateQueries({ queryKey: ['images', productId] });
   queryClient.invalidateQueries({ queryKey: queryKeys.product(productId) });
   queryClient.invalidateQueries({ queryKey: queryKeys.products });
+  // The Variants tab marks each size and colour that has no photograph, and it reads its own
+  // query. Four places now count photographs; every one of them has to be told, or two tabs of
+  // the same page disagree about the same saree.
+  queryClient.invalidateQueries({ queryKey: queryKeys.variants(productId) });
 };
 
 // GET images for a product

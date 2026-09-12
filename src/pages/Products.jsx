@@ -56,13 +56,17 @@ export default function Products() {
     const targets = status === 'ACTIVE' ? draftsSelected : liveSelected;
     if (targets.length === 0) return;
 
-    const noPhotos = targets.filter(p => !(p.imageCount > 0)).length;
+    // Counted per SIZE AND COLOUR, not per product. "This product has photographs" passes a
+    // saree with three shots of the red one and none of the blue, and the customer who picks
+    // blue is shown red -- so the number worth warning about is how many products are going
+    // live with a colour nobody photographed.
+    const unphotographed = targets.filter(p => (p.variantSummary?.variantsWithoutImages || 0) > 0).length;
     const noVariants = targets.filter(p => !(p.variantSummary?.variantCount > 0)).length;
     const verb = status === 'ACTIVE' ? 'Publish' : 'Unpublish';
 
     const concerns = [
-      noPhotos > 0 && `${noPhotos} ${noPhotos === 1 ? 'has' : 'have'} no photographs`,
-      noVariants > 0 && `${noVariants} ${noVariants === 1 ? 'has' : 'have'} no sizes or colours`
+      unphotographed > 0 && `${unphotographed} ${unphotographed === 1 ? 'has a size or colour' : 'have sizes or colours'} with no photograph`,
+      noVariants > 0 && `${noVariants} ${noVariants === 1 ? 'has' : 'have'} no sizes or colours at all`
     ].filter(Boolean);
 
     const apply = () => bulkStatus.mutate(

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Plus, Trash2, Loader2, AlertCircle, Download, AlertTriangle, X, Copy, CheckCircle2, Printer, Info, Settings, Check, Truck } from 'lucide-react';
+import { Plus, Trash2, Loader2, AlertCircle, Download, AlertTriangle, X, Copy, CheckCircle2, Printer, Info, Settings, Check, Truck, ImageOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import Barcode from 'react-barcode';
@@ -857,8 +857,28 @@ export default function VariantTable({ productId, productName, productCode, prod
                     <td>{v.size}</td>
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        {v.hexCode && <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: v.hexCode }} />}
+                        {v.hexCode && <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: v.hexCode, flexShrink: 0 }} />}
                         {v.colorName}
+                        {/*
+                          Marked against the COLOUR, because that is what a photograph is of.
+                          A row here is one size and colour of a saree, and if nobody ever
+                          photographed this one, the customer who picks it is shown a different
+                          colour. The product page counts these in its header; this says which.
+                        */}
+                        {v.imageCount === 0 && (
+                          <span
+                            title="No photo of this size and colour. Add one on the Images tab."
+                            style={{
+                              display: 'inline-flex', alignItems: 'center', gap: '4px', flexShrink: 0,
+                              padding: '2px 6px', borderRadius: '4px',
+                              fontSize: '10px', fontWeight: 600, textTransform: 'uppercase',
+                              background: 'rgba(239, 68, 68, 0.1)', color: 'var(--accent-danger)',
+                              border: '1px solid rgba(239, 68, 68, 0.35)'
+                            }}
+                          >
+                            <ImageOff size={10} /> No photo
+                          </span>
+                        )}
                       </div>
                     </td>
                     <td style={{ fontWeight: '500' }}>

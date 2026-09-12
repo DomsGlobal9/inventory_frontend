@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Play, Pause, Archive, Tag, Search } from 'lucide-react';
+import { Plus, Play, Pause, Archive, Tag, Search, CalendarClock } from 'lucide-react';
 import { useOffers, useCreateOffer, useUpdateOffer, useSetOfferStatus } from '../hooks/useOffers';
 import { usePermission } from '../hooks/usePermission';
 import { formatINR } from '../utils/formatUtils';
@@ -25,7 +25,10 @@ const TONE = {
   ARCHIVED:  { bg: 'rgba(107,114,128,0.08)',fg: 'rgb(156,163,175)', label: 'Retired' }
 };
 
-const FILTERS = ['ALL', 'ACTIVE', 'DRAFT', 'PAUSED', 'ARCHIVED'];
+// SCHEDULED and EXPIRED are filters even though no column holds them -- they are what the dates
+// say, and a merchant asking "what starts next week" is asking a real question the status column
+// cannot answer.
+const FILTERS = ['ALL', 'ACTIVE', 'SCHEDULED', 'DRAFT', 'PAUSED', 'EXPIRED', 'ARCHIVED'];
 
 function Pill({ status }) {
   const tone = TONE[status] ?? TONE.DRAFT;
@@ -54,17 +57,39 @@ function describe(offer) {
   return `${base}${cap} on ${where}`;
 }
 
+const shortDate = (d) => d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+const shortTime = (d) => d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+
 /**
- * The shop's own timezone, and the exclusive end said the way a person means it.
+ * The exclusive end, said the way a person means it.
  *
- * `endsAt` is stored as the first moment the offer is NOT running -- 1 Oct 00:00 for an offer
- * that ends on 30 September. Showing that verbatim tells a merchant their September sale ends in
- * October, so a whole day is subtracted for display.
+ * `endsAt` is stored as the first moment the offer is NOT running -- 1 Oct 00:00 for an offer that
+ * ends on 30 September. Printing that verbatim tells a merchant their September sale ends in
+ * October.
+ *
+ * When it lands exactly on midnight it means "all of the previous day", so that is what is shown.
+ * When it does not, the merchant chose a time deliberately -- a flash sale ending at 6pm -- and
+ * that time is theirs to see.
  */
 function endLabel(endsAt) {
   if (!endsAt) return 'No end date';
-  const d = new Date(new Date(endsAt).getTime() - 1000);
-  return `Ends ${d.toLocaleDateString()}, 11:59 pm`;
+  const d = new Date(endsAt);
+  const atMidnight = d.getHours() === 0 && d.getMinutes() === 0;
+  if (atMidnight) {
+    const lastDay = new Date(d.getTime() - 1000);
+    return `Ends ${shortDate(lastDay)}, 11:59 pm`;
+  }
+  return `Ends ${shortDate(d)}, ${shortTime(d)}`;
+}
+
+/** For an offer whose moment has not come, when it does is the more useful half. */
+function whenLabel(offer) {
+  if (offer.effectiveStatus === 'SCHEDULED') {
+    const d = new Date(offer.startsAt);
+    const atMidnight = d.getHours() === 0 && d.getMinutes() === 0;
+    return `Starts ${shortDate(d)}${atMidnight ? '' : `, ${shortTime(d)}`}`;
+  }
+  return endLabel(offer.endsAt);
 }
 
 export default function Offers() {
@@ -159,7 +184,7 @@ export default function Offers() {
                     </td>
                     <td style={{ padding: '16px 20px', color: 'var(--text-secondary)' }}>{describe(offer)}</td>
                     <td style={{ padding: '16px 20px', color: 'var(--text-secondary)', fontSize: '13px' }}>
-                      {endLabel(offer.endsAt)}
+                      {whenLabel(offer)}
                     </td>
                     <td style={{ padding: '16px 20px', textAlign: 'right' }}>
                       {offer.redemptionCount ?? 0}
@@ -176,10 +201,16 @@ export default function Offers() {
                               <Pause size={15} />
                             </button>
                           ) : (
-                            <button className="btn-secondary" title="Start this offer"
+                            // "Schedule" when its start is still ahead. Pressing Start on an offer
+                            // that begins next Friday and watching nothing happen is how a
+                            // merchant concludes the button is broken.
+                            <button className="btn-secondary"
+                              title={new Date(offer.startsAt) > new Date() ? 'Schedule this offer' : 'Start this offer'}
                               style={{ padding: '6px 10px', marginRight: '6px' }}
                               onClick={() => statusMutation.mutate({ id: offer.id, status: 'ACTIVE' })}>
-                              <Play size={15} />
+                              {new Date(offer.startsAt) > new Date()
+                                ? <CalendarClock size={15} />
+                                : <Play size={15} />}
                             </button>
                           )}
                           <button className="btn-secondary" style={{ padding: '6px 12px', marginRight: '6px' }}

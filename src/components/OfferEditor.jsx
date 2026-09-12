@@ -31,11 +31,32 @@ const toInputDate = (d) => {
   return local.toISOString().slice(0, 10);
 };
 
-/** The day a merchant picked, shown back as the last day the offer runs. */
-const endDateForDisplay = (endsAt) => {
-  if (!endsAt) return '';
-  return toInputDate(new Date(new Date(endsAt).getTime() - 1000));
+/** hh:mm for a time input. */
+const toInputTime = (d) => {
+  if (!d) return '';
+  const date = new Date(d);
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
 };
+
+/**
+ * The stored end, split back into the day and time a merchant would have typed.
+ *
+ * `endsAt` is the first moment the offer is NOT running. When that is exactly midnight it means
+ * "all of the previous day", so the fields show that day with no time -- which is what they
+ * entered. When it is not midnight they chose a time on purpose, and it is shown as chosen.
+ */
+const endFieldsFrom = (endsAt) => {
+  if (!endsAt) return { date: '', time: '' };
+  const d = new Date(endsAt);
+  if (d.getHours() === 0 && d.getMinutes() === 0) {
+    return { date: toInputDate(new Date(d.getTime() - 1000)), time: '' };
+  }
+  return { date: toInputDate(d), time: toInputTime(d) };
+};
+
+/** A date and an optional time, as one local moment. */
+const momentOf = (date, time, fallbackTime = '00:00') =>
+  new Date(`${date}T${(time || fallbackTime)}:00`);
 
 function Field({ label, hint, children }) {
   return (
@@ -62,7 +83,9 @@ export default function OfferEditor({ offer, onClose, onSave }) {
     minSubtotal: offer?.minSubtotal != null ? String(Number(offer.minSubtotal)) : '',
     minQuantity: offer?.minQuantity != null ? String(offer.minQuantity) : '',
     startsAt: toInputDate(offer?.startsAt ?? new Date()),
-    endsAt: endDateForDisplay(offer?.endsAt),
+    startsTime: offer?.startsAt ? toInputTime(offer.startsAt) : '',
+    endsAt: endFieldsFrom(offer?.endsAt).date,
+    endsTime: endFieldsFrom(offer?.endsAt).time,
     usageLimit: offer?.usageLimit != null ? String(offer.usageLimit) : '',
     priority: String(offer?.priority ?? 0),
     stackable: offer?.stackable ?? false,
@@ -96,11 +119,20 @@ export default function OfferEditor({ offer, onClose, onSave }) {
         maxDiscount: form.valueType === 'PERCENTAGE' ? numberOrNull(form.maxDiscount) : null,
         minSubtotal: numberOrNull(form.minSubtotal),
         minQuantity: numberOrNull(form.minQuantity),
-        startsAt: new Date(`${form.startsAt}T00:00:00`).toISOString(),
-        // A day added back on: the merchant picked the last day it RUNS, and the server stores the
-        // first moment it does not.
+        // A time if they gave one, midnight if they did not -- a sale "starting on Friday" starts
+        // at the beginning of Friday, which is what anybody means by it.
+        startsAt: momentOf(form.startsAt, form.startsTime).toISOString(),
+        /*
+         * The end, turned back into the exclusive boundary the server stores.
+         *
+         * No time given means the whole of that day, so a day is added: the merchant picked the
+         * last day it RUNS and the server keeps the first moment it does not. A time given is
+         * taken at its word -- a flash sale ending at 6pm ends at 6pm.
+         */
         endsAt: form.endsAt
-          ? new Date(new Date(`${form.endsAt}T00:00:00`).getTime() + 86400000).toISOString()
+          ? (form.endsTime
+              ? momentOf(form.endsAt, form.endsTime).toISOString()
+              : new Date(momentOf(form.endsAt, '').getTime() + 86400000).toISOString())
           : null,
         usageLimit: numberOrNull(form.usageLimit),
         priority: Number(form.priority || 0),
@@ -180,15 +212,39 @@ export default function OfferEditor({ offer, onClose, onSave }) {
             </Field>
           )}
 
+          {/*
+            * When it runs.
+            *
+            * The time on each is optional on purpose. Most sales are "all of Friday" and asking
+            * for a time would be a field to fill in for nothing; a flash sale is "Friday from
+            * 10am" and without one it cannot be expressed at all.
+            */}
           <div className="mobile-stack-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-            <Field label="Starts on">
-              <input className="input-field" type="date" style={{ width: '100%' }}
-                value={form.startsAt} onChange={set('startsAt')} />
+            <Field label="Starts on"
+              hint={form.startsAt && momentOf(form.startsAt, form.startsTime) > new Date()
+                ? 'This offer will start on its own. Press Schedule on the list to arm it.'
+                : 'Leave the time empty to start at midnight.'}>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input className="input-field" type="date" style={{ flex: 2, minWidth: 0 }}
+                  value={form.startsAt} onChange={set('startsAt')} />
+                <input className="input-field" type="time" style={{ flex: 1, minWidth: 0 }}
+                  value={form.startsTime} onChange={set('startsTime')} aria-label="Start time" />
+              </div>
             </Field>
+
             <Field label="Last day (optional)"
-              hint={form.endsAt ? 'Runs until 11:59 pm on this day.' : 'Leave empty to run until you stop it.'}>
-              <input className="input-field" type="date" style={{ width: '100%' }}
-                value={form.endsAt} onChange={set('endsAt')} />
+              hint={!form.endsAt
+                ? 'Leave empty to run until you stop it.'
+                : form.endsTime
+                  ? 'Stops at exactly this time.'
+                  : 'Runs until 11:59 pm on this day.'}>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input className="input-field" type="date" style={{ flex: 2, minWidth: 0 }}
+                  value={form.endsAt} onChange={set('endsAt')} />
+                <input className="input-field" type="time" style={{ flex: 1, minWidth: 0 }}
+                  value={form.endsTime} onChange={set('endsTime')} aria-label="End time"
+                  disabled={!form.endsAt} />
+              </div>
             </Field>
           </div>
 

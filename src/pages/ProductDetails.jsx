@@ -4,12 +4,13 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Package, Box, History, Image as ImageIcon, Copy, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { QRCodeSVG } from 'qrcode.react';
-import { 
-  useProduct as useProductHook, 
-  useArchiveProduct, 
-  useRestoreProduct, 
-  useTrashProduct, 
-  useHardDeleteProduct 
+import {
+  useProduct as useProductHook,
+  useArchiveProduct,
+  useRestoreProduct,
+  useTrashProduct,
+  useHardDeleteProduct,
+  useUpdateProduct
 } from '../hooks/useProducts';
 import VariantTable from '../components/VariantTable';
 import ImageGallery from '../components/ImageGallery';
@@ -34,6 +35,7 @@ export default function ProductDetails() {
   const restoreMutation = useRestoreProduct();
   const trashMutation = useTrashProduct();
   const hardDeleteMutation = useHardDeleteProduct();
+  const updateMutation = useUpdateProduct();
 
   const handleCopy = (text, id) => {
     navigator.clipboard.writeText(text);
@@ -56,6 +58,40 @@ export default function ProductDetails() {
 
   const handleAction = (type) => {
     switch (type) {
+      case 'publish': {
+        // Said plainly when the product has nothing to show. Not refused -- a shop that
+        // sells over the counter has no use for photographs, and the storefront is optional.
+        // But publishing a saree with no picture is nearly always an oversight, and this is
+        // the last moment anyone would notice.
+        const noPhotos = !(product.imageCount > 0);
+        const noVariants = !(product.variantSummary?.variantCount > 0);
+        const doPublish = () => updateMutation.mutate(
+          { id, data: { status: 'ACTIVE' } },
+          { onSuccess: () => toast.success(`${product.title} is live`) }
+        );
+
+        if (noPhotos || noVariants) {
+          const missing = [noPhotos && 'no photographs', noVariants && 'no sizes or colours']
+            .filter(Boolean).join(' and ');
+          setConfirmState({
+            isOpen: true,
+            title: `Publish ${product.title}?`,
+            message: `This product has ${missing}. It will go live as it is — customers and the try-on code will find it. You can add ${noPhotos ? 'photos on the Images tab' : 'variants on the Variants tab'} first and publish afterwards.`,
+            confirmText: 'Publish anyway',
+            confirmStyle: 'warning',
+            onConfirm: () => { doPublish(); setConfirmState({ isOpen: false }); }
+          });
+        } else {
+          doPublish();
+        }
+        break;
+      }
+      case 'unpublish':
+        updateMutation.mutate(
+          { id, data: { status: 'DRAFT' } },
+          { onSuccess: () => toast.success(`${product.title} is back to a draft`) }
+        );
+        break;
       case 'archive':
         archiveMutation.mutate(id);
         break;
@@ -148,7 +184,34 @@ export default function ProductDetails() {
         </div>
 
         {/* Actions Menu */}
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          {/*
+            Publish, which had no button anywhere in the application.
+            A product became ACTIVE only at the end of the Add Product wizard. Anything that
+            arrived another way -- and every bulk-imported product arrives as a DRAFT, because
+            a spreadsheet carries no photographs -- could never be made live: this page offered
+            Archive, Restore and Trash and nothing else. A shop could import two hundred sarees
+            and sell none of them. The backend already accepted it; only the button was missing.
+          */}
+          {product.status === 'DRAFT' && (
+            <button
+              className="btn-primary"
+              disabled={updateMutation.isPending}
+              onClick={() => handleAction('publish')}
+            >
+              {updateMutation.isPending ? 'Publishing…' : 'Publish'}
+            </button>
+          )}
+          {product.status === 'ACTIVE' && (
+            <button
+              className="btn-secondary"
+              disabled={updateMutation.isPending}
+              onClick={() => handleAction('unpublish')}
+              title="Take it off the storefront, keeping the product and its stock"
+            >
+              {updateMutation.isPending ? 'Working…' : 'Unpublish'}
+            </button>
+          )}
           {(product.status === 'ACTIVE' || product.status === 'DRAFT') && (
             <button className="btn-secondary" onClick={() => handleAction('archive')}>
               Archive

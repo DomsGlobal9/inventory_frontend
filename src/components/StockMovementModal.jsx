@@ -80,8 +80,16 @@ export default function StockMovementModal({ isOpen, onClose, productId }) {
                   required
                 >
                   <option value="">-- Choose a Variant --</option>
+                  {/* totalQuantity, which is what the variants endpoint actually returns.
+                      v.quantity does not exist on it, so every line in this dropdown read
+                      "Stock: " with no number after it -- on every product, not just some.
+                      That number is the one thing that says whether taking five out is even
+                      possible, and it had been blank for as long as this modal existed.
+                      VariantTable already reads it correctly; this did not. */}
                   {variants.map(v => (
-                    <option key={v.id} value={v.id}>{v.sku} ({v.size}, {v.colorName}) - Stock: {v.quantity}</option>
+                    <option key={v.id} value={v.id}>
+                      {v.sku} ({[v.size, v.colorName].filter(Boolean).join(', ') || 'no size or colour'}) — Stock: {v.totalQuantity ?? v.quantity ?? 0}
+                    </option>
                   ))}
                 </Select>
               </div>

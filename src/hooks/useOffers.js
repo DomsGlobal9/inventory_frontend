@@ -77,3 +77,41 @@ export const useSetOfferStatus = () => {
     onError: showError('Could not change that offer.')
   });
 };
+
+// ── Shopify ─────────────────────────────────────────────────────────────────────────────────────
+
+/**
+ * An offer's copy on the connected Shopify store.
+ *
+ * Polled while work is in flight. A push happens in the background -- the worker picks it up within
+ * about thirty seconds -- so without polling the panel would say "Sending to Shopify" until somebody
+ * closed and reopened it.
+ */
+export const useOfferShopify = (id, enabled = true) =>
+  useQuery({
+    queryKey: ['offers', 'shopify', id],
+    queryFn: () => api.get(`/offers/${id}/shopify`).then(payload),
+    enabled: !!id && enabled,
+    refetchInterval: (query) => {
+      const status = query.state.data?.mirror?.status;
+      return status === 'PENDING' || status === 'REMOVING' ? 5000 : false;
+    }
+  });
+
+const shopifyAction = (method, suffix, success) => () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id) => api[method](`/offers/${id}/shopify${suffix}`).then(payload),
+    onSuccess: (data, id) => {
+      queryClient.setQueryData(['offers', 'shopify', id], data);
+      refresh(queryClient, id);
+      toast.success(success);
+    },
+    onError: showError('Shopify could not be updated.')
+  });
+};
+
+export const usePutOfferOnShopify = shopifyAction('post', '', 'Sending this offer to Shopify.');
+export const useTakeOfferOffShopify = shopifyAction('delete', '', 'Taking this offer off Shopify.');
+export const usePushOfferToShopify = shopifyAction('post', '/push', 'Sending this offer\'s version to Shopify.');
+export const useAcceptShopifyVersion = shopifyAction('post', '/accept', 'The offer now matches Shopify.');

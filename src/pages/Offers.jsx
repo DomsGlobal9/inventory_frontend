@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Plus, Play, Pause, Archive, Tag, Search, CalendarClock } from 'lucide-react';
+import { Plus, Play, Pause, Archive, Tag, Search, CalendarClock, Store } from 'lucide-react';
 import { useOffers, useCreateOffer, useUpdateOffer, useSetOfferStatus } from '../hooks/useOffers';
 import { usePermission } from '../hooks/usePermission';
 import { formatINR } from '../utils/formatUtils';
 import PageLoader from '../components/PageLoader';
 import ConfirmModal from '../components/ConfirmModal';
 import OfferEditor from '../components/OfferEditor';
+import OfferShopifyPanel, { ShopifyChip } from '../components/OfferShopifyPanel';
 
 /**
  * Every discount this shop runs, in one place.
@@ -98,6 +99,7 @@ export default function Offers() {
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState(null);   // an offer, {} for new, or null
   const [retiring, setRetiring] = useState(null);
+  const [onShopify, setOnShopify] = useState(null);   // the offer whose Shopify panel is open
 
   const { data: offers, isLoading } = useOffers({ status, search });
   const createMutation = useCreateOffer();
@@ -190,7 +192,14 @@ export default function Offers() {
                       {offer.redemptionCount ?? 0}
                       {offer.usageLimit ? <span style={{ color: 'var(--text-secondary)' }}> / {offer.usageLimit}</span> : null}
                     </td>
-                    <td style={{ padding: '16px 20px' }}><Pill status={offer.effectiveStatus} /></td>
+                    <td style={{ padding: '16px 20px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '6px' }}>
+                        <Pill status={offer.effectiveStatus} />
+                        {/* Only when the offer HAS a Shopify copy. An offer that was never put on
+                            Shopify is not "not on Shopify" in any way a merchant needs telling. */}
+                        {offer.shopify && <ShopifyChip status={offer.shopify.status} problem={offer.shopify.problem} />}
+                      </div>
+                    </td>
                     <td style={{ padding: '16px 20px', textAlign: 'right', whiteSpace: 'nowrap' }}>
                       {can('offer:update') && offer.status !== 'ARCHIVED' && (
                         <>
@@ -216,6 +225,13 @@ export default function Offers() {
                           <button className="btn-secondary" style={{ padding: '6px 12px', marginRight: '6px' }}
                             onClick={() => setEditing(offer)}>Edit</button>
                         </>
+                      )}
+                      {offer.status !== 'ARCHIVED' && (can('offer:publish_external') || offer.shopify) && (
+                        <button className="btn-secondary" title="Shopify"
+                          aria-label={`${offer.name} on Shopify`}
+                          style={{ padding: '6px 10px', marginRight: '6px' }} onClick={() => setOnShopify(offer)}>
+                          <Store size={15} />
+                        </button>
                       )}
                       {can('offer:archive') && offer.status !== 'ARCHIVED' && (
                         <button className="btn-secondary" title="Retire this offer"
@@ -243,6 +259,8 @@ export default function Offers() {
           }}
         />
       )}
+
+      {onShopify && <OfferShopifyPanel offer={onShopify} onClose={() => setOnShopify(null)} />}
 
       <ConfirmModal
         isOpen={!!retiring}

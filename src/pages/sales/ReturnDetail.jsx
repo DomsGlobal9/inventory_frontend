@@ -10,6 +10,7 @@ import Select from '../../components/common/Select';
 
 
 import PageLoader from '../../components/PageLoader';
+import { formatINRExact } from '../../utils/formatUtils';
 
 export default function ReturnDetail() {
   const { id } = useParams();
@@ -201,7 +202,10 @@ export default function ReturnDetail() {
               className="btn-secondary"
               onClick={() => {
                 const initialData = {};
-                ret.items.forEach(i => initialData[i.id] = i.disposition);
+                // Only real decisions carry over. PENDING is "not decided yet"; pre-filling it
+                // counted as a choice, so Save was enabled with nothing chosen and sent PENDING,
+                // which the server refuses.
+                ret.items.forEach(i => { if (i.disposition && i.disposition !== 'PENDING') initialData[i.id] = i.disposition; });
                 setInspectionData(initialData);
                 setInspectModalOpen(true);
               }}
@@ -225,17 +229,21 @@ export default function ReturnDetail() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '24px' }}>
-        <div className="card" style={{ padding: '0' }}>
+      {/* mobile-stack-grid: a fixed 300px column beside a flexible one squeezed the items table to
+          nothing on a phone -- the same trap the order page fell into. */}
+      <div className="mobile-stack-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '24px' }}>
+        <div className="card" style={{ padding: '0', minWidth: 0 }}>
           <div className="table-container" style={{ padding: '20px', borderBottom: '1px solid var(--border-light)' }}>
             <h3 style={{ margin: 0, fontSize: '16px' }}>Returned Items</h3>
           </div>
+          <div className="table-container" style={{ border: 'none', borderRadius: 0 }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border-light)', textAlign: 'left', backgroundColor: 'var(--bg-card)' }}>
                 <th style={{ padding: '12px 20px', color: 'var(--text-secondary)', fontWeight: 500 }}>Product</th>
                 <th style={{ padding: '12px 20px', color: 'var(--text-secondary)', fontWeight: 500 }}>Qty</th>
                 <th style={{ padding: '12px 20px', color: 'var(--text-secondary)', fontWeight: 500 }}>Disposition</th>
+                <th style={{ padding: '12px 20px', color: 'var(--text-secondary)', fontWeight: 500, textAlign: 'right' }}>Refund</th>
               </tr>
             </thead>
             <tbody>
@@ -256,16 +264,36 @@ export default function ReturnDetail() {
                   </td>
                   <td style={{ padding: '16px 20px', fontWeight: 500 }}>{item.quantity}</td>
                   <td style={{ padding: '16px 20px' }}>{getDispositionBadge(item.disposition)}</td>
+                  <td style={{ padding: '16px 20px', textAlign: 'right', fontWeight: 500 }}>
+                    {formatINRExact(Number(item.refundAmount || 0))}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          </div>
         </div>
 
         <div>
           <div className="card" style={{ marginBottom: '24px' }}>
             <h3 style={{ margin: '0 0 16px 0', fontSize: '16px' }}>Return Info</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {/*
+                * What is owed back, as PAID -- the price after any offer or till discount, never the
+                * tag. A return that showed no money left the person at the counter to work it out
+                * from the tag, which is exactly how a saree bought for 8,000 gets 10,000 refunded.
+                */}
+              {ret.status !== 'REJECTED' && Number(ret.refundTotal || 0) > 0 && (
+                <div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                    {ret.refundStatus === 'REFUNDED' ? 'Refunded through Shopify' : 'Refund owed to the customer'}
+                  </div>
+                  <div style={{ fontWeight: 600, fontSize: '20px' }}>{formatINRExact(Number(ret.refundTotal))}</div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                    What they paid for these items, after discounts.
+                  </div>
+                </div>
+              )}
               <div>
                 <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Reason</div>
                 <div style={{ fontWeight: 500 }}>{ret.reason.replace(/_/g, ' ')}</div>

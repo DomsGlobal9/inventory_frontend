@@ -257,7 +257,10 @@ export default function SalesOrderDetail() {
                       {order.status !== 'DRAFT' && (
                         <>
                           <td style={{ padding: '16px 24px', textAlign: 'right', color: 'var(--accent-warning)', fontWeight: '500' }}>
-                            {remainingQty(item)}
+                            {/* A cancelled order holds nothing -- its reservation was released. Ordered
+                                minus shipped said "1 reserved" on a cancelled order, telling a shop
+                                that stock was spoken for when it was free to sell. */}
+                            {order.status === 'CANCELLED' ? 0 : remainingQty(item)}
                           </td>
                           <td style={{ padding: '16px 24px', textAlign: 'right', color: 'var(--accent-success)', fontWeight: '500' }}>
                             {item.fulfilledQty || 0}

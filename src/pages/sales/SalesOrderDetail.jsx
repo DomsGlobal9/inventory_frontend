@@ -4,7 +4,7 @@ import { useSalesOrderDetails, useConfirmOrder, useCancelOrder } from '../../hoo
 import { useCreateDispatch } from '../../hooks/useDispatches';
 import { ArrowLeft, Loader2, CheckCircle, XCircle, Truck } from 'lucide-react';
 import { usePermission } from '../../hooks/usePermission';
-import { formatINR } from '../../utils/formatUtils';
+import { formatINR, formatINRExact } from '../../utils/formatUtils';
 
 import PageLoader from '../../components/PageLoader';
 import ConfirmModal from '../../components/ConfirmModal';
@@ -65,6 +65,20 @@ export default function SalesOrderDetail() {
   // rejected it with "Cannot dispatch N. Only M reserved remaining."
   const remainingQty = (item) => Math.max(0, (item.quantity || 0) - (item.fulfilledQty || 0));
 
+  /*
+   * Everything taken off one line, from either direction.
+   *
+   * `lineDiscount` is the line's own markdown -- what the till or the website said it charged.
+   * `allocatedDiscount` is its share of a discount typed against the whole order. They are
+   * stored apart so that re-editing an order can replace one without disturbing the other, but
+   * to somebody reading the order they are simply "what came off this line".
+   */
+  const discountOf = (item) => Number(item.lineDiscount || 0) + Number(item.allocatedDiscount || 0);
+
+  // The column appears only when there is something to put in it, so an ordinary order looks
+  // exactly as it did before any of this existed.
+  const anyDiscount = (order.items || []).some(i => discountOf(i) > 0);
+
   const handleOpenDispatch = () => {
     const initialQs = {};
     (order.items || []).forEach(item => {
@@ -113,17 +127,43 @@ export default function SalesOrderDetail() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '32px' }}>
+      {/*
+        * mobile-stack-grid, which every other two-column page here already uses and this one
+        * never did. Without it the template stays `1fr 350px` on a phone: 350px is wider than
+        * the screen, so the 1fr column resolves to nothing and the whole Line Items table is
+        * squeezed out of existence -- leaving a page that is just a Summary panel.
+        */}
+      <div className="mobile-stack-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '32px' }}>
         
-        {/* Main Area: Items */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        {/*
+          * Main Area: Items
+          *
+          * minWidth: 0 is doing real work. A grid item defaults to `min-width: auto`, which means
+          * "never shrink below your content" -- so this column sized itself to the full width of
+          * the table (738px) inside a 351px grid on a phone, and the card's `overflow: hidden`
+          * quietly cut the rest off. The scroll container below could not scroll because it had
+          * been given all the room it asked for; it just had nowhere to put it.
+          */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', minWidth: 0 }}>
           
           <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
             <div className="table-container" style={{ padding: '24px', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>Line Items</h3>
             </div>
 
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+            {/*
+              * The table scrolls sideways inside the card rather than being clipped by it.
+              *
+              * The card is `overflow: hidden`, so on a phone every column past PRODUCT simply
+              * vanished -- quantity, price and total were unreachable, with nothing on screen to
+              * suggest there was more. Adding the DISCOUNT column made a page that was already
+              * missing its money worse, which is what turned this up.
+              *
+              * minWidth keeps the columns from crushing into each other before the scroll
+              * starts; on a desktop the table is narrower than the card and nothing changes.
+              */}
+            <div className="table-container" style={{ border: 'none', borderRadius: 0 }}>
+            <table style={{ width: '100%', minWidth: '620px', borderCollapse: 'collapse', textAlign: 'left' }}>
               <thead>
                 <tr style={{ backgroundColor: 'var(--bg-hover)' }}>
                   <th style={{ padding: '16px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px' }}>SKU</th>
@@ -136,13 +176,16 @@ export default function SalesOrderDetail() {
                     </>
                   )}
                   <th style={{ padding: '16px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px', textAlign: 'right' }}>UNIT PRICE</th>
+                  {anyDiscount && (
+                    <th style={{ padding: '16px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px', textAlign: 'right' }}>DISCOUNT</th>
+                  )}
                   <th style={{ padding: '16px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px', textAlign: 'right' }}>TOTAL</th>
                   <th style={{ padding: '16px 24px', width: '60px' }}></th>
                 </tr>
               </thead>
               <tbody>
                 {order.items?.length === 0 ? (
-                  <tr><td colSpan={order.status === 'DRAFT' ? "6" : "8"} style={{ padding: '48px', textAlign: 'center', color: 'var(--text-secondary)' }}>No items added yet.</td></tr>
+                  <tr><td colSpan={(order.status === 'DRAFT' ? 6 : 8) + (anyDiscount ? 1 : 0)} style={{ padding: '48px', textAlign: 'center', color: 'var(--text-secondary)' }}>No items added yet.</td></tr>
                 ) : (
                   order.items?.map(item => {
                     // We can compute reserved and dispatched from the item relations if populated, 
@@ -171,7 +214,28 @@ export default function SalesOrderDetail() {
                           </td>
                         </>
                       )}
-                      <td style={{ padding: '16px 24px', textAlign: 'right', color: 'var(--text-secondary)' }}>{formatINR(Number(item.unitPrice))}</td>
+                      {/*
+                        * The list price above the net one, whenever they differ.
+                        *
+                        * The order used to be recorded at list price and discounted only at the
+                        * grand total, so one number per line was the whole truth. It is not any
+                        * more: a line can be sold for less than it is listed at, and showing only
+                        * the net leaves a merchant looking at "₹993" for a saree their catalogue
+                        * says is ₹999 with nothing on the screen to explain the difference.
+                        */}
+                      <td style={{ padding: '16px 24px', textAlign: 'right', color: 'var(--text-secondary)' }}>
+                        {discountOf(item) > 0 && Number(item.listUnitPrice) !== Number(item.unitPrice) && (
+                          <span style={{ textDecoration: 'line-through', opacity: 0.55, marginRight: '8px' }}>
+                            {formatINR(Number(item.listUnitPrice))}
+                          </span>
+                        )}
+                        {formatINR(Number(item.unitPrice))}
+                      </td>
+                      {anyDiscount && (
+                        <td style={{ padding: '16px 24px', textAlign: 'right', color: discountOf(item) > 0 ? 'var(--accent-success)' : 'var(--text-secondary)' }}>
+                          {discountOf(item) > 0 ? `-${formatINRExact(discountOf(item))}` : '—'}
+                        </td>
+                      )}
                       <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '500' }}>{formatINR(Number(item.totalPrice))}</td>
                       <td style={{ padding: '16px 24px', textAlign: 'center' }}>
                       </td>
@@ -181,6 +245,7 @@ export default function SalesOrderDetail() {
                 )}
               </tbody>
             </table>
+            </div>
           </div>
         </div>
 

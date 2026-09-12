@@ -112,6 +112,12 @@ export default function SummaryCards({ data, isLoading, isError, error, noAccess
     {
       title: "Low Stock Count",
       value: formatNumber(safeData?.lowStockCount),
+      // Sold-out items used to be counted INSIDE this number. They are a different problem -- low
+      // is "reorder soon", out is "you are missing sales today" -- so they are no longer mixed in,
+      // but they must not vanish from the dashboard either. Said underneath, when there are any.
+      note: safeData?.outOfStockCount > 0
+        ? `${formatNumber(safeData.outOfStockCount)} more ${safeData.outOfStockCount === 1 ? 'is' : 'are'} out of stock.`
+        : null,
       icon: AlertTriangle,
       colorClass: safeData?.lowStockCount > 0 ? 'var(--accent-danger)' : 'var(--text-secondary)',
       bgColorClass: safeData?.lowStockCount > 0 ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255, 255, 255, 0.05)',

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import LoadFailed from '../components/LoadFailed';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Plus, Minus, Settings2, History, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useInventoryVariants } from '../hooks/useInventory';
@@ -15,9 +15,20 @@ import Select from '../components/common/Select';
 export default function InventoryOverview() {
   const navigate = useNavigate();
   const { can } = usePermission();
+  const [searchParams] = useSearchParams();
+
+  /*
+   * Where the dashboard sent you.
+   *
+   * The Low Stock tile has always linked to /inventory?filter=low_stock, and this page never read
+   * it -- so pressing "195 low stock" opened the whole unfiltered inventory, and the number on the
+   * tile could not be found on the page it led to.
+   */
+  const FILTER_FROM_LINK = { low_stock: 'LOW_STOCK', out_of_stock: 'OUT_OF_STOCK', healthy: 'HEALTHY', archived: 'ARCHIVED' };
+
   const [filters, setFilters] = useState({
     search: '',
-    status: '',
+    status: FILTER_FROM_LINK[searchParams.get('filter')] || '',
     lowStock: '',
     outOfStock: '',
     sortBy: 'updatedAt',

@@ -10,6 +10,7 @@ import { useVariants, useBulkCreateVariants, useDeleteVariant, useUpdateVariant 
 import { useCatalogData } from '../hooks/useCatalogConfig';
 import { useLocationContext } from '../contexts/LocationContext';
 import { useVisibleRowWidth } from '../hooks/useVisibleRowWidth';
+import { isLowStock } from '../utils/lowStock';
 import { useAuth } from '../context/AuthContext';
 import VariantSuppliersPanel from './VariantSuppliersPanel';
 import { buildVariantSku } from '../utils/skuUtils';
@@ -189,7 +190,8 @@ export default function VariantTable({ productId, productName, productCode, prod
   const getStatus = (v) => {
     const qty = v.totalQuantity !== undefined ? v.totalQuantity : v.quantity;
     if (qty === 0) return { label: 'Out of Stock', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' };
-    if (qty <= v.reorderLevel) return { label: 'Low Stock', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' };
+    // Shared rule, not a local comparison -- see utils/lowStock.
+    if (isLowStock(qty, v.reorderLevel)) return { label: 'Low Stock', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' };
     return { label: 'In Stock', color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' };
   };
 

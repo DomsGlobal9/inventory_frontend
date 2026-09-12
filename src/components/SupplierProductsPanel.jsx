@@ -7,6 +7,7 @@ import {
   useUnlinkSupplierProduct
 } from '../hooks/useSuppliers';
 import ConfirmModal from './ConfirmModal';
+import { isLowStock } from '../utils/lowStock';
 import { usePermission } from '../hooks/usePermission';
 import { useLocationContext } from '../contexts/LocationContext';
 
@@ -58,26 +59,10 @@ export default function SupplierProductsPanel({ supplierId, supplierName, suppli
   const stockOf = (variant) =>
     (variant?.stocks || []).reduce((sum, s) => sum + (s.quantity || 0), 0);
 
-  /**
-   * When an item counts as low here.
-   *
-   * This must match inventory.service.ts, and for a while it did not. The rule there used to
-   * be Math.max(reorderLevel || 0, 10) and was corrected -- a reorder level the merchant has
-   * actually chosen is now honoured exactly, and ten is only the fallback for a variant that
-   * has never been given one. This copy kept the old formula, under a comment promising the
-   * two agreed, so a variant with a reorder level of 5 holding 7 pieces read "Healthy" on the
-   * inventory screen and "running low" here -- one item, two answers, on screens a shopkeeper
-   * reads minutes apart. Found by creating exactly that variant.
-   *
-   * A floor above the merchant's own setting makes the setting a suggestion, and a low-stock
-   * badge on well-stocked items is how people learn to ignore the badge.
-   */
-  const DEFAULT_LOW_STOCK_THRESHOLD = 10;
-  const isLow = (variant) => {
-    const chosen = variant?.reorderLevel;
-    const threshold = (chosen && chosen > 0) ? chosen : DEFAULT_LOW_STOCK_THRESHOLD;
-    return stockOf(variant) <= threshold;
-  };
+  // The rule lives in utils/lowStock now, so this panel and the inventory screen cannot
+  // drift apart again -- which is exactly what the comment here promising they agreed
+  // failed to prevent last time. A reorder level of 0 means "not tracked", not "use ten".
+  const isLow = (variant) => isLowStock(stockOf(variant), variant?.reorderLevel);
 
   const lowCount = links.filter(l => isLow(l.variant)).length;
 

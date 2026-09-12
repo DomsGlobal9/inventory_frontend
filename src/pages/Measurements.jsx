@@ -7,6 +7,7 @@ import { useCatalogData } from '../hooks/useCatalogConfig';
 import { useSuppliers } from '../hooks/useSuppliers';
 import Select from '../components/common/Select';
 import { useMediaQuery } from '../hooks/useMediaQuery';
+import { shadesOf, shadeCodeFor, colorInfoFor } from '../utils/colorOptions';
 
 const FREE_SIZE = 'Free Size';
 
@@ -136,8 +137,8 @@ export default function Measurements() {
     updateProductData('selectedColors', updated);
   };
 
-  const toggleShade = (shade, colorName) => {
-    const shadeCode = `${colorName.toLowerCase()}_${shade}`;
+  const toggleShade = (shadeHex, color) => {
+    const shadeCode = shadeCodeFor(color, shadeHex);
     const current = productData.selectedColors;
     const updated = current.includes(shadeCode)
       ? current.filter(c => c !== shadeCode)
@@ -152,16 +153,7 @@ export default function Measurements() {
 
   const isColorSelected = (code) => productData.selectedColors.includes(code);
 
-  const getColorInfo = (code) => {
-    const baseColor = COLORS_PALETTE.find(c => c.code === code);
-    if (baseColor) return { name: baseColor.name, value: baseColor.value };
-    
-    if (code.includes('_')) {
-      const [name, hex] = code.split('_');
-      return { name: `${name.charAt(0).toUpperCase() + name.slice(1)} Shade`, value: hex };
-    }
-    return { name: code, value: '#808080' };
-  };
+  const getColorInfo = (code) => colorInfoFor(code, COLORS_PALETTE);
 
   // Handlers for Units
   const handleUnitChange = (size, colorCode, value) => {
@@ -399,16 +391,19 @@ export default function Measurements() {
               <div className="animate-fade-in" style={{ padding: '8px 16px', background: 'var(--bg-input)', borderRadius: '6px', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', maxWidth: '100%' }}>
                 <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: '500' }}>{activeColor.name} Shades:</span>
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  {activeColor.shades.map((shade, idx) => {
-                    const shadeCode = `${activeColor.name.toLowerCase()}_${shade}`;
+                  {shadesOf(activeColor).map((shade) => {
+                    const shadeCode = shadeCodeFor(activeColor, shade.hex);
                     const selected = isColorSelected(shadeCode);
                     return (
                       <button
-                        key={idx}
-                        onClick={() => toggleShade(shade, activeColor.name)}
+                        key={shade.hex}
+                        onClick={() => toggleShade(shade.hex, activeColor)}
+                        // The name, so the shade can be chosen on purpose rather than by
+                        // guessing which square is which.
+                        title={shade.name}
                         style={{
                           width: '24px', height: '24px', borderRadius: '4px',
-                          backgroundColor: shade,
+                          backgroundColor: shade.hex,
                           border: `2px solid ${selected ? 'var(--accent-gold)' : 'var(--border-light)'}`,
                           cursor: 'pointer'
                         }}
@@ -416,6 +411,13 @@ export default function Measurements() {
                     );
                   })}
                 </div>
+                {shadesOf(activeColor).length === 0 && (
+                  // A colour the shop added itself starts with no shades. The drawer used to
+                  // open empty, which reads as broken rather than as "there are none".
+                  <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                    No shades yet — add them in Settings → Catalog.
+                  </span>
+                )}
               </div>
             )}
           </div>

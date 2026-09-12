@@ -22,7 +22,7 @@ export default function CatalogManager({ type }) {
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   const [confirmState, setConfirmState] = useState({ isOpen: false });
   
-  const [formData, setFormData] = useState({ label: '', value: '', category: '', hex: '#000000' });
+  const [formData, setFormData] = useState({ label: '', value: '', category: '', hex: '#000000', shades: [] });
   const [searchQuery, setSearchQuery] = useState('');
   // Shown only once someone has tried to save. Marking a field red before they have finished
   // typing it is nagging, not helping.
@@ -33,7 +33,13 @@ export default function CatalogManager({ type }) {
   const labelError = !formData.label.trim() ? 'Give it a name.' : '';
   const hexError = type === 'COLOR' && !HEX_PATTERN.test(formData.hex.trim())
     ? 'Use a hex colour like #FF69B4.' : '';
-  const cannotSave = Boolean(labelError || hexError);
+  // The server refuses a bad shade hex outright rather than dropping it silently, so the
+  // form has to catch it here or the whole save fails on one mistyped square.
+  const badShade = type === 'COLOR'
+    ? formData.shades.findIndex(s => !HEX_PATTERN.test(String(s.hex || '').trim()))
+    : -1;
+  const shadeError = badShade >= 0 ? `Shade ${badShade + 1} is not a hex colour like #FF69B4.` : '';
+  const cannotSave = Boolean(labelError || hexError || shadeError);
 
   const itemsList = Array.isArray(response?.data) ? response.data : (Array.isArray(response) ? response : []);
   const items = itemsList
@@ -52,7 +58,7 @@ export default function CatalogManager({ type }) {
   const handleAddStart = () => {
     setIsEditing(false);
     setEditingItem(null);
-    setFormData({ label: "", value: "", category: "", hex: "#000000" });
+    setFormData({ label: "", value: "", category: "", hex: "#000000", shades: [] });
     setShowErrors(false);
     setModalOpen(true);
   };
@@ -64,10 +70,34 @@ export default function CatalogManager({ type }) {
       label: item.label,
       value: item.value,
       category: item.category || '',
-      hex: item.metadata?.hex || '#000000'
+      hex: item.metadata?.hex || '#000000',
+      // Carried into the form so that saving carries them back out. This form used to hold
+      // only the hex and send `metadata: { hex }`, which replaced the stored metadata whole
+      // -- so correcting a colour's spelling deleted all seven of its shades, with no
+      // warning and no way back.
+      shades: Array.isArray(item.metadata?.shades)
+        ? item.metadata.shades.map(s => (typeof s === 'string' ? { hex: s, name: '' } : { hex: s?.hex || '', name: s?.name || '' }))
+        : []
     });
     setModalOpen(true);
   };
+
+  const updateShade = (index, patch) => setFormData(prev => ({
+    ...prev,
+    shades: prev.shades.map((s, i) => (i === index ? { ...s, ...patch } : s))
+  }));
+
+  const addShade = () => setFormData(prev => ({
+    ...prev,
+    // Seeded from the base colour rather than black: every shade of a colour starts life as
+    // that colour, and a row of black squares is harder to correct than a row of near-misses.
+    shades: [...prev.shades, { hex: prev.hex, name: '' }]
+  }));
+
+  const removeShade = (index) => setFormData(prev => ({
+    ...prev,
+    shades: prev.shades.filter((_, i) => i !== index)
+  }));
 
   const handleCloseModal = () => {
     setModalOpen(false);
@@ -96,7 +126,12 @@ export default function CatalogManager({ type }) {
     }
 
     if (type === 'COLOR') {
-      payload.metadata = { hex: formData.hex };
+      // A blank name is sent as no name, not as "". The server then chooses one -- see
+      // backend lib/colorNames.ts -- and that is the only way a shade is ever nameless.
+      payload.metadata = {
+        hex: formData.hex,
+        shades: formData.shades.map(s => (s.name.trim() ? { hex: s.hex, name: s.name.trim() } : { hex: s.hex }))
+      };
     }
 
     if (isEditing && editingItem) {
@@ -214,6 +249,11 @@ export default function CatalogManager({ type }) {
         <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: item.metadata.hex, border: '1px solid rgba(0,0,0,0.1)' }} />
       )}
       {item.label}
+      {/* How many shades this colour offers, so a colour the shop added itself does not look
+          identical to a seeded one that has seven. */}
+      {type === 'COLOR' && item.metadata?.shades?.length > 0 && (
+        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>+{item.metadata.shades.length}</span>
+      )}
       {item.isSystem && <Lock size={12} style={{ color: 'var(--text-secondary)', marginLeft: '4px' }} />}
     </button>
   );
@@ -350,6 +390,83 @@ export default function CatalogManager({ type }) {
                   </div>
                   {showErrors && hexError && (
                     <p style={{ margin: '6px 0 0', fontSize: '12.5px', color: 'rgb(220, 38, 38)' }}>{hexError}</p>
+                  )}
+                </div>
+              )}
+
+              {/*
+                The shades of this colour, and what each one is called.
+
+                A shade's name is not decoration. It is written onto the variant, printed on
+                the purchase order the supplier reads, and shortened into the SKU -- so until
+                shades had names, seven different blues all reached the supplier as "Blue
+                Shade" and the SKUs collided. A colour a shop adds itself starts with none,
+                which is why this is here and not only in the seeded palette.
+              */}
+              {type === 'COLOR' && (
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                    <label style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                      Shades {formData.shades.length > 0 && `(${formData.shades.length})`}
+                    </label>
+                    <button
+                      type="button"
+                      onClick={addShade}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'transparent', border: '1px solid var(--border-light)', color: 'var(--text-primary)', padding: '6px 12px', borderRadius: '8px', fontSize: '13px', cursor: 'pointer', minHeight: '36px' }}
+                    >
+                      <Plus size={14} /> Add shade
+                    </button>
+                  </div>
+
+                  {formData.shades.length === 0 ? (
+                    <p style={{ margin: 0, fontSize: '12.5px', color: 'var(--text-muted)', lineHeight: 1.6 }}>
+                      None yet. Shades appear under {formData.label.trim() || 'this colour'} when
+                      someone is adding a product. Leave a name blank and one is chosen for you.
+                    </p>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '210px', overflowY: 'auto' }}>
+                      {formData.shades.map((shade, index) => (
+                        <div key={index} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                          <input
+                            type="color"
+                            value={HEX_PATTERN.test(String(shade.hex || '').trim()) ? shade.hex : '#000000'}
+                            onChange={e => updateShade(index, { hex: e.target.value })}
+                            title="Pick this shade"
+                            style={{ width: '36px', height: '36px', flexShrink: 0, padding: 0, border: 'none', borderRadius: '8px', cursor: 'pointer', background: 'transparent' }}
+                          />
+                          <input
+                            type="text"
+                            value={shade.name}
+                            onChange={e => updateShade(index, { name: e.target.value })}
+                            placeholder="Named automatically"
+                            maxLength={40}
+                            style={{ flex: 1, minWidth: 0, padding: '9px 12px', border: `1px solid ${showErrors && badShade === index ? 'rgb(220, 38, 38)' : 'var(--border-light)'}`, borderRadius: '8px', background: 'var(--bg-input)', color: 'var(--text-primary)', fontSize: '14px' }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeShade(index)}
+                            title="Remove this shade"
+                            // 36px rather than an icon-sized hit area: this sits beside a text
+                            // field people tap on a phone, and a 20px target next to it is the
+                            // one they hit by accident.
+                            style={{ width: '36px', height: '36px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: 'none', color: 'var(--text-secondary)', borderRadius: '8px', cursor: 'pointer' }}
+                          >
+                            <X size={16} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {showErrors && shadeError && (
+                    <p style={{ margin: '6px 0 0', fontSize: '12.5px', color: 'rgb(220, 38, 38)' }}>{shadeError}</p>
+                  )}
+
+                  {isEditing && editingItem?.usageCount > 0 && (
+                    <p style={{ margin: '8px 0 0', fontSize: '12.5px', color: 'var(--text-muted)', lineHeight: 1.6 }}>
+                      Removing a shade only takes it out of this list. Products already using it
+                      keep the colour they were given.
+                    </p>
                   )}
                 </div>
               )}

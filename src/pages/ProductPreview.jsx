@@ -9,6 +9,7 @@ import { buildVariantSku } from '../utils/skuUtils';
 import { bulkCreateVariants } from '../services/variant.service';
 import { uploadImageFile, dataUrlToFile } from '../services/image.service';
 import { useCatalogData } from '../hooks/useCatalogConfig';
+import { colorInfoFor } from '../utils/colorOptions';
 import { useLocationContext } from '../contexts/LocationContext';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import ImageLightbox from '../components/ImageLightbox';
@@ -44,15 +45,10 @@ export default function ProductPreview() {
   const createMutation = useCreateProduct();
   const updateMutation = useUpdateProduct();
 
-  const getColorInfo = (code) => {
-    const baseColor = colors.find(c => c.code === code);
-    if (baseColor) return { name: baseColor.name, value: baseColor.value };
-    if (code.includes('_')) {
-      const [name, hex] = code.split('_');
-      return { name: `${name.charAt(0).toUpperCase() + name.slice(1)} Shade`, value: hex };
-    }
-    return { name: code, value: '#808080' };
-  };
+  // The same resolution the picker used, from the same module. This is the screen that
+  // actually writes colorName onto the variant, so a copy that disagreed with the picker
+  // would save a colour the shopkeeper never chose.
+  const getColorInfo = (code) => colorInfoFor(code, colors);
 
   // Calculate totals
   const totalVariants = productData.selectedSizes.length * productData.selectedColors.length;

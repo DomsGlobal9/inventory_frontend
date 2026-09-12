@@ -11,6 +11,7 @@ import { useCatalogData } from '../hooks/useCatalogConfig';
 import { useLocationContext } from '../contexts/LocationContext';
 import { useVisibleRowWidth } from '../hooks/useVisibleRowWidth';
 import { isLowStock } from '../utils/lowStock';
+import { shadesOf, shadeCodeFor } from '../utils/colorOptions';
 import { useAuth } from '../context/AuthContext';
 import VariantSuppliersPanel from './VariantSuppliersPanel';
 import { buildVariantSku } from '../utils/skuUtils';
@@ -105,17 +106,15 @@ export default function VariantTable({ productId, productName, productCode, prod
   };
 
   const toggleShade = (shade, baseColor) => {
-    // Every shade of a color used to get the identical label "<Color> Shade" --
-    // indistinguishable once more than one shade of the same base color was picked
-    // (chips/matrix rows all read "Red Shade" with no way to tell them apart). Number
-    // them by position within that color's shade list instead.
-    const shadeIndex = (baseColor.shades || []).indexOf(shade);
-    const shadeColor = {
-      code: `${baseColor.name.toLowerCase()}_${shade}`,
-      name: `${baseColor.name} Shade ${shadeIndex + 1}`,
-      value: shade
-    };
-    toggleColor(shadeColor);
+    // Every shade of a colour used to get the identical label "<Colour> Shade", then a
+    // positional number ("Red Shade 8") once that proved indistinguishable. Neither is a name
+    // a supplier can read off a purchase order, and the number moves if the palette is
+    // reordered. The shade carries its own name now -- see utils/colorOptions.
+    toggleColor({
+      code: shadeCodeFor(baseColor, shade.hex),
+      name: shade.name,
+      value: shade.hex
+    });
   };
 
   const resetGenerator = () => {
@@ -558,17 +557,17 @@ export default function VariantTable({ productId, productName, productCode, prod
             <div style={{ marginBottom: '16px', padding: '10px 16px', background: 'var(--bg-card)', borderRadius: '6px', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
               <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 500, flexShrink: 0 }}>{activeShadeColor.name} Shades:</span>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                {(activeShadeColor.shades || []).map((shade, idx) => {
-                  const shadeCode = `${activeShadeColor.name.toLowerCase()}_${shade}`;
+                {shadesOf(activeShadeColor).map((shade) => {
+                  const shadeCode = shadeCodeFor(activeShadeColor, shade.hex);
                   const selected = selectedColors.some(c => c.code === shadeCode);
                   return (
                     <button
-                      key={idx}
+                      key={shade.hex}
                       onClick={() => toggleShade(shade, activeShadeColor)}
-                      title={`${activeShadeColor.name} Shade ${idx + 1}`}
+                      title={shade.name}
                       style={{
                         width: '24px', height: '24px', borderRadius: '4px',
-                        backgroundColor: shade,
+                        backgroundColor: shade.hex,
                         border: `2px solid ${selected ? 'var(--accent-gold)' : 'var(--border-light)'}`,
                         cursor: 'pointer',
                         flexShrink: 0
@@ -577,6 +576,12 @@ export default function VariantTable({ productId, productName, productCode, prod
                   );
                 })}
               </div>
+              {shadesOf(activeShadeColor).length === 0 && (
+                // A colour the shop added itself has no shades until it is given some.
+                <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                  No shades yet — add them in Settings → Catalog.
+                </span>
+              )}
             </div>
           )}
 

@@ -192,7 +192,11 @@ export default function ImageGallery({ productId }) {
             {variants.length === 0
               ? 'Add sizes and colours first, then each one can have its own photo.'
               : missingCount > 0
-                ? `${missingCount} of ${variants.length} ${variants.length === 1 ? 'variant has' : 'variants have'} no photo yet.`
+                // Two different numbers decide two different words. The NOUN counts the total
+                // ("of 2 variants"), the VERB agrees with how many are missing ("1 ... has").
+                // Taking both from one of them gives "1 of 2 variants have" or "1 of 2 variant
+                // has"; only splitting them reads like English.
+                ? `${missingCount} of ${variants.length} ${variants.length === 1 ? 'variant' : 'variants'} ${missingCount === 1 ? 'has' : 'have'} no photo yet.`
                 : 'Every size and colour has at least one photo.'}
           </p>
         </div>

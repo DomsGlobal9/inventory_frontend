@@ -1,7 +1,22 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { uploadImageFile } from '../services/image.service';
+import { queryKeys } from '../lib/queryKeys';
 import toast from 'react-hot-toast';
+
+/**
+ * The product's own record counts photographs too.
+ *
+ * Its detail response carries imageCount and variantsWithoutImages, and the header shows the
+ * second of those in red. Invalidating only the image list left that badge saying "2 variants
+ * have no image" on a page whose gallery had already updated to "1 of 2" -- the two halves of
+ * one screen disagreeing, which is worse than either being wrong alone.
+ */
+const invalidateProductPhotoCounts = (queryClient, productId) => {
+  queryClient.invalidateQueries({ queryKey: ['images', productId] });
+  queryClient.invalidateQueries({ queryKey: queryKeys.product(productId) });
+  queryClient.invalidateQueries({ queryKey: queryKeys.products });
+};
 
 // GET images for a product
 export function useImages(productId) {
@@ -25,7 +40,7 @@ export function useUploadImage(productId) {
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['images', productId] });
+      invalidateProductPhotoCounts(queryClient, productId);
       toast.success('Image uploaded successfully');
     },
     onError: (error) => {
@@ -45,7 +60,7 @@ export function useUpdateImage(productId) {
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['images', productId] });
+      invalidateProductPhotoCounts(queryClient, productId);
     },
     onError: () => {
       toast.error('Failed to update image');
@@ -63,7 +78,7 @@ export function useDeleteImage(productId) {
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['images', productId] });
+      invalidateProductPhotoCounts(queryClient, productId);
       toast.success('Image deleted successfully');
     },
     onError: () => {

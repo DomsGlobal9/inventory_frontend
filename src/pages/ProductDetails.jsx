@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Package, Box, History, Image as ImageIcon, Copy, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Package, Box, History, Image as ImageIcon, ImageOff, Copy, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { QRCodeSVG } from 'qrcode.react';
 import {
@@ -178,6 +178,34 @@ export default function ProductDetails() {
               }}>
                 {product.status}
               </span>
+
+              {/*
+                How many sizes and colours have no photograph of their own.
+
+                At the top, in red, because it is the thing somebody needs to know BEFORE they
+                press Publish -- not after a customer picks blue and is shown the red saree.
+                "This product has 5 photos" hid it completely: all five can be of one colour.
+
+                A button rather than a label: the only useful response is to go and look, so
+                it takes you to the Images tab, which lists exactly which ones are missing.
+              */}
+              {product.variantSummary?.variantsWithoutImages > 0 && (
+                <button
+                  onClick={() => setActiveTab('images')}
+                  title="See which sizes and colours have no photo"
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '5px',
+                    padding: '4px 8px', borderRadius: '4px',
+                    fontSize: '10px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.02em',
+                    background: 'rgba(239, 68, 68, 0.1)', color: 'var(--accent-danger)',
+                    border: '1px solid rgba(239, 68, 68, 0.35)', cursor: 'pointer'
+                  }}
+                >
+                  <ImageOff size={11} />
+                  {product.variantSummary.variantsWithoutImages}
+                  {product.variantSummary.variantsWithoutImages === 1 ? ' variant has' : ' variants have'} no image
+                </button>
+              )}
             </div>
             <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{product.productCode} • {product.category}</span>
           </div>

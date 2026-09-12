@@ -4,7 +4,16 @@ import { useSalesOrderDetails, useConfirmOrder, useCancelOrder } from '../../hoo
 import { useCreateDispatch } from '../../hooks/useDispatches';
 import { ArrowLeft, Loader2, CheckCircle, XCircle, Truck } from 'lucide-react';
 import { usePermission } from '../../hooks/usePermission';
-import { formatINR, formatINRExact } from '../../utils/formatUtils';
+/*
+ * Exact throughout this page, not rounded.
+ *
+ * formatINR rounds to whole rupees, which is right on a dashboard. It is wrong on an order,
+ * where the numbers have to add up in front of somebody: a line of 150 less 72.50 rendered as
+ * 150, 72.50 and 78 does not, and a grand total shown as 418 on an order worth 417.50 is a
+ * misstatement of what a customer pays. formatINRExact still prints whole rupees when the
+ * amount IS whole, so an ordinary order looks exactly as it did.
+ */
+import { formatINRExact } from '../../utils/formatUtils';
 
 import PageLoader from '../../components/PageLoader';
 import ConfirmModal from '../../components/ConfirmModal';
@@ -80,6 +89,24 @@ export default function SalesOrderDetail() {
   // The column appears only when there is something to put in it, so an ordinary order looks
   // exactly as it did before any of this existed.
   const anyDiscount = (order.items || []).some(i => discountOf(i) > 0);
+
+  /*
+   * WHY the money came off, not only that it did.
+   *
+   * The line columns can say a saree was sold at 9,600 instead of 12,000. They cannot say
+   * whether that was the Deepavali offer or somebody's decision about a marked hem -- and six
+   * months later that is the only question anybody asks about a discount.
+   *
+   * For a MANUAL discount the title IS the reason that was typed at the till. It is required
+   * precisely so that it can be read here; a reason collected and never shown may as well not
+   * have been collected.
+   */
+  const DISCOUNT_SOURCES = {
+    OFFER:   { label: 'Offer',  colour: 'var(--accent-success)' },
+    MANUAL:  { label: 'By hand', colour: 'var(--accent-warning)' },
+    SHOPIFY: { label: 'Shopify', colour: 'var(--text-secondary)' }
+  };
+  const orderDiscounts = order.discounts || [];
 
   const handleOpenDispatch = () => {
     dispatchInFlight.current = false;
@@ -249,17 +276,17 @@ export default function SalesOrderDetail() {
                       <td style={{ padding: '16px 24px', textAlign: 'right', color: 'var(--text-secondary)' }}>
                         {discountOf(item) > 0 && Number(item.listUnitPrice) !== Number(item.unitPrice) && (
                           <span style={{ textDecoration: 'line-through', opacity: 0.55, marginRight: '8px' }}>
-                            {formatINR(Number(item.listUnitPrice))}
+                            {formatINRExact(Number(item.listUnitPrice))}
                           </span>
                         )}
-                        {formatINR(Number(item.unitPrice))}
+                        {formatINRExact(Number(item.unitPrice))}
                       </td>
                       {anyDiscount && (
                         <td style={{ padding: '16px 24px', textAlign: 'right', color: discountOf(item) > 0 ? 'var(--accent-success)' : 'var(--text-secondary)' }}>
                           {discountOf(item) > 0 ? `-${formatINRExact(discountOf(item))}` : '—'}
                         </td>
                       )}
-                      <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '500' }}>{formatINR(Number(item.totalPrice))}</td>
+                      <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '500' }}>{formatINRExact(Number(item.totalPrice))}</td>
                       <td style={{ padding: '16px 24px', textAlign: 'center' }}>
                       </td>
                     </tr>
@@ -279,24 +306,68 @@ export default function SalesOrderDetail() {
             
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', color: 'var(--text-secondary)' }}>
               <span>Subtotal ({order.items?.length} items)</span>
-              <span>{formatINR(Number(order.subtotal))}</span>
+              <span>{formatINRExact(Number(order.subtotal))}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', color: 'var(--text-secondary)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: orderDiscounts.length > 0 ? '8px' : '12px', color: 'var(--text-secondary)' }}>
               <span>Discount</span>
-              <span>-{formatINR(Number(order.discountAmount))}</span>
+              <span>-{formatINRExact(Number(order.discountAmount))}</span>
             </div>
+
+            {/*
+              * Shown only when the order actually carries these rows. An order taken before this
+              * existed, or one ingested without a breakdown, looks exactly as it always did
+              * rather than growing an empty heading.
+              */}
+            {orderDiscounts.length > 0 && (
+              <div style={{ margin: '0 0 12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {orderDiscounts.map(discount => {
+                  const source = DISCOUNT_SOURCES[discount.source] || DISCOUNT_SOURCES.OFFER;
+                  return (
+                    <div
+                      key={discount.id}
+                      style={{
+                        display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
+                        gap: '12px', fontSize: '12px', color: 'var(--text-secondary)'
+                      }}
+                    >
+                      <span style={{ display: 'flex', alignItems: 'baseline', gap: '6px', minWidth: 0 }}>
+                        <span style={{
+                          flexShrink: 0, fontSize: '10px', fontWeight: '600', letterSpacing: '0.04em',
+                          textTransform: 'uppercase', color: source.colour,
+                          border: `1px solid ${source.colour}`, borderRadius: '4px', padding: '1px 5px'
+                        }}>
+                          {source.label}
+                        </span>
+                        {/*
+                          * Truncated rather than wrapped, with the whole thing on hover. A reason
+                          * typed at a counter can be a sentence, and letting it push the amount
+                          * off the panel would hide the number this row exists to explain.
+                          */}
+                        <span
+                          title={discount.title}
+                          style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                        >
+                          {discount.title}
+                        </span>
+                      </span>
+                      <span style={{ flexShrink: 0 }}>-{formatINRExact(Number(discount.amount))}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', color: 'var(--text-secondary)' }}>
               <span>Tax</span>
-              <span>+{formatINR(Number(order.taxAmount))}</span>
+              <span>+{formatINRExact(Number(order.taxAmount))}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px', color: 'var(--text-secondary)' }}>
               <span>Shipping</span>
-              <span>+{formatINR(Number(order.shippingAmount))}</span>
+              <span>+{formatINRExact(Number(order.shippingAmount))}</span>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '16px', borderTop: '1px solid var(--border-light)', fontWeight: '600', fontSize: '18px' }}>
               <span>Grand Total</span>
-              <span>{formatINR(Number(order.total))}</span>
+              <span>{formatINRExact(Number(order.total))}</span>
             </div>
 
             {order.status === 'DRAFT' && (

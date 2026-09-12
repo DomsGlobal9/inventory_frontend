@@ -1,11 +1,12 @@
 import React from 'react';
 import LoadFailed from '../components/LoadFailed';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Package, Download, Upload } from 'lucide-react';
+import { Plus, Package, Download, Upload, FileSpreadsheet } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useProducts } from '../hooks/useProducts';
 import { useProduct } from '../context/ProductContext';
 import BulkUpdateModal from '../components/BulkUpdateModal';
+import ProductImportModal from '../components/ProductImportModal';
 import PageLoader from '../components/PageLoader';
 import Select from '../components/common/Select';
 
@@ -17,6 +18,7 @@ export default function Products() {
   const { data, isLoading, isError, error, refetch } = useProducts({ page: 1, limit: 50, status: statusFilter || undefined });
   
   const [isBulkUpdateModalOpen, setIsBulkUpdateModalOpen] = React.useState(false);
+  const [isImportOpen, setIsImportOpen] = React.useState(false);
 
   const products = data?.data || [];
 
@@ -80,6 +82,18 @@ export default function Products() {
           >
             <Upload size={16} />
             Import Updates
+          </button>
+          {/* Two imports, deliberately separate. "Import Updates" edits stock and prices on
+              variants that already exist, matched on SKU. "Import Products" creates and
+              updates whole products from one file. Merging them would mean one screen whose
+              behaviour depends on which columns happen to be present. */}
+          <button 
+            className="btn-secondary" 
+            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+            onClick={() => setIsImportOpen(true)}
+          >
+            <FileSpreadsheet size={16} />
+            Import Products
           </button>
           <button 
             className="btn-primary" 
@@ -158,6 +172,12 @@ export default function Products() {
       <BulkUpdateModal 
         isOpen={isBulkUpdateModalOpen} 
         onClose={() => setIsBulkUpdateModalOpen(false)} 
+      />
+
+      <ProductImportModal
+        isOpen={isImportOpen}
+        onClose={() => setIsImportOpen(false)}
+        onImported={() => refetch?.()}
       />
     </div>
   );

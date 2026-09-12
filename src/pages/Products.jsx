@@ -62,7 +62,15 @@ export default function Products() {
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
+            {/* Drafts had no filter of their own, which mattered more than it looks: a
+                bulk import creates drafts by design -- a spreadsheet carries no
+                photographs -- and this shop has 123 of them against 4 published. There was
+                no way to list the ones still waiting to go live, and therefore no way to
+                work through them. The API already accepted any status; only the options
+                were missing. */}
             <option value="">Active & Drafts</option>
+            <option value="DRAFT">Drafts only</option>
+            <option value="ACTIVE">Published only</option>
             <option value="ARCHIVED">Archived</option>
             <option value="TRASHED">Trash</option>
           </Select>

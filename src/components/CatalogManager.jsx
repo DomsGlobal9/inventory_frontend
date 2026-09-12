@@ -38,7 +38,18 @@ export default function CatalogManager({ type }) {
   const badShade = type === 'COLOR'
     ? formData.shades.findIndex(s => !HEX_PATTERN.test(String(s.hex || '').trim()))
     : -1;
-  const shadeError = badShade >= 0 ? `Shade ${badShade + 1} is not a hex colour like #FF69B4.` : '';
+  // Two rows of the same colour are one shade, and the server keeps one. Said here rather
+  // than discovered afterwards: a new shade starts as a copy of the base colour, so adding
+  // two and only recolouring one is the ordinary way to arrive at this.
+  const duplicateShade = type === 'COLOR'
+    ? formData.shades.findIndex((s, i) =>
+        formData.shades.findIndex(o => String(o.hex || '').toLowerCase() === String(s.hex || '').toLowerCase()) !== i)
+    : -1;
+  const shadeError = badShade >= 0
+    ? `Shade ${badShade + 1} is not a hex colour like #FF69B4.`
+    : duplicateShade >= 0
+      ? `Shade ${duplicateShade + 1} is the same colour as one above it. Change it or remove it.`
+      : '';
   const cannotSave = Boolean(labelError || hexError || shadeError);
 
   const itemsList = Array.isArray(response?.data) ? response.data : (Array.isArray(response) ? response : []);
@@ -318,12 +329,18 @@ export default function CatalogManager({ type }) {
 
       {modalOpen && (
         <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999
+          // Centred, but allowed to scroll when the content is taller than the screen.
+          // A flex-centred child that overflows is clipped at BOTH ends, so adding the shade
+          // editor put Save off the bottom of the window with no way to reach it. overflowY
+          // on the overlay and a height cap on the panel are what the other modals use.
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999,
+          overflowY: 'auto', padding: '16px'
         }}>
           <div style={{
             background: 'var(--bg-card)', width: '100%', maxWidth: '400px',
+            maxHeight: 'calc(100vh - 32px)', overflowY: 'auto',
             borderRadius: '16px', border: '1px solid var(--border-light)',
             boxShadow: 'var(--shadow-modal)', padding: '24px',
             display: 'flex', flexDirection: 'column', gap: '20px'
@@ -440,7 +457,7 @@ export default function CatalogManager({ type }) {
                             onChange={e => updateShade(index, { name: e.target.value })}
                             placeholder="Named automatically"
                             maxLength={40}
-                            style={{ flex: 1, minWidth: 0, padding: '9px 12px', border: `1px solid ${showErrors && badShade === index ? 'rgb(220, 38, 38)' : 'var(--border-light)'}`, borderRadius: '8px', background: 'var(--bg-input)', color: 'var(--text-primary)', fontSize: '14px' }}
+                            style={{ flex: 1, minWidth: 0, padding: '9px 12px', border: `1px solid ${showErrors && (badShade === index || duplicateShade === index) ? 'rgb(220, 38, 38)' : 'var(--border-light)'}`, borderRadius: '8px', background: 'var(--bg-input)', color: 'var(--text-primary)', fontSize: '14px' }}
                           />
                           <button
                             type="button"
@@ -603,7 +620,11 @@ export default function CatalogManager({ type }) {
                 <div />
               )}
 
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+              {/* marginLeft:auto, not just space-between. On a phone the row wraps, and a
+                  wrapped line ignores the parent's space-between -- so Cancel and Save fell to
+                  the left of the second line, reading as though they belonged with Disable.
+                  The auto margin keeps them on the right whether they wrap or not. */}
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginLeft: 'auto' }}>
                 <button onClick={handleCloseModal} style={{ background: 'transparent', color: 'var(--text-secondary)', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '15px', fontWeight: 600 }}>
                   Cancel
                 </button>

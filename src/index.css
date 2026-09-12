@@ -746,3 +746,22 @@ tr:hover td {
   }
 }
 
+
+/*
+ * Text for screen readers only.
+ *
+ * A select or an input with no visible label is fine to look at and unusable by ear: a screen
+ * reader announces "combo box" and nothing else. This keeps the label in the accessibility tree
+ * without taking space on screen. Not `display: none`, which removes it from both.
+ */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

@@ -67,3 +67,122 @@ export const useClaimShopify = () => {
     onError: (error) => toast.error(error?.message || 'Could not claim that store.')
   });
 };
+
+// ── Setting the store up, and the orders waiting on it ─────────────────────────────────────────
+
+/**
+ * What an automatic retry achieved, said at the moment the merchant caused it.
+ *
+ * Pairing a location or matching products retries every waiting order on the server. The screen
+ * says so in the same breath -- "2 waiting orders were placed" -- because otherwise the inbox
+ * below quietly empties and nobody connects the cause with the effect.
+ */
+const announceReplay = (replay) => {
+  if (!replay) return;
+  if (replay.placed > 0) {
+    toast.success(`${replay.placed} waiting Shopify order${replay.placed === 1 ? ' was' : 's were'} placed.`);
+  } else if (replay.stillWaiting > 0) {
+    toast(`${replay.stillWaiting} Shopify order${replay.stillWaiting === 1 ? ' is' : 's are'} still waiting on something else.`, { icon: '⏳' });
+  }
+};
+
+const refreshShopify = (queryClient) => queryClient.invalidateQueries({ queryKey: ['shopify'] });
+
+/** The store's locations beside ours. Asks Shopify, so it is only fetched when opened. */
+export const useShopifyLocations = (enabled) =>
+  useQuery({
+    queryKey: ['shopify', 'locations'],
+    queryFn: async () => (await api.get('/shopify-connect/locations')).data,
+    enabled,
+    staleTime: 60_000,
+    retry: false
+  });
+
+export const usePairShopifyLocation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ shopifyLocationId, locationId }) =>
+      (await api.put(`/shopify-connect/locations/${shopifyLocationId}`, { locationId })).data,
+    onSuccess: (result) => {
+      refreshShopify(queryClient);
+      if (result?.paired) toast.success(`${result.paired.shopifyName} is paired with ${result.paired.locationName}.`);
+      else toast.success('Unpaired.');
+      announceReplay(result?.replay);
+    },
+    onError: (error) => toast.error(error?.message || 'Could not pair that location.')
+  });
+};
+
+export const useShopifyProductSummary = (enabled) =>
+  useQuery({
+    queryKey: ['shopify', 'products', 'summary'],
+    queryFn: async () => (await api.get('/shopify-connect/products/summary')).data,
+    enabled,
+    staleTime: 30_000
+  });
+
+export const useMatchShopifyProducts = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => (await api.post('/shopify-connect/products/match')).data,
+    onSuccess: (result) => {
+      refreshShopify(queryClient);
+      toast.success(
+        result?.newlyMatched > 0
+          ? `${result.newlyMatched} product${result.newlyMatched === 1 ? '' : 's'} newly matched.`
+          : 'Nothing new to match.'
+      );
+      announceReplay(result?.replay);
+    },
+    onError: (error) => toast.error(error?.message || 'Could not match your Shopify products.')
+  });
+};
+
+export const useShopifyInbox = (state = 'open', enabled = true) =>
+  useQuery({
+    queryKey: ['shopify', 'inbox', state],
+    queryFn: async () => (await api.get('/shopify-connect/inbox', { params: { state } })).data,
+    enabled,
+    staleTime: 15_000
+  });
+
+export const useReplayShopifyOrder = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id) => (await api.post(`/shopify-connect/inbox/${id}/replay`)).data,
+    onSuccess: (result) => {
+      refreshShopify(queryClient);
+      if (result?.status === 'WAITING') {
+        toast(`Still waiting: ${result.detail}`, { icon: '⏳', duration: 8000 });
+      } else {
+        toast.success(`Placed as ${result?.orderNumber}.`);
+      }
+    },
+    onError: (error) => toast.error(error?.message || 'Could not retry that order.')
+  });
+};
+
+export const useReplayAllShopifyOrders = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => (await api.post('/shopify-connect/inbox/replay-all')).data,
+    onSuccess: (result) => {
+      refreshShopify(queryClient);
+      if (!result?.placed && !result?.stillWaiting) toast('Nothing was waiting.');
+      else announceReplay(result);
+    },
+    onError: (error) => toast.error(error?.message || 'Could not retry the waiting orders.')
+  });
+};
+
+export const useDismissShopifyOrder = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, reason }) => (await api.post(`/shopify-connect/inbox/${id}/dismiss`, { reason })).data,
+    onSuccess: () => {
+      refreshShopify(queryClient);
+      toast.success('Dismissed. The reason is kept with it.');
+    },
+    onError: (error) => toast.error(error?.message || 'Could not dismiss that order.')
+  });
+};

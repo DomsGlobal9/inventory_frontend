@@ -5,6 +5,9 @@ import { Store, Loader2, CheckCircle2, AlertTriangle, ExternalLink } from 'lucid
 import {
   useShopifyStatus, usePendingShopifyInstalls, useConnectShopify, useClaimShopify
 } from '../hooks/useShopify';
+import ShopifyLocationPairing from './ShopifyLocationPairing';
+import ShopifyProductMatching from './ShopifyProductMatching';
+import ShopifyOrderInbox from './ShopifyOrderInbox';
 
 /**
  * Connecting a Shopify store, from the merchant's side.
@@ -22,6 +25,8 @@ export default function ShopifyPanel() {
   const claim = useClaimShopify();
 
   const [shop, setShop] = useState('');
+  const [openSection, setOpenSection] = useState(null);
+  const toggle = (name) => setOpenSection(current => (current === name ? null : name));
   const [searchParams, setSearchParams] = useSearchParams();
 
   /**
@@ -91,9 +96,12 @@ export default function ShopifyPanel() {
           </span>
         </div>
 
+        {/* This used to promise that products and stock "will follow this inventory once the
+            first sync has run". No such sync exists -- nothing is pushed to Shopify yet -- so it
+            now says what actually happens: sales come in, and they need to know where to land. */}
         <p style={{ margin: '0 0 12px', fontSize: '13px', color: 'var(--text-secondary)' }}>
-          Your Shopify store is linked to this workspace. Products and stock will follow this
-          inventory once the first sync has run.
+          Your Shopify store is linked to this workspace. Its sales arrive here as orders. Pair
+          your locations and match your products below so each sale takes stock from the right place.
         </p>
 
         {status.missingScopes?.length > 0 && (
@@ -108,6 +116,10 @@ export default function ShopifyPanel() {
             </span>
           </div>
         )}
+
+        <ShopifyOrderInbox />
+        <ShopifyLocationPairing open={openSection === 'locations'} onToggle={() => toggle('locations')} />
+        <ShopifyProductMatching open={openSection === 'products'} onToggle={() => toggle('products')} />
       </div>
     );
   }

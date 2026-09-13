@@ -29,7 +29,29 @@ export const useOffer = (id) =>
   useQuery({
     queryKey: ['offers', 'detail', id],
     queryFn: () => (id ? api.get(`/offers/${id}`).then(payload) : null),
-    enabled: !!id
+    enabled: !!id,
+    // Once, not the default three with backoff: an offer that was deleted otherwise leaves the page
+    // on "Loading" for seven seconds before it says so.
+    retry: 1
+  });
+
+/** What an offer can be aimed at in this shop. Changes rarely, so it is kept for a few minutes. */
+export const useOfferOptions = (enabled = true) =>
+  useQuery({
+    queryKey: ['offers', 'options'],
+    queryFn: () => api.get('/offers/options').then(payload),
+    staleTime: 5 * 60 * 1000,
+    enabled
+  });
+
+/** Products or SKUs matching what was typed, for the picker. */
+export const useOfferTargetSearch = (scope, q) =>
+  useQuery({
+    queryKey: ['offers', 'targets', scope, q],
+    queryFn: () => api.get('/offers/targets', { params: { scope, q } }).then(payload),
+    enabled: scope === 'PRODUCT' || scope === 'VARIANT',
+    staleTime: 30 * 1000,
+    placeholderData: (previous) => previous
   });
 
 /** Both the list and the open offer, because starting one changes what the list says about it. */

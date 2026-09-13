@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Plus, Play, Pause, Archive, Tag, Search, CalendarClock, Store } from 'lucide-react';
 import { useOffers, useCreateOffer, useUpdateOffer, useSetOfferStatus } from '../hooks/useOffers';
 import { usePermission } from '../hooks/usePermission';
-import { formatINR } from '../utils/formatUtils';
 import PageLoader from '../components/PageLoader';
 import ConfirmModal from '../components/ConfirmModal';
 import OfferEditor from '../components/OfferEditor';
 import OfferShopifyPanel, { ShopifyChip } from '../components/OfferShopifyPanel';
+import OfferStatusPill, { OFFER_TONE } from '../components/OfferStatusPill';
+import { describeOffer, offerSummaryInput } from '../utils/offerSummary';
 
 /**
  * Every discount this shop runs, in one place.
@@ -17,46 +19,13 @@ import OfferShopifyPanel, { ShopifyChip } from '../components/OfferShopifyPanel'
  * is not applying.
  */
 
-const TONE = {
-  ACTIVE:    { bg: 'rgba(34,197,94,0.12)',  fg: 'rgb(21,128,61)',   label: 'Running' },
-  SCHEDULED: { bg: 'rgba(59,130,246,0.12)', fg: 'rgb(29,78,216)',   label: 'Starts later' },
-  DRAFT:     { bg: 'rgba(107,114,128,0.12)',fg: 'rgb(75,85,99)',    label: 'Draft' },
-  PAUSED:    { bg: 'rgba(234,179,8,0.15)',  fg: 'rgb(161,98,7)',    label: 'Paused' },
-  EXPIRED:   { bg: 'rgba(107,114,128,0.12)',fg: 'rgb(107,114,128)', label: 'Ended' },
-  ARCHIVED:  { bg: 'rgba(107,114,128,0.08)',fg: 'rgb(156,163,175)', label: 'Retired' }
-};
-
 // SCHEDULED and EXPIRED are filters even though no column holds them -- they are what the dates
 // say, and a merchant asking "what starts next week" is asking a real question the status column
 // cannot answer.
 const FILTERS = ['ALL', 'ACTIVE', 'SCHEDULED', 'DRAFT', 'PAUSED', 'EXPIRED', 'ARCHIVED'];
 
-function Pill({ status }) {
-  const tone = TONE[status] ?? TONE.DRAFT;
-  return (
-    <span style={{
-      padding: '4px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: 500,
-      backgroundColor: tone.bg, color: tone.fg, whiteSpace: 'nowrap'
-    }}>{tone.label}</span>
-  );
-}
-
-/** "20% off, up to ₹2,000" — the rule in the merchant's own terms, not the enum's. */
-function describe(offer) {
-  const value = Number(offer.value);
-  const base =
-    offer.valueType === 'PERCENTAGE' ? `${value}% off`
-    : offer.valueType === 'FIXED_AMOUNT' ? `${formatINR(value)} off`
-    : `${formatINR(value)} each`;
-
-  const cap = offer.maxDiscount ? `, up to ${formatINR(Number(offer.maxDiscount))}` : '';
-  const where =
-    offer.scope === 'ALL' ? 'everything'
-    : offer.scope === 'CATEGORY' ? `${offer.targets?.length ?? 0} categor${(offer.targets?.length ?? 0) === 1 ? 'y' : 'ies'}`
-    : `${offer.targets?.length ?? 0} item${(offer.targets?.length ?? 0) === 1 ? '' : 's'}`;
-
-  return `${base}${cap} on ${where}`;
-}
+/** "20% off every Saree", "₹500 off the whole bill" -- the same words the offer page and editor use. */
+const describe = (offer) => describeOffer(offerSummaryInput(offer));
 
 const shortDate = (d) => d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
 const shortTime = (d) => d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
@@ -133,7 +102,7 @@ export default function Offers() {
             <button key={f} onClick={() => setStatus(f)}
               className={status === f ? 'btn-primary' : 'btn-secondary'}
               style={{ padding: '6px 14px', fontSize: '13px' }}>
-              {f === 'ALL' ? 'All' : (TONE[f]?.label ?? f)}
+              {f === 'ALL' ? 'All' : (OFFER_TONE[f]?.label ?? f)}
             </button>
           ))}
         </div>
@@ -174,7 +143,11 @@ export default function Offers() {
                 {rows.map(offer => (
                   <tr key={offer.id} style={{ borderBottom: '1px solid var(--border-light)' }}>
                     <td style={{ padding: '16px 20px' }}>
-                      <div style={{ fontWeight: 500 }}>{offer.name}</div>
+                      <Link to={`/offers/${offer.id}`} style={{ fontWeight: 500, color: 'var(--text-primary)', textDecoration: 'none' }}
+                        onMouseEnter={e => { e.currentTarget.style.textDecoration = 'underline'; }}
+                        onMouseLeave={e => { e.currentTarget.style.textDecoration = 'none'; }}>
+                        {offer.name}
+                      </Link>
                       <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>
                         {offer.offerCode}
                         {offer.couponCode && (
@@ -184,7 +157,14 @@ export default function Offers() {
                         )}
                       </div>
                     </td>
-                    <td style={{ padding: '16px 20px', color: 'var(--text-secondary)' }}>{describe(offer)}</td>
+                    <td style={{ padding: '16px 20px', color: 'var(--text-secondary)', maxWidth: '360px' }}>
+                      <div style={{ color: 'var(--text-primary)' }}>{describe(offer).headline}</div>
+                      {describe(offer).qualifiers.length > 0 && (
+                        <div style={{ fontSize: '12px', marginTop: '2px' }}>
+                          {describe(offer).qualifiers.filter(q => !q.startsWith('from ') && !q.startsWith('until ')).join(' · ')}
+                        </div>
+                      )}
+                    </td>
                     <td style={{ padding: '16px 20px', color: 'var(--text-secondary)', fontSize: '13px' }}>
                       {whenLabel(offer)}
                     </td>
@@ -194,7 +174,7 @@ export default function Offers() {
                     </td>
                     <td style={{ padding: '16px 20px' }}>
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '6px' }}>
-                        <Pill status={offer.effectiveStatus} />
+                        <OfferStatusPill status={offer.effectiveStatus} />
                         {/* Only when the offer HAS a Shopify copy. An offer that was never put on
                             Shopify is not "not on Shopify" in any way a merchant needs telling. */}
                         {offer.shopify && <ShopifyChip status={offer.shopify.status} problem={offer.shopify.problem} />}

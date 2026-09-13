@@ -14,6 +14,7 @@ import OnboardingPage from './pages/admin/OnboardingPage';
 import LeadsPage from './pages/admin/LeadsPage';
 import DayBook from './pages/DayBook';
 import Offers from './pages/Offers';
+import OfferDetail from './pages/OfferDetail';
 import Signup from './pages/Signup';
 import InventoryHealthPage from './pages/admin/InventoryHealthPage';
 import AuditLogPage from './pages/admin/AuditLogPage';
@@ -145,6 +146,7 @@ function App() {
           {/* The day book now lives inside Settings. This route is kept so links and
               bookmarks that already point at it still land on the day book itself. */}
           <Route path="/offers" element={<Guard permission="offer:view"><Offers /></Guard>} />
+          <Route path="/offers/:id" element={<Guard permission="offer:view"><OfferDetail /></Guard>} />
           <Route path="/reports/daybook" element={<Guard permission="report:financial"><DayBook /></Guard>} />
           <Route path="/customers" element={<Guard permission="customer:view"><Customers /></Guard>} />
           <Route path="/customers/:id" element={<Guard permission="customer:view"><CustomerDetail /></Guard>} />

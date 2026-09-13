@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Plus, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query';
@@ -15,7 +15,16 @@ import { api } from '../lib/api';
 export default function CustomerGroupsCard({ customer, canEdit }) {
   const queryClient = useQueryClient();
   const [text, setText] = useState('');
-  const tags = customer.tags ?? [];
+  /*
+   * The list as this card last saved it, not only as the page last loaded it.
+   *
+   * Each save sends the WHOLE list. Built from the customer prop alone, adding VIP and then STAFF
+   * before the page had reloaded the customer sent the old list plus STAFF -- and VIP was gone. The
+   * save finishes before the reload does, so the button was already enabled again in that gap.
+   */
+  const loaded = JSON.stringify(customer.tags ?? []);
+  const [tags, setTags] = useState(customer.tags ?? []);
+  useEffect(() => { setTags(JSON.parse(loaded)); }, [loaded]);
 
   const { data: options } = useQuery({
     queryKey: ['offers', 'options'],
@@ -27,12 +36,22 @@ export default function CustomerGroupsCard({ customer, canEdit }) {
 
   const save = useMutation({
     mutationFn: (next) => api.patch(`/customers/${customer.id}`, { tags: next }),
+    onMutate: (next) => {
+      // A reload still on its way from the previous save carries the list before this one; landing
+      // afterwards it would put that older list back on screen, and the next add would send it.
+      queryClient.cancelQueries({ queryKey: ['customers', customer.id] });
+      const before = tags;
+      setTags(next);
+      return { before };
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['customer', customer.id] });
       queryClient.invalidateQueries({ queryKey: ['customers'] });
       queryClient.invalidateQueries({ queryKey: ['offers', 'options'] });
     },
-    onError: (e) => toast.error(e?.message || 'Could not change the groups.')
+    onError: (e, _next, ctx) => {
+      if (ctx?.before) setTags(ctx.before);
+      toast.error(e?.message || 'Could not change the groups.');
+    }
   });
 
   const has = (t) => tags.some(x => x.toLowerCase() === t.trim().toLowerCase());

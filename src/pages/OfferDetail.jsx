@@ -92,7 +92,7 @@ export default function OfferDetail() {
   const conditions = [
     offer.trigger === 'CODE' && (offer.uniqueCodes ? 'A single-use code' : `Code ${offer.couponCode}`),
     offer.customerTags?.length > 0 && `Customers in ${offer.customerTags.join(', ')}`,
-    offer.minSubtotal && `Spend ${formatINRExact(Number(offer.minSubtotal))}${offer.scope === 'ALL' ? '' : ' on those items'}`,
+    Number(offer.minSubtotal) > 0 && `Spend ${formatINRExact(Number(offer.minSubtotal))}${offer.scope === 'ALL' ? '' : ' on those items'}`,
     offer.minQuantity && `${offer.minQuantity}+ ${offer.scope === 'ALL' ? 'items' : 'of those items'}`
   ].filter(Boolean);
 
@@ -155,7 +155,8 @@ export default function OfferDetail() {
                 <Store size={15} /><span className="mobile-hide">Shopify</span>
               </button>
             )}
-            {can('offer:archive') && (
+            {/* The status route needs offer:update as well as offer:archive. */}
+            {can('offer:archive') && can('offer:update') && (
               <button className="btn-secondary" title="Retire this offer" aria-label="Retire this offer" onClick={() => setRetiring(true)}>
                 <Archive size={15} />
               </button>
@@ -241,7 +242,8 @@ export default function OfferDetail() {
         <Stat label="Customers" value={stats.customers ?? 0} />
       </div>
 
-      {offer.uniqueCodes && <OfferCodesPanel offer={offer} canEdit={can('offer:update')} />}
+      {/* Only for somebody who may change offers: unspent codes are money, and the server says the same. */}
+      {offer.uniqueCodes && can('offer:update') && <OfferCodesPanel offer={offer} canEdit />}
 
       {/* Orders */}
       <div className="card" style={{ padding: 0, overflow: 'hidden', marginBottom: '16px' }}>

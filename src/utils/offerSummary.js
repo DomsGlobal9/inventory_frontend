@@ -93,7 +93,7 @@ export function describeOffer(o) {
   if (o.trigger === 'CODE') {
     conditions.push(o.uniqueCodes ? 'with a single-use code' : o.couponCode ? `with the code ${String(o.couponCode).toUpperCase()}` : 'with a code');
   }
-  if (o.minSubtotal) conditions.push(`when ${o.level === 'ORDER' || o.scope === 'ALL' ? 'the bill' : 'those items'} come${o.level === 'ORDER' || o.scope === 'ALL' ? 's' : ''} to ${money(o.minSubtotal)} or more`);
+  if (Number(o.minSubtotal) > 0) conditions.push(`when ${o.level === 'ORDER' || o.scope === 'ALL' ? 'the bill' : 'those items'} come${o.level === 'ORDER' || o.scope === 'ALL' ? 's' : ''} to ${money(o.minSubtotal)} or more`);
   if (o.minQuantity) conditions.push(`when there are ${o.minQuantity} or more ${o.level === 'ORDER' || o.scope === 'ALL' ? 'items' : 'of them'}`);
 
   const where = [];

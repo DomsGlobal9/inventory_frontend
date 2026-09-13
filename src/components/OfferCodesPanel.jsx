@@ -21,6 +21,28 @@ function csvOf(codes) {
   return rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\r\n');
 }
 
+/**
+ * Copy, whatever the browser allows. The clipboard API is refused on a page that is not https, inside
+ * some frames, and where the browser asks permission and gets no; the old copy command still works in
+ * most of those. False when neither did -- the browser's own "Write permission denied" is not a
+ * sentence to show a shopkeeper.
+ */
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    const area = document.createElement('textarea');
+    area.value = text;
+    area.setAttribute('readonly', '');
+    area.style.position = 'fixed';
+    area.style.opacity = '0';
+    document.body.appendChild(area);
+    area.select();
+    try { return document.execCommand('copy'); } catch { return false; } finally { area.remove(); }
+  }
+}
+
 export default function OfferCodesPanel({ offer, canEdit }) {
   const [status, setStatus] = useState('UNUSED');
   const [text, setText] = useState('');
@@ -28,7 +50,7 @@ export default function OfferCodesPanel({ offer, canEdit }) {
   const [skip, setSkip] = useState(0);
   // The first word of the offer's name that says something: "Copy of Welcome gift" suggests WELCOME.
   const [prefix, setPrefix] = useState(() => {
-    const words = String(offer.name || '').replace(/^copy of\s+/i, '').toUpperCase().split(/[^A-Z0-9]+/).filter(w => w.length >= 2);
+    const words = String(offer.name || '').replace(/^(copy of\s+)+/i, '').toUpperCase().split(/[^A-Z0-9]+/).filter(w => w.length >= 2);
     return (words[0] || 'CODE').slice(0, 12);
   });
   const [count, setCount] = useState('100');
@@ -44,7 +66,11 @@ export default function OfferCodesPanel({ offer, canEdit }) {
     try {
       const all = await fetchAllOfferCodes(offer.id, how === 'copy' ? 'UNUSED' : undefined);
       if (how === 'copy') {
-        await navigator.clipboard.writeText(all.codes.map(c => c.code).join('\n'));
+        const text = all.codes.map(c => c.code).join('\n');
+        if (!(await copyText(text))) {
+          toast.error('This browser would not let the page copy. Use CSV to save the codes instead.');
+          return;
+        }
         toast.success(`${all.codes.length} unused code${all.codes.length === 1 ? '' : 's'} copied.`);
       } else {
         const url = URL.createObjectURL(new Blob([csvOf(all.codes)], { type: 'text/csv' }));
@@ -52,7 +78,8 @@ export default function OfferCodesPanel({ offer, canEdit }) {
         a.href = url;
         a.download = `${offer.offerCode}-codes.csv`;
         a.click();
-        URL.revokeObjectURL(url);
+        // Later, not at once: Safari and older Firefox cancel a download whose file is freed immediately.
+        setTimeout(() => URL.revokeObjectURL(url), 30000);
       }
     } catch (e) {
       toast.error(e?.message || 'Could not get the codes.');

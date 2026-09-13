@@ -237,7 +237,7 @@ export default function Offers() {
                           <Store size={15} />
                         </button>
                       )}
-                      {can('offer:archive') && offer.status !== 'ARCHIVED' && (
+                      {can('offer:archive') && can('offer:update') && offer.status !== 'ARCHIVED' && (
                         <button className="btn-secondary" title="Retire this offer"
                           style={{ padding: '6px 10px' }} onClick={() => setRetiring(offer)}>
                           <Archive size={15} />

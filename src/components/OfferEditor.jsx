@@ -215,7 +215,8 @@ function TargetPicker({ scope, picked, labels, onToggle, selected }) {
 }
 
 /** Garment types: the shop's own list, filterable, with a way to name one nobody has used yet. */
-function TypePicker({ options, picked, onToggle, unit = 'product', noun = 'type', emptyHint }) {
+// maxLength: the longest name the server accepts -- 60 for a garment type, 40 for a customer group.
+function TypePicker({ options, picked, onToggle, unit = 'product', noun = 'type', emptyHint, maxLength = 60 }) {
   const [filter, setFilter] = useState('');
   const [showAll, setShowAll] = useState(false);
   const known = useMemo(() => {
@@ -255,7 +256,7 @@ function TypePicker({ options, picked, onToggle, unit = 'product', noun = 'type'
             {unused.length} more with no {unit}s yet
           </button>
         )}
-        {f && !exact && filter.trim().length <= 60 && (
+        {f && !exact && filter.trim().length <= maxLength && (
           <Chip onClick={() => { onToggle(filter.trim()); setFilter(''); }}>
             <Plus size={12} style={{ verticalAlign: '-2px' }} /> Add “{filter.trim()}”
           </Chip>
@@ -487,7 +488,10 @@ export default function OfferEditor({ offer, onClose, onSave }) {
   const nothingSells = !form.till && !form.online;
   const noDays = form.hoursOn && form.days.length === 0;
   const noGroups = form.forGroups && form.customerTags.length === 0;
-  const blocked = nothingSells || noDays || noGroups;
+  // An empty or unreadable start date used to throw while building the request, and the catch below
+  // took it for a failed save: the spinner stopped and nothing was said.
+  const noStart = !form.startsAt || Number.isNaN(momentOf(form.startsAt, form.startsTime).getTime());
+  const blocked = nothingSells || noDays || noGroups || noStart;
 
   const submit = async () => {
     if (inFlight.current || blocked) return;
@@ -672,7 +676,7 @@ export default function OfferEditor({ offer, onClose, onSave }) {
                 options={[{ value: 'ALL', label: 'Everyone' }, { value: 'GROUPS', label: 'Some groups' }]} />
               {form.forGroups && (
                 <div style={{ marginTop: '10px' }}>
-                  <TypePicker options={options?.customerTags} picked={form.customerTags} unit="customer" noun="group"
+                  <TypePicker options={options?.customerTags} picked={form.customerTags} unit="customer" noun="group" maxLength={40}
                     emptyHint="No customer groups yet. Type one, like VIP, and add customers to it from their page."
                     onToggle={(tag) => setForm(f => {
                       const exists = f.customerTags.find(t => t.trim().toLowerCase() === String(tag).trim().toLowerCase());
@@ -683,7 +687,7 @@ export default function OfferEditor({ offer, onClose, onSave }) {
             </Field>
 
             <div className="mobile-stack-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 16px' }}>
-              <Field label="Minimum spend (optional)" hint={`Counts ${covers}, at full price.`} htmlFor="offer-min-spend">
+              <Field label="Minimum spend (optional)" hint={form.level === 'ORDER' ? 'Counts the bill after item offers, leaving out anything it excludes.' : `Counts ${covers}, at full price.`} htmlFor="offer-min-spend">
                 <input id="offer-min-spend" className="input-field" type="number" min="0" step="0.01" inputMode="decimal" style={{ width: '100%' }}
                   value={form.minSubtotal} onChange={set('minSubtotal')} placeholder="None" />
               </Field>
@@ -820,8 +824,8 @@ export default function OfferEditor({ offer, onClose, onSave }) {
         </div>
 
         <div style={{ borderTop: '1px solid var(--border-light)', backgroundColor: 'var(--bg-dark)' }}>
-          <div aria-live="polite" style={{ padding: '12px 24px 0', fontSize: '13px', lineHeight: 1.5, color: summary.sentence ? 'var(--text-primary)' : 'var(--text-muted)' }}>
-            {summary.sentence ?? 'Enter how much it takes off to see what this offer will do.'}
+          <div aria-live="polite" style={{ padding: '12px 24px 0', fontSize: '13px', lineHeight: 1.5, color: noStart ? 'var(--accent-danger)' : summary.sentence ? 'var(--text-primary)' : 'var(--text-muted)' }}>
+            {noStart ? 'Say when the offer starts.' : summary.sentence ?? 'Enter how much it takes off to see what this offer will do.'}
           </div>
           <div style={{ padding: '12px 24px 16px', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
             <button className="btn-secondary" onClick={onClose} disabled={saving}>Cancel</button>

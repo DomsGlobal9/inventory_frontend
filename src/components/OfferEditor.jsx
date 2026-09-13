@@ -115,10 +115,10 @@ function Segmented({ value, options, onChange, label }) {
 }
 
 /** A choice that can be on or off, with an optional count of what it covers. */
-function Chip({ selected, onClick, children, count, onRemove, name }) {
+function Chip({ selected, onClick, children, count, onRemove, name, unit = 'product' }) {
   return (
     <button type="button" onClick={onClick} aria-pressed={onRemove ? undefined : !!selected}
-      aria-label={name ? (onRemove ? `Remove ${name}` : count != null ? `${name}, ${count} product${count === 1 ? '' : 's'}` : name) : undefined}
+      aria-label={name ? (onRemove ? `Remove ${name}` : count != null ? `${name}, ${count} ${unit}${count === 1 ? '' : 's'}` : name) : undefined}
       style={{
         display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 11px', borderRadius: '999px',
         fontSize: '13px', cursor: 'pointer', maxWidth: '100%',
@@ -141,7 +141,8 @@ function Chip({ selected, onClick, children, count, onRemove, name }) {
  * scrolling dialog gets clipped by the dialog's edge on a laptop, and on a phone covers the very
  * chips it is adding to.
  */
-function TargetPicker({ scope, picked, labels, onToggle }) {
+function TargetPicker({ scope, picked, labels, onToggle, selected }) {
+  const isOn = (id) => (selected ?? picked).includes(id);
   const [text, setText] = useState('');
   const [q, setQ] = useState('');
   const [open, setOpen] = useState(false);
@@ -183,7 +184,7 @@ function TargetPicker({ scope, picked, labels, onToggle }) {
             </div>
           )}
           {(results ?? []).map(r => {
-            const on = picked.includes(r.id);
+            const on = isOn(r.id);
             return (
               <button key={r.id} type="button" role="option" aria-selected={on}
                 onClick={() => onToggle(r.id, r)}
@@ -214,7 +215,7 @@ function TargetPicker({ scope, picked, labels, onToggle }) {
 }
 
 /** Garment types: the shop's own list, filterable, with a way to name one nobody has used yet. */
-function TypePicker({ options, picked, onToggle }) {
+function TypePicker({ options, picked, onToggle, unit = 'product', noun = 'type', emptyHint }) {
   const [filter, setFilter] = useState('');
   const [showAll, setShowAll] = useState(false);
   const known = useMemo(() => {
@@ -231,7 +232,7 @@ function TypePicker({ options, picked, onToggle }) {
   // Types no product carries yet are folded away until asked for: sixteen chips of which eleven say
   // "0" bury the five a merchant is actually choosing between.
   const unused = known.filter(t => !t.count && !isPickedValue(t.value));
-  const shown = f ? known.filter(t => t.label.toLowerCase().includes(f))
+  const shown = f ? known.filter(t => (t.label ?? t.value).toLowerCase().includes(f))
     : showAll || unused.length < 3 ? known : known.filter(t => t.count || isPickedValue(t.value));
   const exact = known.some(t => t.value.trim().toLowerCase() === f);
   const isPicked = isPickedValue;
@@ -240,18 +241,18 @@ function TypePicker({ options, picked, onToggle }) {
     <div>
       {known.length > 10 && (
         <input className="input-field" style={{ width: '100%', marginBottom: '10px' }} value={filter}
-          onChange={e => setFilter(e.target.value)} placeholder="Filter types" aria-label="Filter garment types" />
+          onChange={e => setFilter(e.target.value)} placeholder={`Filter ${noun}s`} aria-label={`Filter ${noun}s`} />
       )}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
         {shown.map(t => (
-          <Chip key={t.value} selected={isPicked(t.value)} count={t.count} onClick={() => onToggle(t.value)} name={t.label}>
-            {t.label}
+          <Chip key={t.value} selected={isPicked(t.value)} count={t.count} onClick={() => onToggle(t.value)} name={t.label ?? t.value} unit={unit}>
+            {t.label ?? t.value}
           </Chip>
         ))}
         {!f && !showAll && unused.length >= 3 && (
           <button type="button" onClick={() => setShowAll(true)}
             style={{ border: 'none', background: 'transparent', color: 'var(--text-secondary)', fontSize: '13px', cursor: 'pointer', padding: '6px 4px', textDecoration: 'underline' }}>
-            {unused.length} more with no products yet
+            {unused.length} more with no {unit}s yet
           </button>
         )}
         {f && !exact && filter.trim().length <= 60 && (
@@ -261,21 +262,93 @@ function TypePicker({ options, picked, onToggle }) {
         )}
       </div>
       {known.length === 0 && (
-        <div style={hintStyle}>No garment types yet. Type one above once products have a dress type, or add types in Settings.</div>
+        <div style={hintStyle}>{emptyHint ?? 'No garment types yet. Type one above once products have a dress type, or add types in Settings.'}</div>
       )}
-      {known.length > 0 && known.length <= 10 && (
+      {known.length <= 10 && (
         <input className="input-field" style={{ width: '100%', marginTop: '10px' }} value={filter}
-          onChange={e => setFilter(e.target.value)} placeholder="Another type…" aria-label="Add a garment type" />
+          onChange={e => setFilter(e.target.value)} placeholder={`Another ${noun}…`} aria-label={`Add a ${noun}`} />
       )}
     </div>
   );
 }
 
+const OUT_SCOPES = [
+  { value: 'PRODUCT', label: 'Products' },
+  { value: 'DRESS_TYPE', label: 'Types of garment' },
+  { value: 'VARIANT', label: 'Particular items (SKU)' },
+  { value: 'CATEGORY', label: 'Departments' }
+];
+
+/**
+ * What the offer leaves out.
+ *
+ * Folded behind one link until used: most offers leave nothing out, and a second picker open by
+ * default would double the height of the form for the one offer in ten that needs it.
+ */
+function ExclusionPicker({ outs, setOuts, labels, setLabels, options, open, setOpen }) {
+  const [outScope, setOutScope] = useState('PRODUCT');
+  const all = Object.entries(outs).flatMap(([scope, ids]) => ids.map(id => ({ scope, id })));
+  const toggleOut = (id, result) => {
+    if (result) setLabels(l => ({ ...l, [id]: { label: result.label, sub: result.sub } }));
+    setOuts(o => {
+      const list = o[outScope];
+      const exists = outScope === 'DRESS_TYPE'
+        ? list.find(x => x.trim().toLowerCase() === String(id).trim().toLowerCase())
+        : list.find(x => x === id);
+      return { ...o, [outScope]: exists ? list.filter(x => x !== exists) : [...list, id] };
+    });
+  };
+  const nameOf = ({ scope, id }) => scope === 'CATEGORY' ? (DEPARTMENT_LABEL[id] ?? id) : scope === 'DRESS_TYPE' ? id : (labels[id]?.label ?? 'Loading…');
+
+  if (!open && all.length === 0) {
+    return (
+      <button type="button" onClick={() => setOpen(true)}
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', border: 'none', background: 'transparent', color: 'var(--text-secondary)', fontSize: '13px', cursor: 'pointer', padding: '2px 0' }}>
+        <Plus size={14} /> Leave some things out
+      </button>
+    );
+  }
+
+  return (
+    <div style={{ borderRadius: '10px', border: '1px dashed var(--border-focus)', padding: '12px' }}>
+      <div style={{ fontSize: '13px', fontWeight: 500, marginBottom: '8px' }}>Except</div>
+      {all.length > 0 && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '10px' }}>
+          {all.map(x => (
+            <Chip key={`${x.scope}:${x.id}`} selected onRemove name={nameOf(x)}
+              onClick={() => setOuts(o => ({ ...o, [x.scope]: o[x.scope].filter(v => v !== x.id) }))}>
+              {nameOf(x)}
+            </Chip>
+          ))}
+        </div>
+      )}
+      <select className="input-field" aria-label="Leave out" style={{ width: '100%', marginBottom: '10px' }}
+        value={outScope} onChange={e => setOutScope(e.target.value)}>
+        {OUT_SCOPES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+      </select>
+      {outScope === 'DRESS_TYPE' && <TypePicker options={options?.dressTypes} picked={outs.DRESS_TYPE} onToggle={toggleOut} />}
+      {outScope === 'CATEGORY' && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+          {(options?.departments ?? []).map(d => (
+            <Chip key={d.value} selected={outs.CATEGORY.includes(d.value)} count={d.count} name={d.label} onClick={() => toggleOut(d.value)}>{d.label}</Chip>
+          ))}
+        </div>
+      )}
+      {(outScope === 'PRODUCT' || outScope === 'VARIANT') && (
+        // Chips are shown above for every kind at once, so the picker's own chips are not repeated.
+        <TargetPicker key={`out-${outScope}`} scope={outScope} picked={[]} selected={outs[outScope]} labels={labels} onToggle={toggleOut} />
+      )}
+    </div>
+  );
+}
+
+const DAY_LETTERS = [['Mon', 1], ['Tue', 2], ['Wed', 3], ['Thu', 4], ['Fri', 5], ['Sat', 6], ['Sun', 0]];
+
 // ── the editor ──────────────────────────────────────────────────────────────────────────────────
 
 export default function OfferEditor({ offer, onClose, onSave }) {
   const { data: options } = useOfferOptions();
-  const { data: detail } = useOffer(offer?.id && (offer.targets ?? []).some(t => t.scope === 'PRODUCT' || t.scope === 'VARIANT') && !offer.history ? offer.id : null);
+  const { data: detail } = useOffer(offer?.id && [...(offer.targets ?? []), ...(offer.exclusions ?? [])].some(t => t.scope === 'PRODUCT' || t.scope === 'VARIANT') && !offer.history ? offer.id : null);
 
   const initialScope = offer?.scope ?? 'ALL';
   const [form, setForm] = useState(() => ({
@@ -301,20 +374,46 @@ export default function OfferEditor({ offer, onClose, onSave }) {
     usageLimitPerCustomer: offer?.usageLimitPerCustomer != null ? String(offer.usageLimitPerCustomer) : '',
     priority: String(offer?.priority ?? 0),
     stackable: offer?.stackable ?? false,
+    // New amount-off offers default to per piece: "200 off each saree" is what nearly everyone means.
+    perPiece: offer ? !!offer.perPiece : true,
+    codeKind: offer?.uniqueCodes ? 'SINGLE' : 'SHARED',
+    forGroups: !!offer?.customerTags?.length,
+    customerTags: offer?.customerTags ?? [],
+    hoursOn: !!offer?.schedule,
+    days: offer?.schedule?.days?.length ? offer.schedule.days : [0, 1, 2, 3, 4, 5, 6],
+    hoursFrom: offer?.schedule?.from ?? '16:00',
+    hoursTo: offer?.schedule?.to ?? '19:00',
     changeNote: ''
   }));
+
+  /*
+   * The dates exactly as they were loaded, so an edit that never touched them sends the stored
+   * moments back unchanged. The inputs only hold minutes; re-sending them would drop the seconds an
+   * offer was created with, and its history would say "Start moved" when nobody moved it.
+   */
+  const loadedDates = useRef({
+    startsAt: toInputDate(offer?.startsAt ?? new Date()), startsTime: offer?.startsAt ? toInputTime(offer.startsAt) : '',
+    endsAt: endFieldsFrom(offer?.endsAt).date, endsTime: endFieldsFrom(offer?.endsAt).time
+  });
+
+  const [outs, setOuts] = useState(() => {
+    const o = { ...EMPTY_PICKS };
+    for (const e of offer?.exclusions ?? []) o[e.scope] = [...(o[e.scope] ?? []), e.refId];
+    return o;
+  });
+  const [outsOpen, setOutsOpen] = useState(false);
 
   const [picks, setPicks] = useState(() => ({
     ...EMPTY_PICKS,
     ...(initialScope !== 'ALL' ? { [initialScope]: (offer?.targets ?? []).map(t => t.refId) } : {})
   }));
   const [labels, setLabels] = useState(() =>
-    Object.fromEntries((offer?.targets ?? []).filter(t => t.label).map(t => [t.refId, { label: t.label }])));
+    Object.fromEntries([...(offer?.targets ?? []), ...(offer?.exclusions ?? [])].filter(t => t.label).map(t => [t.refId, { label: t.label }])));
 
   // Names for products and SKUs the offer already holds, once the offer page's copy has loaded.
   useEffect(() => {
     if (!detail?.targets) return;
-    setLabels(l => ({ ...Object.fromEntries(detail.targets.map(t => [t.refId, { label: t.label }])), ...l }));
+    setLabels(l => ({ ...Object.fromEntries([...detail.targets, ...(detail.exclusions ?? [])].map(t => [t.refId, { label: t.label }])), ...l }));
   }, [detail]);
 
   const hasExtras = !!(offer && (offer.channels?.length || offer.locationIds?.length || offer.usageLimit
@@ -356,13 +455,21 @@ export default function OfferEditor({ offer, onClose, onSave }) {
   };
 
   const channels = form.till && form.online ? [] : [form.till && 'POS', form.online && 'ONLINE'].filter(Boolean);
+  const exclusions = Object.entries(outs).flatMap(([s, ids]) => ids.map(refId => ({ scope: s, refId })));
+  const exclusionLabels = exclusions.map(e => e.scope === 'CATEGORY' ? (DEPARTMENT_LABEL[e.refId] ?? e.refId) : e.scope === 'DRESS_TYPE' ? e.refId : (labels[e.refId]?.label ?? 'an item'));
+  const uniqueCodes = form.trigger === 'CODE' && form.codeKind === 'SINGLE';
+  const customerTags = form.forGroups ? form.customerTags : [];
+  const everyDay = form.days.length === 7;
+  const schedule = form.hoursOn ? { ...(everyDay ? {} : { days: form.days }), from: form.hoursFrom, to: form.hoursTo } : null;
+  const amountOffItems = form.valueType === 'FIXED_AMOUNT' && form.level === 'LINE';
   const locationNames = form.locationIds.map(id => options?.locations?.find(l => l.id === id)?.name ?? (offer?.locations?.find(l => l.id === id)?.name)).filter(Boolean);
 
   const targetLabels = picked.map(id =>
     scope === 'CATEGORY' ? (DEPARTMENT_LABEL[id] ?? id) : scope === 'DRESS_TYPE' ? id : (labels[id]?.label ?? 'a product'));
 
   const summary = describeOffer({
-    ...form, scope, targetLabels, channels, locationNames,
+    ...form, scope, targetLabels, channels, locationNames, exclusionLabels, exclusionCount: exclusions.length,
+    customerTags, schedule, uniqueCodes, perPiece: amountOffItems && form.perPiece,
     minSubtotal: numberOrNull(form.minSubtotal), minQuantity: numberOrNull(form.minQuantity),
     usageLimit: numberOrNull(form.usageLimit), usageLimitPerCustomer: numberOrNull(form.usageLimitPerCustomer),
     startsAt: form.startsAt ? momentOf(form.startsAt, form.startsTime) : null,
@@ -378,16 +485,24 @@ export default function OfferEditor({ offer, onClose, onSave }) {
   ].filter(Boolean).join(' · ');
 
   const nothingSells = !form.till && !form.online;
+  const noDays = form.hoursOn && form.days.length === 0;
+  const noGroups = form.forGroups && form.customerTags.length === 0;
+  const blocked = nothingSells || noDays || noGroups;
 
   const submit = async () => {
-    if (inFlight.current || nothingSells) return;
+    if (inFlight.current || blocked) return;
     inFlight.current = true;
     setSaving(true);
     try {
       await onSave({
         name: form.name.trim(),
         trigger: form.trigger,
-        couponCode: form.trigger === 'CODE' ? form.couponCode.trim() : null,
+        couponCode: form.trigger === 'CODE' && !uniqueCodes ? form.couponCode.trim() : null,
+        uniqueCodes,
+        perPiece: amountOffItems && form.perPiece,
+        exclusions,
+        customerTags,
+        schedule,
         level: form.level,
         valueType: form.valueType,
         value: Number(form.value),
@@ -398,8 +513,12 @@ export default function OfferEditor({ offer, onClose, onSave }) {
         minQuantity: numberOrNull(form.minQuantity),
         channels,
         locationIds: form.locationIds,
-        startsAt: momentOf(form.startsAt, form.startsTime).toISOString(),
-        endsAt: form.endsAt
+        startsAt: offer && form.startsAt === loadedDates.current.startsAt && form.startsTime === loadedDates.current.startsTime
+          ? offer.startsAt
+          : momentOf(form.startsAt, form.startsTime).toISOString(),
+        endsAt: offer && form.endsAt === loadedDates.current.endsAt && form.endsTime === loadedDates.current.endsTime
+          ? (offer.endsAt ?? null)
+          : form.endsAt
           ? (form.endsTime
               ? momentOf(form.endsAt, form.endsTime).toISOString()
               : new Date(momentOf(form.endsAt, '').getTime() + 86400000).toISOString())
@@ -420,7 +539,7 @@ export default function OfferEditor({ offer, onClose, onSave }) {
   const covers = scope === 'ALL' ? 'the bill' : 'the items it covers';
   const valueHint =
     form.valueType === 'PERCENTAGE' ? 'e.g. 20 for 20% off'
-    : form.valueType === 'FIXED_AMOUNT' ? (wholeBill ? 'Taken off the bill once, shared across its lines.' : 'Taken once off each matching line, however many pieces are on it.')
+    : form.valueType === 'FIXED_AMOUNT' ? (wholeBill ? 'Taken off the bill once, shared across its lines.' : form.perPiece ? 'Taken off every piece it covers.' : 'Taken once off each matching line, however many pieces are on it.')
     : 'The price each piece sells at, e.g. 999.';
 
   return (
@@ -468,6 +587,14 @@ export default function OfferEditor({ offer, onClose, onSave }) {
               </Field>
             </div>
 
+            {amountOffItems && (
+              <Field label="Comes off">
+                <Segmented label="Comes off" value={form.perPiece ? 'PIECE' : 'LINE'}
+                  onChange={(v) => setForm(f => ({ ...f, perPiece: v === 'PIECE' }))}
+                  options={[{ value: 'PIECE', label: 'Every piece' }, { value: 'LINE', label: 'Each line once' }]} />
+              </Field>
+            )}
+
             {form.valueType === 'PERCENTAGE' && (
               <Field label="Never more than (optional)" hint="A cap in rupees, so a percentage cannot run away on a very large bill." htmlFor="offer-cap">
                 <input id="offer-cap" className="input-field" type="number" min="0" step="0.01" inputMode="decimal" style={{ width: '100%' }}
@@ -476,8 +603,11 @@ export default function OfferEditor({ offer, onClose, onSave }) {
             )}
           </Section>
 
-          {!wholeBill && (
-            <Section title="Applies to">
+          <Section title="Applies to">
+            {wholeBill && (
+              <p style={{ margin: '0 0 12px', fontSize: '14px', color: 'var(--text-secondary)' }}>Everything on the bill.</p>
+            )}
+            {!wholeBill && (<>
               <Field htmlFor="offer-scope">
                 <select id="offer-scope" aria-label="Applies to" className="input-field" style={{ width: '100%' }} value={form.scope} onChange={set('scope')}>
                   {SCOPE_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
@@ -505,19 +635,51 @@ export default function OfferEditor({ offer, onClose, onSave }) {
                   <TargetPicker key={scope} scope={scope} picked={picked} labels={labels} onToggle={toggle} />
                 </Field>
               )}
-            </Section>
-          )}
+            </>)}
+            <Field hint={exclusions.length ? (wholeBill ? 'Left-out items do not count towards the minimum, and take no share of the discount.' : 'Left-out items never get this offer.') : null}>
+              <ExclusionPicker outs={outs} setOuts={setOuts} labels={labels} setLabels={setLabels} options={options} open={outsOpen} setOpen={setOutsOpen} />
+            </Field>
+          </Section>
 
           <Section title="Who gets it">
             <Field>
               <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
                 <Segmented label="How it is given" value={form.trigger} onChange={(v) => setForm(f => ({ ...f, trigger: v }))}
                   options={[{ value: 'AUTOMATIC', label: 'Automatically' }, { value: 'CODE', label: 'With a code' }]} />
-                {form.trigger === 'CODE' && (
-                  <input className="input-field" aria-label="Code" style={{ flex: '1 1 160px', minWidth: 0, fontFamily: 'var(--font-mono)', textTransform: 'uppercase' }}
-                    value={form.couponCode} onChange={set('couponCode')} placeholder="DEEPAVALI" />
-                )}
               </div>
+            </Field>
+
+            {form.trigger === 'CODE' && (
+              <Field hint={uniqueCodes
+                ? 'Each code works once. Make them on the offer page after saving, then print or send them.'
+                : 'Anyone with the code can use it, as often as the limits allow.'}>
+                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+                  <Segmented label="Kind of code" value={form.codeKind} onChange={(v) => setForm(f => ({ ...f, codeKind: v }))}
+                    options={[{ value: 'SHARED', label: 'One shared code' }, { value: 'SINGLE', label: 'Single-use codes' }]} />
+                  {!uniqueCodes && (
+                    <input className="input-field" aria-label="Code" style={{ flex: '1 1 160px', minWidth: 0, fontFamily: 'var(--font-mono)', textTransform: 'uppercase' }}
+                      value={form.couponCode} onChange={set('couponCode')} placeholder="DEEPAVALI" />
+                  )}
+                </div>
+              </Field>
+            )}
+
+            <Field label="Customers" hint={form.forGroups
+              ? (noGroups ? 'Choose at least one group.' : 'Only customers in these groups get it. Put customers in groups on their page.')
+              : null}>
+              <Segmented label="Customers" value={form.forGroups ? 'GROUPS' : 'ALL'}
+                onChange={(v) => setForm(f => ({ ...f, forGroups: v === 'GROUPS' }))}
+                options={[{ value: 'ALL', label: 'Everyone' }, { value: 'GROUPS', label: 'Some groups' }]} />
+              {form.forGroups && (
+                <div style={{ marginTop: '10px' }}>
+                  <TypePicker options={options?.customerTags} picked={form.customerTags} unit="customer" noun="group"
+                    emptyHint="No customer groups yet. Type one, like VIP, and add customers to it from their page."
+                    onToggle={(tag) => setForm(f => {
+                      const exists = f.customerTags.find(t => t.trim().toLowerCase() === String(tag).trim().toLowerCase());
+                      return { ...f, customerTags: exists ? f.customerTags.filter(t => t !== exists) : [...f.customerTags, tag] };
+                    })} />
+                </div>
+              )}
             </Field>
 
             <div className="mobile-stack-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 16px' }}>
@@ -555,6 +717,29 @@ export default function OfferEditor({ offer, onClose, onSave }) {
                 </div>
               </Field>
             </div>
+
+            <Field hint={form.hoursOn ? (noDays ? 'Choose at least one day.' : 'In your shop’s own time. An end before the start runs past midnight.') : null}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px' }}>
+                <input type="checkbox" checked={form.hoursOn} onChange={set('hoursOn')} /> Only at certain hours
+              </label>
+              {form.hoursOn && (
+                <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <div role="group" aria-label="Days" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                    {DAY_LETTERS.map(([label, d]) => (
+                      <Chip key={d} selected={form.days.includes(d)} name={label}
+                        onClick={() => setForm(f => ({ ...f, days: f.days.includes(d) ? f.days.filter(x => x !== d) : [...f.days, d] }))}>
+                        {label}
+                      </Chip>
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <input className="input-field" type="time" aria-label="From" style={{ flex: 1, minWidth: 0 }} value={form.hoursFrom} onChange={set('hoursFrom')} />
+                    <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>to</span>
+                    <input className="input-field" type="time" aria-label="To" style={{ flex: 1, minWidth: 0 }} value={form.hoursTo} onChange={set('hoursTo')} />
+                  </div>
+                </div>
+              )}
+            </Field>
           </Section>
 
           <section style={{ borderTop: '1px solid var(--border-light)', paddingTop: '4px' }}>
@@ -640,7 +825,7 @@ export default function OfferEditor({ offer, onClose, onSave }) {
           </div>
           <div style={{ padding: '12px 24px 16px', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
             <button className="btn-secondary" onClick={onClose} disabled={saving}>Cancel</button>
-            <button className="btn-primary" onClick={submit} disabled={saving || nothingSells}
+            <button className="btn-primary" onClick={submit} disabled={saving || blocked}
               style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               {saving && <Loader2 size={16} className="animate-spin" />}
               {saving ? 'Saving...' : offer ? 'Save changes' : 'Create offer'}

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Plus, Play, Pause, Archive, Tag, Search, CalendarClock, Store } from 'lucide-react';
-import { useOffers, useCreateOffer, useUpdateOffer, useSetOfferStatus } from '../hooks/useOffers';
+import { Link, useNavigate } from 'react-router-dom';
+import { Plus, Play, Pause, Archive, Tag, Search, CalendarClock, Store, CopyPlus, SlidersHorizontal } from 'lucide-react';
+import { useOffers, useCreateOffer, useUpdateOffer, useSetOfferStatus, useDuplicateOffer } from '../hooks/useOffers';
+import TillRulesDialog from '../components/TillRulesDialog';
 import { usePermission } from '../hooks/usePermission';
 import PageLoader from '../components/PageLoader';
 import ConfirmModal from '../components/ConfirmModal';
@@ -74,6 +75,9 @@ export default function Offers() {
   const createMutation = useCreateOffer();
   const updateMutation = useUpdateOffer();
   const statusMutation = useSetOfferStatus();
+  const duplicateMutation = useDuplicateOffer();
+  const navigate = useNavigate();
+  const [tillRules, setTillRules] = useState(false);
 
   if (isLoading) return <PageLoader text="LOADING OFFERS..." />;
 
@@ -88,12 +92,20 @@ export default function Offers() {
             Write a discount once. It applies wherever you sell.
           </p>
         </div>
-        {can('offer:create') && (
-          <button className="btn-primary" onClick={() => setEditing({})}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Plus size={18} /> New offer
-          </button>
-        )}
+        <div style={{ display: 'flex', gap: '8px' }}>
+          {can('offer:manual_discount') || can('offer:settings') ? (
+            <button className="btn-secondary" onClick={() => setTillRules(true)} title="How much the till may take off by hand"
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}>
+              <SlidersHorizontal size={16} /> Till rules
+            </button>
+          ) : null}
+          {can('offer:create') && (
+            <button className="btn-primary" onClick={() => setEditing({})}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, justifyContent: 'center', whiteSpace: 'nowrap' }}>
+              <Plus size={18} /> New offer
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="mobile-col" style={{ display: 'flex', gap: '12px', marginBottom: '20px', alignItems: 'center' }}>
@@ -206,6 +218,18 @@ export default function Offers() {
                             onClick={() => setEditing(offer)}>Edit</button>
                         </>
                       )}
+                      {can('offer:create') && (
+                        <button className="btn-secondary" title="Copy into a new draft" aria-label={`Duplicate ${offer.name}`}
+                          style={{ padding: '6px 10px', marginRight: '6px' }} disabled={duplicateMutation.isPending}
+                          onClick={async () => {
+                            try {
+                              const copy = await duplicateMutation.mutateAsync(offer.id);
+                              navigate(`/offers/${copy.id}`);
+                            } catch { /* shown by the mutation */ }
+                          }}>
+                          <CopyPlus size={15} />
+                        </button>
+                      )}
                       {offer.status !== 'ARCHIVED' && (can('offer:publish_external') || offer.shopify) && (
                         <button className="btn-secondary" title="Shopify"
                           aria-label={`${offer.name} on Shopify`}
@@ -241,6 +265,7 @@ export default function Offers() {
       )}
 
       {onShopify && <OfferShopifyPanel offer={onShopify} onClose={() => setOnShopify(null)} />}
+      {tillRules && <TillRulesDialog canEdit={can('offer:settings')} onClose={() => setTillRules(false)} />}
 
       <ConfirmModal
         isOpen={!!retiring}

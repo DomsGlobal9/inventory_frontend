@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Play, Pause, Archive, CalendarClock, Store, Pencil, AlertTriangle } from 'lucide-react';
-import { useOffer, useUpdateOffer, useSetOfferStatus } from '../hooks/useOffers';
+import { ArrowLeft, Play, Pause, Archive, CalendarClock, Store, Pencil, AlertTriangle, CopyPlus } from 'lucide-react';
+import { useOffer, useUpdateOffer, useSetOfferStatus, useDuplicateOffer } from '../hooks/useOffers';
 import { usePermission } from '../hooks/usePermission';
 import { formatINRExact } from '../utils/formatUtils';
-import { describeOffer, offerSummaryInput } from '../utils/offerSummary';
+import { describeOffer, offerSummaryInput, schedulePhrase } from '../utils/offerSummary';
+import OfferCodesPanel from '../components/OfferCodesPanel';
 import PageLoader from '../components/PageLoader';
 import ConfirmModal from '../components/ConfirmModal';
 import OfferEditor from '../components/OfferEditor';
@@ -58,6 +59,7 @@ export default function OfferDetail() {
   const { data: offer, isLoading, error } = useOffer(id);
   const updateMutation = useUpdateOffer();
   const statusMutation = useSetOfferStatus();
+  const duplicateMutation = useDuplicateOffer();
   const [editing, setEditing] = useState(false);
   const [retiring, setRetiring] = useState(false);
   const [onShopify, setOnShopify] = useState(false);
@@ -79,8 +81,17 @@ export default function OfferDetail() {
   const channels = offer.channels?.length ? offer.channels.map(c => ({ POS: 'Till', ONLINE: 'Online store', MANUAL: 'Manual orders', MARKETPLACE: 'Marketplaces' }[c] ?? c)) : null;
   const missingTargets = (offer.targets ?? []).filter(t => t.missing).length;
 
+  // To the copy's own page, where its dates can be set before it is started.
+  const duplicate = async () => {
+    try {
+      const copy = await duplicateMutation.mutateAsync(offer.id);
+      navigate(`/offers/${copy.id}`);
+    } catch { /* the mutation already said why */ }
+  };
+
   const conditions = [
-    offer.trigger === 'CODE' && `Code ${offer.couponCode}`,
+    offer.trigger === 'CODE' && (offer.uniqueCodes ? 'A single-use code' : `Code ${offer.couponCode}`),
+    offer.customerTags?.length > 0 && `Customers in ${offer.customerTags.join(', ')}`,
     offer.minSubtotal && `Spend ${formatINRExact(Number(offer.minSubtotal))}${offer.scope === 'ALL' ? '' : ' on those items'}`,
     offer.minQuantity && `${offer.minQuantity}+ ${offer.scope === 'ALL' ? 'items' : 'of those items'}`
   ].filter(Boolean);
@@ -109,6 +120,12 @@ export default function OfferDetail() {
           </div>
         </div>
 
+        {!live && can('offer:create') && (
+          <button className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '6px' }} disabled={duplicateMutation.isPending}
+            onClick={duplicate}>
+            <CopyPlus size={15} /> Duplicate
+          </button>
+        )}
         {live && (
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             {can('offer:update') && (offer.status === 'ACTIVE' ? (
@@ -127,9 +144,15 @@ export default function OfferDetail() {
                 <Pencil size={15} /> Edit
               </button>
             )}
+            {can('offer:create') && (
+              <button className="btn-secondary" title="Copy into a new draft" aria-label="Duplicate this offer"
+                disabled={duplicateMutation.isPending} onClick={duplicate}>
+                <CopyPlus size={15} />
+              </button>
+            )}
             {(can('offer:publish_external') || offer.shopify) && (
-              <button className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '6px' }} onClick={() => setOnShopify(true)}>
-                <Store size={15} /> Shopify
+              <button className="btn-secondary" aria-label="Shopify" title="Shopify" style={{ display: 'flex', alignItems: 'center', gap: '6px' }} onClick={() => setOnShopify(true)}>
+                <Store size={15} /><span className="mobile-hide">Shopify</span>
               </button>
             )}
             {can('offer:archive') && (
@@ -172,6 +195,18 @@ export default function OfferDetail() {
                 </span>
               )}
           </Row>
+          {offer.exclusions?.length > 0 && (
+            <Row label="Except">
+              <span style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                {offer.exclusions.slice(0, 8).map(t => (
+                  <span key={`${t.scope}:${t.refId}`} style={{ padding: '2px 8px', borderRadius: '999px', background: 'var(--bg-input)', fontSize: '13px', color: t.missing ? 'var(--text-muted)' : undefined }}>
+                    {t.label}
+                  </span>
+                ))}
+                {offer.exclusions.length > 8 && <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>+{offer.exclusions.length - 8} more</span>}
+              </span>
+            </Row>
+          )}
           <Row label="Needs">{conditions.length ? conditions.join(' · ') : 'Nothing'}</Row>
           <Row label="Sells at">
             {channels ? channels.join(', ') : 'Till and online'}
@@ -182,7 +217,10 @@ export default function OfferDetail() {
             )}
           </Row>
           <Row label="Starts">{dateTime(offer.startsAt)}</Row>
-          <Row label="Ends">{endText(offer.endsAt)}</Row>
+          <Row label="Ends">
+            {endText(offer.endsAt)}
+            {offer.schedule && <div style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>Only {schedulePhrase(offer.schedule)}</div>}
+          </Row>
           <Row label="Limits">
             {[offer.usageLimit && `${offer.usageLimit} uses in total`, offer.usageLimitPerCustomer && `${offer.usageLimitPerCustomer} per customer`].filter(Boolean).join(' · ') || 'None'}
             <div style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>
@@ -202,6 +240,8 @@ export default function OfferDetail() {
         <Stat label="Sales with this offer" value={formatINRExact(Number(stats.salesMade ?? 0))} note="Bill totals, after discount" />
         <Stat label="Customers" value={stats.customers ?? 0} />
       </div>
+
+      {offer.uniqueCodes && <OfferCodesPanel offer={offer} canEdit={can('offer:update')} />}
 
       {/* Orders */}
       <div className="card" style={{ padding: 0, overflow: 'hidden', marginBottom: '16px' }}>
@@ -225,7 +265,10 @@ export default function OfferDetail() {
                       {can('sales_order:view')
                         ? <Link to={`/orders/${u.orderId}`} style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{u.orderNumber ?? 'Order'}</Link>
                         : <span style={{ fontWeight: 500 }}>{u.orderNumber ?? 'Order'}</span>}
-                      <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{u.channel === 'ONLINE' ? 'Online' : u.channel === 'POS' ? 'Till' : (u.channel ?? '')}</div>
+                      <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                        {u.channel === 'ONLINE' ? 'Online' : u.channel === 'POS' ? 'Till' : (u.channel ?? '')}
+                        {u.code && <span style={{ fontFamily: 'var(--font-mono)' }}> · {u.code}</span>}
+                      </div>
                     </td>
                     <td style={{ padding: '12px 20px' }}>{u.customerName || <span style={{ color: 'var(--text-muted)' }}>Walk-in</span>}</td>
                     <td style={{ padding: '12px 20px', fontSize: '13px', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>{dateTime(u.createdAt)}</td>

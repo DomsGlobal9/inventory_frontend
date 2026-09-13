@@ -100,6 +100,63 @@ export const useSetOfferStatus = () => {
   });
 };
 
+/** A draft copy of an offer. The caller decides where to go with it. */
+export const useDuplicateOffer = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id) => api.post(`/offers/${id}/duplicate`).then(payload),
+    onSuccess: () => {
+      refresh(queryClient);
+      toast.success('Copied as a draft. Check the dates, then start it.');
+    },
+    onError: showError('Could not copy that offer.')
+  });
+};
+
+// ── Single-use codes ───────────────────────────────────────────────────────────────────────────
+
+export const useOfferCodes = (id, { status, q, skip = 0, take = 50 } = {}, enabled = true) =>
+  useQuery({
+    queryKey: ['offers', 'codes', id, status, q, skip, take],
+    queryFn: () => api.get(`/offers/${id}/codes`, { params: { status, q: q || undefined, skip, take } }).then(payload),
+    enabled: !!id && enabled,
+    placeholderData: (previous) => previous
+  });
+
+/** Every code, for copying or saving as a file. Asked for when needed, never kept. */
+export const fetchAllOfferCodes = (id, status) =>
+  api.get(`/offers/${id}/codes`, { params: { all: 1, status } }).then(payload);
+
+export const useMakeOfferCodes = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, prefix, count }) => api.post(`/offers/${id}/codes`, { prefix, count }).then(payload),
+    onSuccess: (data, vars) => {
+      queryClient.invalidateQueries({ queryKey: ['offers', 'codes', vars.id] });
+      refresh(queryClient, vars.id);
+      toast.success(`${data.made} code${data.made === 1 ? '' : 's'} made.`);
+    },
+    onError: showError('Could not make the codes.')
+  });
+};
+
+// ── Till rules ─────────────────────────────────────────────────────────────────────────────────
+
+export const useOfferSettings = () =>
+  useQuery({ queryKey: ['offers', 'settings'], queryFn: () => api.get('/offers/settings').then(payload) });
+
+export const useSaveOfferSettings = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data) => api.put('/offers/settings', data).then(payload),
+    onSuccess: (data) => {
+      queryClient.setQueryData(['offers', 'settings'], data);
+      toast.success(data.manualDiscountMaxPercent == null ? 'No limit on discounts by hand.' : `The till may now take off up to ${data.manualDiscountMaxPercent}% by hand.`);
+    },
+    onError: showError('Could not save the till rules.')
+  });
+};
+
 // ── Shopify ─────────────────────────────────────────────────────────────────────────────────────
 
 /**

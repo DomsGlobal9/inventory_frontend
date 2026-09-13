@@ -8,6 +8,7 @@ import { usePermission } from '../../hooks/usePermission';
 import { formatINR } from '../../utils/formatUtils';
 import toast from 'react-hot-toast';
 import Select from '../../components/common/Select';
+import CustomerGroupsCard from '../../components/CustomerGroupsCard';
 
 export default function CustomerDetail() {
   const { id } = useParams();
@@ -123,10 +124,10 @@ export default function CustomerDetail() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '32px' }}>
+      <div className="mobile-stack-grid" style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '32px' }}>
         
-        {/* Left Sidebar: CRM Details */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        {/* Left Sidebar: CRM Details. minWidth 0 so a long email cannot widen the column past a phone. */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', minWidth: 0 }}>
           <div className="card" style={{ padding: '24px' }}>
             <h3 style={{ margin: '0 0 16px', fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)' }}>Contact Info</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -140,6 +141,8 @@ export default function CustomerDetail() {
               </div>
             </div>
           </div>
+
+          <CustomerGroupsCard customer={customer} canEdit={can('customer:update')} />
 
           <div className="card" style={{ padding: '24px' }}>
             <h3 style={{ margin: '0 0 16px', fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)' }}>Company Details</h3>
@@ -167,8 +170,8 @@ export default function CustomerDetail() {
           </div>
         </div>
 
-        {/* Right Content: Tabs / Orders */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        {/* Right Content: Tabs / Orders. minWidth 0, or the orders table sizes the whole grid to its own width. */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', minWidth: 0 }}>
           
           <div style={{ display: 'flex', borderBottom: '1px solid var(--border-light)', gap: '32px' }}>
             <button 

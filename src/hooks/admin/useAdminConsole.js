@@ -32,6 +32,16 @@ export const useAdminAuditLog = () => {
   });
 };
 
+// Offers and Shopify across every shop. Polled like the errors screen: a copy failing or an order
+// parking is something to notice while the page is open, not on the next visit.
+export const useAdminOffersHealth = () => {
+  return useQuery({
+    queryKey: ['admin', 'offers-health'],
+    queryFn: async () => (await api.get('/admin/offers-health')).data,
+    refetchInterval: 60000
+  });
+};
+
 export const useAdminClientErrors = () => {
   return useQuery({
     queryKey: ['admin', 'client-errors'],

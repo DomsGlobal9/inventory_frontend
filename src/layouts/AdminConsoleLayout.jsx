@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { Building2, Users, Rocket, HeartPulse, ScrollText, Bug, LifeBuoy, LogOut, ShieldCheck, Sun, Moon, Inbox, Menu, X } from 'lucide-react';
+import { Building2, Users, Rocket, HeartPulse, ScrollText, Bug, LifeBuoy, LogOut, ShieldCheck, Sun, Moon, Inbox, Menu, X, BadgePercent } from 'lucide-react';
 import { usePlatformAdmin } from '../context/PlatformAdminContext';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { name: 'Leads', path: '/platformconsole/leads', icon: Inbox },
   { name: 'Onboarding', path: '/platformconsole/onboarding', icon: Rocket },
   { name: 'Inventory Health', path: '/platformconsole/health', icon: HeartPulse },
+  { name: 'Offers & Shopify', path: '/platformconsole/offers-health', icon: BadgePercent },
   { name: 'Errors', path: '/platformconsole/errors', icon: Bug },
   { name: 'Support', path: '/platformconsole/support', icon: LifeBuoy },
   { name: 'Audit Log', path: '/platformconsole/audit-log', icon: ScrollText },

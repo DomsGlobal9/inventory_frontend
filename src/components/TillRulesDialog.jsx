@@ -62,7 +62,7 @@ export default function TillRulesDialog({ onClose, canEdit }) {
               <p style={{ fontSize: '12px', color: invalid ? 'var(--accent-danger)' : 'var(--text-secondary)', margin: '8px 0 0', lineHeight: 1.5 }}>
                 {invalid
                   ? 'Enter a percentage above 0 and up to 100, or leave it empty for no limit.'
-                  : 'Anything more needs someone allowed to take off more than the till limit, usually a manager. Every discount by hand still needs a reason, and records who gave it.'}
+                  : 'Money taken off items and off the bill counts together. Anything more needs someone allowed to take off more than the till limit, usually a manager. Every discount by hand still needs a reason, and records who gave it.'}
               </p>
               {!canEdit && <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '10px 0 0' }}>Only the shop owner can change this.</p>}
             </>

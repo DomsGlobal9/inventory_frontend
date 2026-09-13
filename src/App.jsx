@@ -17,6 +17,7 @@ import Offers from './pages/Offers';
 import OfferDetail from './pages/OfferDetail';
 import Signup from './pages/Signup';
 import InventoryHealthPage from './pages/admin/InventoryHealthPage';
+import OffersHealthPage from './pages/admin/OffersHealthPage';
 import AuditLogPage from './pages/admin/AuditLogPage';
 import ClientErrorsPage from './pages/admin/ClientErrorsPage';
 import SupportTicketsPage from './pages/admin/SupportTicketsPage';
@@ -79,6 +80,7 @@ function App() {
               <Route path="leads" element={<LeadsPage />} />
               <Route path="onboarding" element={<OnboardingPage />} />
               <Route path="health" element={<InventoryHealthPage />} />
+              <Route path="offers-health" element={<OffersHealthPage />} />
               <Route path="errors" element={<ClientErrorsPage />} />
               <Route path="support" element={<SupportTicketsPage />} />
               <Route path="audit-log" element={<AuditLogPage />} />

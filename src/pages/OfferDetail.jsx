@@ -236,7 +236,7 @@ export default function OfferDetail() {
           orders, which are what somebody opened this page to see, a whole screen down. */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px', marginBottom: '16px' }}>
         <Stat label="Times used" value={`${stats.timesUsed ?? 0}${offer.usageLimit ? ` / ${offer.usageLimit}` : ''}`}
-          note={stats.givenBack ? `${stats.givenBack} given back by cancelled orders` : (stats.usesLeft != null ? `${stats.usesLeft} left` : null)} />
+          note={stats.givenBack ? `${stats.givenBack} given back by cancelled or deleted orders` : (stats.usesLeft != null ? `${stats.usesLeft} left` : null)} />
         <Stat label="Discount given" value={formatINRExact(Number(stats.totalDiscounted ?? 0))} />
         <Stat label="Sales with this offer" value={formatINRExact(Number(stats.salesMade ?? 0))} note="Bill totals, after discount" />
         <Stat label="Customers" value={stats.customers ?? 0} />

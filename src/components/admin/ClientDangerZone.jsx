@@ -67,6 +67,9 @@ function DeleteDialog({ clientId, preview, busy, onCancel, onConfirm }) {
               {row('Stock movements', preview.transactions)}
               {row('Locations', preview.locations)}
               {row('Suppliers', preview.suppliers)}
+              {row('Offers', preview.offers ?? 0)}
+              {row('Times an offer was used', preview.offerUses ?? 0)}
+              {row('Shopify orders waiting', preview.shopifyOrdersWaiting ?? 0)}
             </>
           ) : (
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center', fontSize: '13px', color: 'var(--text-muted)' }}>

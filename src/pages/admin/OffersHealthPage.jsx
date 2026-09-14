@@ -76,7 +76,8 @@ export default function OffersHealthPage() {
             <table style={{ width: '100%', minWidth: '860px', borderCollapse: 'collapse', fontSize: '13px' }}>
               <thead>
                 <tr style={{ background: 'var(--bg-input)' }}>
-                  {['Client', 'Offers', 'Last 30 days', 'Till limit', 'Shopify', 'Needs attention'].map(h => (
+                  {/* Needs attention second: on a phone the table scrolls sideways, and this is the column to see without scrolling. */}
+                  {['Client', 'Needs attention', 'Offers', 'Last 30 days', 'Till limit', 'Shopify'].map(h => (
                     <th key={h} style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
                   ))}
                 </tr>
@@ -94,11 +95,23 @@ export default function OffersHealthPage() {
                       onMouseOver={(e) => { e.currentTarget.style.background = 'var(--bg-hover)'; }}
                       onMouseOut={(e) => { e.currentTarget.style.background = 'transparent'; }}>
                       <td style={{ padding: '10px 16px', fontFamily: 'monospace', color: 'var(--accent-gold)' }}>{c.clientId}</td>
+                      <td style={{ padding: '10px 16px', minWidth: '220px' }}>
+                        {c.attention.length === 0 ? (
+                          <span style={{ color: 'var(--accent-success)' }}>Nothing</span>
+                        ) : (
+                          <ul style={{ margin: 0, paddingLeft: '16px', color: 'var(--accent-danger)', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                            {c.attention.map(a => <li key={a}>{a}</li>)}
+                            {c.rolesMissingOfferPermissions.length > 0 && (
+                              <li style={{ listStyle: 'none', marginLeft: '-16px', color: 'var(--text-secondary)', fontSize: '12px' }}>{c.rolesMissingOfferPermissions.join('; ')}</li>
+                            )}
+                          </ul>
+                        )}
+                      </td>
                       <td style={{ padding: '10px 16px', color: 'var(--text-secondary)' }}>
                         {c.offers.total === 0 ? <span style={{ color: 'var(--text-muted)' }}>None</span> : (
                           <>
                             <div style={{ color: 'var(--text-primary)' }}>{c.offers.running} running</div>
-                            <div style={{ fontSize: '12px' }}>{[c.offers.scheduled && `${c.offers.scheduled} starting later`, c.offers.waiting && `${c.offers.waiting} draft or paused`].filter(Boolean).join(' · ') || `${c.offers.total} in all`}</div>
+                            <div style={{ fontSize: '12px' }}>{[c.offers.scheduled && `${c.offers.scheduled} starting later`, c.offers.waiting && `${c.offers.waiting} draft or paused`].filter(Boolean).join(' · ')}</div>
                           </>
                         )}
                       </td>
@@ -121,18 +134,6 @@ export default function OffersHealthPage() {
                               </div>
                             )}
                           </>
-                        )}
-                      </td>
-                      <td style={{ padding: '10px 16px' }}>
-                        {c.attention.length === 0 ? (
-                          <span style={{ color: 'var(--accent-success)' }}>Nothing</span>
-                        ) : (
-                          <ul style={{ margin: 0, paddingLeft: '16px', color: 'var(--accent-danger)', display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                            {c.attention.map(a => <li key={a}>{a}</li>)}
-                            {c.rolesMissingOfferPermissions.length > 0 && (
-                              <li style={{ listStyle: 'none', marginLeft: '-16px', color: 'var(--text-secondary)', fontSize: '12px' }}>{c.rolesMissingOfferPermissions.join('; ')}</li>
-                            )}
-                          </ul>
                         )}
                       </td>
                     </tr>

@@ -46,21 +46,53 @@ export default function TopNav({ onMenuClick }) {
       if (showNotification) setShowNotification(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    // A phone does not always send mousedown -- a finger that scrolls the page sends only touch
+    // and scroll events -- so on a phone the popup stood over the page's heading however much the
+    // person moved. Any touch or scroll outside it now puts it away too.
+    document.addEventListener('touchstart', handleClickOutside, { passive: true });
+    const handleScroll = () => { if (showNotification) setShowNotification(false); };
+    window.addEventListener('scroll', handleScroll, { passive: true, capture: true });
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+      window.removeEventListener('scroll', handleScroll, { capture: true });
+    };
   }, [isAlertMenuOpen, showNotification]);
 
-  // And a backstop, for the person who never clicks anywhere near it. Ten seconds is long
-  // enough to read a two-line notice and act on it; the bell keeps its unread badge either
-  // way, so nothing is actually lost when this goes.
+  // And a backstop, for the person who never touches anything. Long enough to read a two-line
+  // notice; shorter on a phone, where the popup covers the top of the page rather than a corner of
+  // it. The bell keeps its unread badge either way, so nothing is lost when this goes.
   useEffect(() => {
     if (!showNotification) return;
-    const timer = setTimeout(() => setShowNotification(false), 10000);
+    const onPhone = window.matchMedia?.('(max-width: 900px)').matches;
+    const timer = setTimeout(() => setShowNotification(false), onPhone ? 4000 : 8000);
     return () => clearTimeout(timer);
   }, [showNotification]);
 
+  /*
+   * Announced once, not on every page.
+   *
+   * The count this compares against starts at zero whenever the app loads, so with any unread
+   * alerts at all the popup came back on every refresh and every sign-in -- for alerts the person
+   * had already been told about. The highest count announced is kept for the browser session, and
+   * only a count above it is news.
+   */
+  const ALERT_ANNOUNCED_KEY = 'scaleezy_alerts_announced';
+  const announcedCount = () => {
+    try { return Number(sessionStorage.getItem(ALERT_ANNOUNCED_KEY)) || 0; } catch { return 0; }
+  };
+
   useEffect(() => {
-    const currentUnread = alertData?.unreadCount || 0;
-    if (currentUnread > prevUnreadCountRef.current) {
+    // Nothing is known until the alerts have loaded. Reading "no count yet" as zero reset the
+    // remembered number on every page load, and the real count arriving a moment later looked new.
+    if (alertData?.unreadCount == null) return;
+    const currentUnread = alertData.unreadCount;
+    // Read alerts lower the count; remember the lower number so the next new one is announced.
+    if (currentUnread < announcedCount()) {
+      try { sessionStorage.setItem(ALERT_ANNOUNCED_KEY, String(currentUnread)); } catch { /* storage refused */ }
+    }
+    if (currentUnread > prevUnreadCountRef.current && currentUnread > announcedCount()) {
+      try { sessionStorage.setItem(ALERT_ANNOUNCED_KEY, String(currentUnread)); } catch { /* storage refused */ }
       // New alert came in!
       setShowNotification(true);
       
@@ -84,8 +116,8 @@ export default function TopNav({ onMenuClick }) {
         audio.play().catch(playBeep);
       } catch(e) {}
       
-      // It stands until dismissed, clicked away from, or ten seconds pass -- see the
-      // effects above for why it cannot be allowed to stand indefinitely.
+      // It stands until dismissed, touched or scrolled away from, or a few seconds pass -- see
+      // the effects above for why it cannot be allowed to stand indefinitely.
     }
     prevUnreadCountRef.current = currentUnread;
   }, [alertData?.unreadCount]);

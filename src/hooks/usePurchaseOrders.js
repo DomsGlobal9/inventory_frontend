@@ -100,9 +100,9 @@ export const useReceiveGoods = () => {
     // Answers with the order AND the goods receipt the delivery produced, so the screen can
     // offer the receipt PDF the moment it exists. `requestKey` is made once per press of
     // Confirm Receipt: a double click or a retry sends the same one and gets the same receipt.
-    mutationFn: async ({ id, receipts, locationId, supplierReference, notes, requestKey }) => {
+    mutationFn: async ({ id, receipts, locationId, receivedByName, receivedByPhone, supplierReference, notes, requestKey }) => {
       const response = await api.post(`/purchase-orders/${id}/receive`, {
-        receipts, locationId, supplierReference, notes, requestKey
+        receipts, locationId, receivedByName, receivedByPhone, supplierReference, notes, requestKey
       });
       return { po: response.data, receipt: response.receipt, duplicate: !!response.duplicate };
     },

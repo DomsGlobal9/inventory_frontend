@@ -56,7 +56,8 @@ const GoodsReceiptPDF = ({ receipt, order, shop = {}, logo = null }) => {
           <View style={s.box}>
             <Text style={s.boxTitle}>Received into</Text>
             <Text style={s.boxName}>{location}</Text>
-            <Text style={s.boxLine}>Counted by {receipt.receivedByName || '—'}</Text>
+            {/* The receiver as typed at the door -- never the login that entered the receipt. */}
+            <Text style={s.boxLine}>Received by {receipt.receivedByName || '—'}{receipt.receivedByPhone ? `  ·  ${receipt.receivedByPhone}` : ''}</Text>
             <Text style={s.boxLine}>Order placed {printDate(order.createdAt, true)}</Text>
           </View>
         </View>

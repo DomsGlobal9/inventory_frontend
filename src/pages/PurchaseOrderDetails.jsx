@@ -49,6 +49,10 @@ export default function PurchaseOrderDetails() {
   const [receiveLocationId, setReceiveLocationId] = useState('');
   const [supplierReference, setSupplierReference] = useState('');
   const [receiveNotes, setReceiveNotes] = useState('');
+  // Who took the goods at the door -- typed, because the login entering the receipt is often not
+  // the person who signed for the boxes, and the receipt names the one who did.
+  const [receiverName, setReceiverName] = useState('');
+  const [receiverPhone, setReceiverPhone] = useState('');
   const [lastReceipt, setLastReceipt] = useState(null);
   const [printing, setPrinting] = useState(null);
   // One key per delivery being entered. A double click, or pressing again after a slow answer,
@@ -223,6 +227,11 @@ This actually sends it. Once it goes, the order is marked as Sent and you can st
 
     if (!receiveLocationId) return toast.error('Choose where these goods are going.');
 
+    if (receiverName.trim().length < 2) {
+      document.getElementById('grn-receiver')?.focus();
+      return toast.error('Enter the name of the person who received the goods.');
+    }
+
     // A double click reaches here twice before the button can disable itself. The server
     // already turns the second into the same receipt, but each one also added the quantities to
     // the screen straight away -- so the line read "received 8" for a delivery of 4 until the
@@ -234,6 +243,8 @@ This actually sends it. Once it goes, the order is marked as Sent and you can st
       const result = await receiveGoods.mutateAsync({
         id, receipts,
         locationId: receiveLocationId,
+        receivedByName: receiverName.trim(),
+        receivedByPhone: receiverPhone.trim() || null,
         supplierReference: supplierReference.trim() || null,
         notes: receiveNotes.trim() || null,
         requestKey: requestKey.current
@@ -241,6 +252,8 @@ This actually sends it. Once it goes, the order is marked as Sent and you can st
       // The toast is handled by the hook now
       setLastReceipt(result?.receipt || null);
       requestKey.current = newKey();
+      // The receiver is kept: the same person usually takes the next delivery too. The invoice
+      // number and note belong to this one delivery and are cleared.
       setSupplierReference('');
       setReceiveNotes('');
       // Reset receiving quantities
@@ -693,7 +706,7 @@ This actually sends it. Once it goes, the order is marked as Sent and you can st
                         </div>
                         <div style={{ fontSize: '12.5px', color: 'var(--text-secondary)', marginTop: '2px', overflowWrap: 'anywhere' }}>
                           {new Date(receipt.receivedAt).toLocaleString()}
-                          {receipt.receivedByName ? ` · by ${receipt.receivedByName}` : ''}
+                          {receipt.receivedByName ? ` · received by ${receipt.receivedByName}` : ''}
                           {receipt.supplierReference ? ` · invoice ${receipt.supplierReference}` : ''}
                         </div>
                       </div>
@@ -755,6 +768,35 @@ This actually sends it. Once it goes, the order is marked as Sent and you can st
                   <option key={l.id} value={l.id}>{l.name}{l.code ? ` (${l.code})` : ''}</option>
                 ))}
               </Select>
+
+              <label className="form-label" htmlFor="grn-receiver" style={{ display: 'block', fontSize: '12.5px', marginBottom: '6px' }}>
+                Received by <span style={{ color: 'var(--accent-danger)' }} aria-hidden="true">*</span>
+              </label>
+              <input
+                id="grn-receiver"
+                className="input-field"
+                value={receiverName}
+                maxLength={80}
+                required
+                aria-required="true"
+                autoComplete="name"
+                onChange={e => setReceiverName(e.target.value)}
+                placeholder="Name of the person who took the goods"
+                style={{ width: '100%', marginBottom: '12px' }}
+              />
+
+              <label className="form-label" htmlFor="grn-receiver-phone" style={{ display: 'block', fontSize: '12.5px', marginBottom: '6px' }}>Receiver's phone (optional)</label>
+              <input
+                id="grn-receiver-phone"
+                className="input-field"
+                type="tel"
+                inputMode="tel"
+                value={receiverPhone}
+                maxLength={20}
+                onChange={e => setReceiverPhone(e.target.value)}
+                placeholder="e.g. +91 98765 43210"
+                style={{ width: '100%', marginBottom: '12px' }}
+              />
 
               <label className="form-label" htmlFor="grn-reference" style={{ display: 'block', fontSize: '12.5px', marginBottom: '6px' }}>Supplier invoice / challan no. (optional)</label>
               <input

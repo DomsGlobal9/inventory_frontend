@@ -19,7 +19,7 @@ export const RULE = '#e5e7eb';
 export const ACCENT = '#b8860b';
 
 export const pdfStyles = StyleSheet.create({
-  page: { paddingTop: 36, paddingBottom: 64, paddingHorizontal: 40, fontFamily: 'Helvetica', fontSize: 9.5, color: INK },
+  page: { paddingTop: 36, paddingBottom: 80, paddingHorizontal: 40, fontFamily: 'Helvetica', fontSize: 9.5, color: INK },
   letterhead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', paddingBottom: 14, borderBottomWidth: 2, borderBottomColor: ACCENT, marginBottom: 18 },
   shop: { flexDirection: 'row', alignItems: 'flex-start', flexGrow: 1, flexShrink: 1, paddingRight: 16 },
   logo: { width: 60, height: 60, objectFit: 'contain', marginRight: 12 },
@@ -59,8 +59,11 @@ export const pdfStyles = StyleSheet.create({
   signature: { flexGrow: 1, flexBasis: 0, borderTopWidth: 0.75, borderTopColor: INK, paddingTop: 4, marginRight: 24 },
   signatureLabel: { fontSize: 8, color: MUTED },
 
-  footer: { position: 'absolute', bottom: 26, left: 40, right: 40, flexDirection: 'row', justifyContent: 'space-between', borderTopWidth: 0.5, borderTopColor: RULE, paddingTop: 6 },
-  footerText: { fontSize: 7.5, color: MUTED }
+  footer: { position: 'absolute', bottom: 20, left: 40, right: 40, borderTopWidth: 0.5, borderTopColor: RULE, paddingTop: 6 },
+  footerRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  footerText: { fontSize: 7.5, color: MUTED },
+  poweredBy: { marginTop: 5, fontSize: 7, color: MUTED, textAlign: 'center', letterSpacing: 0.2 },
+  poweredByBrand: { fontFamily: 'Helvetica-Bold', color: ACCENT }
 });
 
 // Words are never split across lines. The default hyphenation broke an email address as
@@ -118,21 +121,39 @@ export function Letterhead({ shop = {}, logo, title, number, meta = [] }) {
   );
 }
 
+/** Who provides the service, on every document a shop sends out. */
+export const POWERED_BY = {
+  brand: 'ScaleEzy',
+  line: 'Inventory, purchasing and stock management for retail',
+  site: 'scaleezy.com'
+};
+
 /**
- * Bottom of every page: what the document is, when this copy was printed, and page numbers.
+ * Bottom of every page: what the document is, when this copy was printed, page numbers, and the
+ * service that produced it.
  *
  * The print time matters because the same order can be printed twice with different contents --
  * before and after a delivery, or before and after the letterhead changed -- and two papers that
  * disagree need a way to say which is newer.
+ *
+ * The ScaleEzy line sits below the shop's own details and in the smallest type on the page: the
+ * document is the shop's, and a supplier reading it should see the shop first. It also tells that
+ * supplier -- often a shop in the same trade -- what the paper was made with.
  */
 export function LetterheadFooter({ shop = {}, label }) {
   const printed = printDate(new Date(), true);
   return (
     <View style={pdfStyles.footer} fixed>
-      <Text style={pdfStyles.footerText}>
-        {label}{shop.businessName ? ` · ${shop.businessName}` : ''} · Printed {printed}
+      <View style={pdfStyles.footerRow}>
+        <Text style={pdfStyles.footerText}>
+          {label}{shop.businessName ? ` · ${shop.businessName}` : ''} · Printed {printed}
+        </Text>
+        <Text style={pdfStyles.footerText} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} />
+      </View>
+      <Text style={pdfStyles.poweredBy}>
+        Generated with <Text style={pdfStyles.poweredByBrand}>{POWERED_BY.brand}</Text>
+        {`  ·  ${POWERED_BY.line}  ·  ${POWERED_BY.site}`}
       </Text>
-      <Text style={pdfStyles.footerText} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} />
     </View>
   );
 }

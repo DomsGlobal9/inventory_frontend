@@ -25,6 +25,8 @@
  * (30s), where a stale answer means reordering something that was just restocked; and the
  * per-product variant tables, which show quantity and value per variant.
  */
+import { getStoredLocationId } from './api';
+
 export function invalidateDerivedViews(queryClient) {
   const keys = [
     ['dashboard-summary'],       // Dashboard.jsx headline figures
@@ -165,6 +167,13 @@ export function optimisticQuantityDelta(queryClient, variables, delta) {
 export function patchInventoryRows(queryClient, variables, result) {
   if (!result || !variables?.variantId) return;
 
+  // Scoped to one location when the movement named one OR the app has one selected -- the list
+  // is fetched with the selected location in its header, so its rows are that shop's figures.
+  // Reading only variables.locationId treated every Receive Stock as unscoped (the modal does not
+  // pass it): receiving 2 into a back room that held 0 showed "8" -- every shop's total -- until
+  // the refetch replaced it with 2.
+  const scoped = Boolean(variables.locationId || getStoredLocationId());
+
   queryClient.setQueriesData({ queryKey: ['inventory-variants'] }, (old) => {
     if (!old?.items) return old;
 
@@ -173,20 +182,14 @@ export function patchInventoryRows(queryClient, variables, result) {
       ...old,
       items: old.items.map((row) => {
         if (row.variantId !== variables.variantId) return row;
+        const quantity = Number(
+          result.globalQuantity !== undefined && !scoped ? result.globalQuantity : result.quantity ?? row.quantity
+        );
         if (result.averageCost === undefined && row.averageCost === undefined) {
           // Not allowed to see cost -- see optimisticQuantityDelta.
-          const quantity = Number(
-            result.globalQuantity !== undefined && !variables.locationId ? result.globalQuantity : result.quantity ?? row.quantity
-          );
           return { ...row, quantity };
         }
         const averageCost = Number(result.averageCost ?? row.averageCost);
-        // Location-scoped views get the location figure; the unscoped view gets the global.
-        const quantity = Number(
-          result.globalQuantity !== undefined && !variables.locationId
-            ? result.globalQuantity
-            : result.quantity ?? row.quantity
-        );
         return { ...row, quantity, averageCost, inventoryValue: quantity * averageCost };
       })
     };

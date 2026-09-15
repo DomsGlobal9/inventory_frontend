@@ -32,7 +32,7 @@ const PurchaseOrderPDF = ({ order, shop = {}, logo = null }) => {
           title="PURCHASE ORDER"
           number={order.poNumber}
           meta={[
-            ['Date', printDate(order.createdAt)],
+            ['Created', printDate(order.createdAt, true)],
             ['Deliver by', order.expectedDeliveryDate ? printDate(order.expectedDeliveryDate) : null],
             ['Status', STATUS[order.status] || order.status]
           ]}

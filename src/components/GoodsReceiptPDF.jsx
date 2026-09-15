@@ -11,7 +11,9 @@ import { Letterhead, LetterheadFooter, pdfStyles as s, rupees, printDate } from 
  * not as the purchase order stands now.
  */
 
-const COLS = { n: '4%', item: '34%', ordered: '9%', before: '9%', now: '10%', due: '10%', cost: '11%', value: '13%' };
+// Still due is wide enough for "Complete", and money columns for a lakh with paise -- at the old
+// widths "Complete" ran straight into "Rs. 10,250.50" with no space between them.
+const COLS = { n: '4%', item: '30%', ordered: '9%', before: '8%', now: '9%', due: '12%', cost: '14%', value: '14%' };
 
 const GoodsReceiptPDF = ({ receipt, order, shop = {}, logo = null }) => {
   if (!receipt || !order) return null;
@@ -55,7 +57,7 @@ const GoodsReceiptPDF = ({ receipt, order, shop = {}, logo = null }) => {
             <Text style={s.boxTitle}>Received into</Text>
             <Text style={s.boxName}>{location}</Text>
             <Text style={s.boxLine}>Counted by {receipt.receivedByName || '—'}</Text>
-            <Text style={s.boxLine}>Order placed {printDate(order.createdAt)}</Text>
+            <Text style={s.boxLine}>Order placed {printDate(order.createdAt, true)}</Text>
           </View>
         </View>
 
@@ -87,7 +89,7 @@ const GoodsReceiptPDF = ({ receipt, order, shop = {}, logo = null }) => {
                 <Text style={[s.td, s.right, { width: COLS.before }]}>{before}</Text>
                 <Text style={[s.td, s.right, { width: COLS.now, fontFamily: 'Helvetica-Bold' }]}>{now}</Text>
                 <Text style={[s.td, s.right, { width: COLS.due }]}>{due === 0 ? 'Complete' : due}</Text>
-                <Text style={[s.td, s.right, { width: COLS.cost }]}>{rupees(item.unitPrice)}</Text>
+                <Text style={[s.td, s.right, { width: COLS.cost, paddingLeft: 6 }]}>{rupees(item.unitPrice)}</Text>
                 <Text style={[s.td, s.right, { width: COLS.value }]}>{rupees(now * (Number(item.unitPrice) || 0))}</Text>
               </View>
             );

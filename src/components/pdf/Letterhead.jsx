@@ -22,7 +22,7 @@ export const pdfStyles = StyleSheet.create({
   page: { paddingTop: 36, paddingBottom: 64, paddingHorizontal: 40, fontFamily: 'Helvetica', fontSize: 9.5, color: INK },
   letterhead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', paddingBottom: 14, borderBottomWidth: 2, borderBottomColor: ACCENT, marginBottom: 18 },
   shop: { flexDirection: 'row', alignItems: 'flex-start', flexGrow: 1, flexShrink: 1, paddingRight: 16 },
-  logo: { width: 54, height: 54, objectFit: 'contain', marginRight: 12 },
+  logo: { width: 60, height: 60, objectFit: 'contain', marginRight: 12 },
   shopName: { fontSize: 16, fontFamily: 'Helvetica-Bold', marginBottom: 3 },
   shopLine: { fontSize: 8.5, color: MUTED, marginBottom: 1.5, maxWidth: 260 },
   doc: { alignItems: 'flex-end', minWidth: 170 },
@@ -118,12 +118,19 @@ export function Letterhead({ shop = {}, logo, title, number, meta = [] }) {
   );
 }
 
-/** Bottom of every page: what the document is, and page numbers once it runs past one page. */
+/**
+ * Bottom of every page: what the document is, when this copy was printed, and page numbers.
+ *
+ * The print time matters because the same order can be printed twice with different contents --
+ * before and after a delivery, or before and after the letterhead changed -- and two papers that
+ * disagree need a way to say which is newer.
+ */
 export function LetterheadFooter({ shop = {}, label }) {
+  const printed = printDate(new Date(), true);
   return (
     <View style={pdfStyles.footer} fixed>
       <Text style={pdfStyles.footerText}>
-        {label}{shop.businessName ? ` · ${shop.businessName}` : ''}
+        {label}{shop.businessName ? ` · ${shop.businessName}` : ''} · Printed {printed}
       </Text>
       <Text style={pdfStyles.footerText} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} />
     </View>

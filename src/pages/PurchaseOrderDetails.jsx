@@ -70,8 +70,11 @@ export default function PurchaseOrderDetails() {
     const busyKey = kind === 'po' ? 'po' : receipt.id;
     setPrinting(busyKey);
     try {
-      const logo = await logoAsPng(branding?.logoUrl);
-      const shop = branding || {};
+      // Read fresh, not from the page's cache: a document goes to a supplier, and the owner may
+      // have changed the logo or address a minute ago from another screen or another person's
+      // login. The cached copy is kept for five minutes; this costs one small request.
+      const shop = await api.get('/branding').then(r => r.data).catch(() => branding) || {};
+      const logo = await logoAsPng(shop.logoUrl);
       if (kind === 'po') {
         await downloadPdf(<PurchaseOrderPDF order={po} shop={shop} logo={logo} />, `${po.poNumber}.pdf`);
       } else {

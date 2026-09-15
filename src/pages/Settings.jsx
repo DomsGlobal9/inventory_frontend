@@ -1,20 +1,16 @@
 import React, { useState } from 'react';
-import toast from 'react-hot-toast';
-import { Settings as SettingsIcon, Tag, Palette, Scissors, Layers, Hexagon, Grid, ShoppingBag, Store, Users, CreditCard, Key, User as UserIcon, Mail, Shield, MapPin, Edit2, Save, X, LifeBuoy, Loader2, BookOpen, Globe } from 'lucide-react';
+import { Settings as SettingsIcon, Tag, Palette, Scissors, Layers, Hexagon, Grid, ShoppingBag, Store, Users, Key, Shield, MapPin, LifeBuoy, BookOpen, Globe } from 'lucide-react';
 import CatalogManager from '../components/CatalogManager';
 import StockLocationsPage from './settings/StockLocationsPage';
 import DayBook from './DayBook';
 import StorefrontManager from '../components/StorefrontManager';
-import ChangeOwnPassword from '../components/ChangeOwnPassword';
-import CompanyBrandingEditor from '../components/CompanyBrandingEditor';
-import { useBranding } from '../hooks/useBranding';
+import GeneralInfoPanel from '../components/GeneralInfoPanel';
 import ServicesPanel from '../components/ServicesPanel';
 import SupportPanel from '../components/SupportPanel';
 import TeamManager from '../components/TeamManager';
 import RoleManager from '../components/RoleManager';
 import { holdsEverything } from '../lib/authority';
 import { useAuth } from '../context/AuthContext';
-import { useUpdateMyProfile } from '../hooks/useTeam';
 import { usePermission } from '../hooks/usePermission';
 
 const SETTINGS_DOMAINS = [
@@ -55,7 +51,7 @@ const CATALOG_TABS = [
 ];
 
 export default function Settings() {
-  const { user, refreshUser } = useAuth();
+  const { user } = useAuth();
   const [activeDomain, setActiveDomain] = useState('GENERAL');
   const { can } = usePermission();
 
@@ -66,13 +62,7 @@ export default function Settings() {
   const visibleDomains = SETTINGS_DOMAINS.filter(d => can(d.permission));
   const [activeCatalogTab, setActiveCatalogTab] = useState('SIZE');
   
-  const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const [profileForm, setProfileForm] = useState({ name: user?.name || '' });
-  const updateProfileMutation = useUpdateMyProfile();
-
   const isSuperAdmin = holdsEverything(user);
-  // The shop's own name and logo, shown to everyone; changed only by the owner.
-  const { data: branding } = useBranding();
   // Passwords are set once by a Super Admin/Admin and stay permanent -- nobody edits their
   // own, so Team & Users is the only place a password is ever touched, and only these two
   // roles can reach it (a Super Admin still outranks an Admin there -- see team.service.ts).
@@ -80,26 +70,12 @@ export default function Settings() {
   // admin:users should reach this screen; a shop that renames ADMIN should not lose it.
   const canManageTeam = isSuperAdmin || (user?.permissions || []).includes('admin:users');
 
-  const handleSaveProfile = async () => {
-    try {
-      await updateProfileMutation.mutateAsync({ name: profileForm.name });
-      // The save succeeded server-side, but `user` in AuthContext is still the copy read
-      // at login -- so without this the header, the avatar initials and this very field
-      // all kept showing the old name behind a "Profile updated" toast until a reload.
-      await refreshUser();
-      toast.success('Profile updated');
-      setIsEditingProfile(false);
-    } catch {
-      // Toasted by the hook.
-    }
-  };
-  
   const activeCatalogInfo = CATALOG_TABS.find(t => t.id === activeCatalogTab);
 
   return (
     <div className="mobile-no-scroll" style={{ width: '100%', maxWidth: '1400px', margin: '0 auto', paddingTop: '24px', flex: 1, height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <header style={{ marginBottom: '32px', flexShrink: 0 }}>
-        <h1 style={{ fontSize: '32px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <header className="settings-header" style={{ marginBottom: '32px', flexShrink: 0 }}>
+        <h1 className="settings-title" style={{ fontSize: '32px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
           <SettingsIcon size={32} />
           Settings
         </h1>
@@ -127,12 +103,17 @@ export default function Settings() {
             .settings-sidebar { width: 280px; }
             @media (max-width: 768px) {
               .settings-sidebar { width: 100%; padding: 8px !important; margin-bottom: 0 !important; }
-              .settings-sidebar h3 { display: none; }
+              /* The heading hid, but its padded, bordered box stayed -- an empty gap at the
+                 start of the tab strip, before the first tab. */
+              .settings-sidebar .settings-sidebar-title { display: none; }
+              .settings-title { font-size: 24px !important; }
+              .settings-title svg { width: 24px; height: 24px; }
+              .settings-header { margin-bottom: 16px !important; }
               .settings-sidebar button { border-left: none !important; border-bottom: 4px solid transparent; border-radius: 8px; padding: 8px 12px !important; }
               .settings-sidebar button.active { border-bottom: 4px solid var(--primary-color) !important; background: var(--bg-hover) !important; }
             }
           `}</style>
-          <div style={{ padding: '0 24px 12px 24px', borderBottom: '1px solid var(--border-light)', marginBottom: '12px' }}>
+          <div className="settings-sidebar-title" style={{ padding: '0 24px 12px 24px', borderBottom: '1px solid var(--border-light)', marginBottom: '12px' }}>
             <h3 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>
               Configuration
             </h3>
@@ -225,139 +206,7 @@ export default function Settings() {
             </div>
           )}
 
-          {activeDomain === 'GENERAL' && (
-            <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '32px' }}>
-              <div style={{ marginBottom: '32px' }}>
-                <h2 style={{ fontSize: '24px', marginBottom: '8px', color: 'var(--text-primary)' }}>Profile Information</h2>
-                <p style={{ color: 'var(--text-secondary)' }}>Manage your personal account details and access level.</p>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '600px' }}>
-                <div style={{ position: 'relative', border: '1px solid var(--border-light)', borderRadius: '16px', background: 'var(--bg-card)', overflow: 'hidden', boxShadow: 'var(--shadow-panel)' }}>
-                  {/* Banner Header */}
-                  <div style={{ height: '72px', background: 'linear-gradient(135deg, rgba(226, 193, 113, 0.2) 0%, rgba(226, 193, 113, 0.05) 100%)', borderBottom: '1px solid var(--border-light)' }}></div>
-                  
-                  <div style={{ padding: '0 24px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    
-                    {/* Avatar & Edit Row */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '-36px' }}>
-                      <div style={{
-                        width: '72px', height: '72px', borderRadius: '50%',
-                        backgroundColor: 'var(--bg-card)', padding: '4px',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center'
-                      }}>
-                        {/* The shop's logo where the person's initial used to be.
-                            This circle identifies the account, and an account belongs to a
-                            business rather than to whoever happens to be signed in; the
-                            initial is what it falls back to when no logo has been set yet.
-
-                            objectFit: cover, with no padding, so the image FILLS the circle
-                            and the circle clips it. It was `contain` with 6px of padding,
-                            which left the logo floating as a small square inside a larger
-                            ring -- the square's own corners were what you saw, because the
-                            image never reached the rounded edge that would have clipped it.
-                            An avatar is an identity chip and is expected to be cropped; the
-                            editor below still shows the whole logo uncropped, which is where
-                            seeing all of it actually matters. */}
-                        <div style={{
-                          width: '100%', height: '100%', borderRadius: '50%', background: 'linear-gradient(135deg, var(--bg-input) 0%, var(--bg-dark) 100%)', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', fontWeight: 600, color: 'var(--accent-gold)', overflow: 'hidden'
-                        }}>
-                          {branding?.logoUrl
-                            ? <img src={branding.logoUrl} alt={branding?.businessName || 'Shop logo'} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-                            : (user?.name ? user.name.charAt(0).toUpperCase() : <UserIcon size={28} />)}
-                        </div>
-                      </div>
-                      
-                      {!isEditingProfile && (
-                        <button 
-                          onClick={() => setIsEditingProfile(true)}
-                          className="btn-secondary"
-                          style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '8px', minHeight: '36px', height: '36px', fontSize: '13px' }}
-                        >
-                          <Edit2 size={14} /> Edit Profile
-                        </button>
-                      )}
-                    </div>
-
-                    {isEditingProfile ? (
-                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '8px' }}>
-                        <div>
-                          <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '8px' }}>Full Name</label>
-                          <input type="text" className="input-field" value={profileForm.name} onChange={e => setProfileForm({...profileForm, name: e.target.value})} style={{ width: '100%' }} />
-                        </div>
-                        <div style={{ padding: '12px', borderRadius: '8px', background: 'var(--bg-input)', border: '1px solid var(--border-light)' }}>
-                          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0, display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
-                            <Shield size={16} color="var(--accent-gold)" style={{ flexShrink: 0, marginTop: '2px' }} />
-                            <span>
-                              {isSuperAdmin
-                                ? 'Your name is yours to change. Your role is the owner\'s and cannot be changed here — it is what gets you back in if another role is set up wrongly.'
-                                : 'Your name is yours to change. Your role and password are set by whoever manages your team, so ask them if either needs to change.'}
-                            </span>
-                          </p>
-                        </div>
-                        <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
-                          <button className="btn-primary" disabled={updateProfileMutation.isPending} onClick={handleSaveProfile} style={{ display: 'flex', alignItems: 'center', gap: '6px', minHeight: '40px' }}>
-                            {updateProfileMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} Save Changes
-                          </button>
-                          <button className="btn-secondary" onClick={() => { setIsEditingProfile(false); setProfileForm({ name: user?.name || '' }); }} style={{ display: 'flex', alignItems: 'center', gap: '6px', minHeight: '40px' }}>
-                            <X size={16} /> Cancel
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div style={{ marginTop: '4px' }}>
-                        {/* The business above the person: this card answers "whose account is
-                            this, and who am I on it" -- in that order. Hidden rather than
-                            shown empty when no name is set, so a shop that has not filled it
-                            in sees nothing rather than a blank line where a name should be. */}
-                        {branding?.businessName && (
-                          <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '4px' }}>
-                            {branding.businessName}
-                          </div>
-                        )}
-                        <h3 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 6px', letterSpacing: '-0.02em' }}>
-                          {user?.name || 'Unknown User'}
-                        </h3>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', fontSize: '14px', marginBottom: '20px' }}>
-                          <Mail size={16} /> {user?.email || 'No email provided'}
-                        </div>
-                        
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Access Level</span>
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                            {(user?.roles || ['USER']).map(role => (
-                              <div key={role} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(226, 193, 113, 0.1)', color: 'var(--accent-gold)', border: '1px solid rgba(226, 193, 113, 0.2)', padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 600 }}>
-                                <Shield size={14} />
-                                {role}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Inside the card, with the name and the email and the role.
-                            It sat below the card under its own divider, which read as a
-                            separate feature of the page rather than as one more fact about
-                            this account -- and it was directly under a notice telling the
-                            reader to ask somebody else about their password.
-
-                            Only the owner. Everyone else's password is set for them by whoever
-                            manages the team; staff who change their own leave nobody able to
-                            help them back in, and the owner is the exception because there is
-                            nobody above them to do the resetting. */}
-                        {isSuperAdmin && <ChangeOwnPassword />}
-
-                        {/* Same gate as the password control above, for the same reason:
-                            these are the owner's to set, and the backend refuses anyone else. */}
-                        {isSuperAdmin && <CompanyBrandingEditor />}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-
-              </div>
-            </div>
-          )}
+          {activeDomain === 'GENERAL' && <GeneralInfoPanel />}
 
           {activeDomain === 'LOCATIONS' && (
             <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '32px' }}>

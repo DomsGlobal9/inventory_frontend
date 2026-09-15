@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { KeyRound, Loader2, Eye, EyeOff } from 'lucide-react';
+import { KeyRound, Loader2, Eye, EyeOff, Lock } from 'lucide-react';
 import { useChangeMyPassword } from '../hooks/useTeam';
 
 /**
- * A Super Admin changing their own password, on the General Info tab.
+ * A Super Admin changing their own password, on the General Info tab. Laid out by
+ * GeneralInfoPanel's stylesheet (the gi-* classes).
  *
  * Shown only to a Super Admin. Everyone else's password is set for them by an admin and stays
  * permanent -- a shop assistant who changes their own leaves nobody able to help them back in.
@@ -23,86 +24,93 @@ export default function ChangeOwnPassword() {
   const mismatch = form.confirm.length > 0 && form.newPassword !== form.confirm;
   const ready = form.currentPassword && form.newPassword.length >= 8 && form.newPassword === form.confirm;
 
+  const close = () => { setOpen(false); setShow(false); setForm({ currentPassword: '', newPassword: '', confirm: '' }); };
+
   const submit = async (e) => {
     e.preventDefault();
     if (!ready) return;
-    await change.mutateAsync({ currentPassword: form.currentPassword, newPassword: form.newPassword });
-    setForm({ currentPassword: '', newPassword: '', confirm: '' });
-    setOpen(false);
+    try {
+      await change.mutateAsync({ currentPassword: form.currentPassword, newPassword: form.newPassword });
+      close();
+    } catch {
+      // Toasted by the hook; the fields stay filled so a wrong current password is one retype.
+    }
   };
 
-  const field = { width: '100%', marginBottom: '10px' };
-
-  if (!open) {
-    return (
-      <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid var(--border-light)' }}>
-        <button className="btn-secondary" onClick={() => setOpen(true)}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-          <KeyRound size={15} /> Change my password
-        </button>
-      </div>
-    );
-  }
+  const warn = { margin: '6px 0 0', fontSize: '12px', color: 'var(--accent-warning, #f59e0b)' };
 
   return (
-    <form onSubmit={submit} style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid var(--border-light)' }}>
-      <h4 style={{ margin: '0 0 4px', fontSize: '15px', color: 'var(--text-primary)' }}>Change my password</h4>
-      <p style={{ margin: '0 0 14px', fontSize: '12.5px', color: 'var(--text-secondary)' }}>
-        Enter your current password, then the new one. It works from the next time you sign in.
-      </p>
-
-      <div style={{ maxWidth: '360px' }}>
-        <input
-          className="input-field" style={field} type="password" autoComplete="current-password"
-          placeholder="Current password" value={form.currentPassword}
-          onChange={e => setForm({ ...form, currentPassword: e.target.value })}
-        />
-
-        <div style={{ position: 'relative' }}>
-          <input
-            className="input-field" style={field} type={show ? 'text' : 'password'} autoComplete="new-password"
-            placeholder="New password" value={form.newPassword}
-            onChange={e => setForm({ ...form, newPassword: e.target.value })}
-          />
-          {/* Shown rather than hidden on request: someone choosing a password they will have to
-              type on a shop-floor terminal should be able to see what they picked. */}
-          <button type="button" onClick={() => setShow(!show)}
-            style={{ position: 'absolute', right: '10px', top: '9px', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
-            {show ? <EyeOff size={15} /> : <Eye size={15} />}
-          </button>
+    <section className="gi-card" aria-labelledby="gi-password-title">
+      <div className="gi-pass-head">
+        <div className="gi-head">
+          <div className="gi-head-icon"><Lock size={18} /></div>
+          <div>
+            <h2 id="gi-password-title">Password</h2>
+            <p>{open
+              ? 'Enter your current password, then the new one. It works from the next time you sign in.'
+              : 'The password you sign in with. Only you can change it.'}</p>
+          </div>
         </div>
-
-        <input
-          className="input-field" style={field} type={show ? 'text' : 'password'} autoComplete="new-password"
-          placeholder="Repeat the new password" value={form.confirm}
-          onChange={e => setForm({ ...form, confirm: e.target.value })}
-        />
-
-        {/* Said as they type, not after they press the button. A mismatch discovered on submit
-            means retyping both fields. */}
-        {tooShort && (
-          <p style={{ margin: '0 0 10px', fontSize: '12px', color: 'var(--accent-warning, #f59e0b)' }}>
-            At least 8 characters.
-          </p>
-        )}
-        {mismatch && (
-          <p style={{ margin: '0 0 10px', fontSize: '12px', color: 'var(--accent-warning, #f59e0b)' }}>
-            The two new passwords do not match.
-          </p>
-        )}
-
-        <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
-          <button type="submit" className="btn-primary" disabled={!ready || change.isPending}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-            {change.isPending ? <Loader2 size={15} className="animate-spin" /> : <KeyRound size={15} />}
-            {change.isPending ? 'Changing…' : 'Change password'}
+        {!open && (
+          <button type="button" className="btn-secondary gi-btn" onClick={() => setOpen(true)}>
+            <KeyRound size={15} /> Change password
           </button>
-          <button type="button" className="btn-secondary"
-            onClick={() => { setOpen(false); setForm({ currentPassword: '', newPassword: '', confirm: '' }); }}>
-            Cancel
-          </button>
-        </div>
+        )}
       </div>
-    </form>
+
+      {open && (
+        <form onSubmit={submit} style={{ marginTop: '18px' }}>
+          <div className="gi-pass-fields">
+            <div style={{ minWidth: 0 }}>
+              <label className="gi-label" htmlFor="gi-pass-current">Current password</label>
+              <input
+                id="gi-pass-current" className="input-field" style={{ width: '100%' }} type="password" autoComplete="current-password"
+                autoFocus value={form.currentPassword}
+                onChange={e => setForm({ ...form, currentPassword: e.target.value })}
+              />
+            </div>
+
+            <div style={{ minWidth: 0 }}>
+              <label className="gi-label" htmlFor="gi-pass-new">New password</label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  id="gi-pass-new" className="input-field" style={{ width: '100%', paddingRight: '44px' }} type={show ? 'text' : 'password'} autoComplete="new-password"
+                  value={form.newPassword}
+                  onChange={e => setForm({ ...form, newPassword: e.target.value })}
+                />
+                {/* Shown rather than hidden on request: someone choosing a password they will have to
+                    type on a shop-floor terminal should be able to see what they picked. */}
+                <button type="button" onClick={() => setShow(!show)} aria-label={show ? 'Hide passwords' : 'Show passwords'}
+                  style={{ position: 'absolute', right: '2px', top: '50%', transform: 'translateY(-50%)', width: '40px', height: '100%', minHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
+                  {show ? <EyeOff size={15} /> : <Eye size={15} />}
+                </button>
+              </div>
+              {/* Said as they type, not after they press the button. */}
+              {tooShort && <p style={warn}>At least 8 characters.</p>}
+            </div>
+
+            <div style={{ minWidth: 0 }}>
+              <label className="gi-label" htmlFor="gi-pass-confirm">Repeat new password</label>
+              <input
+                id="gi-pass-confirm" className="input-field" style={{ width: '100%' }} type={show ? 'text' : 'password'} autoComplete="new-password"
+                value={form.confirm}
+                onChange={e => setForm({ ...form, confirm: e.target.value })}
+              />
+              {mismatch && <p style={warn}>The two new passwords do not match.</p>}
+            </div>
+          </div>
+
+          <div className="gi-pass-actions">
+            <button type="button" className="btn-secondary gi-btn" onClick={close}>
+              Cancel
+            </button>
+            <button type="submit" className="btn-primary gi-btn" disabled={!ready || change.isPending}>
+              {change.isPending ? <Loader2 size={15} className="animate-spin" /> : <KeyRound size={15} />}
+              {change.isPending ? 'Changing…' : 'Change password'}
+            </button>
+          </div>
+        </form>
+      )}
+    </section>
   );
 }

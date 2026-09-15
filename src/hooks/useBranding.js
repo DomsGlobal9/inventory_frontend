@@ -30,7 +30,8 @@ export function useSetBusinessName() {
     onSuccess: (data) => {
       qc.setQueryData(KEY, data);
       toast.success('Shop name saved');
-    }
+    },
+    onError: (err) => toast.error(err?.message || 'Could not save the shop name.')
   });
 }
 
@@ -89,6 +90,7 @@ export function useRemoveLogo() {
     onSuccess: (data) => {
       qc.setQueryData(KEY, data);
       toast.success('Logo removed');
-    }
+    },
+    onError: (err) => toast.error(err?.message || 'Could not remove the logo.')
   });
 }

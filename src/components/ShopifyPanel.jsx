@@ -8,6 +8,7 @@ import {
 import ShopifyLocationPairing from './ShopifyLocationPairing';
 import ShopifyProductMatching from './ShopifyProductMatching';
 import ShopifyOrderInbox from './ShopifyOrderInbox';
+import ShopifyPrivacyRequests from './ShopifyPrivacyRequests';
 
 /**
  * Connecting a Shopify store, from the merchant's side.
@@ -118,6 +119,7 @@ export default function ShopifyPanel() {
         )}
 
         <ShopifyOrderInbox />
+        <ShopifyPrivacyRequests />
         <ShopifyLocationPairing open={openSection === 'locations'} onToggle={() => toggle('locations')} />
         <ShopifyProductMatching open={openSection === 'products'} onToggle={() => toggle('products')} />
       </div>
@@ -177,6 +179,10 @@ export default function ShopifyPanel() {
           ))}
         </div>
       )}
+
+      {/* Still reachable after the store disconnects: a customer's data request does not stop
+          needing an answer because the app was uninstalled. Renders nothing when there are none. */}
+      <ShopifyPrivacyRequests />
     </div>
   );
 }

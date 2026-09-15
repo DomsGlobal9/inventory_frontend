@@ -175,6 +175,43 @@ export const useReplayAllShopifyOrders = () => {
   });
 };
 
+// ── Privacy requests Shopify sent ────────────────────────────────────────────────────────────
+
+export const useShopifyPrivacyRequests = (enabled = true) =>
+  useQuery({
+    queryKey: ['shopify', 'privacy-requests'],
+    queryFn: async () => (await api.get('/shopify-connect/privacy-requests')).data ?? [],
+    enabled,
+    staleTime: 30_000
+  });
+
+/**
+ * Everything held about the customer in a data request, saved as a file for the merchant to send.
+ *
+ * A mutation, not a query: the first export marks the request answered, and the file is built from
+ * what is held at that moment rather than cached.
+ */
+export const useExportShopifyPrivacyRequest = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id) => (await api.get(`/shopify-connect/privacy-requests/${id}/export`)).data,
+    onSuccess: (data, id) => {
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `shopify-data-request-${data?.about?.shopifyCustomerId ?? id}.json`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      queryClient.invalidateQueries({ queryKey: ['shopify', 'privacy-requests'] });
+      toast.success('Saved. Send this file to the customer.');
+    },
+    onError: (error) => toast.error(error?.message || 'Could not export that request.')
+  });
+};
+
 export const useDismissShopifyOrder = () => {
   const queryClient = useQueryClient();
   return useMutation({

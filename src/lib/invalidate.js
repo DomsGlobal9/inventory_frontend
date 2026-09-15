@@ -152,6 +152,9 @@ export function optimisticQuantityDelta(queryClient, variables, delta) {
           else if (threshold > 0) inventoryStatus = 'HEALTHY';
         }
 
+        // No averageCost on the row means this person may not see cost: the server left both
+        // numbers out, and a value of quantity x 0 must not appear in their place.
+        if (row.averageCost === undefined) return { ...row, quantity, inventoryStatus };
         return { ...row, quantity, inventoryValue: quantity * averageCost, inventoryStatus };
       })
     };
@@ -170,6 +173,13 @@ export function patchInventoryRows(queryClient, variables, result) {
       ...old,
       items: old.items.map((row) => {
         if (row.variantId !== variables.variantId) return row;
+        if (result.averageCost === undefined && row.averageCost === undefined) {
+          // Not allowed to see cost -- see optimisticQuantityDelta.
+          const quantity = Number(
+            result.globalQuantity !== undefined && !variables.locationId ? result.globalQuantity : result.quantity ?? row.quantity
+          );
+          return { ...row, quantity };
+        }
         const averageCost = Number(result.averageCost ?? row.averageCost);
         // Location-scoped views get the location figure; the unscoped view gets the global.
         const quantity = Number(

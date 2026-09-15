@@ -15,6 +15,8 @@ import Select from '../components/common/Select';
 export default function InventoryOverview() {
   const navigate = useNavigate();
   const { can } = usePermission();
+  // Cost and stock value are for people who may see what was paid; the server leaves them out for anyone else.
+  const showCost = can('cost:view');
   const [searchParams] = useSearchParams();
 
   /*
@@ -115,7 +117,7 @@ export default function InventoryOverview() {
               <option value="updatedAt-desc">Recently Updated</option>
               <option value="quantity-asc">Lowest Stock First</option>
               <option value="quantity-desc">Highest Stock First</option>
-              <option value="inventoryValue-desc">Highest Value First</option>
+              {showCost && <option value="inventoryValue-desc">Highest Value First</option>}
               <option value="productTitle-asc">Product Name (A-Z)</option>
               <option value="sku-asc">SKU (A-Z)</option>
             </Select>
@@ -137,8 +139,8 @@ export default function InventoryOverview() {
                 <th>Category</th>
                 <th>Status</th>
                 <th style={{ textAlign: 'right' }}>Stock Qty</th>
-                <th style={{ textAlign: 'right' }}>Avg Cost</th>
-                <th style={{ textAlign: 'right' }}>Total Value</th>
+                {showCost && <th style={{ textAlign: 'right' }}>Avg Cost</th>}
+                {showCost && <th style={{ textAlign: 'right' }}>Total Value</th>}
                 <th style={{ textAlign: 'center' }}>Actions</th>
               </tr>
             </thead>
@@ -156,8 +158,8 @@ export default function InventoryOverview() {
                   <td style={{ textAlign: 'right', fontWeight: '600', color: variant.quantity <= 0 ? 'var(--accent-danger)' : 'inherit' }}>
                     {variant.quantity}
                   </td>
-                  <td style={{ textAlign: 'right' }}>₹{variant.averageCost?.toFixed(2)}</td>
-                  <td style={{ textAlign: 'right', fontWeight: '500' }}>₹{variant.inventoryValue?.toFixed(2)}</td>
+                  {showCost && <td style={{ textAlign: 'right' }}>₹{variant.averageCost?.toFixed(2)}</td>}
+                  {showCost && <td style={{ textAlign: 'right', fontWeight: '500' }}>₹{variant.inventoryValue?.toFixed(2)}</td>}
                   <td>
                     <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
                       {can('inventory:receive') && (

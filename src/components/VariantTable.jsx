@@ -13,6 +13,7 @@ import { useVisibleRowWidth } from '../hooks/useVisibleRowWidth';
 import { isLowStock } from '../utils/lowStock';
 import { shadesOf, shadeCodeFor } from '../utils/colorOptions';
 import { useAuth } from '../context/AuthContext';
+import { usePermission } from '../hooks/usePermission';
 import VariantSuppliersPanel from './VariantSuppliersPanel';
 import { buildVariantSku } from '../utils/skuUtils';
 import { useSuppliers } from '../hooks/useSuppliers';
@@ -42,6 +43,11 @@ export default function VariantTable({ productId, productName, productCode, prod
   const bulkCreateMutation = useBulkCreateVariants(productId);
   const updateVariantMutation = useUpdateVariant(productId);
   const { currentLocation } = useLocationContext();
+  // What was paid, and the profit worked out from it, are only for people who may see cost. The
+  // server no longer sends the numbers to anyone else -- without this the columns would still be
+  // drawn, showing an empty cost box to type into and "No cost data yet" as everyone's margin.
+  const { can } = usePermission();
+  const showCost = can('cost:view');
   // Lets the expanded supplier row size itself to the part of the table you can see.
   const scrollRef = useVisibleRowWidth();
   // Only read while the generator is open; the list is small and cached by the hook.
@@ -381,13 +387,13 @@ export default function VariantTable({ productId, productName, productCode, prod
         Color: v.colorName || '-',
         Quantity: v.totalQuantity !== undefined ? v.totalQuantity : v.quantity,
         ReorderLevel: v.reorderLevel,
-        Cost: effectiveCostOf(v).value || '',
+        ...(showCost ? { Cost: effectiveCostOf(v).value || '' } : {}),
         SellingPrice: v.sellingPrice ?? '',
         // `v.priceOverride` never existed on a variant -- overrides live on the location
         // profile -- so this column exported blank for every row, every time.
         LocationPriceOverride: locationPriceOf(v) ?? '',
         LocationName: currentLocation?.name || '',
-        Margin: getMarginInfo(v).label,
+        ...(showCost ? { Margin: getMarginInfo(v).label } : {}),
         Status: getStatus(v).label
       }));
       exportToCSV(exportData, `Variants_${productId}`);
@@ -795,10 +801,10 @@ export default function VariantTable({ productId, productName, productCode, prod
                 <th>Color</th>
                 <th>Total Stock</th>
                 <th>Status</th>
-                <th>You pay</th>
-                <th>Add profit</th>
+                {showCost && <th>You pay</th>}
+                {showCost && <th>Add profit</th>}
                 <th>You sell at</th>
-                <th>Your share %</th>
+                {showCost && <th>Your share %</th>}
                 <th style={{ textAlign: 'right' }}>Settings & Actions</th>
               </tr>
             </thead>
@@ -901,7 +907,7 @@ export default function VariantTable({ productId, productName, productCode, prod
                         {status.label}
                       </span>
                     </td>
-                    <td style={{ verticalAlign: 'top' }}>
+                    {showCost && <td style={{ verticalAlign: 'top' }}>
                       {(() => {
                         const cost = effectiveCostOf(v);
                         const costDirty = isCostDirty(v);
@@ -944,8 +950,8 @@ export default function VariantTable({ productId, productName, productCode, prod
                           </div>
                         );
                       })()}
-                    </td>
-                    <td style={{ verticalAlign: 'top' }}>
+                    </td>}
+                    {showCost && <td style={{ verticalAlign: 'top' }}>
                       {(() => {
                         const cost = effectiveCostOf(v);
                         const pctValue = profitInputs[v.id] ?? '';
@@ -975,7 +981,7 @@ export default function VariantTable({ productId, productName, productCode, prod
                           </div>
                         );
                       })()}
-                    </td>
+                    </td>}
                     <td style={{ verticalAlign: 'top' }}>
                       {(() => {
                         const dirty = isPriceDirty(v);
@@ -1049,7 +1055,7 @@ export default function VariantTable({ productId, productName, productCode, prod
                         return <CellNote />;
                       })()}
                     </td>
-                    <td>
+                    {showCost && <td>
                       {(() => {
                         const margin = getMarginInfo(v);
                         const price = effectivePriceOf(v);
@@ -1076,7 +1082,7 @@ export default function VariantTable({ productId, productName, productCode, prod
                           </span>
                         );
                       })()}
-                    </td>
+                    </td>}
                     <td style={{ textAlign: 'right' }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
                         <button 
@@ -1114,9 +1120,9 @@ export default function VariantTable({ productId, productName, productCode, prod
 
                   {suppliersOpenFor === v.id && (
                     <tr>
-                      {/* Spans the full table: the 11 data columns plus the leading
-                          checkbox column. */}
-                      <td colSpan={12} style={{ padding: 0, background: 'var(--bg-input)', borderBottom: '1px solid var(--border-light)' }}>
+                      {/* Spans the full table: the data columns plus the leading checkbox
+                          column -- three fewer for someone who does not see cost. */}
+                      <td colSpan={showCost ? 12 : 9} style={{ padding: 0, background: 'var(--bg-input)', borderBottom: '1px solid var(--border-light)' }}>
                         {/* Sized to the visible width rather than the table's, so the
                             supplier rows and their buttons stay where you are looking
                             instead of a thousand pixels to the right on a phone. */}

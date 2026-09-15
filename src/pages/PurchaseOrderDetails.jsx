@@ -193,6 +193,8 @@ export default function PurchaseOrderDetails() {
     // Include grand total in submission payload (it can be computed on backend but good to have)
     const payload = {
       ...formData,
+      // A shop with no store yet has nothing to choose; the order is raised without one.
+      locationId: formData.locationId || null,
       totalAmount: grandTotal
     };
 
@@ -432,7 +434,7 @@ The stock will go into ${chosen?.name || 'that store'}. ${orderedFor.name} stays
     const name = result?.data?.location?.name;
     if (!result?.changed) return;
     if (result?.supplierAlreadyTold) {
-      toast.success(`Now delivered to ${name}. Tell ${po?.supplier?.name || 'the supplier'} -- they were sent this order for ${result.previous}.`, { duration: 8000 });
+      toast.success(`Now delivered to ${name}. Tell ${po?.supplier?.name || 'the supplier'} — they were sent this order for ${result.previous}.`, { duration: 8000 });
     } else {
       toast.success(`This order is now for ${name}.`);
     }
@@ -450,7 +452,7 @@ The stock will go into ${chosen?.name || 'that store'}. ${orderedFor.name} stays
         title: 'Change where this order is delivered?',
         message: `${po.supplier?.name || 'The supplier'} was already sent this order for ${po.location.name}.
 
-Change it to ${chosen.name}? The order will say ${chosen.name} from now on, but the supplier is not told automatically -- call or message them.`,
+Change it to ${chosen.name}? The order will say ${chosen.name} from now on, but the supplier is not told automatically — call or message them.`,
         confirmText: `Deliver to ${chosen.name}`,
         onConfirm: () => saveDeliverTo(chosen.id)
       });
@@ -1013,7 +1015,10 @@ Change it to ${chosen.name}? The order will say ${chosen.name} from now on, but 
                 <CheckCircle2 size={18} color="var(--accent-success)" /> {lastReceipt.receiptNumber} saved
               </div>
               <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 14px' }}>
-                {(lastReceipt.items || []).reduce((sum, i) => sum + (Number(i.quantity) || 0), 0)} pieces into {lastReceipt.location?.name || 'stock'}.
+                {(() => {
+                  const pieces = (lastReceipt.items || []).reduce((sum, i) => sum + (Number(i.quantity) || 0), 0);
+                  return `${pieces} piece${pieces === 1 ? '' : 's'} into ${lastReceipt.location?.name || 'stock'}.`;
+                })()}
               </p>
               <button
                 className="btn-primary"

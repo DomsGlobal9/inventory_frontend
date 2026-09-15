@@ -59,6 +59,11 @@ const GoodsReceiptPDF = ({ receipt, order, shop = {}, logo = null }) => {
             {/* The receiver as typed at the door -- never the login that entered the receipt. */}
             <Text style={s.boxLine}>Received by {receipt.receivedByName || '—'}{receipt.receivedByPhone ? `  ·  ${receipt.receivedByPhone}` : ''}</Text>
             <Text style={s.boxLine}>Order placed {printDate(order.createdAt, true)}</Text>
+            {/* Said on the paper when the goods went somewhere other than the store the order was
+                for, so whoever files it can see the stock still has to move. */}
+            {order.location && receipt.location && order.location.id !== receipt.location.id
+              ? <Text style={s.boxLine}>Ordered for {order.location.name}</Text>
+              : null}
           </View>
         </View>
 

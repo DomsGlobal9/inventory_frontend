@@ -34,10 +34,30 @@ export const useCreatePurchaseOrder = () => {
     onSuccess: () => {
       toast.success('Purchase Order created successfully');
       queryClient.invalidateQueries({ queryKey: ['purchase-orders'] });
+      // A new order counts as "on order" for its store, so the suggestions change with it.
+      queryClient.invalidateQueries({ queryKey: ['reorder-suggestions'] });
     },
     onError: (error) => {
       toast.error(error?.message || 'Failed to create Purchase Order');
     }
+  });
+};
+
+/**
+ * Change the store an order is for. Answers with the order as it now stands, the store it was for
+ * before, and whether the supplier had already been sent it for that store.
+ */
+export const useSetPurchaseOrderDeliverTo = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, locationId }) => api.put(`/purchase-orders/${id}/deliver-to`, { locationId }),
+    onSuccess: (result, { id }) => {
+      // usePurchaseOrder caches the order itself, not the response around it.
+      if (result?.data) queryClient.setQueryData(['purchase-orders', id], result.data);
+      queryClient.invalidateQueries({ queryKey: ['purchase-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['reorder-suggestions'] });
+    },
+    onError: (error) => toast.error(error?.message || 'Could not change where this order is delivered.')
   });
 };
 

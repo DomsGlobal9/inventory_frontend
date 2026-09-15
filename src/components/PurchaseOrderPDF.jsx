@@ -19,6 +19,10 @@ const PurchaseOrderPDF = ({ order, shop = {}, logo = null }) => {
   if (!order) return null;
 
   const supplier = order.supplier || {};
+  // The store the goods go to. Its own address when it has one, otherwise the shop's.
+  const store = order.location || null;
+  const deliverAddress = store ? (store.address || shop.businessAddress) : null;
+  const deliverPhone = store ? (store.phone || shop.businessPhone) : null;
   const items = order.items || [];
   const total = items.reduce((sum, item) => sum + (Number(item.orderedQty) || 0) * (Number(item.unitPrice) || 0), 0);
   const pieces = items.reduce((sum, item) => sum + (Number(item.orderedQty) || 0), 0);
@@ -46,6 +50,13 @@ const PurchaseOrderPDF = ({ order, shop = {}, logo = null }) => {
             {supplier.address ? <Text style={s.boxLine}>{supplier.address}</Text> : null}
             {supplier.phone ? <Text style={s.boxLine}>{supplier.phone}</Text> : null}
             {supplier.email ? <Text style={s.boxLine}>{supplier.email}</Text> : null}
+          </View>
+          <View style={s.boxGap} />
+          <View style={s.box}>
+            <Text style={s.boxTitle}>Deliver to</Text>
+            <Text style={s.boxName}>{store ? store.name : 'Store not chosen yet'}</Text>
+            {deliverAddress ? <Text style={s.boxLine}>{deliverAddress}</Text> : null}
+            {deliverPhone ? <Text style={s.boxLine}>Phone {deliverPhone}</Text> : null}
           </View>
           <View style={s.boxGap} />
           <View style={s.box}>

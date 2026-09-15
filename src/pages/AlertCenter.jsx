@@ -140,9 +140,9 @@ export default function AlertCenter() {
                   </div>
                 </td>
                 <td>
-                  <span style={{ 
-                    fontWeight: '600', 
-                    color: v.quantity <= 0 ? 'var(--accent-danger)' : 'var(--accent-gold)' 
+                  <span style={{
+                    fontWeight: '600',
+                    color: v.quantity <= 0 ? 'var(--accent-danger)' : 'var(--accent-gold)'
                   }}>
                     {v.quantity}
                   </span>
@@ -202,7 +202,9 @@ export default function AlertCenter() {
                             variantId: v.variantId,
                             sku: v.sku,
                             orderedQty: v.reorderQty || v.reorderLevel || 10,
-                            title: v.productTitle
+                            title: v.productTitle,
+                            // The alert is about one store; the order is for that store.
+                            locationId: v.locationId
                           }
                         });
                       }}

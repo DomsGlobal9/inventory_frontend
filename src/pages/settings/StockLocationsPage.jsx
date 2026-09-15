@@ -21,12 +21,14 @@ export default function StockLocationsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingLocation, setEditingLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
-  
+
   const [formData, setFormData] = useState({
     name: '',
     code: '',
     type: 'STORE',
-    active: true
+    active: true,
+    address: '',
+    phone: ''
   });
 
   const fetchLocations = async () => {
@@ -73,13 +75,13 @@ export default function StockLocationsPage() {
 
   const openNewModal = () => {
     setEditingLocation(null);
-    setFormData({ name: '', code: '', type: 'STORE', active: true });
+    setFormData({ name: '', code: '', type: 'STORE', active: true, address: '', phone: '' });
     setIsModalOpen(true);
   };
 
   const openEditModal = (loc) => {
     setEditingLocation(loc);
-    setFormData({ name: loc.name, code: loc.code, type: loc.type, active: loc.active });
+    setFormData({ name: loc.name, code: loc.code, type: loc.type, active: loc.active, address: loc.address || '', phone: loc.phone || '' });
     setIsModalOpen(true);
   };
 
@@ -121,8 +123,8 @@ export default function StockLocationsPage() {
     });
   };
 
-  const filteredLocations = (locations || []).filter(loc => 
-    (loc?.name || '').toLowerCase().includes((searchTerm || '').toLowerCase()) || 
+  const filteredLocations = (locations || []).filter(loc =>
+    (loc?.name || '').toLowerCase().includes((searchTerm || '').toLowerCase()) ||
     (loc?.code || '').toLowerCase().includes((searchTerm || '').toLowerCase())
   );
 
@@ -151,11 +153,11 @@ export default function StockLocationsPage() {
             Stock Locations
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '14px', maxWidth: '600px' }}>
-            Manage your physical stores, warehouses, and virtual fulfillment centers. 
+            Manage your physical stores, warehouses, and virtual fulfillment centers.
             Ensure codes are unique across your enterprise.
           </p>
         </div>
-        
+
         {canManage && (
           <button className="btn-primary" onClick={openNewModal} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '8px', fontSize: '14px' }}>
             <Plus size={18} /> Add Location
@@ -167,10 +169,10 @@ export default function StockLocationsPage() {
         <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }}>
           <Search size={16} />
         </div>
-        <input 
-          type="text" 
-          className="input-field" 
-          placeholder="Search locations by name or code..." 
+        <input
+          type="text"
+          className="input-field"
+          placeholder="Search locations by name or code..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{ paddingLeft: '36px', borderRadius: '8px', border: '1px solid var(--border-light)' }}
@@ -193,22 +195,27 @@ export default function StockLocationsPage() {
                 <td style={{ padding: '16px' }}>
                   <div style={{ fontWeight: 500, color: 'var(--text-primary)', marginBottom: '4px', fontSize: '15px' }}>{loc.name}</div>
                   <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontFamily: 'var(--font-mono)' }}>{loc.code}</div>
+                  {(loc.address || loc.phone) && (
+                    <div style={{ color: 'var(--text-secondary)', fontSize: '12.5px', marginTop: '4px', overflowWrap: 'anywhere', maxWidth: '360px' }}>
+                      {[loc.address, loc.phone].filter(Boolean).join(' · ')}
+                    </div>
+                  )}
                 </td>
                 <td style={{ padding: '16px' }}>
-                  <span style={{ 
-                    display: 'inline-flex', alignItems: 'center', padding: '4px 10px', 
-                    background: 'var(--bg-hover)', color: 'var(--text-secondary)', 
-                    borderRadius: '6px', fontSize: '12px', fontWeight: 500 
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', padding: '4px 10px',
+                    background: 'var(--bg-hover)', color: 'var(--text-secondary)',
+                    borderRadius: '6px', fontSize: '12px', fontWeight: 500
                   }}>
                     {loc.type}
                   </span>
                 </td>
                 <td style={{ padding: '16px' }}>
-                  <span style={{ 
-                    display: 'inline-flex', alignItems: 'center', padding: '4px 10px', 
-                    background: loc.active ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', 
-                    color: loc.active ? 'var(--accent-success)' : 'var(--accent-danger)', 
-                    borderRadius: '6px', fontSize: '12px', fontWeight: 600 
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', padding: '4px 10px',
+                    background: loc.active ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                    color: loc.active ? 'var(--accent-success)' : 'var(--accent-danger)',
+                    borderRadius: '6px', fontSize: '12px', fontWeight: 600
                   }}>
                     <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'currentColor', marginRight: '6px' }}></span>
                     {loc.active ? 'Active' : 'Inactive'}
@@ -217,7 +224,7 @@ export default function StockLocationsPage() {
                 {canManage && (
                   <td style={{ padding: '16px', textAlign: 'right' }}>
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-                      <button 
+                      <button
                         onClick={() => openEditModal(loc)}
                         title={`Edit ${loc.name}`}
                         aria-label={`Edit ${loc.name}`}
@@ -227,7 +234,7 @@ export default function StockLocationsPage() {
                       >
                         <Edit2 size={16} />
                       </button>
-                      <button 
+                      <button
                         onClick={() => handleDelete(loc)}
                         title={`Delete ${loc.name}`}
                         aria-label={`Delete ${loc.name}`}
@@ -260,13 +267,13 @@ export default function StockLocationsPage() {
           <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', zIndex: 100 }} onClick={() => setIsModalOpen(false)} />
           <div className="card" style={{
             position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-            width: '100%', maxWidth: '480px', zIndex: 101, padding: '32px',
+            width: 'calc(100% - 32px)', maxWidth: '480px', maxHeight: 'calc(100dvh - 32px)', overflowY: 'auto', zIndex: 101, padding: '32px',
             boxShadow: 'var(--shadow-modal)', borderRadius: '16px'
           }}>
             <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '24px', color: 'var(--text-primary)' }}>
               {editingLocation ? 'Edit Location' : 'Create New Location'}
             </h2>
-            
+
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }} noValidate>
               <div className="form-group">
                 <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '8px' }}>Location Name</label>
@@ -284,9 +291,19 @@ export default function StockLocationsPage() {
                   <option value="ONLINE">Online / Virtual</option>
                 </Select>
               </div>
-              
-              <div style={{ 
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
+              {/* Printed as the delivery address on purchase orders for this store. */}
+              <div className="form-group">
+                <label htmlFor="location-address" style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '8px' }}>Address (optional)</label>
+                <textarea id="location-address" className="input-field" rows={2} maxLength={300} value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} placeholder="e.g., 14 Gandhi Road, Guntur 522002" style={{ resize: 'vertical' }} />
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '6px' }}>Suppliers deliver here for orders to this store. Left empty, the shop's address is used.</div>
+              </div>
+              <div className="form-group">
+                <label htmlFor="location-phone" style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '8px' }}>Phone at this store (optional)</label>
+                <input id="location-phone" type="tel" inputMode="tel" maxLength={20} className="input-field" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="e.g., +91 98765 43210" />
+              </div>
+
+              <div style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 padding: '16px', background: 'var(--bg-input)', borderRadius: '8px', marginTop: '4px'
               }}>
                 <div>
@@ -301,14 +318,14 @@ export default function StockLocationsPage() {
                     transition: '.3s', borderRadius: '24px'
                   }}>
                     <span style={{
-                      position: 'absolute', content: '""', height: '18px', width: '18px', 
-                      left: formData.active ? '22px' : '3px', bottom: '3px', 
+                      position: 'absolute', content: '""', height: '18px', width: '18px',
+                      left: formData.active ? '22px' : '3px', bottom: '3px',
                       backgroundColor: 'var(--bg-card)', transition: '.3s', borderRadius: '50%'
                     }} />
                   </span>
                 </label>
               </div>
-              
+
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '24px' }}>
                 <button type="button" className="btn-secondary" onClick={() => setIsModalOpen(false)} style={{ padding: '10px 20px', borderRadius: '8px' }}>Cancel</button>
                 <button type="submit" className="btn-primary" style={{ padding: '10px 20px', borderRadius: '8px' }}>{editingLocation ? 'Save Changes' : 'Create Location'}</button>
@@ -317,7 +334,7 @@ export default function StockLocationsPage() {
           </div>
         </>
       )}
-      
+
       <style>{`
         .table-row-hover:hover {
           background-color: var(--bg-hover) !important;

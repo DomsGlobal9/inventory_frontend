@@ -69,7 +69,7 @@ const MAX_ITEM_LINES = 15;
  * Builds the message body. Deliberately plain text: WhatsApp's own formatting is limited to
  * *bold* and _italics_, and anything fancier arrives as literal asterisks.
  */
-export function buildPurchaseOrderMessage({ poNumber, supplierName, items = [], total, expectedDeliveryDate, senderName }) {
+export function buildPurchaseOrderMessage({ poNumber, supplierName, items = [], total, expectedDeliveryDate, senderName, deliverTo }) {
   const lines = [];
 
   lines.push(`Hello${supplierName ? ` ${supplierName}` : ''},`);
@@ -94,6 +94,14 @@ export function buildPurchaseOrderMessage({ poNumber, supplierName, items = [], 
 
   const due = formatDate(expectedDeliveryDate);
   if (due) lines.push(`Expected delivery: ${due}`);
+
+  // Where to bring it. A shop with more than one store cannot leave the supplier to guess.
+  if (deliverTo?.name) {
+    lines.push('');
+    lines.push(`*Deliver to:* ${deliverTo.name}`);
+    if (deliverTo.address) lines.push(deliverTo.address);
+    if (deliverTo.phone) lines.push(`Phone: ${deliverTo.phone}`);
+  }
 
   lines.push('');
   lines.push('Please confirm receipt of this order.');

@@ -129,8 +129,8 @@ function PurchaseOrdersList() {
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '14px', margin: '4px 0 0' }}>Manage inbound inventory from suppliers</p>
         </div>
-        
-        <button 
+
+        <button
           onClick={() => navigate('/inventory/purchase-orders/new')}
           className="btn-primary"
           style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
@@ -162,6 +162,7 @@ function PurchaseOrdersList() {
             <tr>
               <th>PO Number</th>
               <th>Supplier</th>
+              <th>Deliver to</th>
               <th>Status</th>
               <th>Items</th>
               <th>Date</th>
@@ -171,7 +172,7 @@ function PurchaseOrdersList() {
           <tbody>
             {filteredPOs.length === 0 ? (
               <tr>
-                <td colSpan="6" style={{ padding: '48px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                <td colSpan="7" style={{ padding: '48px', textAlign: 'center', color: 'var(--text-muted)' }}>
                   No purchase orders found.
                 </td>
               </tr>
@@ -187,11 +188,16 @@ function PurchaseOrdersList() {
                   </div>
                 </td>
                 <td>
-                  <span style={{ 
-                    padding: '4px 10px', 
-                    borderRadius: '20px', 
-                    fontSize: '11px', 
-                    fontWeight: '700', 
+                  {po.location
+                    ? <span style={{ color: 'var(--text-primary)' }}>{po.location.name}</span>
+                    : <span style={{ color: 'var(--accent-warning, #f59e0b)', fontSize: '13px' }}>Not chosen</span>}
+                </td>
+                <td>
+                  <span style={{
+                    padding: '4px 10px',
+                    borderRadius: '20px',
+                    fontSize: '11px',
+                    fontWeight: '700',
                     letterSpacing: '0.5px',
                     color: getStatusColor(po.status),
                     backgroundColor: `${getStatusColor(po.status)}20` // 20% opacity background
@@ -212,7 +218,7 @@ function PurchaseOrdersList() {
                   </div>
                 </td>
                 <td style={{ textAlign: 'right' }}>
-                  <button 
+                  <button
                     style={{ color: 'var(--text-muted)' }}
                     onClick={(e) => { e.stopPropagation(); /* context menu */ }}
                   >

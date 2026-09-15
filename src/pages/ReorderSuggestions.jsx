@@ -73,11 +73,11 @@ export default function ReorderSuggestions() {
 
     if (!groups.length) return toast.error('Select at least one item to order');
 
-    createDrafts.mutate(groups, {
+    createDrafts.mutate({ groups, locationId: data?.location?.id }, {
       onSuccess: (res) => {
         setCreatedOrders(res.created || []);
         const n = res.created?.length || 0;
-        toast.success(`${n} draft purchase order${n === 1 ? '' : 's'} created`);
+        toast.success(`${n} draft purchase order${n === 1 ? '' : 's'} created${data?.location ? ` for ${data.location.name}` : ''}`);
         if (res.failed?.length) {
           toast.error(`${res.failed.length} could not be created — see the list below.`);
         }
@@ -94,15 +94,37 @@ export default function ReorderSuggestions() {
     );
   }
 
+  const storeName = data?.location?.name;
+  const covered = data?.summary?.coveredByOpenOrders || 0;
+  const withoutStore = data?.summary?.ordersWithoutStore || 0;
+
+  // Said above the list, and on the empty screen too: "nothing to order" is only true for this store.
+  const storeNotes = (
+    <>
+      {covered > 0 && (
+        <p style={{ margin: '8px 0 0', fontSize: '13px', color: 'var(--text-secondary)' }}>
+          {covered} more item{covered === 1 ? ' is' : 's are'} low, but enough is already on order{storeName ? ` for ${storeName}` : ''}.
+        </p>
+      )}
+      {withoutStore > 0 && (
+        <p style={{ margin: '8px 0 0', fontSize: '13px', color: 'var(--accent-warning, #f59e0b)', display: 'flex', gap: '6px', alignItems: 'flex-start' }}>
+          <AlertTriangle size={14} style={{ flexShrink: 0, marginTop: '2px' }} />
+          <span>{withoutStore} open purchase order{withoutStore === 1 ? ' has' : 's have'} no store chosen, so {withoutStore === 1 ? 'it is' : 'they are'} not counted here. Choose a store on {withoutStore === 1 ? 'that order' : 'those orders'}.</span>
+        </p>
+      )}
+    </>
+  );
+
   if (suppliers.length === 0 && unassigned.length === 0) {
     return (
       <div style={{ padding: '120px 32px', textAlign: 'center', color: 'var(--text-muted)' }}>
         <PackageCheck size={56} style={{ opacity: 0.2, marginBottom: '24px' }} />
         <h3 style={{ fontSize: '22px', fontWeight: '600', letterSpacing: '-0.02em', color: 'var(--text-primary)', margin: '0 0 12px' }}>Inventory is Healthy</h3>
         <p style={{ fontSize: '15px', margin: 0, lineHeight: 1.6, maxWidth: '400px', marginInline: 'auto' }}>
-          Every tracked item is above its minimum reorder level.<br />
+          Every tracked item{storeName ? ` at ${storeName}` : ''} is above its minimum reorder level.<br />
           Enjoy the peace of mind.
         </p>
+        <div style={{ maxWidth: '460px', marginInline: 'auto' }}>{storeNotes}</div>
       </div>
     );
   }
@@ -143,11 +165,13 @@ export default function ReorderSuggestions() {
         gap: '24px', flexWrap: 'wrap', marginBottom: '32px'
       }}>
         <div>
-          <h2 style={{ fontSize: '24px', fontWeight: '600', letterSpacing: '-0.02em', color: 'var(--text-primary)', margin: '0 0 8px' }}>Action Required</h2>
+          <h2 style={{ fontSize: '24px', fontWeight: '600', letterSpacing: '-0.02em', color: 'var(--text-primary)', margin: '0 0 8px' }}>Action Required{storeName ? ` · ${storeName}` : ''}</h2>
           <p style={{ margin: 0, fontSize: '15px', color: 'var(--text-secondary)' }}>
-            {data.summary.lineCount} item{data.summary.lineCount === 1 ? '' : 's'} are critically low
-            {suppliers.length > 0 && ` across ${suppliers.length} supplier${suppliers.length === 1 ? '' : 's'}.`}
+            {data.summary.lineCount} item{data.summary.lineCount === 1 ? '' : 's'} {data.summary.lineCount === 1 ? 'is' : 'are'} critically low{storeName ? ` at ${storeName}` : ''}
+            {suppliers.length > 0 ? ` across ${suppliers.length} supplier${suppliers.length === 1 ? '' : 's'}.` : '.'}
+            {storeName && ' Orders made here are delivered to this store.'}
           </p>
+          {storeNotes}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
           <div style={{ textAlign: 'right' }}>
@@ -190,7 +214,7 @@ export default function ReorderSuggestions() {
               </div>
             </div>
             <div className="table-container" style={{ fontSize: '15px', color: 'var(--text-secondary)', textAlign: 'right' }}>
-              {group.lines.length} item{group.lines.length === 1 ? '' : 's'} <br/> 
+              {group.lines.length} item{group.lines.length === 1 ? '' : 's'} <br/>
               <strong style={{ color: 'var(--text-primary)', fontSize: '16px' }}>{money(group.estimatedTotal)}</strong>
             </div>
           </div>
@@ -200,7 +224,8 @@ export default function ReorderSuggestions() {
               <tr>
                 <th style={{ width: '40px', paddingLeft: '24px' }}></th>
                 <th>Item Details</th>
-                <th style={{ textAlign: 'right' }}>Current Stock</th>
+                <th style={{ textAlign: 'right' }}>{storeName ? 'Stock here' : 'Current Stock'}</th>
+                <th style={{ textAlign: 'right' }}>On order</th>
                 <th style={{ textAlign: 'right' }}>Reorder Threshold</th>
                 <th style={{ textAlign: 'center' }}>Order Quantity</th>
                 <th style={{ textAlign: 'right' }}>Unit Cost</th>
@@ -212,7 +237,7 @@ export default function ReorderSuggestions() {
                 const st = stateFor(line);
                 const qty = Number(st.qty) || 0;
                 return (
-                  <tr key={line.variantId} style={{ 
+                  <tr key={line.variantId} style={{
                     transition: 'all 0.2s ease',
                     opacity: st.selected ? 1 : 0.6,
                     backgroundColor: st.selected ? 'transparent' : 'var(--bg-input)'
@@ -243,6 +268,7 @@ export default function ReorderSuggestions() {
                          {line.currentStock}
                       </span>
                     </td>
+                    <td style={{ textAlign: 'right', color: 'var(--text-secondary)', fontSize: '14px' }}>{line.onOrder || 0}</td>
                     <td style={{ textAlign: 'right', color: 'var(--text-secondary)', fontSize: '14px' }}>{line.reorderLevel}</td>
                     <td style={{ textAlign: 'center' }}>
                       <input
@@ -252,7 +278,7 @@ export default function ReorderSuggestions() {
                         value={st.qty}
                         onChange={(e) => setLine(line.variantId, { selected: st.selected, qty: e.target.value })}
                         disabled={!st.selected}
-                        style={{ 
+                        style={{
                           width: '90px', textAlign: 'center', padding: '8px', borderRadius: '6px',
                           opacity: st.selected ? 1 : 0.5, cursor: st.selected ? 'text' : 'not-allowed'
                         }}
@@ -306,7 +332,8 @@ export default function ReorderSuggestions() {
                       onClick={() => navigate('/inventory/purchase-orders/new', {
                         state: {
                           variantId: line.variantId, sku: line.sku, title: line.productTitle,
-                          orderedQty: line.suggestedQty, costPrice: line.unitPrice
+                          orderedQty: line.suggestedQty, costPrice: line.unitPrice,
+                          locationId: data?.location?.id
                         }
                       })}
                     >

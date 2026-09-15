@@ -97,9 +97,14 @@ export const useUpdatePurchaseOrderStatus = () => {
 export const useReceiveGoods = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, receipts }) => {
-      const response = await api.post(`/purchase-orders/${id}/receive`, { receipts });
-      return response.data;
+    // Answers with the order AND the goods receipt the delivery produced, so the screen can
+    // offer the receipt PDF the moment it exists. `requestKey` is made once per press of
+    // Confirm Receipt: a double click or a retry sends the same one and gets the same receipt.
+    mutationFn: async ({ id, receipts, locationId, supplierReference, notes, requestKey }) => {
+      const response = await api.post(`/purchase-orders/${id}/receive`, {
+        receipts, locationId, supplierReference, notes, requestKey
+      });
+      return { po: response.data, receipt: response.receipt, duplicate: !!response.duplicate };
     },
     // Show the receipt on the order straight away.
     //
@@ -154,7 +159,11 @@ export const useReceiveGoods = () => {
       }
       toast.error(error?.message || 'Failed to receive goods');
     },
-    onSuccess: () => toast.success('Goods received successfully'),
+    onSuccess: (result) => toast.success(
+      result?.receipt?.receiptNumber
+        ? `${result.duplicate ? 'Already received' : 'Received'} — ${result.receipt.receiptNumber}`
+        : 'Goods received successfully'
+    ),
     onSettled: (_data, _err, variables) => {
       queryClient.invalidateQueries({ queryKey: ['purchase-orders'] });
       queryClient.invalidateQueries({ queryKey: ['purchase-orders', variables.id] });

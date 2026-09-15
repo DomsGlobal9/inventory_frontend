@@ -6,7 +6,7 @@ import { api } from '../lib/api';
 const KEY = ['branding'];
 
 /**
- * The shop's own name and logo.
+ * The shop's own name and logo, and the rest of its letterhead.
  *
  * Read by anyone signed in -- these appear wherever the app identifies the shop to its own
  * staff -- and written only by the account owner, which the backend enforces; the UI hides
@@ -42,6 +42,19 @@ export function useSetBusinessName() {
  * returns, then tell the server which path to record. The browser never supplies a clientId
  * and never holds a Supabase key.
  */
+/** Address, phone, email and GSTIN: what the shop's documents print under its name. */
+export function useSetBrandingDetails() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (details) => (await api.put('/branding/details', details)).data,
+    onSuccess: (data) => {
+      qc.setQueryData(KEY, data);
+      toast.success('Letterhead details saved');
+    },
+    onError: (err) => toast.error(err?.message || 'Could not save the details.')
+  });
+}
+
 export function useUploadLogo() {
   const qc = useQueryClient();
   return useMutation({

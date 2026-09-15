@@ -1,12 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { usePurchaseOrder, useCreatePurchaseOrder, useUpdatePurchaseOrderStatus, useReceiveGoods, useEmailPurchaseOrder } from '../hooks/usePurchaseOrders';
 import { useSuppliers } from '../hooks/useSuppliers';
-import { ArrowLeft, CheckCircle2, Box, Truck, Plus, Save, Download, Loader2, MessageCircle, Mail } from 'lucide-react';
-import { PDFDownloadLink } from '@react-pdf/renderer';
+import { ArrowLeft, CheckCircle2, Box, Truck, Plus, Save, Download, Loader2, MessageCircle, Mail, FileText } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PurchaseOrderPDF from '../components/PurchaseOrderPDF';
+import GoodsReceiptPDF from '../components/GoodsReceiptPDF';
+import { downloadPdf } from '../components/pdf/downloadPdf';
+import { logoAsPng } from '../components/pdf/pdfLogo';
+import { useBranding } from '../hooks/useBranding';
+import { useLocationContext } from '../contexts/LocationContext';
 import VariantSearchModal from '../components/VariantSearchModal';
 import ConfirmModal from '../components/ConfirmModal';
 import { api } from '../lib/api';
@@ -37,6 +41,52 @@ export default function PurchaseOrderDetails() {
   const [confirmState, setConfirmState] = useState({ isOpen: false });
   const [receivingQuantities, setReceivingQuantities] = useState({});
   const location = useLocation();
+
+  // ── Receiving, and the documents it produces ──
+  const { data: branding } = useBranding();
+  const { locations = [], currentLocation } = useLocationContext();
+  const activeLocations = locations.filter(l => l.active !== false);
+  const [receiveLocationId, setReceiveLocationId] = useState('');
+  const [supplierReference, setSupplierReference] = useState('');
+  const [receiveNotes, setReceiveNotes] = useState('');
+  const [lastReceipt, setLastReceipt] = useState(null);
+  const [printing, setPrinting] = useState(null);
+  // One key per delivery being entered. A double click, or pressing again after a slow answer,
+  // sends the same key, and the server hands back the receipt it already made instead of
+  // bringing the same goods in twice. A new key only once a receipt has come back.
+  const newKey = () => (window.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`);
+  const requestKey = useRef(newKey());
+  const receiving = useRef(false);
+
+  // The location chosen at the top of the app, unless it is switched off -- then the first that is not.
+  useEffect(() => {
+    if (receiveLocationId || activeLocations.length === 0) return;
+    const preferred = activeLocations.find(l => l.id === currentLocation?.id) || activeLocations[0];
+    setReceiveLocationId(preferred.id);
+  }, [activeLocations.length, currentLocation?.id]);
+
+  const printDocument = async (kind, receipt) => {
+    if (!po || printing) return;
+    const busyKey = kind === 'po' ? 'po' : receipt.id;
+    setPrinting(busyKey);
+    try {
+      const logo = await logoAsPng(branding?.logoUrl);
+      const shop = branding || {};
+      if (kind === 'po') {
+        await downloadPdf(<PurchaseOrderPDF order={po} shop={shop} logo={logo} />, `${po.poNumber}.pdf`);
+      } else {
+        await downloadPdf(
+          <GoodsReceiptPDF receipt={receipt} order={po} shop={shop} logo={logo} />,
+          `${receipt.receiptNumber}-${po.poNumber}.pdf`
+        );
+      }
+    } catch (error) {
+      console.error('PDF failed', error);
+      toast.error('Could not make the PDF. Please try again.');
+    } finally {
+      setPrinting(null);
+    }
+  };
 
   useEffect(() => {
     if (isNew && location.state && formData.items.length === 0) {
@@ -168,9 +218,28 @@ This actually sends it. Once it goes, the order is marked as Sent and you can st
 
     if (receipts.length === 0) return toast.error('No quantities to receive');
 
+    if (!receiveLocationId) return toast.error('Choose where these goods are going.');
+
+    // A double click reaches here twice before the button can disable itself. The server
+    // already turns the second into the same receipt, but each one also added the quantities to
+    // the screen straight away -- so the line read "received 8" for a delivery of 4 until the
+    // page refreshed, which looks exactly like a delivery booked twice.
+    if (receiving.current) return;
+    receiving.current = true;
+
     try {
-      await receiveGoods.mutateAsync({ id, receipts });
+      const result = await receiveGoods.mutateAsync({
+        id, receipts,
+        locationId: receiveLocationId,
+        supplierReference: supplierReference.trim() || null,
+        notes: receiveNotes.trim() || null,
+        requestKey: requestKey.current
+      });
       // The toast is handled by the hook now
+      setLastReceipt(result?.receipt || null);
+      requestKey.current = newKey();
+      setSupplierReference('');
+      setReceiveNotes('');
       // Reset receiving quantities
       const initialRec = {};
       po.items.forEach(item => {
@@ -178,7 +247,10 @@ This actually sends it. Once it goes, the order is marked as Sent and you can st
       });
       setReceivingQuantities(initialRec);
     } catch (err) {
-      // The toast is handled by the hook
+      // The toast is handled by the hook. The key is kept: pressing again after a failure that
+      // did in fact save returns that receipt rather than a second one.
+    } finally {
+      receiving.current = false;
     }
   };
 
@@ -399,22 +471,15 @@ This actually sends it. Once it goes, the order is marked as Sent and you can st
                 </button>
               )}
               
-              <PDFDownloadLink
-                document={<PurchaseOrderPDF order={po} />}
-                fileName={`${po.poNumber}.pdf`}
-                style={{ textDecoration: 'none' }}
+              <button
+                onClick={() => printDocument('po')}
+                disabled={printing === 'po'}
+                className="btn-secondary"
+                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
               >
-                {({ loading }) => (
-                  <button 
-                    disabled={loading}
-                    className="btn-secondary"
-                    style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                  >
-                    <Download size={16} />
-                    {loading ? 'Preparing PDF...' : 'Download PDF'}
-                  </button>
-                )}
-              </PDFDownloadLink>
+                {printing === 'po' ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+                {printing === 'po' ? 'Preparing PDF...' : 'Download PDF'}
+              </button>
             </div>
           )}
         </div>
@@ -424,7 +489,10 @@ This actually sends it. Once it goes, the order is marked as Sent and you can st
       <motion.div variants={itemVariants} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px', flex: 1, overflowY: 'auto', paddingBottom: '32px' }} className="mobile-stack-grid">
         
         {/* Left Column (Main Info) */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        {/* minWidth 0: a grid column otherwise grows to fit its widest child, and the line items
+            table made this one 443px on a 400px phone -- cutting off the right edge of everything
+            in it instead of letting the table scroll inside its own box. */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', minWidth: 0 }}>
           
           {/* Supplier Details */}
           <div className="glass-panel" style={{ padding: '24px' }}>
@@ -602,10 +670,50 @@ This actually sends it. Once it goes, the order is marked as Sent and you can st
               </table>
             </div>
           </div>
+
+          {/* Every delivery against this order, each with its own goods receipt. */}
+          {!isNew && po?.receipts?.length > 0 && (
+            <div className="glass-panel" style={{ padding: '24px' }}>
+              <h2 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-primary)' }}>
+                <FileText size={18} style={{ color: 'var(--text-secondary)' }} />
+                Deliveries received
+              </h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {[...po.receipts].reverse().map(receipt => {
+                  const pieces = (receipt.items || []).reduce((sum, i) => sum + (Number(i.quantity) || 0), 0);
+                  return (
+                    <div key={receipt.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', padding: '12px 14px', border: '1px solid var(--border-light)', borderRadius: '10px' }}>
+                      <div style={{ flex: '1 1 220px', minWidth: 0 }}>
+                        <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                          {receipt.receiptNumber}
+                          <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}> · {pieces} piece{pieces === 1 ? '' : 's'} into {receipt.location?.name || '—'}</span>
+                        </div>
+                        <div style={{ fontSize: '12.5px', color: 'var(--text-secondary)', marginTop: '2px', overflowWrap: 'anywhere' }}>
+                          {new Date(receipt.receivedAt).toLocaleString()}
+                          {receipt.receivedByName ? ` · by ${receipt.receivedByName}` : ''}
+                          {receipt.supplierReference ? ` · invoice ${receipt.supplierReference}` : ''}
+                        </div>
+                      </div>
+                      <button
+                        className="btn-secondary"
+                        onClick={() => printDocument('receipt', receipt)}
+                        disabled={printing === receipt.id}
+                        style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px' }}
+                        aria-label={`Download goods receipt ${receipt.receiptNumber}`}
+                      >
+                        {printing === receipt.id ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+                        Receipt PDF
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Right Column (Actions) */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', minWidth: 0 }}>
           {isNew && (
             <div className="glass-panel" style={{ padding: '24px' }}>
               <button 
@@ -627,16 +735,76 @@ This actually sends it. Once it goes, the order is marked as Sent and you can st
           {isReceivable && (
             <div className="glass-panel" style={{ padding: '24px', borderColor: 'var(--accent-gold)' }}>
               <h3 style={{ fontWeight: '600', color: 'var(--accent-gold)', marginBottom: '8px', fontSize: '16px' }}>Goods Receipt (GRN)</h3>
-              <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '24px', lineHeight: 1.5 }}>
-                Enter quantities in the line items table and click below to receive them into your physical inventory.
+              <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '16px', lineHeight: 1.5 }}>
+                Enter how many of each item arrived in the table, then confirm. You get a receipt to print or send.
               </p>
-              <button 
+
+              <label className="form-label" htmlFor="grn-location" style={{ display: 'block', fontSize: '12.5px', marginBottom: '6px' }}>Receive into</label>
+              <Select
+                id="grn-location"
+                className="input-field"
+                value={receiveLocationId}
+                onChange={e => setReceiveLocationId(e.target.value)}
+                style={{ width: '100%', marginBottom: '12px' }}
+              >
+                {activeLocations.length === 0 && <option value="">No locations</option>}
+                {activeLocations.map(l => (
+                  <option key={l.id} value={l.id}>{l.name}{l.code ? ` (${l.code})` : ''}</option>
+                ))}
+              </Select>
+
+              <label className="form-label" htmlFor="grn-reference" style={{ display: 'block', fontSize: '12.5px', marginBottom: '6px' }}>Supplier invoice / challan no. (optional)</label>
+              <input
+                id="grn-reference"
+                className="input-field"
+                value={supplierReference}
+                maxLength={80}
+                onChange={e => setSupplierReference(e.target.value)}
+                placeholder="e.g. INV-2291"
+                style={{ width: '100%', marginBottom: '12px' }}
+              />
+
+              <label className="form-label" htmlFor="grn-notes" style={{ display: 'block', fontSize: '12.5px', marginBottom: '6px' }}>Note (optional)</label>
+              <textarea
+                id="grn-notes"
+                className="input-field"
+                value={receiveNotes}
+                maxLength={500}
+                rows={2}
+                onChange={e => setReceiveNotes(e.target.value)}
+                placeholder="e.g. 2 pieces had damaged packaging"
+                style={{ width: '100%', marginBottom: '16px', resize: 'vertical' }}
+              />
+
+              <button
                 onClick={handleReceiveGoods}
                 disabled={receiveGoods.isPending}
                 className="btn-primary"
                 style={{ width: '100%', padding: '12px', background: 'var(--accent-gold)', color: 'var(--bg-dark)' }}
               >
                 {receiveGoods.isPending ? 'Processing...' : 'Confirm Receipt'}
+              </button>
+            </div>
+          )}
+
+          {/* The receipt just made, straight to hand -- including after the last delivery, when
+              the order is fully received and the panel above has gone. */}
+          {lastReceipt && (
+            <div className="glass-panel" role="status" style={{ padding: '20px', borderColor: 'var(--accent-success)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '6px' }}>
+                <CheckCircle2 size={18} color="var(--accent-success)" /> {lastReceipt.receiptNumber} saved
+              </div>
+              <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 14px' }}>
+                {(lastReceipt.items || []).reduce((sum, i) => sum + (Number(i.quantity) || 0), 0)} pieces into {lastReceipt.location?.name || 'stock'}.
+              </p>
+              <button
+                className="btn-primary"
+                onClick={() => printDocument('receipt', lastReceipt)}
+                disabled={printing === lastReceipt.id}
+                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+              >
+                {printing === lastReceipt.id ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+                Download receipt PDF
               </button>
             </div>
           )}

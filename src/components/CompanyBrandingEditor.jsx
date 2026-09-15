@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Loader2, Upload, Trash2, Save, Building2 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { useBranding, useSetBusinessName, useUploadLogo, useRemoveLogo } from '../hooks/useBranding';
+import { useBranding, useSetBusinessName, useUploadLogo, useRemoveLogo, useSetBrandingDetails } from '../hooks/useBranding';
 import { isImageFile } from '../utils/imageFile';
 import ConfirmModal from './ConfirmModal';
 
@@ -54,7 +54,7 @@ export default function CompanyBrandingEditor() {
     <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '20px', marginTop: '4px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
         <Building2 size={16} color="var(--accent-gold)" />
-        <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>Shop name and logo</span>
+        <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>Shop name, logo and letterhead</span>
       </div>
       <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '0 0 16px' }}>
         Shown to everyone on your team. Only you can change these.
@@ -142,6 +142,8 @@ export default function CompanyBrandingEditor() {
         />
       </div>
 
+      <LetterheadDetails branding={branding} />
+
       <ConfirmModal
         isOpen={confirmRemove}
         onClose={() => setConfirmRemove(false)}
@@ -152,5 +154,84 @@ export default function CompanyBrandingEditor() {
         confirmStyle="danger"
       />
     </div>
+  );
+}
+
+const FIELDS = [
+  { key: 'businessAddress', label: 'Address', placeholder: 'e.g. 12-4-56, Main Bazaar, Vijayawada, Andhra Pradesh 520001', multiline: true },
+  { key: 'businessPhone', label: 'Phone', placeholder: 'e.g. +91 98765 43210', type: 'tel' },
+  { key: 'businessEmail', label: 'Email', placeholder: 'e.g. orders@yourshop.in', type: 'email' },
+  { key: 'gstNumber', label: 'GSTIN', placeholder: 'e.g. 37ABCDE1234F1Z5' }
+];
+
+/**
+ * What purchase orders and goods receipts print under the shop's name.
+ *
+ * Each field is optional and a blank one is simply left off the page. Saved together, because a
+ * letterhead is read as one block and saving one line at a time invites half-updated documents.
+ */
+function LetterheadDetails({ branding }) {
+  const save = useSetBrandingDetails();
+  const [draft, setDraft] = useState(null);
+
+  const saved = Object.fromEntries(FIELDS.map(f => [f.key, branding?.[f.key] || '']));
+  const values = draft ?? saved;
+  const changed = FIELDS.some(f => (values[f.key] || '').trim() !== saved[f.key]);
+
+  const submit = (e) => {
+    e.preventDefault();
+    save.mutate(
+      Object.fromEntries(FIELDS.map(f => [f.key, (values[f.key] || '').trim() || null])),
+      { onSuccess: () => setDraft(null) }
+    );
+  };
+
+  return (
+    <form onSubmit={submit} style={{ marginTop: '20px' }}>
+      <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '4px' }}>
+        Letterhead details
+      </label>
+      <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '0 0 12px' }}>
+        Printed under your name and logo on purchase orders and goods receipts. Leave any of them empty to leave it off.
+      </p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
+        {FIELDS.map(f => (
+          <div key={f.key} style={{ gridColumn: f.multiline ? '1 / -1' : undefined, minWidth: 0 }}>
+            <label htmlFor={`letterhead-${f.key}`} style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>{f.label}</label>
+            {f.multiline ? (
+              <textarea
+                id={`letterhead-${f.key}`}
+                className="input-field"
+                rows={2}
+                maxLength={300}
+                placeholder={f.placeholder}
+                value={values[f.key]}
+                onChange={(e) => setDraft({ ...values, [f.key]: e.target.value })}
+                style={{ width: '100%', resize: 'vertical' }}
+              />
+            ) : (
+              <input
+                id={`letterhead-${f.key}`}
+                className="input-field"
+                type={f.type || 'text'}
+                maxLength={f.key === 'gstNumber' ? 15 : 120}
+                placeholder={f.placeholder}
+                value={values[f.key]}
+                onChange={(e) => setDraft({ ...values, [f.key]: f.key === 'gstNumber' ? e.target.value.toUpperCase() : e.target.value })}
+                style={{ width: '100%' }}
+              />
+            )}
+          </div>
+        ))}
+      </div>
+      <button
+        type="submit"
+        className="btn-secondary"
+        disabled={!changed || save.isPending}
+        style={{ marginTop: '12px', display: 'flex', alignItems: 'center', gap: '6px', opacity: changed ? 1 : 0.5 }}
+      >
+        {save.isPending ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} Save details
+      </button>
+    </form>
   );
 }

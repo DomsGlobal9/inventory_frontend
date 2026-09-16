@@ -74,8 +74,7 @@ export default function Sidebar({ isOpen }) {
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       {/* Brand */}
       <div style={{ height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid var(--border-light)' }}>
-        {/* The real logo, as on the landing page. On the dark theme it sits on a light panel: its
-            "ezy" and "inventory" are dark green and all but vanish against black. */}
+        {/* The real logo, as on the landing page. */}
         <Link to="/dashboard" aria-label="Scaleezy Inventory, go to dashboard" className="sidebar-brand" style={{ textDecoration: 'none', display: 'block', transition: 'opacity 0.2s' }} onMouseOver={(e) => e.currentTarget.style.opacity = '0.85'} onMouseOut={(e) => e.currentTarget.style.opacity = '1'}>
           <BrandLockup width={168} />
         </Link>

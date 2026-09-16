@@ -2,15 +2,22 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import toast from 'react-hot-toast';
 import { optimisticRowPatch, restoreRows } from '../lib/invalidate';
+import { usePermission } from './usePermission';
 
 export const useAlerts = () => {
+  // Stock alerts are for people who can see stock. The bell in the top bar is on every page for
+  // everyone, and for a salesperson it asked every 10 seconds and was refused every time -- a 403
+  // in the console on every page, and a request a minute and more counted against the rate limit.
+  const { can } = usePermission();
+  const allowed = can('inventory:view');
   return useQuery({
     queryKey: ['inventory', 'alerts'],
     queryFn: async () => {
       const response = await api.get('/inventory/alerts');
       return response.data;
     },
-    refetchInterval: 10000, // Poll every 10 seconds for new alerts
+    enabled: allowed,
+    refetchInterval: allowed ? 10000 : false, // Poll every 10 seconds for new alerts
   });
 };
 

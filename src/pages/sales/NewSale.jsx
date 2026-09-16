@@ -126,6 +126,9 @@ export default function NewSale() {
   const found = phoneCheck.ok ? byPhone.data : null;
   // Chosen from their page, saved before phones were required: the number typed now becomes theirs.
   const linkedNeedsPhone = linkedCustomer && !linkedCustomer.phone && linkedCustomer.id === sale?.linkedCustomerId;
+  // The number typed for them is already somebody else's. Switching the sale to that person without a
+  // word sold to the wrong customer whenever the cashier did not look up; it has to be a decision.
+  const numberBelongsToSomeoneElse = linkedNeedsPhone && found && found.id !== linkedCustomer.id;
 
   let customer = null;
   let customerProblem = null;
@@ -133,6 +136,7 @@ export default function NewSale() {
   else if (!phoneCheck.ok) customerProblem = phoneCheck.reason;
   else if (byPhone.isLoading) customerProblem = 'Looking up the number…';
   else if (byPhone.isError) customerProblem = byPhone.error?.message || 'Could not look up the number.';
+  else if (numberBelongsToSomeoneElse) customerProblem = `That number is ${found.name}'s. Type ${linkedCustomer.name}'s own number, or sell to ${found.name} instead.`;
   else if (found) customer = { id: found.id };
   else if (linkedNeedsPhone) customer = { id: linkedCustomer.id, phone: phoneCheck.value };
   else if (!sale.name.trim()) customerProblem = "Add the customer's name.";
@@ -305,7 +309,22 @@ export default function NewSale() {
               <div role="alert" style={{ fontSize: 13, color: 'var(--accent-warning)' }}>{phoneCheck.reason}</div>
             )}
             {phoneCheck.ok && byPhone.isLoading && <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Looking up {formatPhone(phoneCheck.value)}…</div>}
-            {found && (
+            {numberBelongsToSomeoneElse && (
+              <div role="alert" style={{ display: 'grid', gap: 8, padding: '10px 12px', borderRadius: 10, border: '1px solid var(--accent-warning)', color: 'var(--text-primary)' }}>
+                <div style={{ fontSize: 14 }}>
+                  {formatPhone(found.phone)} is already saved for <strong>{found.name}</strong> ({found.customerCode}). This sale is for {linkedCustomer.name}.
+                </div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <button type="button" className="btn-secondary" disabled={busy} onClick={() => update({ phone: '' })} style={{ fontSize: 12, padding: '4px 10px' }}>
+                    Type {linkedCustomer.name}'s number
+                  </button>
+                  <button type="button" className="btn-secondary" disabled={busy} onClick={() => update({ linkedCustomerId: null })} style={{ fontSize: 12, padding: '4px 10px' }}>
+                    Sell to {found.name} instead
+                  </button>
+                </div>
+              </div>
+            )}
+            {found && !numberBelongsToSomeoneElse && (
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, padding: '10px 12px', background: 'var(--bg-hover)', borderRadius: 10 }}>
                 <div style={{ minWidth: 0 }}>
                   <div style={{ fontWeight: 600 }}>{found.name}</div>

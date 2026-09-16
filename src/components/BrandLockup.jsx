@@ -17,10 +17,12 @@ import React from 'react';
  * in one place.
  */
 
-// The drawing's bounds inside logo.png, as fractions of the file.
-const ART = { left: 0.030, right: 0.967, top: 0.232, bottom: 0.735 };
+// The drawing's bounds inside logo.png, as fractions of the file, with a little room kept.
+// The bottom was 0.735, measured to the baseline of "inventory" -- which cut the tail off its "y".
+// Measured to the lowest inked pixel it is 0.756.
+const ART = { left: 0.030, right: 0.967, top: 0.232, bottom: 0.765 };
 const ART_W = ART.right - ART.left;   // 0.937
-const ART_H = ART.bottom - ART.top;   // 0.503
+const ART_H = ART.bottom - ART.top;   // 0.533
 const FILE_RATIO = 2027 / 776;        // the file's own aspect
 
 export default function BrandLockup({ size = 'md', width, style, className }) {

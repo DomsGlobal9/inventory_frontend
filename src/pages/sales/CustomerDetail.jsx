@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { useCustomerDetails } from '../../hooks/useCustomers';
-import { ArrowLeft, Mail, Phone, MapPin, Building, FileText, ShoppingBag, Truck, Loader2, X, Undo2 } from 'lucide-react';
+import { ArrowLeft, Mail, Phone, MapPin, Building, FileText, ShoppingBag, Truck, Loader2, X, Undo2, Edit2 } from 'lucide-react';
 import { api } from '../../lib/api';
 import { usePermission } from '../../hooks/usePermission';
 import { formatINR } from '../../utils/formatUtils';
 import toast from 'react-hot-toast';
 import Select from '../../components/common/Select';
 import CustomerGroupsCard from '../../components/CustomerGroupsCard';
+import CustomerModal from '../../components/sales/CustomerModal';
+import { formatPhone } from '../../utils/phone';
 
 export default function CustomerDetail() {
   const { id } = useParams();
@@ -22,6 +24,7 @@ export default function CustomerDetail() {
   const [selectedDispatch, setSelectedDispatch] = useState(null);
   const [returnNotes, setReturnNotes] = useState('');
   const [returnReason, setReturnReason] = useState('');
+  const [editing, setEditing] = useState(false);
 
   /**
    * The reasons a return can be filed under, in the words a shop uses on the left and the
@@ -54,7 +57,9 @@ export default function CustomerDetail() {
       return api.post('/returns', { salesOrderId, items, notes, reason });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['customer', id] });
+      // ['customers', id] is the key useCustomerDetails reads; ['customer', id] matched nothing, so a
+      // raised return did not show on this page until it was reloaded.
+      queryClient.invalidateQueries({ queryKey: ['customers', id] });
       queryClient.invalidateQueries({ queryKey: ['returns'] });
       setReturnModalOpen(false);
       setSelectedDispatch(null);
@@ -75,7 +80,7 @@ export default function CustomerDetail() {
         dispatchItemId: item.id,
         quantity: item.quantity - (item.returnedQty || 0)
       }));
-    
+
     // Was a native alert(): a grey system box that does not look like this app, blocks the
     // page, and reads as a browser error rather than an answer to what was just asked.
     if (items.length === 0) {
@@ -107,9 +112,9 @@ export default function CustomerDetail() {
 
   return (
     <div style={{ maxWidth: '1400px', margin: '0 auto', paddingTop: '24px', flex: 1, minHeight: 0, overflowY: 'auto', paddingBottom: '64px', width: '100%', display: 'flex', flexDirection: 'column' }}>
-      
+
       {/* Header section */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px', flexWrap: 'wrap' }}>
         <button onClick={() => navigate('/customers')} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
           <ArrowLeft size={24} />
         </button>
@@ -122,22 +127,33 @@ export default function CustomerDetail() {
           </div>
           <p style={{ margin: '8px 0 0', color: 'var(--text-secondary)' }}>{customer.customerCode}</p>
         </div>
+        {can('customer:update') && (
+          <button className="btn-secondary" onClick={() => setEditing(true)} style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <Edit2 size={15} /> Edit
+          </button>
+        )}
       </div>
 
       <div className="mobile-stack-grid" style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '32px' }}>
-        
+
         {/* Left Sidebar: CRM Details. minWidth 0 so a long email cannot widen the column past a phone. */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', minWidth: 0 }}>
           <div className="card" style={{ padding: '24px' }}>
             <h3 style={{ margin: '0 0 16px', fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)' }}>Contact Info</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--text-secondary)' }}>
-                <Mail size={16} />
-                <span>{customer.email || 'No email provided'}</span>
+                <Mail size={16} style={{ flexShrink: 0 }} />
+                <span style={{ overflowWrap: 'anywhere' }}>{customer.email || 'No email provided'}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--text-secondary)' }}>
                 <Phone size={16} />
-                <span>{customer.phone || 'No phone provided'}</span>
+                {customer.phone
+                  ? <span>{formatPhone(customer.phone)}</span>
+                  : (
+                    <span style={{ color: 'var(--accent-warning, #f59e0b)' }}>
+                      No phone yet{can('customer:update') && <> — <button type="button" onClick={() => setEditing(true)} style={{ background: 'none', border: 'none', padding: 0, color: 'inherit', textDecoration: 'underline', cursor: 'pointer', font: 'inherit' }}>add one</button></>}
+                    </span>
+                  )}
               </div>
             </div>
           </div>
@@ -157,14 +173,14 @@ export default function CustomerDetail() {
               </div>
             </div>
           </div>
-          
+
           <div className="card" style={{ padding: '24px' }}>
             <h3 style={{ margin: '0 0 16px', fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)' }}>Address</h3>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', color: 'var(--text-secondary)' }}>
               <MapPin size={16} style={{ marginTop: '2px' }} />
               <div>
-                {/* Normally we'd format billingAddress JSON here */}
-                {customer.billingAddress ? JSON.stringify(customer.billingAddress) : 'No address on file'}
+                {/* A plain text column. JSON.stringify printed it wrapped in quote marks. */}
+                {customer.billingAddress || customer.shippingAddress || 'No address on file'}
               </div>
             </div>
           </div>
@@ -172,14 +188,14 @@ export default function CustomerDetail() {
 
         {/* Right Content: Tabs / Orders. minWidth 0, or the orders table sizes the whole grid to its own width. */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', minWidth: 0 }}>
-          
+
           <div style={{ display: 'flex', borderBottom: '1px solid var(--border-light)', gap: '32px' }}>
-            <button 
+            <button
               onClick={() => setActiveTab('orders')}
               style={{ padding: '12px 0', border: 'none', background: 'transparent', borderBottom: activeTab === 'orders' ? '2px solid var(--accent-primary)' : '2px solid transparent', color: activeTab === 'orders' ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: '500', fontSize: '15px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
               <ShoppingBag size={18} /> Sales Orders
             </button>
-            <button 
+            <button
               onClick={() => setActiveTab('dispatches')}
               style={{ padding: '12px 0', border: 'none', background: 'transparent', borderBottom: activeTab === 'dispatches' ? '2px solid var(--accent-primary)' : '2px solid transparent', color: activeTab === 'dispatches' ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: '500', fontSize: '15px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
               <Truck size={18} /> Dispatches
@@ -192,7 +208,7 @@ export default function CustomerDetail() {
                 {activeTab === 'orders' ? 'Sales Orders' : 'Dispatches'}
               </h3>
             </div>
-            
+
             {activeTab === 'orders' && (
               customer.salesOrders && customer.salesOrders.length > 0 ? (
                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
@@ -211,17 +227,17 @@ export default function CustomerDetail() {
                         <td style={{ padding: '16px 24px', fontWeight: '500' }}>{order.orderNumber}</td>
                         <td style={{ padding: '16px 24px', color: 'var(--text-secondary)' }}>{new Date(order.createdAt).toLocaleDateString()}</td>
                         <td style={{ padding: '16px 24px' }}>
-                          <span style={{ 
-                            padding: '4px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: '500', 
-                            backgroundColor: order.status === 'CONFIRMED' || order.status === 'DISPATCHED' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(107, 114, 128, 0.1)', 
-                            color: order.status === 'CONFIRMED' || order.status === 'DISPATCHED' ? 'rgb(16, 185, 129)' : 'rgb(107, 114, 128)' 
+                          <span style={{
+                            padding: '4px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: '500',
+                            backgroundColor: order.status === 'CONFIRMED' || order.status === 'DISPATCHED' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(107, 114, 128, 0.1)',
+                            color: order.status === 'CONFIRMED' || order.status === 'DISPATCHED' ? 'rgb(16, 185, 129)' : 'rgb(107, 114, 128)'
                           }}>
                             {order.status}
                           </span>
                         </td>
                         <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '500' }}>{formatINR(Number(order.total))}</td>
                         <td style={{ padding: '16px 24px', textAlign: 'right' }}>
-                          <button 
+                          <button
                             className="btn-secondary"
                             onClick={() => navigate(`/orders/${order.id}`)}
                             style={{ padding: '4px 12px', fontSize: '12px' }}
@@ -245,7 +261,7 @@ export default function CustomerDetail() {
               // dispatches under each salesOrder specifically so this works.
               (() => {
                 const allDispatches = customer.salesOrders?.flatMap(o => (o.dispatches || []).map(d => ({ ...d, orderNumber: o.orderNumber }))) || [];
-                
+
                 if (allDispatches.length === 0) {
                   return (
                     <div className="table-container" style={{ padding: '48px', textAlign: 'center', color: 'var(--text-secondary)' }}>
@@ -271,9 +287,9 @@ export default function CustomerDetail() {
                           <td style={{ padding: '16px 24px' }}>{dispatch.orderNumber}</td>
                           <td style={{ padding: '16px 24px', color: 'var(--text-secondary)' }}>{new Date(dispatch.createdAt).toLocaleDateString()}</td>
                           <td style={{ padding: '16px 24px' }}>
-                            <span style={{ 
-                              padding: '4px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: '500', 
-                              backgroundColor: 'rgba(59, 130, 246, 0.1)', color: 'rgb(59, 130, 246)' 
+                            <span style={{
+                              padding: '4px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: '500',
+                              backgroundColor: 'rgba(59, 130, 246, 0.1)', color: 'rgb(59, 130, 246)'
                             }}>
                               {dispatch.status}
                             </span>
@@ -379,11 +395,11 @@ export default function CustomerDetail() {
                 ))}
               </Select>
             </div>
-            
+
             <div className="form-group">
               <label>Anything else worth noting? (Optional)</label>
-              <textarea 
-                className="input-field" 
+              <textarea
+                className="input-field"
                 rows="3"
                 value={returnNotes}
                 onChange={(e) => setReturnNotes(e.target.value)}
@@ -410,6 +426,7 @@ export default function CustomerDetail() {
         </div>
       )}
 
+      <CustomerModal isOpen={editing} onClose={() => setEditing(false)} customer={customer} />
     </div>
   );
 }

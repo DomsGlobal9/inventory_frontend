@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSalesOrderDetails, useConfirmOrder, useCancelOrder } from '../../hooks/useSalesOrders';
 import { useCreateDispatch } from '../../hooks/useDispatches';
-import { ArrowLeft, Loader2, CheckCircle, XCircle, Truck } from 'lucide-react';
+import { ArrowLeft, Loader2, CheckCircle, XCircle, Truck, Printer } from 'lucide-react';
 import { usePermission } from '../../hooks/usePermission';
 /*
  * Exact throughout this page, not rounded.
@@ -60,7 +60,15 @@ export default function SalesOrderDetail() {
       confirmStyle: 'primary',
       run: () => confirmMutation.mutateAsync(id)
     },
-    cancel: {
+    // Once part of an order has gone out it is closed, not cancelled: what went out is a sale and
+    // stays in the day book; only what is still held goes back on sale.
+    cancel: order?.status === 'PARTIALLY_DISPATCHED' ? {
+      title: 'Close the rest of this order?',
+      message: 'What was already sent stays a sale. The pieces not sent yet are released back to stock, and the order is closed. This cannot be undone.',
+      confirmText: 'Close order',
+      confirmStyle: 'danger',
+      run: () => cancelMutation.mutateAsync(id)
+    } : {
       title: 'Cancel this order?',
       message: 'All stock reserved for this order will be released back into available inventory. This cannot be undone.',
       confirmText: 'Cancel order',
@@ -162,7 +170,7 @@ export default function SalesOrderDetail() {
     <div style={{ maxWidth: '1400px', margin: '0 auto', paddingTop: '24px', flex: 1, minHeight: 0, overflowY: 'auto', paddingBottom: '64px', width: '100%', display: 'flex', flexDirection: 'column' }}>
       
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px', flexWrap: 'wrap' }}>
         <button onClick={() => navigate('/orders')} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
           <ArrowLeft size={24} />
         </button>
@@ -173,8 +181,19 @@ export default function SalesOrderDetail() {
               {order.status}
             </span>
           </div>
-          <p style={{ margin: '8px 0 0', color: 'var(--text-secondary)' }}>Customer: {order.customer?.name} | Created: {new Date(order.createdAt).toLocaleDateString()}</p>
+          <p style={{ margin: '8px 0 0', color: 'var(--text-secondary)' }}>
+            Customer: {order.customer?.name} | Created: {new Date(order.createdAt).toLocaleDateString()}
+            {order.atCounter && ' | Sold at the counter'}
+            {order.location?.name && ` | ${order.location.name}`}
+            {order.createdBy?.name && ` | By ${order.createdBy.name}`}
+          </p>
         </div>
+        {order.atCounter && (
+          <button className="btn-secondary" onClick={() => window.open(`/orders/${order.id}/receipt`, '_blank', 'noopener')}
+            style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <Printer size={15} /> Print receipt
+          </button>
+        )}
       </div>
 
       {/*
@@ -412,7 +431,7 @@ export default function SalesOrderDetail() {
                     disabled={cancelMutation.isPending}
                   >
                     {cancelMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : <XCircle size={18} />}
-                    Cancel Order
+                    {order.status === 'PARTIALLY_DISPATCHED' ? 'Close rest of order' : 'Cancel Order'}
                   </button>
                 )}
                 <p style={{ margin: '8px 0 0', fontSize: '12px', textAlign: 'center', color: 'var(--text-muted)' }}>
@@ -421,6 +440,36 @@ export default function SalesOrderDetail() {
               </div>
             )}
           </div>
+
+          {/* Money taken for this order, and paid back. Worked out from the rows, never stored twice. */}
+          {(order.atCounter || order.payments?.length > 0) && (
+            <div className="card" style={{ padding: '24px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '16px' }}>
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>Payments</h3>
+                <span style={{ fontSize: '13px', fontWeight: 600, color: order.payment?.due > 0 ? 'var(--accent-warning)' : 'var(--accent-success)' }}>
+                  {order.payment?.due > 0 ? `${formatINRExact(order.payment.due)} due` : order.payment?.status === 'REFUNDED' ? 'Refunded' : 'Paid'}
+                </span>
+              </div>
+              {order.payments?.length === 0 ? (
+                <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>No payment recorded.</div>
+              ) : order.payments.map(p => (
+                <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '8px 0', borderTop: '1px solid var(--border-light)', fontSize: '14px' }}>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontWeight: 500 }}>
+                      {p.kind === 'REFUND' ? 'Refund · ' : ''}{({ CASH: 'Cash', UPI: 'UPI', CARD: 'Card' })[p.method]}
+                      {p.reference ? <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}> · {p.reference}</span> : null}
+                    </div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                      {new Date(p.receivedAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}
+                      {p.receivedBy?.name ? ` · ${p.receivedBy.name}` : ''}
+                      {Number(p.changeGiven) > 0 ? ` · got ${formatINRExact(Number(p.cashReceived))}, gave back ${formatINRExact(Number(p.changeGiven))}` : ''}
+                    </div>
+                  </div>
+                  <span style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>{p.kind === 'REFUND' ? '-' : ''}{formatINRExact(Number(p.amount))}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
       </div>

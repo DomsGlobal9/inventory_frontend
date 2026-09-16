@@ -47,6 +47,8 @@ import Customers from './pages/sales/Customers';
 import CustomerDetail from './pages/sales/CustomerDetail';
 import SalesOrders from './pages/sales/SalesOrders';
 import SalesOrderDetail from './pages/sales/SalesOrderDetail';
+import NewSale from './pages/sales/NewSale';
+import Receipt from './pages/sales/Receipt';
 import ReturnsList from './pages/sales/ReturnsList';
 import ReturnDetail from './pages/sales/ReturnDetail';
 import Login from './pages/Login';
@@ -98,6 +100,8 @@ function App() {
             /settings is deliberately open: it holds a person's own profile and password, so
             somebody with no permissions at all still has somewhere to be. */}
         <Route element={<ProtectedRoute />}>
+        {/* Outside the app's frame: a receipt is printed on its own, with nothing around it. */}
+        <Route path="/orders/:id/receipt" element={<Guard permission="sales_order:view"><Receipt /></Guard>} />
         <Route element={<MainLayout />}>
           <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="/dashboard" element={<Guard permission="dashboard:view"><Dashboard /></Guard>} />
@@ -129,6 +133,7 @@ function App() {
           <Route path="/products/:id" element={<Guard permission="product:view"><ProductDetails /></Guard>} />
           <Route path="/products" element={<Guard permission="product:view"><Products /></Guard>} />
           <Route path="/orders" element={<Guard permission="sales_order:view"><SalesOrders /></Guard>} />
+          <Route path="/orders/new-sale" element={<Guard permission="sales_order:counter_sale"><NewSale /></Guard>} />
           <Route path="/orders/:id" element={<Guard permission="sales_order:view"><SalesOrderDetail /></Guard>} />
           <Route path="/returns" element={<Guard permission="return:view"><ReturnsList /></Guard>} />
           <Route path="/returns/:id" element={<Guard permission="return:view"><ReturnDetail /></Guard>} />

@@ -11,6 +11,8 @@ import Select from '../../components/common/Select';
 import CustomerGroupsCard from '../../components/CustomerGroupsCard';
 import CustomerModal from '../../components/sales/CustomerModal';
 import { formatPhone } from '../../utils/phone';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
+import { COUNTER_PHONE_QUERY } from '../../hooks/useCounterSale';
 
 export default function CustomerDetail() {
   const { id } = useParams();
@@ -25,6 +27,7 @@ export default function CustomerDetail() {
   const [returnNotes, setReturnNotes] = useState('');
   const [returnReason, setReturnReason] = useState('');
   const [editing, setEditing] = useState(false);
+  const phoneScreen = useMediaQuery(COUNTER_PHONE_QUERY);
 
   /**
    * The reasons a return can be filed under, in the words a shop uses on the left and the
@@ -127,11 +130,18 @@ export default function CustomerDetail() {
           </div>
           <p style={{ margin: '8px 0 0', color: 'var(--text-secondary)' }}>{customer.customerCode}</p>
         </div>
-        {can('customer:update') && (
-          <button className="btn-secondary" onClick={() => setEditing(true)} style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-            <Edit2 size={15} /> Edit
-          </button>
-        )}
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          {can('sales_order:counter_sale') && !phoneScreen && (
+            <button className="btn-primary" onClick={() => navigate(`/orders/new-sale?customer=${customer.id}`)} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <ShoppingBag size={15} /> New sale
+            </button>
+          )}
+          {can('customer:update') && (
+            <button className="btn-secondary" onClick={() => setEditing(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <Edit2 size={15} /> Edit
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="mobile-stack-grid" style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '32px' }}>

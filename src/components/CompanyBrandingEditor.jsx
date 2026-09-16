@@ -11,7 +11,8 @@ const FIELDS = [
   { key: 'businessAddress', label: 'Address', placeholder: 'e.g. 12-4-56, Main Bazaar, Vijayawada, Andhra Pradesh 520001', multiline: true },
   { key: 'businessPhone', label: 'Phone', placeholder: 'e.g. +91 98765 43210', type: 'tel', autoComplete: 'tel' },
   { key: 'businessEmail', label: 'Email', placeholder: 'e.g. orders@yourshop.in', type: 'email', autoComplete: 'email' },
-  { key: 'gstNumber', label: 'GSTIN', placeholder: 'e.g. 37ABCDE1234F1Z5' }
+  { key: 'gstNumber', label: 'GSTIN', placeholder: 'e.g. 37ABCDE1234F1Z5' },
+  { key: 'receiptFooter', label: 'Receipt footer', placeholder: 'e.g. Exchange within 7 days. No returns on sale items.', multiline: true, max: 160 }
 ];
 
 /**
@@ -98,8 +99,8 @@ export default function CompanyBrandingEditor() {
             id={id}
             className="input-field"
             rows={2}
-            maxLength={300}
-            autoComplete="street-address"
+            maxLength={f.max || 300}
+            autoComplete={f.key === 'businessAddress' ? 'street-address' : 'off'}
             placeholder={f.placeholder}
             value={values[f.key]}
             onChange={(e) => setDraft({ ...values, [f.key]: e.target.value })}
@@ -202,6 +203,8 @@ export default function CompanyBrandingEditor() {
             <div className="gi-pair">
               {field(byKey.gstNumber)}
             </div>
+            {/* Only on the counter receipt; the letterhead preview does not show it. */}
+            {field(byKey.receiptFooter)}
           </div>
         </div>
 

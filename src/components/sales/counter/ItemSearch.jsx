@@ -1,0 +1,146 @@
+import React, { useEffect, useRef, useState } from 'react';
+import { Search, Loader2, ScanLine } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { api } from '../../../lib/api';
+import { useDebounced, useSellableSearch } from '../../../hooks/useCounterSale';
+import { formatINRExact } from '../../../utils/formatUtils';
+
+const detail = (it) => [it.colorName, it.size].filter(Boolean).join(' · ');
+
+/**
+ * One box for a scanner and for typing.
+ *
+ * A barcode scanner types the code and presses Enter, faster than anyone types. So Enter asks the
+ * server straight away rather than waiting for the list to settle, and an exact barcode, SKU or code
+ * goes into the basket at once. Anything else shows matches to pick from, with this store's price
+ * and how many are free here. Nothing about cost is ever sent to this screen.
+ */
+export default function ItemSearch({ locationId, onAdd, inBasket }) {
+  const [text, setText] = useState('');
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(0);
+  const [adding, setAdding] = useState(false);
+  const inputRef = useRef(null);
+  const boxRef = useRef(null);
+  const q = useDebounced(text.trim(), 250);
+  const { data, isFetching } = useSellableSearch(q, locationId);
+  const items = q ? (data?.items ?? []) : [];
+
+  useEffect(() => { setActive(0); }, [q]);
+
+  useEffect(() => {
+    const close = (e) => { if (boxRef.current && !boxRef.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, []);
+
+  const canSell = (it) => it.sellableHere && it.available > (inBasket[it.variantId] ?? 0);
+  const why = (it) => !it.sellableHere ? 'Not sold here'
+    : it.available === 0 ? 'None here'
+    : (inBasket[it.variantId] ?? 0) >= it.available ? 'All in basket' : null;
+
+  const add = (it) => {
+    if (!canSell(it)) {
+      toast.error(`${it.title}: ${why(it)}.`);
+      return;
+    }
+    onAdd(it);
+    setText('');
+    setOpen(false);
+    inputRef.current?.focus();
+  };
+
+  const onKeyDown = async (e) => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); setOpen(true); setActive(a => Math.min(a + 1, Math.max(items.length - 1, 0))); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setActive(a => Math.max(a - 1, 0)); }
+    else if (e.key === 'Escape') { setOpen(false); }
+    else if (e.key === 'Enter') {
+      e.preventDefault();
+      const typed = text.trim();
+      if (!typed || adding) return;
+      // The list on screen is for what was typed a moment ago; a scan is asked about directly.
+      if (open && q === typed && items[active]) { add(items[active]); return; }
+      setAdding(true);
+      try {
+        const result = (await api.get('/counter-sales/items', { params: { q: typed, locationId } })).data;
+        if (result?.exact && result.items[0]) add(result.items[0]);
+        else if (result?.items?.length === 1) add(result.items[0]);
+        else if (!result?.items?.length) toast.error(`Nothing here matches "${typed}".`);
+        else setOpen(true);
+      } catch (err) {
+        toast.error(err?.message || 'Could not search the items.');
+      } finally {
+        setAdding(false);
+      }
+    }
+  };
+
+  return (
+    <div ref={boxRef} style={{ position: 'relative' }}>
+      <div style={{ position: 'relative' }}>
+        <ScanLine size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+        <input
+          ref={inputRef}
+          className="input-field"
+          autoFocus
+          value={text}
+          onChange={(e) => { setText(e.target.value); setOpen(true); }}
+          onFocus={() => text && setOpen(true)}
+          onKeyDown={onKeyDown}
+          placeholder="Scan a barcode, or type a name, SKU or colour"
+          aria-label="Find an item"
+          style={{ paddingLeft: 42, paddingRight: 40, width: '100%' }}
+        />
+        {(isFetching || adding) && (
+          <Loader2 size={16} className="animate-spin" style={{ position: 'absolute', right: 14, top: '50%', marginTop: -8, color: 'var(--text-muted)' }} />
+        )}
+      </div>
+
+      {open && q && (
+        <div role="listbox" style={{
+          position: 'absolute', zIndex: 30, left: 0, right: 0, top: 'calc(100% + 6px)', maxHeight: 360, overflowY: 'auto',
+          background: 'var(--bg-card)', border: '1px solid var(--border-focus)', borderRadius: 12, boxShadow: '0 12px 32px rgba(0,0,0,.35)'
+        }}>
+          {items.length === 0 ? (
+            <div style={{ padding: 16, color: 'var(--text-secondary)', fontSize: 14, display: 'flex', gap: 8, alignItems: 'center' }}>
+              <Search size={15} /> {isFetching ? 'Searching…' : `Nothing here matches "${q}".`}
+            </div>
+          ) : items.map((it, i) => {
+            const blocked = why(it);
+            return (
+              <button
+                key={it.variantId}
+                type="button"
+                role="option"
+                aria-selected={i === active}
+                onMouseEnter={() => setActive(i)}
+                onClick={() => add(it)}
+                style={{
+                  display: 'flex', gap: 12, alignItems: 'center', width: '100%', textAlign: 'left', padding: '10px 14px',
+                  background: i === active ? 'var(--bg-hover)' : 'transparent', border: 'none', borderBottom: '1px solid var(--border-light)',
+                  color: 'var(--text-primary)', cursor: blocked ? 'not-allowed' : 'pointer', opacity: blocked ? 0.55 : 1
+                }}
+              >
+                <div style={{ width: 40, height: 40, borderRadius: 8, background: 'var(--bg-input)', flexShrink: 0, overflow: 'hidden' }}>
+                  {it.imageUrl && <img src={it.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{it.title}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {[detail(it), it.sku].filter(Boolean).join(' · ')}
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                  <div style={{ fontWeight: 600 }}>{it.price === null ? '—' : formatINRExact(it.price)}</div>
+                  <div style={{ fontSize: 12, color: blocked ? 'var(--accent-danger)' : it.available <= 2 ? 'var(--accent-warning)' : 'var(--accent-success)' }}>
+                    {blocked || `${it.available} here`}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}

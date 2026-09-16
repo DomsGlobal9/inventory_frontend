@@ -63,6 +63,7 @@ function DeleteDialog({ clientId, preview, busy, onCancel, onConfirm }) {
               {row('Products', preview.products)}
               {row('Variants', preview.variants)}
               {row('Sales orders', preview.orders)}
+              {row('Payments recorded', preview.payments ?? 0)}
               {row('Purchase orders', preview.purchaseOrders)}
               {row('Stock movements', preview.transactions)}
               {row('Locations', preview.locations)}

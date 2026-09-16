@@ -14,6 +14,8 @@ export const useSalesOrders = (filters = {}) => {
     queryFn: async () => {
       const params = {};
       if (filters.status) params.status = filters.status;
+      if (filters.source) params.source = filters.source;
+      if (filters.search) params.search = filters.search;
 
       return api.get('/sales-orders', { params });
     }
@@ -116,8 +118,9 @@ export const useCancelOrder = () => {
     mutationFn: async (orderId) => {
       return api.post(`/sales-orders/${orderId}/cancel`);
     },
-    onSuccess: (_, orderId) => {
-      toast.success('Order cancelled. Reserved stock released.');
+    onSuccess: (data, orderId) => {
+      // A part-sent order comes back DISPATCHED: its rest was closed, not cancelled.
+      toast.success(data?.status === 'DISPATCHED' ? 'Order closed. The rest was released back to stock.' : 'Order cancelled. Reserved stock released.');
       queryClient.invalidateQueries({ queryKey: ['sales-orders', orderId] });
       queryClient.invalidateQueries({ queryKey: ['sales-orders'] });
       invalidateDerivedViews(queryClient); // confirm/cancel moves reserved stock

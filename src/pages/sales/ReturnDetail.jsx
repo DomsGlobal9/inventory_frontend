@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, CheckCircle, AlertTriangle, Box, Truck, Edit3 } from 'lucide-react';
+import { ArrowLeft, CheckCircle, AlertTriangle, Box, Truck, Edit3, XCircle } from 'lucide-react';
+import ConfirmModal from '../../components/ConfirmModal';
 import toast from 'react-hot-toast';
 import { api } from '../../lib/api';
 import { usePermission } from '../../hooks/usePermission';
@@ -18,6 +19,7 @@ export default function ReturnDetail() {
   const queryClient = useQueryClient();
   const { can } = usePermission();
   const [inspectModalOpen, setInspectModalOpen] = useState(false);
+  const [confirmReject, setConfirmReject] = useState(false);
   const [inspectionData, setInspectionData] = useState({});
 
   const { data: returnData, isLoading } = useQuery({
@@ -110,6 +112,18 @@ export default function ReturnDetail() {
     onSettled: () => refreshReturn()
   });
 
+  /*
+   * Turning a return down: booked in by mistake, twice, or the goods never came. The server has
+   * always allowed it, but nothing on screen called it, so a return raised in error stayed on the
+   * list for ever and kept its pieces from being returned properly.
+   */
+  const rejectMutation = useMutation({
+    mutationFn: async () => api.post(`/returns/${id}/reject`),
+    onSuccess: () => toast.success('Return turned down. Its pieces can be returned again if they do come back.'),
+    onError: (error) => toast.error(error?.message || 'Could not turn down this return.'),
+    onSettled: () => refreshReturn()
+  });
+
   if (isLoading) {
     return <PageLoader text="LOADING RETURNS..." />;
   }
@@ -185,7 +199,16 @@ export default function ReturnDetail() {
           </p>
         </div>
         
-        <div style={{ display: 'flex', gap: '12px' }}>
+        <ConfirmModal
+          isOpen={confirmReject}
+          onClose={() => setConfirmReject(false)}
+          onConfirm={() => rejectMutation.mutateAsync()}
+          title="Turn down this return?"
+          message="Nothing goes back on the shelf and nothing is owed. Use this for a return booked by mistake, or goods that never came back."
+          confirmText="Turn down"
+          confirmStyle="danger"
+        />
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
           {ret.status === 'REQUESTED' && can('return:receive') && (
             <button
               className="btn-primary"
@@ -212,6 +235,18 @@ export default function ReturnDetail() {
             >
               <Edit3 size={16} style={{ marginRight: '8px' }} />
               Inspect Items
+            </button>
+          )}
+
+          {['REQUESTED', 'RECEIVED', 'INSPECTED'].includes(ret.status) && can('return:complete') && (
+            <button
+              className="btn-secondary"
+              onClick={() => setConfirmReject(true)}
+              disabled={rejectMutation.isPending}
+              style={{ color: 'var(--accent-danger)', borderColor: 'var(--accent-danger)' }}
+            >
+              <XCircle size={16} style={{ marginRight: '8px' }} />
+              Turn down
             </button>
           )}
 

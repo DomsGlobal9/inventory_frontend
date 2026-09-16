@@ -110,7 +110,14 @@ export default function NewSale() {
     if (!locationId) return;
     const linked = params.get('customer');
     const saved = readSaved(locationId);
-    setSale(saved && (!linked || saved.linkedCustomerId === linked) ? saved : newSale(linked));
+    if (saved && linked && saved.linkedCustomerId !== linked && saved.items.length > 0) {
+      // Opened from a customer's page while a basket was already being rung up. That basket used to
+      // be thrown away without a word; the items stay, and the sale moves to the chosen customer.
+      setSale({ ...saved, linkedCustomerId: linked, phone: '', name: '', email: '' });
+      toast('Kept the items already in the basket. The sale is now for the customer you opened.', { icon: 'ℹ️' });
+    } else {
+      setSale(saved && (!linked || saved.linkedCustomerId === linked) ? saved : newSale(linked));
+    }
   }, [locationId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { if (locationId && sale) writeSaved(locationId, sale); }, [locationId, sale]);

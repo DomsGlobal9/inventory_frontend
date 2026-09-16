@@ -85,7 +85,9 @@ export default function Receipt() {
         </div>
         <hr />
         <Row left={`Bill ${sale.orderNumber}`} right={when} small />
-        <Row left={`Store ${sale.store?.name ?? ''}`} right={sale.soldBy ? `Sold by ${sale.soldBy}` : ''} small />
+        {/* On its own line: a long name beside the store squeezed the store into three lines. */}
+        <Row left={`Store ${sale.store?.name ?? ''}`} right="" small />
+        {sale.soldBy && <Row left={`Sold by ${sale.soldBy}`} right="" small />}
         {sale.customer?.name && <Row left={`Customer ${sale.customer.name}`} right={sale.customer.phoneMasked || ''} small />}
         <hr />
         {sale.items.map(item => (
@@ -98,6 +100,15 @@ export default function Receipt() {
           </div>
         ))}
         <hr />
+        {/* An order with tax or shipping on top (Shopify, online) has to show them, or its lines do
+            not add up to its total. A counter sale has neither: its shelf prices include GST. */}
+        {(sale.taxAmount > 0 || sale.shippingAmount > 0) && (
+          <>
+            <Row left="Items" right={money(sale.subtotal - (sale.discountAmount || 0))} small />
+            {sale.taxAmount > 0 && <Row left="Tax" right={money(sale.taxAmount)} small />}
+            {sale.shippingAmount > 0 && <Row left="Shipping" right={money(sale.shippingAmount)} small />}
+          </>
+        )}
         <Row left="Total" right={`₹${money(sale.total)}`} bold />
         {payments.map(p => (
           <Row key={p.id} left={`Paid ${METHOD[p.method]}${p.cashReceived ? ` (got ${money(p.cashReceived)})` : ''}${p.reference && p.method !== 'CASH' ? ` ${p.method === 'CARD' ? '••' : ''}${p.reference}` : ''}`} right={money(p.amount)} small />
@@ -106,7 +117,7 @@ export default function Receipt() {
         {sale.payment.due > 0 && <Row left="Due" right={money(sale.payment.due)} bold />}
         <hr />
         <div style={{ textAlign: 'center', fontSize: 11, display: 'grid', gap: 2 }}>
-          <div>Prices include GST.</div>
+          {!(sale.taxAmount > 0) && <div>Prices include GST.</div>}
           {sale.shop.receiptFooter && <div style={{ whiteSpace: 'pre-line' }}>{sale.shop.receiptFooter}</div>}
           <div>Thank you!</div>
         </div>

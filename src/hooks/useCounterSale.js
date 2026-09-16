@@ -52,7 +52,10 @@ export const usePricingQuote = ({ locationId, customerId, lines, couponCodes }) 
       const body = JSON.parse(request);
       return (await api.post('/pricing/quote', { ...body, channel: 'POS' })).data;
     },
-    enabled: !!locationId && lines.length > 0,
+    // On the basket being ASKED about -- the settled one -- not the one on screen. Keyed on the screen,
+    // the first scan switched pricing on while the settled request still held the empty basket, and
+    // the server's "There is nothing in this basket" popped up on every first item.
+    enabled: !!locationId && lines.length > 0 && JSON.parse(request).lines.length > 0,
     // A quote is good for fifteen minutes. Asked again well before then, so a basket left on the
     // screen over tea is never completed on a price the server has already let go.
     refetchInterval: 10 * 60_000,

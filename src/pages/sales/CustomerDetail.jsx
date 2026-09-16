@@ -26,6 +26,9 @@ export default function CustomerDetail() {
   const [selectedDispatch, setSelectedDispatch] = useState(null);
   const [returnNotes, setReturnNotes] = useState('');
   const [returnReason, setReturnReason] = useState('');
+  // How many of each shipped line are coming back. A customer returns the blouse and keeps the
+  // saree; sending back every piece of the dispatch was the only choice there used to be.
+  const [returnQty, setReturnQty] = useState({});
   const [editing, setEditing] = useState(false);
   const phoneScreen = useMediaQuery(COUNTER_PHONE_QUERY);
 
@@ -48,12 +51,19 @@ export default function CustomerDetail() {
     { value: 'OTHER', label: 'Something else' }
   ];
 
+  /** How many of one shipped line can still come back: not returned, and not on a return still open. */
+  const lineReturnable = (item) =>
+    Math.max((item.quantity || 0) - (item.returnedQty || 0) - (item.openReturnQty || 0), 0);
+
   /** How many pieces of a dispatch have not already come back. */
   const returnableCount = (dispatch) =>
-    (dispatch?.items || []).reduce(
-      (sum, item) => sum + Math.max((item.quantity || 0) - (item.returnedQty || 0), 0),
-      0
-    );
+    (dispatch?.items || []).reduce((sum, item) => sum + lineReturnable(item), 0);
+
+  const lineLabel = (item, index) => {
+    const v = item.salesOrderItem?.variant;
+    if (!v) return `Item ${index + 1}`;
+    return [v.product?.title, v.colorName, v.size].filter(Boolean).join(', ') + (v.sku ? ` (${v.sku})` : '');
+  };
 
   const returnMutation = useMutation({
     mutationFn: async ({ salesOrderId, items, notes, reason }) => {
@@ -68,6 +78,7 @@ export default function CustomerDetail() {
       setSelectedDispatch(null);
       setReturnNotes('');
       setReturnReason('');
+      setReturnQty({});
       toast.success('Return raised. Inspect it from the Returns screen when the goods arrive.');
     },
     // There was no onError at all: a refusal closed nothing, said nothing, and left the
@@ -77,20 +88,19 @@ export default function CustomerDetail() {
 
   const handleCreateReturn = () => {
     if (!selectedDispatch) return;
-    const items = selectedDispatch.items
-      .filter(item => item.quantity - (item.returnedQty || 0) > 0)
-      .map(item => ({
-        dispatchItemId: item.id,
-        quantity: item.quantity - (item.returnedQty || 0)
-      }));
-
-    // Was a native alert(): a grey system box that does not look like this app, blocks the
-    // page, and reads as a browser error rather than an answer to what was just asked.
-    if (items.length === 0) {
+    if (returnableCount(selectedDispatch) === 0) {
       return toast.error(
-        `Everything in ${selectedDispatch.dispatchNumber} has already been returned. There is nothing left to send back.`,
+        `Everything in ${selectedDispatch.dispatchNumber} has already been returned or is on an open return. There is nothing left to send back.`,
         { duration: 6000 }
       );
+    }
+
+    const items = selectedDispatch.items
+      .map(item => ({ dispatchItemId: item.id, quantity: Math.min(Number(returnQty[item.id] || 0), lineReturnable(item)) }))
+      .filter(item => item.quantity > 0);
+
+    if (items.length === 0) {
+      return toast.error('Choose how many of each item are coming back.');
     }
 
     if (!returnReason) {
@@ -288,6 +298,7 @@ export default function CustomerDetail() {
                         <th style={{ padding: '12px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px' }}>ORDER #</th>
                         <th style={{ padding: '12px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px' }}>DATE</th>
                         <th style={{ padding: '12px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px' }}>STATUS</th>
+                        <th style={{ padding: '12px 24px', width: '60px' }}></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -324,6 +335,7 @@ export default function CustomerDetail() {
                                   title={`${left} ${left === 1 ? 'piece' : 'pieces'} can still come back`}
                                   onClick={() => {
                                     setSelectedDispatch(dispatch);
+                                    setReturnQty({});
                                     setReturnModalOpen(true);
                                   }}
                                 >
@@ -386,10 +398,40 @@ export default function CustomerDetail() {
             <div style={{ padding: '24px', overflowY: 'auto' }}>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>
               {(() => {
-                const left = returnableCount(selectedDispatch);
-                return `${left} ${left === 1 ? 'piece' : 'pieces'} from ${selectedDispatch.dispatchNumber} will be booked in as coming back. Nothing returns to stock until you inspect it.`;
+                const chosen = selectedDispatch.items.reduce((n, i) => n + Math.min(Number(returnQty[i.id] || 0), lineReturnable(i)), 0);
+                return `${chosen} ${chosen === 1 ? 'piece' : 'pieces'} from ${selectedDispatch.dispatchNumber} will be booked in as coming back. Nothing returns to stock until you inspect it.`;
               })()}
             </p>
+
+            <div style={{ display: 'grid', gap: '8px', marginBottom: '20px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                <label style={{ margin: 0 }}>What is coming back?</label>
+                <button type="button" className="btn-secondary" style={{ fontSize: '12px', padding: '4px 10px' }}
+                  onClick={() => setReturnQty(Object.fromEntries(selectedDispatch.items.map(i => [i.id, lineReturnable(i)])))}>
+                  All of it
+                </button>
+              </div>
+              {selectedDispatch.items.map((item, index) => {
+                const max = lineReturnable(item);
+                const value = Number(returnQty[item.id] || 0);
+                return (
+                  <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 10px', border: '1px solid var(--border-light)', borderRadius: '8px', opacity: max === 0 ? 0.55 : 1 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: '14px', overflowWrap: 'anywhere' }}>{lineLabel(item, index)}</div>
+                      <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                        {max === 0 ? 'Nothing left to return' : `${max} of ${item.quantity} can come back`}
+                        {item.openReturnQty > 0 ? ` · ${item.openReturnQty} already on an open return` : ''}
+                      </div>
+                    </div>
+                    <button type="button" className="btn-icon" aria-label={`One less of ${lineLabel(item, index)}`} disabled={value <= 0}
+                      onClick={() => setReturnQty(q => ({ ...q, [item.id]: Math.max(0, value - 1) }))}>−</button>
+                    <span aria-label="Quantity coming back" style={{ minWidth: '24px', textAlign: 'center', fontWeight: 600 }}>{value}</span>
+                    <button type="button" className="btn-icon" aria-label={`One more of ${lineLabel(item, index)}`} disabled={value >= max}
+                      onClick={() => setReturnQty(q => ({ ...q, [item.id]: Math.min(max, value + 1) }))}>+</button>
+                  </div>
+                );
+              })}
+            </div>
 
             <div className="form-group" style={{ marginBottom: '16px' }}>
               <label>Why is it coming back?</label>

@@ -69,6 +69,11 @@ export function AuthProvider({ children }) {
       // Ignore network errors on logout
     }
     localStorage.removeItem(STORAGE_KEY);
+    // A basket being rung up is saved in the browser so a reload keeps it. On a shared till the next
+    // person to sign in must not find the last customer's name, number and items waiting for them.
+    try {
+      Object.keys(localStorage).filter(k => k.startsWith('scaleezy:new-sale:')).forEach(k => localStorage.removeItem(k));
+    } catch { /* storage unavailable: nothing was saved either */ }
     setUser(null);
   }, []);
 

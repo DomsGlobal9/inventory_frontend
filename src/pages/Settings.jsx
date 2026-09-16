@@ -100,9 +100,12 @@ export default function Settings() {
           zIndex: 10
         }}>
           <style>{`
-            .settings-sidebar { width: 280px; }
+            /* No taller than the space beside the page, and scrolls inside it. It grew past the bottom of
+               a laptop screen, and the page itself does not scroll, so Help & Support and everything
+               under it were cut off with no way to reach them. */
+            .settings-sidebar { width: 280px; max-height: 100%; overflow-y: auto; overscroll-behavior: contain; }
             @media (max-width: 768px) {
-              .settings-sidebar { width: 100%; padding: 8px !important; margin-bottom: 0 !important; }
+              .settings-sidebar { width: 100%; padding: 8px !important; margin-bottom: 0 !important; max-height: none; overflow-y: visible; }
               /* The heading hid, but its padded, bordered box stayed -- an empty gap at the
                  start of the tab strip, before the first tab. */
               .settings-sidebar .settings-sidebar-title { display: none; }

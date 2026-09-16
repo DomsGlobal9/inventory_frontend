@@ -1,0 +1,3 @@
+# Files used inside Linux containers: always LF, whatever the checkout machine prefers.
+Dockerfile text eol=lf
+nginx.conf text eol=lf

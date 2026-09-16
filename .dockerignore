@@ -1,0 +1,11 @@
+# Local settings never go into an image; the API address is passed as a build argument instead.
+.env
+.env.*
+node_modules/
+dist/
+.git/
+.gitignore
+.vscode/
+*.log
+Dockerfile
+.dockerignore

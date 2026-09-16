@@ -55,7 +55,10 @@ function manualOf(manual, basePaise, label) {
 }
 
 function ManualEditor({ manual, onChange, onRemove, basePaise, disabled }) {
-  const set = (patch) => onChange({ ...manual, ...patch });
+  // Only the change, merged by the parent into the latest state. Merged here into `manual` -- the
+  // copy this render was given -- a percent chosen and a value typed in the same moment overwrote
+  // each other, and 20 went in as 20 rupees instead of 20%.
+  const set = (patch) => onChange(patch);
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'auto 90px 1fr auto', gap: 6, alignItems: 'center', marginTop: 8 }}>
       <div role="radiogroup" aria-label="Amount or percent" style={{ display: 'flex', border: '1px solid var(--border-light)', borderRadius: 8, overflow: 'hidden' }}>
@@ -391,7 +394,8 @@ export default function NewSale() {
                       </div>
                       {item.manual && (
                         <ManualEditor manual={item.manual} basePaise={line ? paise(line.lineTotal) : 0} disabled={busy}
-                          onChange={(m) => setItem(item.variantId, { manual: m })} onRemove={() => setItem(item.variantId, { manual: null })} />
+                          onChange={(patch) => update((s) => ({ items: s.items.map(i => i.variantId === item.variantId ? { ...i, manual: { ...i.manual, ...patch } } : i) }))}
+                          onRemove={() => setItem(item.variantId, { manual: null })} />
                       )}
                       {manual.problem && item.manual?.value && <div style={{ fontSize: 12, color: 'var(--accent-warning)', marginTop: 4 }}>{manual.problem}</div>}
                     </div>
@@ -442,7 +446,7 @@ export default function NewSale() {
             )}
             {sale.billManual && (
               <>
-                <ManualEditor manual={sale.billManual} basePaise={billBase} disabled={busy} onChange={(m) => update({ billManual: m })} onRemove={() => update({ billManual: null })} />
+                <ManualEditor manual={sale.billManual} basePaise={billBase} disabled={busy} onChange={(patch) => update((s) => ({ billManual: { ...s.billManual, ...patch } }))} onRemove={() => update({ billManual: null })} />
                 {bill.problem && sale.billManual.value && <div style={{ fontSize: 12, color: 'var(--accent-warning)' }}>{bill.problem}</div>}
               </>
             )}

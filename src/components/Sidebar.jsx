@@ -3,6 +3,7 @@ import { NavLink, Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, ShoppingBag, Box, Users, Settings, Package, Truck, FileText, ArrowLeftRight, LogOut, User, Tag } from 'lucide-react';
 import { usePermission } from '../hooks/usePermission';
 import { useAuth } from '../context/AuthContext';
+import BrandLockup from './BrandLockup';
 
 // permission: null/undefined means "visible to any authenticated user". Every entry
 // below is now gated by the same permission key the matching backend route enforces.
@@ -73,10 +74,10 @@ export default function Sidebar({ isOpen }) {
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       {/* Brand */}
       <div style={{ height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid var(--border-light)' }}>
-        <Link to="/dashboard" style={{ textDecoration: 'none' }}>
-          <h1 style={{ fontSize: '28px', margin: 0, color: 'var(--text-primary)', textAlign: 'center', cursor: 'pointer', transition: 'opacity 0.2s' }} onMouseOver={(e) => e.currentTarget.style.opacity = '0.8'} onMouseOut={(e) => e.currentTarget.style.opacity = '1'}>
-            Scaleezy
-          </h1>
+        {/* The real logo, as on the landing page. On the dark theme it sits on a light panel: its
+            "ezy" and "inventory" are dark green and all but vanish against black. */}
+        <Link to="/dashboard" aria-label="Scaleezy Inventory, go to dashboard" className="sidebar-brand" style={{ textDecoration: 'none', display: 'block', transition: 'opacity 0.2s' }} onMouseOver={(e) => e.currentTarget.style.opacity = '0.85'} onMouseOut={(e) => e.currentTarget.style.opacity = '1'}>
+          <BrandLockup width={168} />
         </Link>
       </div>
 

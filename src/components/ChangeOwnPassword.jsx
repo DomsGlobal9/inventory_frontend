@@ -47,7 +47,7 @@ export default function ChangeOwnPassword() {
           <div>
             <h2 id="gi-password-title">Password</h2>
             <p>{open
-              ? 'Enter your current password, then the new one. It works from the next time you sign in.'
+              ? 'Enter your current password, then the new one. You stay signed in here; every other device signed in to this account is signed out.'
               : 'The password you sign in with. Only you can change it.'}</p>
           </div>
         </div>

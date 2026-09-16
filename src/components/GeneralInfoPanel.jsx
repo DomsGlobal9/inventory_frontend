@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { User as UserIcon, Mail, Shield, Edit2, Save, X, Loader2, Info } from 'lucide-react';
 import ChangeOwnPassword from './ChangeOwnPassword';
+import SignOutOtherDevices from './SignOutOtherDevices';
 import CompanyBrandingEditor from './CompanyBrandingEditor';
 import { useBranding } from '../hooks/useBranding';
 import { useUpdateMyProfile } from '../hooks/useTeam';
@@ -246,6 +247,8 @@ export default function GeneralInfoPanel() {
           </div>
         </section>
       )}
+
+      <SignOutOtherDevices />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import LoadFailed from './LoadFailed';
 import { LifeBuoy, Plus, ArrowLeft, Send, Loader2, Clock } from 'lucide-react';
 import { useSupportTickets, useSupportTicket, useCreateSupportTicket, useReplySupportTicket } from '../hooks/useSupportTickets';
 import Select from './common/Select';
+import { usePermission } from '../hooks/usePermission';
 
 
 const STATUS_STYLE = {
@@ -228,6 +229,9 @@ function TicketDetail({ ticketId, onBack }) {
 export default function SupportPanel() {
   const [view, setView] = useState('LIST'); // LIST | NEW | { ticketId }
   const { data: tickets, isLoading, isError, error, refetch } = useSupportTickets();
+  // The owner and whoever manages the team see every ticket the shop raised; everyone else, their own.
+  const { can } = usePermission();
+  const seesAll = can('admin:users');
 
   if (view === 'NEW') {
     return <NewTicketForm onDone={() => setView('LIST')} />;
@@ -241,6 +245,7 @@ export default function SupportPanel() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <p style={{ color: 'var(--text-secondary)', margin: 0, maxWidth: '480px' }}>
           Raise an issue or question and hear back from Scaleezy support here.
+          {seesAll ? ' Every ticket raised by your team is listed.' : ' Tickets you raised are listed.'}
         </p>
         <button onClick={() => setView('NEW')} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', flexShrink: 0 }}>
           <Plus size={16} /> New Ticket

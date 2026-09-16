@@ -114,8 +114,20 @@ export const useChangeMyPassword = () => {
   return useMutation({
     mutationFn: async ({ currentPassword, newPassword }) =>
       (await api.post('/auth/me/password', { currentPassword, newPassword })).data,
-    onSuccess: () => toast.success('Password changed. Use the new one next time you sign in.'),
+    onSuccess: () => toast.success('Password changed. Every other device signed in to this account has been signed out.'),
     onError: (error) => toast.error(error?.message || 'Could not change the password')
+  });
+};
+
+/**
+ * End every other sign-in of this account. The server hands this device a fresh session in the
+ * same response, so nothing here changes.
+ */
+export const useSignOutOtherDevices = () => {
+  return useMutation({
+    mutationFn: async () => (await api.post('/auth/me/sign-out-other-devices')).data,
+    onSuccess: () => toast.success('Signed out of every other device.'),
+    onError: (error) => toast.error(error?.message || 'Could not sign out the other devices')
   });
 };
 

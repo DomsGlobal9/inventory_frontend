@@ -189,7 +189,7 @@ function InviteForm({ roles, onDone }) {
 
   return (
     <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(4px)' }} onClick={onDone}>
-      <form onSubmit={handleSubmit} onClick={e = noValidate> e.stopPropagation()} style={{ display: 'flex', flexDirection: 'column', gap: '14px', width: '100%', maxWidth: '420px', background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '16px', padding: '24px', boxShadow: 'var(--shadow-modal)' }}>
+      <form onSubmit={handleSubmit} noValidate onClick={e => e.stopPropagation()} style={{ display: 'flex', flexDirection: 'column', gap: '14px', width: '100%', maxWidth: '420px', background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '16px', padding: '24px', boxShadow: 'var(--shadow-modal)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '15px' }}>Add Team Member</div>
         <button type="button" onClick={onDone} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}><X size={18} /></button>

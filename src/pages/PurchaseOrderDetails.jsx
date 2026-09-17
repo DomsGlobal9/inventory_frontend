@@ -19,6 +19,7 @@ import { useAuth } from '../context/AuthContext';
 import { buildWhatsAppUrl, buildPurchaseOrderMessage, toWhatsAppNumber } from '../utils/whatsappUtils';
 import Select from '../components/common/Select';
 import { usePermission } from '../hooks/usePermission';
+import { PutAwayNotice } from '../components/shelves/ShelfLinks';
 
 
 export default function PurchaseOrderDetails() {
@@ -855,6 +856,11 @@ Change it to ${chosen.name}? The order will say ${chosen.name} from now on, but 
               </table>
             </div>
           </div>
+
+          {/* Goods that arrived and are not on a shelf yet, where the last delivery went. */}
+          {!isNew && po?.receipts?.length > 0 && (
+            <PutAwayNotice locationId={po.receipts[po.receipts.length - 1]?.locationId || po.locationId} variantIds={(po.items || []).map(i => i.variantId)} what="this order" />
+          )}
 
           {/* Every delivery against this order, each with its own goods receipt. */}
           {!isNew && po?.receipts?.length > 0 && (

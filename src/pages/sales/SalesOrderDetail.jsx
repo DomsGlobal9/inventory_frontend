@@ -18,6 +18,7 @@ import { formatINRExact } from '../../utils/formatUtils';
 import PageLoader from '../../components/PageLoader';
 import ConfirmModal from '../../components/ConfirmModal';
 import toast from 'react-hot-toast';
+import { ShelvesUsed } from '../../components/shelves/ShelfLinks';
 
 export default function SalesOrderDetail() {
   const { id } = useParams();
@@ -214,7 +215,8 @@ export default function SalesOrderDetail() {
           * been given all the room it asked for; it just had nowhere to put it.
           */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', minWidth: 0 }}>
-          
+          <ShelvesUsed orderId={id} />
+
           <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
             <div className="table-container" style={{ padding: '24px', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>Line Items</h3>

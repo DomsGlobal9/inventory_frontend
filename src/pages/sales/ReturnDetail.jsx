@@ -12,6 +12,7 @@ import Select from '../../components/common/Select';
 
 import PageLoader from '../../components/PageLoader';
 import { formatINRExact } from '../../utils/formatUtils';
+import { PutAwayNotice } from '../../components/shelves/ShelfLinks';
 
 export default function ReturnDetail() {
   const { id } = useParams();
@@ -197,6 +198,12 @@ export default function ReturnDetail() {
           <p style={{ color: 'var(--text-secondary)', margin: 0 }}>
             Order {ret.salesOrder?.orderNumber} • Customer: {ret.salesOrder?.customer?.name}
           </p>
+          {ret.status === 'COMPLETED' && (
+            <div style={{ marginTop: 12 }}>
+              <PutAwayNotice locationId={ret.salesOrder?.locationId} what="this return"
+                variantIds={(ret.items || []).map(i => i.dispatchItem?.salesOrderItem?.variantId).filter(Boolean)} />
+            </div>
+          )}
         </div>
         
         <ConfirmModal

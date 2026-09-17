@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, ShoppingBag, Box, Users, Settings, Package, Truck, FileText, ArrowLeftRight, LogOut, User, Tag } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Box, Users, Settings, Package, Truck, FileText, ArrowLeftRight, LogOut, User, Tag, MapPinned } from 'lucide-react';
 import { usePermission } from '../hooks/usePermission';
 import { useAuth } from '../context/AuthContext';
 import BrandLockup from './BrandLockup';
@@ -16,6 +16,8 @@ const NAV_ITEMS = [
   { name: 'Orders', path: '/orders', icon: ShoppingBag, permission: 'sales_order:view' },
   { name: 'Returns', path: '/returns', icon: Truck, permission: 'return:view' },
   { name: 'Inventory', path: '/inventory', icon: Box, permission: 'inventory:view' },
+  // Where a piece is kept. Open to a salesperson too, who has no inventory:view.
+  { name: 'Shelves', path: '/shelves', icon: MapPinned, permission: 'shelf:view' },
   { name: 'Transfers', path: '/inventory/transfers', icon: ArrowLeftRight, permission: 'inventory:transfer' },
   { name: 'Purchase Orders', path: '/inventory/purchase-orders', icon: FileText, permission: 'purchase_order:view' },
   { name: 'Offers', path: '/offers', icon: Tag, permission: 'offer:view' },

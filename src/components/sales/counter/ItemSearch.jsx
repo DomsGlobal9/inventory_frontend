@@ -129,6 +129,16 @@ export default function ItemSearch({ locationId, onAdd, inBasket }) {
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {[detail(it), it.sku].filter(Boolean).join(' · ')}
                   </div>
+                  {it.shelves?.length > 0 && (
+                    // Where to fetch it from, shop floor first.
+                    <div style={{ fontSize: 12, marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {it.shelves.map(s => (
+                        <span key={s.address} style={{ fontFamily: 'ui-monospace, Menlo, Consolas, monospace', fontWeight: 700, marginRight: 8, color: s.isShopFloor ? 'var(--accent-success)' : 'var(--accent-warning)' }}>
+                          {s.address}·{s.quantity}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div style={{ textAlign: 'right', flexShrink: 0 }}>
                   <div style={{ fontWeight: 600 }}>{it.price === null ? '—' : formatINRExact(it.price)}</div>

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Plus, Trash2, Loader2, AlertCircle, Download, AlertTriangle, X, Copy, CheckCircle2, Printer, Info, Settings, Check, Truck, ImageOff } from 'lucide-react';
+import { Plus, Trash2, Loader2, AlertCircle, Download, AlertTriangle, X, Copy, CheckCircle2, Printer, Info, Settings, Check, Truck, ImageOff, MapPinned } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import Barcode from 'react-barcode';
@@ -840,6 +840,11 @@ export default function VariantTable({ productId, productName, productCode, prod
                           <button onClick={() => handleCopy(v.sku, `sku-${v.id}`)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '2px', color: 'var(--text-muted)' }} title="Copy SKU">
                             {copiedId === `sku-${v.id}` ? <CheckCircle2 size={14} color="#10b981" /> : <Copy size={14} />}
                           </button>
+                          {can('shelf:view') && (
+                            <a href={`/shelves?q=${encodeURIComponent(v.sku)}`} title="Where is it kept?" style={{ display: 'inline-flex', color: 'var(--text-muted)' }} aria-label={`Where is ${v.sku} kept?`}>
+                              <MapPinned size={14} />
+                            </a>
+                          )}
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <span style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--text-secondary)' }}>{v.variantCode}</span>

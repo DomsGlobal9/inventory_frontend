@@ -5,11 +5,15 @@ import { X, Minus, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStockOut, useInventoryMetadata } from '../../hooks/useInventory';
 import Select from '../common/Select';
+import TakeFromShelf, { fromSpotsFor } from '../shelves/TakeFromShelf';
+import { useLocationContext } from '../../contexts/LocationContext';
 
 
 export default function StockOutModal({ variant, onClose }) {
   const { data: metadata } = useInventoryMetadata();
   const stockOutMutation = useStockOut();
+  const { currentLocation } = useLocationContext();
+  const [fromSpot, setFromSpot] = useState(null);
 
   const [formData, setFormData] = useState({
     quantity: '',
@@ -33,7 +37,8 @@ export default function StockOutModal({ variant, onClose }) {
       reason: formData.reason,
       referenceType: formData.referenceType,
       reference: formData.reference,
-      notes: formData.notes
+      notes: formData.notes,
+      fromSpots: fromSpotsFor(fromSpot, formData.quantity)
     }, {
       onSuccess: () => {
         onClose();
@@ -81,6 +86,8 @@ export default function StockOutModal({ variant, onClose }) {
               ))}
             </Select>
           </div>
+
+          <TakeFromShelf variantId={variant.variantId} locationId={currentLocation?.id} quantity={formData.quantity} value={fromSpot} onChange={setFromSpot} />
 
           <div className="mobile-stack-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <div className="form-group">

@@ -8,6 +8,7 @@ import { useLocationContext } from '../../contexts/LocationContext';
 import { usePermission } from '../../hooks/usePermission';
 import { ArrowRight, Plus, Trash2 } from 'lucide-react';
 import Select from '../../components/common/Select';
+import TakeFromShelf, { fromSpotsFor } from '../../components/shelves/TakeFromShelf';
 
 
 export default function TransfersPage() {
@@ -104,13 +105,20 @@ export default function TransfersPage() {
       setIsSubmitting(true);
       await api.post('/inventory-transfers', {
         ...formData,
-        items: items.map(item => ({ ...item, quantity: parseInt(item.quantity) || 0 }))
+        items: items.map(({ fromSpot, ...item }) => ({
+          ...item,
+          quantity: parseInt(item.quantity) || 0,
+          fromSpots: fromSpotsFor(fromSpot, parseInt(item.quantity) || 0)
+        }))
       });
       // This page posted directly with api.post and never touched the query cache, so a
       // transfer left the Inventory Overview, the ledger and the dashboard showing
       // pre-transfer quantities until a manual reload.
       invalidateDerivedViews(queryClient);
-      toast.success('Stock transferred successfully');
+      // Arriving stock is not on a shelf yet at the destination; say where to put it away.
+      toast.success(can('shelf:putaway')
+        ? 'Stock transferred. At the destination it waits in Shelves → Put away.'
+        : 'Stock transferred successfully');
       setFormData({ originLocationId: '', destinationLocationId: '', notes: '' });
       setItems([]);
     } catch (error) {
@@ -204,7 +212,8 @@ export default function TransfersPage() {
                 {items.map((item, index) => {
                   const available = availableFor(item.variantId);
                   return (
-                    <div key={index} style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <div key={index} style={{ display: 'grid', gap: '6px' }}>
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                       <Select required className="input" value={item.variantId} onChange={e => updateItem(index, 'variantId', e.target.value)} style={{ flex: 1 }}>
                         <option value="">Select a variant...</option>
                         {variants.map(v => (
@@ -229,6 +238,9 @@ export default function TransfersPage() {
                       <button type="button" className="btn-icon" style={{ color: '#ef4444' }} onClick={() => removeItem(index)}>
                         <Trash2 size={16} />
                       </button>
+                    </div>
+                    <TakeFromShelf compact variantId={item.variantId} locationId={formData.originLocationId} quantity={item.quantity}
+                      value={item.fromSpot ?? null} onChange={(spotId) => { if ((item.fromSpot ?? null) !== spotId) updateItem(index, 'fromSpot', spotId); }} />
                     </div>
                   );
                 })}

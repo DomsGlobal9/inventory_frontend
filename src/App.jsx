@@ -55,6 +55,15 @@ import Login from './pages/Login';
 import Unauthorized from './pages/Unauthorized';
 import ProtectedRoute from './components/ProtectedRoute';
 import Guard from './components/Guard';
+import WhereIsIt from './pages/shelves/WhereIsIt';
+import PutAway from './pages/shelves/PutAway';
+import MoveStock from './pages/shelves/MoveStock';
+import ShelfIssues from './pages/shelves/ShelfIssues';
+import RackSetup from './pages/shelves/RackSetup';
+import ShelfLabels from './pages/shelves/ShelfLabels';
+import PickList from './pages/shelves/PickList';
+import ShelfCount from './pages/shelves/ShelfCount';
+import RackMap from './pages/shelves/RackMap';
 
 function App() {
   return (
@@ -102,6 +111,8 @@ function App() {
         <Route element={<ProtectedRoute />}>
         {/* Outside the app's frame: a receipt is printed on its own, with nothing around it. */}
         <Route path="/orders/:id/receipt" element={<Guard permission="sales_order:view"><Receipt /></Guard>} />
+        {/* Shelf labels print on their own too. */}
+        <Route path="/shelves/labels" element={<Guard permission="shelf:manage"><ShelfLabels /></Guard>} />
         <Route element={<MainLayout />}>
           <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="/dashboard" element={<Guard permission="dashboard:view"><Dashboard /></Guard>} />
@@ -150,6 +161,14 @@ function App() {
           <Route path="/inventory/ledger" element={<Guard permission="inventory:view"><InventoryLedger /></Guard>} />
           <Route path="/inventory/transfers" element={<Guard permission="inventory:transfer"><TransfersPage /></Guard>} />
           <Route path="/inventory" element={<Guard permission="inventory:view"><InventoryOverview /></Guard>} />
+          <Route path="/shelves" element={<Guard permission="shelf:view"><WhereIsIt /></Guard>} />
+          <Route path="/shelves/put-away" element={<Guard permission="shelf:putaway"><PutAway /></Guard>} />
+          <Route path="/shelves/move" element={<Guard permission="shelf:putaway"><MoveStock /></Guard>} />
+          <Route path="/shelves/issues" element={<Guard permission="shelf:view"><ShelfIssues /></Guard>} />
+          <Route path="/shelves/pick" element={<Guard permission="shelf:putaway"><PickList /></Guard>} />
+          <Route path="/shelves/count" element={<Guard permission="shelf:putaway"><ShelfCount /></Guard>} />
+          <Route path="/shelves/map" element={<Guard permission="shelf:view"><RackMap /></Guard>} />
+          <Route path="/shelves/setup" element={<Guard permission="shelf:manage"><RackSetup /></Guard>} />
           {/* The day book now lives inside Settings. This route is kept so links and
               bookmarks that already point at it still land on the day book itself. */}
           <Route path="/offers" element={<Guard permission="offer:view"><Offers /></Guard>} />

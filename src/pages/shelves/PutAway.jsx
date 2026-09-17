@@ -131,6 +131,10 @@ function PutAwayPanel({ variantId, locationId, onDone, hasSpots }) {
   const waiting = place?.notShelved ?? 0;
   const [quantity, setQuantity] = useState(1);
   const [spot, setSpot] = useState(null);
+  // Once a scan has been refused, the shelf it would otherwise fall back to must not be armed
+  // again behind the person's back: they scanned something, it was refused, and pressing Put away
+  // then put the pieces on a shelf nobody chose.
+  const [scanRefused, setScanRefused] = useState(false);
   const [scan, setScan] = useState('');
   const [resolving, setResolving] = useState(false);
   const shelfScanRef = useRef(null);
@@ -141,20 +145,22 @@ function PutAwayPanel({ variantId, locationId, onDone, hasSpots }) {
   useEffect(() => { if (ready) setTimeout(() => shelfScanRef.current?.focus(), 60); }, [ready]);
   // Where its twins already are: shop floor first, in walking order (the server's order).
   const suggestions = useMemo(() => place?.shelves ?? [], [place]);
-  useEffect(() => { if (!spot && suggestions[0]) setSpot({ id: suggestions[0].spotId, address: suggestions[0].address, name: suggestions[0].name, colour: suggestions[0].colour, isShopFloor: suggestions[0].isShopFloor }); }, [suggestions, spot]);
+  useEffect(() => { if (!spot && !scanRefused && suggestions[0]) setSpot({ id: suggestions[0].spotId, address: suggestions[0].address, name: suggestions[0].name, colour: suggestions[0].colour, isShopFloor: suggestions[0].isShopFloor }); }, [suggestions, spot, scanRefused]);
 
   const scanShelf = async (typed) => {
     if (resolving || sending.current) return;
-    if (!isLabelScan(typed) && !looksLikeAddress(typed)) { toast.error('That is not a shelf label. Scan the label on the shelf.'); return; }
+    if (quantity < 1) { toast.error('Type how many to put away, at least 1.'); return; }
+    const refuse = (message) => { toast.error(message); setSpot(null); setScanRefused(true); };
+    if (!isLabelScan(typed) && !looksLikeAddress(typed)) { refuse('That is not a shelf label. Scan the label on the shelf.'); return; }
     setResolving(true);
     try {
       const found = await resolveSpot(typed, locationId);
-      if (found.spot.location?.id !== locationId) toast.error(`${found.spot.address} is in ${found.spot.location?.name}, not here.`);
-      else if (!found.spot.holdsStock) toast.error(`${found.spot.address} has shelves inside it. Scan one of those.`);
-      else if (!found.spot.active) toast.error(`${found.spot.address} is switched off.`);
-      else { setSpot(found.spot); setScan(''); return confirm(found.spot); }
+      if (found.spot.location?.id !== locationId) refuse(`${found.spot.address} is in ${found.spot.location?.name}, not here.`);
+      else if (!found.spot.holdsStock) refuse(`${found.spot.address} has shelves inside it. Scan one of those.`);
+      else if (!found.spot.active) refuse(`${found.spot.address} is switched off.`);
+      else { setSpot(found.spot); setScanRefused(false); setScan(''); return confirm(found.spot); }
     } catch (err) {
-      toast.error(err?.message || 'No shelf matches that label.');
+      refuse(err?.message || 'No shelf matches that label.');
     } finally {
       setResolving(false);
     }
@@ -211,7 +217,7 @@ function PutAwayPanel({ variantId, locationId, onDone, hasSpots }) {
               <h3 className="sh-section-title">Already kept on</h3>
               {suggestions.map(s => (
                 <button key={s.spotId} type="button" className={`sh-list-btn${spot?.id === s.spotId ? ' selected' : ''}`} style={{ border: '1px solid var(--border-light)' }}
-                  onClick={() => setSpot({ id: s.spotId, address: s.address, name: s.name, colour: s.colour, isShopFloor: s.isShopFloor })}>
+                  onClick={() => { setScanRefused(false); setSpot({ id: s.spotId, address: s.address, name: s.name, colour: s.colour, isShopFloor: s.isShopFloor }); }}>
                   <span style={{ flex: 1 }}><SpotChip address={s.address} name={s.name} colour={s.colour} isShopFloor={s.isShopFloor} /></span>
                   <span className="sh-muted">{s.quantity} there</span>
                 </button>
@@ -222,13 +228,13 @@ function PutAwayPanel({ variantId, locationId, onDone, hasSpots }) {
           <details>
             <summary style={{ cursor: 'pointer', fontWeight: 600, padding: '4px 0' }}>Or choose another shelf</summary>
             <div style={{ marginTop: 10 }}>
-              <SpotPicker locationId={locationId} value={spot?.id} onChange={(s) => setSpot(s)} />
+              <SpotPicker locationId={locationId} value={spot?.id} onChange={(s) => { setScanRefused(false); setSpot(s); }} />
             </div>
           </details>
 
           <div style={{ position: 'sticky', bottom: 0, background: 'var(--bg-card)', paddingTop: 8, borderTop: '1px solid var(--border-light)', display: 'flex', gap: 12, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-            <span>{spot ? <>Put <strong>{quantity}</strong> on <SpotChip address={spot.address} isShopFloor={spot.isShopFloor} showTag={false} /></> : <span className="sh-muted">Choose or scan a shelf</span>}</span>
-            <button type="button" className="btn-primary" disabled={!spot || put.isPending} onClick={() => confirm()} style={{ minWidth: 160, minHeight: 44, display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'center' }}>
+            <span>{quantity < 1 ? <span className="sh-muted">Type how many, at least 1</span> : spot ? <>Put <strong>{quantity}</strong> on <SpotChip address={spot.address} isShopFloor={spot.isShopFloor} showTag={false} /></> : <span className="sh-muted">Choose or scan a shelf</span>}</span>
+            <button type="button" className="btn-primary" disabled={!spot || quantity < 1 || put.isPending} onClick={() => confirm()} style={{ minWidth: 160, minHeight: 44, display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'center' }}>
               {put.isPending ? <Loader2 size={16} className="animate-spin" /> : <PackageCheck size={18} />} Put away
             </button>
           </div>

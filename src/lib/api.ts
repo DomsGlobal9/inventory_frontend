@@ -111,7 +111,15 @@ api.interceptors.response.use(
     }
 
     // Handle global API errors (e.g., 401 Unauthorized)
-    return Promise.reject(error.response?.data || error);
+    // The body is what every screen reads (its message), but it says nothing about WHICH refusal
+    // this was. Without the status on it, the global handler could not tell a 404 from a real
+    // fault, so deleting a shelf showed "That shelf was not found." in red right after the green
+    // "removed" -- the list simply asking again for the thing that had just gone.
+    const body = error.response?.data;
+    if (body && typeof body === 'object' && !Array.isArray(body)) {
+      return Promise.reject(Object.assign(body, { statusCode: (body as any).statusCode ?? error.response?.status }));
+    }
+    return Promise.reject(body || error);
   }
 );
 

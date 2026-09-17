@@ -87,6 +87,9 @@ function PickWalk({ locationId, orderIds, onBack, onDone, canDispatch }) {
     return [...fromStops, ...loose];
   }, [data]);
   const done = tasks.filter(t => (picked[t.key] ?? 0) >= t.quantity).length;
+  // Pieces in hand: what was picked, less anything reported as not on the shelf. A line marked
+  // "Not here" counts as dealt with for the walk, but there is nothing of it to send.
+  const readyPieces = tasks.reduce((n, t) => n + Math.max(0, (picked[t.key] ?? 0) - (picked[`${t.key}|missing`] ?? 0)), 0);
   const current = tasks.find(t => (picked[t.key] ?? 0) < t.quantity);
 
   const confirm = (task, n = task.quantity) => setPicked(p => ({ ...p, [task.key]: Math.min(task.quantity, n) }));
@@ -142,12 +145,16 @@ function PickWalk({ locationId, orderIds, onBack, onDone, canDispatch }) {
     }
     setSending(false);
     inFlight.current = false;
+    if (sent) toast.success(`${sent} ${sent === 1 ? 'order' : 'orders'} sent out.`);
+    problems.forEach(p => toast.error(p));
+    if (!sent && !problems.length) toast('Nothing to send out: none of these pieces were found.', { icon: 'ℹ️' });
+    // Leave the walk BEFORE asking the lists to refresh. The other way round, the pick list for
+    // orders that have just gone out asks for them again, is told "SO-… is dispatched, so there is
+    // nothing to pick for it", and that refusal was shown in red beside "1 order sent out."
+    if (sent) onDone();
     invalidateDerivedViews(queryClient);
     queryClient.invalidateQueries({ queryKey: ['shelves'] });
     queryClient.invalidateQueries({ queryKey: ['sales-orders'] });
-    if (sent) toast.success(`${sent} ${sent === 1 ? 'order' : 'orders'} sent out.`);
-    problems.forEach(p => toast.error(p));
-    if (!problems.length) onDone();
   };
 
   if (pick.isLoading) return <div className="sh-card sh-muted"><Loader2 size={16} className="animate-spin" /> Working out the walk…</div>;
@@ -194,9 +201,9 @@ function PickWalk({ locationId, orderIds, onBack, onDone, canDispatch }) {
       )}
 
       <div className="sh-card sh-row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', position: 'sticky', bottom: 0 }}>
-        <span className="sh-muted">{allDone ? 'Everything is picked.' : `${tasks.length - done} still to pick. You can send out what is picked.`}</span>
+        <span className="sh-muted">{allDone ? (readyPieces ? 'Everything is picked.' : 'Nothing was found to send out.') : `${tasks.length - done} still to pick. You can send out what is picked.`}</span>
         {canDispatch ? (
-          <button type="button" className="btn-primary" disabled={done === 0 || sending} onClick={sendOut} style={{ display: 'flex', gap: 8, alignItems: 'center', minHeight: 44 }}>
+          <button type="button" className="btn-primary" disabled={readyPieces === 0 || sending} onClick={sendOut} style={{ display: 'flex', gap: 8, alignItems: 'center', minHeight: 44 }}>
             {sending ? <Loader2 size={16} className="animate-spin" /> : <Truck size={18} />} Send out picked
           </button>
         ) : <span className="sh-muted">Someone who can send orders out finishes this.</span>}

@@ -56,7 +56,7 @@ export default function ShelfIssues() {
         </div>
       ) : (
         <div style={{ display: 'grid', gap: 10 }}>
-          {rows.map(issue => <IssueCard key={issue.id} issue={issue} canResolve={can('shelf:manage')} />)}
+          {rows.map(issue => <IssueCard key={issue.id} issue={issue} canResolve={can('shelf:manage')} canMove={can('shelf:putaway')} />)}
           {(issues.data?.pages ?? 1) > 1 && (
             <div className="sh-row" style={{ justifyContent: 'space-between' }}>
               <button className="btn-secondary" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>Previous</button>
@@ -70,7 +70,7 @@ export default function ShelfIssues() {
   );
 }
 
-function IssueCard({ issue, canResolve }) {
+function IssueCard({ issue, canResolve, canMove }) {
   const resolve = useResolveIssue();
   const [open, setOpen] = useState(false);
   const [note, setNote] = useState('');
@@ -97,7 +97,7 @@ function IssueCard({ issue, canResolve }) {
         <div className="sh-muted">Resolved {issue.resolvedAt ? when(issue.resolvedAt) : ''}{issue.resolutionNote ? ` — “${issue.resolutionNote}”` : ''}</div>
       ) : (
         <div className="sh-row" style={{ gap: 8, flexWrap: 'wrap' }}>
-          {issue.spot && <Link to={`/shelves/move?spot=${issue.spot.id}&variant=${issue.item.variantId}`} className="btn-secondary" style={{ textDecoration: 'none', padding: '6px 12px' }}>Open the shelf</Link>}
+          {issue.spot && canMove && <Link to={`/shelves/move?spot=${issue.spot.id}&variant=${issue.item.variantId}`} className="btn-secondary" style={{ textDecoration: 'none', padding: '6px 12px' }}>Open the shelf</Link>}
           {canResolve && !open && <button type="button" className="btn-secondary" style={{ padding: '6px 12px' }} onClick={() => setOpen(true)}>Mark resolved</button>}
           {canResolve && open && (
             <form style={{ display: 'flex', gap: 8, flex: 1, minWidth: 260, flexWrap: 'wrap' }}

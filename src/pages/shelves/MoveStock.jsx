@@ -60,6 +60,7 @@ export default function MoveStock() {
   const sending = useRef(false);
   const go = (toSpot) => {
     if (!item || sending.current || move.isPending) return;
+    if (quantity < 1) { toast.error('Type how many to move, at least 1.'); return; }
     if (toSpot && toSpot.id === fromId) { toast.error('The pieces are already on that shelf.'); return; }
     sending.current = true;
     move.mutate({ locationId, variantId: item.variantId, fromSpotId: fromId, toSpotId: toSpot?.id, quantity }, {
@@ -141,7 +142,13 @@ export default function MoveStock() {
 
         <section className="sh-card" style={{ display: 'grid', gap: 14 }} aria-label="To">
           <h2 className="sh-section-title" style={{ margin: 0 }}>3 · To</h2>
-          {confirmAll ? (
+          {wrongLocation ? (
+            // The store was changed at the top while this was open: every button below would be
+            // refused by the server, so none of them is offered.
+            <p className="sh-muted" style={{ margin: 0 }}>
+              This shelf is in another store. Change the store at the top back, or use a transfer to move stock between stores.
+            </p>
+          ) : confirmAll ? (
             <>
               <p style={{ margin: 0 }}>Everything on <strong className="sh-addr">{from.data?.spot.address}</strong> goes to:</p>
               <ScanInput ref={toRef} value={toScan} onChange={setToScan} onSubmit={scanTo} busy={busy} placeholder="Scan the shelf label they are going to" label="Scan the shelf it goes to" />
@@ -172,7 +179,7 @@ export default function MoveStock() {
                   <SpotPicker locationId={locationId} exclude={[fromId]} onChange={(s) => go(s)} maxHeight={260} />
                 </div>
               </details>
-              <button type="button" className="btn-secondary" disabled={move.isPending} onClick={() => go(null)}>
+              <button type="button" className="btn-secondary" disabled={move.isPending || quantity < 1} onClick={() => go(null)}>
                 Take {quantity} off the shelf (back to Not shelved)
               </button>
             </>

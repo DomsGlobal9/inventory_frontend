@@ -126,6 +126,11 @@ export function ShelvesLayout({ title, subtitle, icon: Icon, actions, children, 
 export const ScanInput = forwardRef(function ScanInput({ value, onChange, onSubmit, placeholder, busy, autoFocus = true, label = 'Scan or search', clearOnSubmit = false }, ref) {
   const inner = useRef(null);
   const input = ref || inner;
+  // Some scanners send Enter twice in the same instant. The box is cleared through React state,
+  // which has not redrawn yet, so the second Enter reads the same text and counts the same piece
+  // again. Two real scans are never this close together (a person cannot be), so the twin is
+  // dropped. 60ms is far below a genuine repeat and far above one screen redraw.
+  const lastSubmit = useRef({ text: '', at: 0 });
   return (
     <div className="sh-scan">
       <ScanLine size={22} className="sh-scan-icon" />
@@ -144,7 +149,9 @@ export const ScanInput = forwardRef(function ScanInput({ value, onChange, onSubm
           if (e.key === 'Enter') {
             e.preventDefault();
             const text = value.trim();
-            if (text) {
+            const now = Date.now();
+            if (text && !(lastSubmit.current.text === text && now - lastSubmit.current.at < 60)) {
+              lastSubmit.current = { text, at: now };
               onSubmit?.(text);
               if (clearOnSubmit) onChange('');
             }
@@ -205,8 +212,12 @@ export function Stepper({ value, onChange, min = 1, max = 100000, label = 'Quant
         onChange={(e) => {
           setText(e.target.value);
           // A whole number in range counts at once, so scanning a shelf right after typing uses it.
+          // Anything else (empty, 0, minus, half a piece) is reported as 0: the box and what the
+          // screen is about to do must never disagree -- typing 0 and scanning a shelf used to put
+          // one piece away, because the last good number was still being held here.
           const n = Number(e.target.value);
           if (e.target.value !== '' && Number.isInteger(n) && n >= min && n <= max) onChange(n);
+          else onChange(0);
         }}
         onBlur={(e) => commit(e.target.value)}
         onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); commit(e.currentTarget.value); } }} />

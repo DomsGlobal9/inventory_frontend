@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Edit, Mail, Phone, MapPin, Building, Calendar, FileText, IndianRupee, Clock, Package, X } from 'lucide-react';
+import { typedPhone } from '../utils/phone';
 import { useQuery } from '@tanstack/react-query';
 import { useUpdateSupplier } from '../hooks/useSuppliers';
 import SupplierProductsPanel from '../components/SupplierProductsPanel';
@@ -300,7 +301,8 @@ export default function SupplierDetails() {
                     type="tel"
                     className="input-field"
                     value={editForm.phone}
-                    onChange={e => setEditForm({...editForm, phone: e.target.value})}
+                    maxLength={20}
+                    onChange={e => setEditForm({...editForm, phone: typedPhone(e.target.value)})}
                   />
                 </div>
                 <div>

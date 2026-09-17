@@ -7,6 +7,7 @@ import { useLocationContext } from '../../contexts/LocationContext';
 import { usePermission } from '../../hooks/usePermission';
 import Select from '../../components/common/Select';
 import ConfirmModal from '../../components/ConfirmModal';
+import { typedPhone } from '../../utils/phone';
 
 
 export default function StockLocationsPage() {
@@ -299,7 +300,7 @@ export default function StockLocationsPage() {
               </div>
               <div className="form-group">
                 <label htmlFor="location-phone" style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '8px' }}>Phone at this store (optional)</label>
-                <input id="location-phone" type="tel" inputMode="tel" maxLength={20} className="input-field" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="e.g., +91 98765 43210" />
+                <input id="location-phone" type="tel" inputMode="tel" maxLength={20} className="input-field" value={formData.phone} onChange={e => setFormData({...formData, phone: typedPhone(e.target.value)})} placeholder="e.g., +91 98765 43210" />
               </div>
 
               <div style={{

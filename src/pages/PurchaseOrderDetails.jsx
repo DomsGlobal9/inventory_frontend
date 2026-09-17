@@ -17,6 +17,7 @@ import { api } from '../lib/api';
 import PageLoader from '../components/PageLoader';
 import { useAuth } from '../context/AuthContext';
 import { buildWhatsAppUrl, buildPurchaseOrderMessage, toWhatsAppNumber } from '../utils/whatsappUtils';
+import { typedPhone } from '../utils/phone';
 import Select from '../components/common/Select';
 import { usePermission } from '../hooks/usePermission';
 import { PutAwayNotice } from '../components/shelves/ShelfLinks';
@@ -975,7 +976,7 @@ Change it to ${chosen.name}? The order will say ${chosen.name} from now on, but 
                 inputMode="tel"
                 value={receiverPhone}
                 maxLength={20}
-                onChange={e => setReceiverPhone(e.target.value)}
+                onChange={e => setReceiverPhone(typedPhone(e.target.value))}
                 placeholder="e.g. +91 98765 43210"
                 style={{ width: '100%', marginBottom: '12px' }}
               />

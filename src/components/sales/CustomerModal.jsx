@@ -4,7 +4,7 @@ import { firstMissingField, missingFieldMessage } from '../../lib/formGuard';
 import toast from 'react-hot-toast';
 import { X, Save, Loader2, User, AlertCircle, CheckCircle2, ArrowRight } from 'lucide-react';
 import { useCreateCustomer, useUpdateCustomer } from '../../hooks/useCustomers';
-import { normalisePhone, formatPhone } from '../../utils/phone';
+import { normalisePhone, formatPhone, typedPhone } from '../../utils/phone';
 
 const EMPTY = { phone: '', name: '', email: '', companyName: '', gstNumber: '', status: 'ACTIVE' };
 
@@ -134,7 +134,7 @@ const CustomerModal = ({ isOpen, onClose, customer, onSaved }) => {
               maxLength={20}
               className="input-field"
               value={formData.phone}
-              onChange={e => { setFormData({ ...formData, phone: e.target.value }); setExisting(null); setSaveError(null); }}
+              onChange={e => { setFormData({ ...formData, phone: typedPhone(e.target.value) }); setExisting(null); setSaveError(null); }}
               onBlur={() => setPhoneTouched(true)}
               placeholder="e.g. 98480 22338"
               style={{ width: '100%' }}

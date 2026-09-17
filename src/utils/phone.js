@@ -45,6 +45,37 @@ export function normalisePhone(raw) {
   return { ok: true, value: `+${digits}` };
 }
 
+/**
+ * What a phone box keeps as it is typed or pasted: digits, spaces and + - ( ) . only, and a + only at the
+ * start. Digits stop at the longest a number can be: 12 for an Indian number (91 and the 10 digits,
+ * with or without + or 00), 15 with + or 00 (the longest any country has). Letters and a 60-digit paste
+ * never reach the box, so the checks above only ever have to explain a real mistake. Hindi, Telugu,
+ * Tamil and Kannada digits from a phone keyboard become 0-9.
+ */
+const LOCAL_DIGIT_ZEROS = [0x0966, 0x0c66, 0x0be6, 0x0ce6];
+
+export function typedPhone(raw) {
+  const asciiDigits = String(raw ?? '').replace(/[०-९౦-౯௦-௯೦-೯]/g, (d) => {
+    const code = d.charCodeAt(0);
+    return String(code - LOCAL_DIGIT_ZEROS.find(zero => code >= zero && code <= zero + 9));
+  });
+  const kept = asciiDigits.replace(/[^\d +\-.()]/g, '');
+  const indian = /^\s*(\+\s*91|0091)/.test(kept);
+  const international = /^\s*(\+|00)/.test(kept);
+  // A leading 00 is dialling, not part of the number, so it does not use up the allowance.
+  const most = (/^\s*00/.test(kept) ? 2 : 0) + (international && !indian ? 15 : 12);
+  let out = '';
+  let digits = 0;
+  for (const ch of kept) {
+    // A full number takes nothing more, not even a dot or a space typed after it.
+    if (digits === most) break;
+    if (ch === '+') { if (out.trim() === '') out += ch; continue; }
+    if (ch >= '0' && ch <= '9') digits += 1;
+    out += ch;
+  }
+  return out.replace(/ {2,}/g, ' ').replace(/^ +/, '').slice(0, 20);
+}
+
 /** "+919848022338" -> "+91 98480 22338"; other countries and anything unrecognised as stored. */
 export function formatPhone(stored) {
   if (!stored) return '';

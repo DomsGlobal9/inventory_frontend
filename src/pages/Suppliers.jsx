@@ -5,6 +5,7 @@ import LoadFailed from '../components/LoadFailed';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Truck, Plus, Search, ChevronRight, Building2, Phone, Mail, X } from 'lucide-react';
+import { typedPhone } from '../utils/phone';
 import { useSuppliers, useCreateSupplier } from '../hooks/useSuppliers';
 import PageLoader from '../components/PageLoader';
 
@@ -196,7 +197,8 @@ export default function Suppliers() {
                     type="tel"
                     className="input-field"
                     value={newSupplier.phone}
-                    onChange={e => setNewSupplier({...newSupplier, phone: e.target.value})}
+                    maxLength={20}
+                    onChange={e => setNewSupplier({...newSupplier, phone: typedPhone(e.target.value)})}
                   />
                 </div>
                 <div>

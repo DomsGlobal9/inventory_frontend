@@ -8,7 +8,7 @@ import { usePermission } from '../../hooks/usePermission';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { useCustomerDetails } from '../../hooks/useCustomers';
 import { useCustomerByPhone, usePricingQuote, useCompleteSale, COUNTER_PHONE_QUERY } from '../../hooks/useCounterSale';
-import { normalisePhone, formatPhone } from '../../utils/phone';
+import { normalisePhone, formatPhone, typedPhone } from '../../utils/phone';
 import { formatINRExact } from '../../utils/formatUtils';
 import ItemSearch from '../../components/sales/counter/ItemSearch';
 import PaymentPanel, { buildPayments, paise, EMPTY_PAYMENT } from '../../components/sales/counter/PaymentPanel';
@@ -314,7 +314,7 @@ export default function NewSale() {
           <section style={card} aria-label="Customer">
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 600 }}><UserRound size={17} /> Customer</div>
             <input className="input-field" type="tel" inputMode="tel" autoComplete="off" aria-label="Customer phone" placeholder="Customer phone, e.g. 98480 22338"
-              value={sale.phone} disabled={busy} onChange={(e) => update({ phone: e.target.value })} style={{ width: '100%' }} />
+              value={sale.phone} maxLength={20} disabled={busy} onChange={(e) => update({ phone: typedPhone(e.target.value) })} style={{ width: '100%' }} />
             {sale.phone && !phoneCheck.ok && typedDigits >= 10 && (
               <div role="alert" style={{ fontSize: 13, color: 'var(--accent-warning)' }}>{phoneCheck.reason}</div>
             )}

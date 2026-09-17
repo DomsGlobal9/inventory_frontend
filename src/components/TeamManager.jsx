@@ -359,12 +359,48 @@ export default function TeamManager() {
   const currentUserIsSuperAdmin = user?.roles?.includes('SUPER_ADMIN');
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+    <div className="team-panel">
+      <style>{`
+        /* Wherever the panel is narrow, every person is a card: a phone, a tablet, and a laptop too, where
+           the app menu and the Settings menu leave the panel under 700px. Measured on the panel, not the
+           screen. The table was wider than that and, with its box set to overflow visibly, pushed the whole
+           Settings card sideways: the title slid off the left and the Password button off the right. */
+        .team-panel { container: team / inline-size; }
+        .team-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 20px; }
+        .team-head-actions { display: flex; align-items: center; gap: 12px; }
+        /* A long name or email wraps instead of pushing Password out of sight. */
+        .team-table td.team-name { min-width: 170px; max-width: 260px; overflow-wrap: anywhere; }
+        .team-table td.team-seen > div { white-space: nowrap; }
+        @container team (max-width: 700px) {
+          .team-head { flex-direction: column; align-items: stretch; }
+          .team-head-actions { flex-wrap: wrap; }
+          .team-head-actions > button { flex: 1 1 140px; justify-content: center; }
+          .team-table-box { border: none !important; overflow: visible !important; padding-bottom: 0 !important; }
+          .team-table thead { display: none; }
+          .team-table, .team-table tbody { display: block; width: 100%; }
+          .team-table tr.team-row {
+            display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px 12px;
+            padding: 14px; margin-bottom: 10px; border: 1px solid var(--border-light) !important; border-radius: 12px;
+            background: var(--bg-card);
+          }
+          /* index.css pins a table's first column for sideways scrolling; a card does not scroll. */
+          .team-table td { display: block; padding: 0 !important; position: static !important; border-right: none !important; background: transparent !important; min-width: 0; }
+          .team-table td.team-name { grid-column: 1 / -1; min-width: 0; max-width: none; }
+          .team-table td.team-role { grid-column: 1 / -1; }
+          .team-table td { border-bottom: none !important; }
+          .team-table td.team-role .custom-select-container { width: 100% !important; padding: 0 !important; }
+          .team-table td.team-status button { min-height: 32px; padding: 6px 12px !important; }
+          .team-table td.team-password { grid-column: 1 / -1; text-align: left !important; }
+          .team-table td.team-password button { width: 100%; justify-content: center; padding: 8px 10px !important; font-size: 12px !important; }
+          .team-table td.team-seen { text-align: right; }
+          .team-table td.team-seen > div { justify-content: flex-end; }
+        }
+      `}</style>
+      <div className="team-head">
         <p style={{ color: 'var(--text-secondary)', margin: 0, maxWidth: '480px' }}>
           Add staff, assign their role, and manage access to your workspace.
         </p>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div className="team-head-actions">
           <button onClick={() => setShowActivity(true)} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', flexShrink: 0 }}>
             <Activity size={16} /> Recent Activity
           </button>
@@ -383,8 +419,8 @@ export default function TeamManager() {
           <Loader2 size={24} className="animate-spin" />
         </div>
       ) : (
-        <div className="table-container" style={{ border: '1px solid var(--border-light)', borderRadius: '12px', overflow: 'visible' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+        <div className="table-container team-table-box" style={{ border: '1px solid var(--border-light)', borderRadius: '12px' }}>
+          <table className="team-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
               <tr style={{ background: 'var(--bg-input)' }}>
                 {['Name', 'Role', 'Status', 'Last Active', ''].map((h, index, arr) => (
@@ -405,12 +441,12 @@ export default function TeamManager() {
                   ? "You can't manage your own account here"
                   : (!canManageThisRow ? "Only a Super Admin can manage another Super Admin's account" : undefined);
                 return (
-                  <tr key={m.id} style={{ borderTop: '1px solid var(--border-light)' }}>
-                    <td style={{ padding: '10px 16px' }}>
+                  <tr key={m.id} className="team-row" style={{ borderTop: '1px solid var(--border-light)' }}>
+                    <td className="team-name" style={{ padding: '10px 16px' }}>
                       <div style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{m.name} {isSelf && <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(you)</span>}</div>
                       <div style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{m.email}</div>
                     </td>
-                    <td style={{ padding: '10px 16px' }}>
+                    <td className="team-role" style={{ padding: '10px 16px' }}>
                       <Select
                         value={currentRoleId}
                         disabled={!canManageThisRow || updateRoleMutation.isPending}
@@ -422,7 +458,7 @@ export default function TeamManager() {
                         {roles?.map(r => <option key={r.id} value={r.id}>{r.name.replace(/_/g, ' ')}</option>)}
                       </Select>
                     </td>
-                    <td style={{ padding: '10px 16px' }}>
+                    <td className="team-status" style={{ padding: '10px 16px' }}>
                       <button
                         disabled={!canManageThisRow || setStatusMutation.isPending}
                         onClick={() => setStatusMutation.mutate({ userId: m.id, status: m.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE' })}
@@ -438,13 +474,13 @@ export default function TeamManager() {
                         {m.status}
                       </button>
                     </td>
-                    <td style={{ padding: '10px 16px', color: 'var(--text-secondary)' }}>
+                    <td className="team-seen" style={{ padding: '10px 16px', color: 'var(--text-secondary)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                         <Clock size={12} />
                         {(m.lastActiveAt || m.lastLoginAt) ? new Date(m.lastActiveAt || m.lastLoginAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'Never'}
                       </div>
                     </td>
-                    <td style={{ padding: '10px 16px', textAlign: 'right' }}>
+                    <td className="team-password" style={{ padding: '10px 16px', textAlign: 'right' }}>
                       <button
                         onClick={() => setPasswordTarget(m)}
                         disabled={!canManageThisRow}

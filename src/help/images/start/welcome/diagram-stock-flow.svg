@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1520 470" font-family="Inter, Segoe UI, Arial, sans-serif" role="img" aria-label="How stock moves: a supplier order is received, put on shelves, sold at the counter or online, and returns come back.">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#164B1E"/></marker>
+    <marker id="g" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#a1a1aa"/></marker>
+  </defs>
+  <rect width="1520" height="470" rx="20" fill="#fafafa"/>
+
+  <g font-size="15" text-anchor="middle">
+    <!-- 1 supplier -->
+    <rect x="40" y="110" width="210" height="150" rx="16" fill="#fff" stroke="#e4e4e7" stroke-width="1.5"/>
+    <circle cx="145" cy="152" r="22" fill="#eef5e6"/>
+    <path d="M134 160 v-12 l11 -7 l11 7 v12 z M141 160 v-7 h8 v7" stroke="#164B1E" stroke-width="2" fill="none" stroke-linejoin="round"/>
+    <text x="145" y="203" fill="#18181b" font-size="18" font-weight="700">Supplier</text>
+    <text x="145" y="228" fill="#71717a">sends the goods</text>
+
+    <!-- 2 purchase order + receive -->
+    <rect x="310" y="110" width="210" height="150" rx="16" fill="#fff" stroke="#e4e4e7" stroke-width="1.5"/>
+    <circle cx="415" cy="152" r="22" fill="#eef5e6"/>
+    <path d="M405 140 h14 l6 6 v18 h-20 z M409 152 h12 M409 158 h8" stroke="#164B1E" stroke-width="2" fill="none" stroke-linejoin="round"/>
+    <text x="415" y="203" fill="#18181b" font-size="18" font-weight="700">Receive</text>
+    <text x="415" y="228" fill="#71717a">purchase order</text>
+    <text x="415" y="248" fill="#71717a">stock goes up</text>
+
+    <!-- 3 shelves -->
+    <rect x="580" y="110" width="210" height="150" rx="16" fill="#fff" stroke="#e4e4e7" stroke-width="1.5"/>
+    <circle cx="685" cy="152" r="22" fill="#eef5e6"/>
+    <path d="M672 142 h26 M672 152 h26 M672 162 h26 M674 138 v28 M696 138 v28" stroke="#164B1E" stroke-width="2" fill="none"/>
+    <text x="685" y="203" fill="#18181b" font-size="18" font-weight="700">Put away</text>
+    <text x="685" y="228" fill="#71717a">on a shelf, so anyone</text>
+    <text x="685" y="248" fill="#71717a">can find it</text>
+
+    <!-- 4 sell -->
+    <rect x="850" y="40" width="250" height="110" rx="16" fill="#164B1E"/>
+    <text x="975" y="86" fill="#fff" font-size="18" font-weight="700">Counter sale</text>
+    <text x="975" y="112" fill="#d9f99d">New sale · receipt</text>
+    <rect x="850" y="220" width="250" height="110" rx="16" fill="#164B1E"/>
+    <text x="975" y="266" fill="#fff" font-size="18" font-weight="700">Online &amp; Shopify</text>
+    <text x="975" y="292" fill="#d9f99d">pick · send out</text>
+
+    <!-- 5 customer -->
+    <rect x="1160" y="110" width="210" height="150" rx="16" fill="#fff" stroke="#e4e4e7" stroke-width="1.5"/>
+    <circle cx="1265" cy="152" r="22" fill="#eef5e6"/>
+    <circle cx="1265" cy="147" r="6" stroke="#164B1E" stroke-width="2" fill="none"/><path d="M1253 165 a12 9 0 0 1 24 0" stroke="#164B1E" stroke-width="2" fill="none"/>
+    <text x="1265" y="203" fill="#18181b" font-size="18" font-weight="700">Customer</text>
+    <text x="1265" y="228" fill="#71717a">stock goes down</text>
+  </g>
+
+  <!-- arrows -->
+  <path d="M252 185 H306" stroke="#164B1E" stroke-width="2.5" marker-end="url(#a)"/>
+  <path d="M522 185 H576" stroke="#164B1E" stroke-width="2.5" marker-end="url(#a)"/>
+  <path d="M792 170 C 820 170, 820 95, 846 95" stroke="#164B1E" stroke-width="2.5" fill="none" marker-end="url(#a)"/>
+  <path d="M792 200 C 820 200, 820 275, 846 275" stroke="#164B1E" stroke-width="2.5" fill="none" marker-end="url(#a)"/>
+  <path d="M1102 95 C 1130 95, 1130 170, 1156 170" stroke="#164B1E" stroke-width="2.5" fill="none" marker-end="url(#a)"/>
+  <path d="M1102 275 C 1130 275, 1130 200, 1156 200" stroke="#164B1E" stroke-width="2.5" fill="none" marker-end="url(#a)"/>
+
+  <!-- return loop -->
+  <path d="M1265 262 C 1265 420, 685 420, 685 264" stroke="#a1a1aa" stroke-width="2.5" stroke-dasharray="8 7" fill="none" marker-end="url(#g)"/>
+  <rect x="870" y="384" width="190" height="40" rx="20" fill="#fff" stroke="#e4e4e7"/>
+  <text x="965" y="410" fill="#52525b" font-size="15" text-anchor="middle" font-weight="600">Returns come back</text>
+
+  <text x="40" y="455" fill="#a1a1aa" font-size="14">Every step is saved, so your stock always matches what really happened.</text>
+</svg>

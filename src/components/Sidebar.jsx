@@ -87,7 +87,7 @@ export default function Sidebar({ isOpen }) {
           otherwise refuses to let this shrink below its content's natural height --
           without it, on a short viewport this pushes the footer chip below down past
           the last nav items instead of scrolling internally, crowding the two together. */}
-      <nav ref={navRef} style={{
+      <nav ref={navRef} data-tour="sidebar" aria-label="Main menu" style={{
         flex: 1, minHeight: 0, padding: '24px 0', display: 'flex', flexDirection: 'column',
         gap: '8px', overflowY: 'auto',
         // Fades whichever end has more beyond it, rather than cutting off flat, so a clipped
@@ -121,7 +121,7 @@ export default function Sidebar({ isOpen }) {
       </nav>
 
       {/* Footer / User short info */}
-      <div style={{ padding: '16px', borderTop: '1px solid var(--border-light)', flexShrink: 0 }}>
+      <div data-tour="account" style={{ padding: '16px', borderTop: '1px solid var(--border-light)', flexShrink: 0 }}>
         <div style={{ 
           display: 'flex', alignItems: 'center', gap: '10px', 
           padding: '8px', borderRadius: '12px',
@@ -149,6 +149,7 @@ export default function Sidebar({ isOpen }) {
            <button
              onClick={logout}
              title="Sign out"
+             aria-label="Sign out"
              style={{
                width: '32px', height: '32px', borderRadius: '8px', border: 'none',
                display: 'flex', alignItems: 'center', justifyContent: 'center',

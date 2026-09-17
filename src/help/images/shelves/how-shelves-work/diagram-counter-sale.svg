@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1520 420" font-family="Inter, Segoe UI, Arial, sans-serif" role="img" aria-label="Where a counter sale takes pieces from: first shop floor shelves in walking order, then Not shelved, and only last the back room, which also raises a shelf issue.">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#164B1E"/></marker>
+    <marker id="g" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#a1a1aa"/></marker>
+  </defs>
+  <rect width="1520" height="420" rx="20" fill="#fafafa"/>
+  <text x="60" y="66" fill="#71717a" font-size="16" font-weight="600" letter-spacing="1.5">A COUNTER SALE TAKES PIECES FROM</text>
+
+  <g text-anchor="middle">
+    <!-- till -->
+    <rect x="60" y="110" width="220" height="170" rx="16" fill="#164B1E"/>
+    <text x="170" y="182" fill="#ffffff" font-size="21" font-weight="700">New sale</text>
+    <text x="170" y="212" fill="#d9f99d" font-size="15">nobody scans</text>
+    <text x="170" y="234" fill="#d9f99d" font-size="15">a shelf</text>
+
+    <!-- 1 floor -->
+    <rect x="350" y="110" width="300" height="170" rx="16" fill="#ffffff" stroke="#164B1E" stroke-width="2.5"/>
+    <circle cx="400" cy="150" r="20" fill="#164B1E"/><text x="400" y="157" fill="#ffffff" font-size="18" font-weight="700">1</text>
+    <text x="520" y="158" fill="#18181b" font-size="20" font-weight="700">Shop floor shelves</text>
+    <text x="500" y="200" fill="#71717a" font-size="15">in walking order,</text>
+    <text x="500" y="222" fill="#71717a" font-size="15">FLOOR-C1-1 before FLOOR-C1-2</text>
+
+    <!-- 2 not shelved -->
+    <rect x="720" y="110" width="300" height="170" rx="16" fill="#ffffff" stroke="#71717a" stroke-width="2" stroke-dasharray="9 7"/>
+    <circle cx="770" cy="150" r="20" fill="#164B1E"/><text x="770" y="157" fill="#ffffff" font-size="18" font-weight="700">2</text>
+    <text x="880" y="158" fill="#18181b" font-size="20" font-weight="700">Not shelved</text>
+    <text x="870" y="200" fill="#71717a" font-size="15">if the floor shelves</text>
+    <text x="870" y="222" fill="#71717a" font-size="15">did not have enough</text>
+
+    <!-- 3 back room -->
+    <rect x="1090" y="110" width="370" height="170" rx="16" fill="#ffffff" stroke="#e4e4e7" stroke-width="1.5"/>
+    <circle cx="1140" cy="150" r="20" fill="#a1a1aa"/><text x="1140" y="157" fill="#ffffff" font-size="18" font-weight="700">3</text>
+    <text x="1280" y="158" fill="#18181b" font-size="20" font-weight="700">Back room shelves</text>
+    <text x="1275" y="200" fill="#71717a" font-size="15">only as a last resort,</text>
+    <text x="1275" y="222" fill="#71717a" font-size="15">and it raises a</text>
+    <rect x="1205" y="236" width="140" height="30" rx="15" fill="#fef3c7"/>
+    <text x="1275" y="257" fill="#92400e" font-size="15" font-weight="700">Shelf issue</text>
+  </g>
+
+  <path d="M282 195 H346" stroke="#164B1E" stroke-width="2.5" marker-end="url(#a)"/>
+  <path d="M652 195 H716" stroke="#164B1E" stroke-width="2.5" marker-end="url(#a)"/>
+  <path d="M1022 195 H1086" stroke="#a1a1aa" stroke-width="2.5" stroke-dasharray="8 7" marker-end="url(#g)"/>
+
+  <text x="60" y="340" fill="#18181b" font-size="17" font-weight="600">Your stock goes down once. The shelves go down with it, so they always add up.</text>
+  <text x="60" y="372" fill="#71717a" font-size="16">Nothing is ever quietly corrected. When the shelves and the stock do not agree, it is listed in Shelf issues for someone to check.</text>
+</svg>

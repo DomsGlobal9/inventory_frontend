@@ -19,6 +19,7 @@
     "framer-motion": "^13.0.0",
     "jsbarcode": "^3.12.3",
     "lucide-react": "^1.23.0",
+    "marked": "^15.0.12",
     "papaparse": "^5.5.4",
     "qrcode.react": "^4.2.0",
     "react": "^19.2.7",

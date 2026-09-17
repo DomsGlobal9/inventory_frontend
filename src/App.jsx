@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { ProductProvider } from './context/ProductContext';
@@ -65,6 +65,11 @@ import PickList from './pages/shelves/PickList';
 import ShelfCount from './pages/shelves/ShelfCount';
 import RackMap from './pages/shelves/RackMap';
 
+// The Help Center is public and loads on its own, so the app never downloads the guide.
+const HelpLayout = lazy(() => import('./pages/help/HelpLayout'));
+const HelpHome = lazy(() => import('./pages/help/HelpHome'));
+const HelpArticle = lazy(() => import('./pages/help/HelpArticle'));
+
 function App() {
   return (
     <HelmetProvider>
@@ -76,6 +81,13 @@ function App() {
           {/* Public. Records a signup enquiry as a lead -- it creates no account and no
               workspace, so it sits outside every auth boundary by design. */}
           <Route path="/signup" element={<Signup />} />
+
+          {/* Public user guide: anyone can read it, signed in or not. */}
+          <Route path="/help" element={<Suspense fallback={null}><HelpLayout /></Suspense>}>
+            <Route index element={<Suspense fallback={null}><HelpHome /></Suspense>} />
+            <Route path=":section/:slug" element={<Suspense fallback={null}><HelpArticle /></Suspense>} />
+            <Route path="*" element={<Suspense fallback={null}><HelpArticle /></Suspense>} />
+          </Route>
 
         {/* Platform Admin console: entirely separate auth realm (its own cookie, its own
             login), scoped under its own PlatformAdminProvider so normal client sessions

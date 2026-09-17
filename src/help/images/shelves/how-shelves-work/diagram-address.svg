@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1520 560" font-family="Inter, Segoe UI, Arial, sans-serif" role="img" aria-label="A shelf address explained: FLOOR is the area, C1 is the cupboard or rack, 1 is the shelf inside it.">
+  <rect width="1520" height="560" rx="20" fill="#fafafa"/>
+
+  <!-- the address, part by part -->
+  <text x="60" y="70" fill="#71717a" font-size="16" font-weight="600" letter-spacing="1.5">A SHELF ADDRESS</text>
+  <g font-family="Consolas, Menlo, monospace" font-weight="800" font-size="58" text-anchor="middle">
+    <rect x="60" y="100" width="300" height="110" rx="16" fill="#164B1E"/>
+    <text x="210" y="176" fill="#ffffff">FLOOR</text>
+    <text x="400" y="176" fill="#a1a1aa">-</text>
+    <rect x="440" y="100" width="180" height="110" rx="16" fill="#ffffff" stroke="#164B1E" stroke-width="3"/>
+    <text x="530" y="176" fill="#164B1E">C1</text>
+    <text x="660" y="176" fill="#a1a1aa">-</text>
+    <rect x="700" y="100" width="140" height="110" rx="16" fill="#A6D92B"/>
+    <text x="770" y="176" fill="#18181b">1</text>
+  </g>
+
+  <!-- connectors -->
+  <g stroke="#a1a1aa" stroke-width="2" stroke-dasharray="5 5">
+    <path d="M210 212 V262"/>
+    <path d="M530 212 V262"/>
+    <path d="M770 212 V262"/>
+  </g>
+
+  <!-- what each part means -->
+  <g text-anchor="middle">
+    <rect x="60" y="264" width="300" height="130" rx="16" fill="#ffffff" stroke="#e4e4e7" stroke-width="1.5"/>
+    <text x="210" y="308" fill="#18181b" font-size="21" font-weight="700">Area</text>
+    <text x="210" y="338" fill="#71717a" font-size="16">A part of the shop:</text>
+    <text x="210" y="362" fill="#71717a" font-size="16">shop floor or back room</text>
+
+    <rect x="400" y="264" width="260" height="130" rx="16" fill="#ffffff" stroke="#e4e4e7" stroke-width="1.5"/>
+    <text x="530" y="308" fill="#18181b" font-size="21" font-weight="700">Rack or cupboard</text>
+    <text x="530" y="338" fill="#71717a" font-size="16">Cupboard number 1</text>
+    <text x="530" y="362" fill="#71717a" font-size="16">in that area</text>
+
+    <rect x="690" y="264" width="160" height="130" rx="16" fill="#ffffff" stroke="#e4e4e7" stroke-width="1.5"/>
+    <text x="770" y="308" fill="#18181b" font-size="21" font-weight="700">Shelf</text>
+    <text x="770" y="338" fill="#71717a" font-size="16">Shelf number 1</text>
+    <text x="770" y="362" fill="#71717a" font-size="16">in that cupboard</text>
+  </g>
+
+  <!-- the cupboard drawing -->
+  <g>
+    <rect x="1010" y="70" width="400" height="36" rx="10" fill="#164B1E"/>
+    <text x="1210" y="95" fill="#ffffff" font-size="18" font-weight="700" text-anchor="middle">Cupboard C1</text>
+    <rect x="1010" y="106" width="400" height="330" fill="#ffffff" stroke="#164B1E" stroke-width="3"/>
+    <rect x="1024" y="120" width="372" height="140" rx="8" fill="#eef7d6" stroke="#A6D92B" stroke-width="3"/>
+    <path d="M1010 272 H1410" stroke="#164B1E" stroke-width="3"/>
+    <rect x="1024" y="284" width="372" height="140" rx="8" fill="#fafafa" stroke="#e4e4e7" stroke-width="1.5"/>
+    <g font-family="Consolas, Menlo, monospace" font-weight="800" font-size="26" text-anchor="middle">
+      <text x="1210" y="186" fill="#164B1E">FLOOR-C1-1</text>
+      <text x="1210" y="350" fill="#71717a">FLOOR-C1-2</text>
+    </g>
+    <g font-size="15" text-anchor="middle" fill="#71717a">
+      <text x="1210" y="216">Silk sarees · 10 pieces</text>
+      <text x="1210" y="380">Silk sarees · 7 pieces</text>
+    </g>
+    <!-- folded saree stacks -->
+    <g fill="#d4d4d8">
+      <rect x="1050" y="228" width="60" height="10" rx="3"/><rect x="1050" y="240" width="60" height="10" rx="3"/>
+      <rect x="1310" y="228" width="60" height="10" rx="3"/><rect x="1310" y="240" width="60" height="10" rx="3"/>
+    </g>
+    <path d="M1000 452 H1420" stroke="#71717a" stroke-width="3"/>
+    <text x="1210" y="482" fill="#71717a" font-size="16" text-anchor="middle">Area FLOOR · the shop floor</text>
+  </g>
+
+  <path d="M842 155 C 920 155, 930 190, 1004 190" stroke="#164B1E" stroke-width="2.5" fill="none"/>
+  <circle cx="1004" cy="190" r="5" fill="#164B1E"/>
+
+  <text x="60" y="462" fill="#18181b" font-size="17" font-weight="600">Use as many levels as your shop needs, up to four.</text>
+  <text x="60" y="492" fill="#71717a" font-size="16">A godown with cartons: STORE-R01-1-A is box A, on shelf 1, of rack R01, in the back room.</text>
+  <text x="60" y="520" fill="#71717a" font-size="16">The address is printed on the shelf label. The name, like Silk sarees, is just for you.</text>
+</svg>

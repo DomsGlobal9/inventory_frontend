@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Bell, Settings, User, Menu, Loader2, LogOut, CheckCheck, Sun, Moon, Pin, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Search, Bell, Settings, User, Menu, Loader2, LogOut, CheckCheck, Sun, Moon, Pin, X, HelpCircle } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { api } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
@@ -18,6 +18,7 @@ export default function TopNav({ onMenuClick }) {
   const [isSearching, setIsSearching] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { locations, currentLocation, setCurrentLocationId } = useLocationContext();
+  const route = useLocation();
   const { data: alertData } = useAlerts();
   const markAlertRead = useMarkAlertRead();
   const markAllAlertsRead = useMarkAllAlertsRead();
@@ -179,9 +180,11 @@ export default function TopNav({ onMenuClick }) {
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: 0 }}>
         {/* Mobile Hamburger Menu */}
-        <button 
-          className="btn-icon mobile-only-icon" 
+        <button
+          className="btn-icon mobile-only-icon"
           onClick={onMenuClick}
+          aria-label="Open menu"
+          data-tour="menu-button"
         >
           <Menu size={24} />
         </button>
@@ -199,7 +202,7 @@ export default function TopNav({ onMenuClick }) {
           }
         `}</style>
 
-        <div className="mobile-hide" style={{
+        <div className="mobile-hide" data-tour="search" style={{
           display: 'flex',
           alignItems: 'center',
           backgroundColor: 'var(--bg-input)',
@@ -220,7 +223,8 @@ export default function TopNav({ onMenuClick }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleSearch}
-          placeholder="Search products, SKU, barcode..." 
+          placeholder="Search products, SKU, barcode..."
+          aria-label="Search products, SKU or barcode"
           style={{
             background: 'transparent',
             border: 'none',
@@ -233,7 +237,7 @@ export default function TopNav({ onMenuClick }) {
         </div>
         
         {locations.length > 0 && (
-          <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-input)', border: '1px solid var(--border-light)', borderRadius: '8px', padding: '0 12px', height: '40px', minWidth: 0, flexShrink: 1 }}>
+          <div data-tour="store-switcher" title="The store you are working in" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-input)', border: '1px solid var(--border-light)', borderRadius: '8px', padding: '0 12px', height: '40px', minWidth: 0, flexShrink: 1 }}>
             <MapPin size={16} color="var(--text-secondary)" style={{ marginRight: '8px', flexShrink: 0 }} />
             <Select 
               value={currentLocation?.id || ''} 
@@ -251,7 +255,7 @@ export default function TopNav({ onMenuClick }) {
       
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
         <div className="alert-dropdown-container" style={{ position: 'relative' }}>
-          <button className="btn-icon" onClick={() => setIsAlertMenuOpen(!isAlertMenuOpen)}>
+          <button className="btn-icon" onClick={() => setIsAlertMenuOpen(!isAlertMenuOpen)} aria-label="Stock alerts" title="Stock alerts" data-tour="alerts">
             <Bell size={20} />
             {alertData?.unreadCount > 0 && (
               <span style={{
@@ -395,7 +399,21 @@ export default function TopNav({ onMenuClick }) {
             </div>
           )}
         </div>
-        <button className="btn-icon" onClick={toggleTheme}>
+        {/* The guide for the screen you are on, in a new tab so a half-finished sale or order is not lost.
+            Only the path is passed; the Help Center (loaded separately) picks the page. */}
+        <a
+          className="btn-icon"
+          href={`/help?from=${encodeURIComponent(route.pathname)}`}
+          target="_blank"
+          rel="noopener"
+          aria-label="Help for this screen"
+          title="Help for this screen"
+          data-tour="help"
+          style={{ display: 'grid', placeItems: 'center' }}
+        >
+          <HelpCircle size={20} />
+        </a>
+        <button className="btn-icon" onClick={toggleTheme} aria-label="Light or dark theme" title="Light or dark theme" data-tour="theme">
           {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
         </button>
       </div>

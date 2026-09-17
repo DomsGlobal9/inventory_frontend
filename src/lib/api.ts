@@ -82,7 +82,9 @@ api.interceptors.response.use(
       //
       // A 401 on a public page is the expected answer, not a failure: it means nobody is
       // signed in, which those pages are built to handle themselves.
-      if (PUBLIC_PATHS.some(p => window.location.pathname === p)) {
+      // The Help Center is a whole public tree, /help and everything under it.
+      const path = window.location.pathname;
+      if (PUBLIC_PATHS.some(p => path === p) || path === '/help' || path.startsWith('/help/')) {
         return Promise.reject(error.response?.data || error);
       }
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import LoadFailed from '../components/LoadFailed';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Plus, Minus, Settings2, History, Search } from 'lucide-react';
+import { Plus, Minus, Settings2, History, Search, BellRing, ClipboardCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useInventoryVariants } from '../hooks/useInventory';
 import PageLoader from '../components/PageLoader';
@@ -75,9 +75,28 @@ export default function InventoryOverview() {
           <h1 style={{ fontSize: '32px', fontWeight: '600', letterSpacing: '-0.03em', marginBottom: '8px', color: 'var(--text-primary)' }}>Inventory Overview</h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '15px' }}>Manage stock levels, valuations, and adjustments.</p>
         </div>
-        <div className="mobile-col" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <button 
-            className="btn-secondary" 
+        <div className="mobile-col" style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+          {/* Alerts were only reachable from the bell, and stock counts from nowhere at all. */}
+          <button
+            className="btn-secondary"
+            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+            onClick={() => navigate('/inventory/alerts')}
+          >
+            <BellRing size={16} />
+            Stock alerts
+          </button>
+          {can('stock_count:view') && (
+            <button
+              className="btn-secondary"
+              style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+              onClick={() => navigate('/inventory/audits')}
+            >
+              <ClipboardCheck size={16} />
+              Stock counts
+            </button>
+          )}
+          <button
+            className="btn-secondary"
             style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
             onClick={() => navigate('/inventory/ledger')}
           >

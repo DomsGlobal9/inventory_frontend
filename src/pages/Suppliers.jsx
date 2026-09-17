@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import LoadFailed from '../components/LoadFailed';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Truck, Plus, Search, MoreVertical, Building2, Phone, Mail, X } from 'lucide-react';
+import { Truck, Plus, Search, ChevronRight, Building2, Phone, Mail, X } from 'lucide-react';
 import { useSuppliers, useCreateSupplier } from '../hooks/useSuppliers';
 import PageLoader from '../components/PageLoader';
 
@@ -105,7 +105,8 @@ export default function Suppliers() {
                   </span>
                 </div>
               </div>
-              <button style={{ color: 'var(--text-muted)' }}><MoreVertical size={16} /></button>
+              {/* The card opens the supplier; this used to be a ⋮ button that did nothing. */}
+              <ChevronRight size={18} style={{ color: 'var(--text-muted)', flexShrink: 0 }} aria-hidden="true" />
             </div>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>

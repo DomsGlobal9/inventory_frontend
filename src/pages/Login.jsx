@@ -205,6 +205,16 @@ export default function Login() {
             {isSubmitting ? 'Signing in…' : 'Sign in'}
             {!isSubmitting && <ArrowRight size={18} />}
           </button>
+
+          {/* There is no self-service reset: the shop owner or an admin sets passwords in Team & Users.
+              Saying so here beats a person trying passwords until they are rate-limited. */}
+          <details style={{ fontSize: '13.5px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+            <summary style={{ cursor: 'pointer', textAlign: 'center', listStyle: 'none', fontWeight: 500 }}>Forgot your password?</summary>
+            <p style={{ margin: '8px 0 0', textAlign: 'center' }}>
+              Ask your shop owner or manager. They can set a new one for you in <strong>Settings → Team &amp; Users</strong>.
+              {' '}<Link to="/help/start/sign-in" style={{ color: 'var(--brand-ink)', fontWeight: 600, textDecoration: 'none' }}>Help with signing in</Link>
+            </p>
+          </details>
         </form>
       )}
     </AuthShell>

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FileText, Plus, Search, MoreVertical, Building2, Calendar, Package, Truck, RefreshCw } from 'lucide-react';
+import { FileText, Plus, Search, ChevronRight, Building2, Calendar, Package, Truck, RefreshCw } from 'lucide-react';
+import Select from '../components/common/Select';
 import { usePurchaseOrders } from '../hooks/usePurchaseOrders';
 import PageLoader from '../components/PageLoader';
 import Suppliers from './Suppliers';
@@ -81,14 +82,37 @@ export default function PurchaseOrders() {
   );
 }
 
+/**
+ * "Open" is what the dashboard's Open PO Value tile adds up: sent to the supplier and not yet fully
+ * received. The tile links here with ?filter=open, so the orders behind its number are the ones shown.
+ */
+const STATUS_FILTERS = {
+  open: ['SENT', 'PARTIALLY_RECEIVED'],
+  draft: ['DRAFT'],
+  sent: ['SENT'],
+  partly_received: ['PARTIALLY_RECEIVED'],
+  received: ['RECEIVED'],
+  cancelled: ['CANCELLED']
+};
+
 function PurchaseOrdersList() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { data: pos = [], isLoading } = usePurchaseOrders();
   const [searchTerm, setSearchTerm] = useState('');
+  const statusFilter = STATUS_FILTERS[searchParams.get('filter')] ? searchParams.get('filter') : '';
+
+  const setStatusFilter = (value) => {
+    const next = new URLSearchParams(searchParams);
+    if (value) next.set('filter', value); else next.delete('filter');
+    setSearchParams(next, { replace: true });
+  };
 
   const filteredPOs = pos.filter(po =>
-    (po.poNumber || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (po.supplier?.name || '').toLowerCase().includes(searchTerm.toLowerCase())
+    (!statusFilter || STATUS_FILTERS[statusFilter].includes(po.status)) && (
+      (po.poNumber || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (po.supplier?.name || '').toLowerCase().includes(searchTerm.toLowerCase())
+    )
   );
 
   const getStatusColor = (status) => {
@@ -153,6 +177,15 @@ function PurchaseOrdersList() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
+        <Select className="input-field" style={{ width: '220px' }} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+          <option value="">All statuses</option>
+          <option value="open">Open (waiting for delivery)</option>
+          <option value="draft">Draft</option>
+          <option value="sent">Sent</option>
+          <option value="partly_received">Partly received</option>
+          <option value="received">Received</option>
+          <option value="cancelled">Cancelled</option>
+        </Select>
       </motion.div>
 
       {/* Table */}
@@ -173,7 +206,9 @@ function PurchaseOrdersList() {
             {filteredPOs.length === 0 ? (
               <tr>
                 <td colSpan="7" style={{ padding: '48px', textAlign: 'center', color: 'var(--text-muted)' }}>
-                  No purchase orders found.
+                  {statusFilter && pos.length > 0
+                    ? <>No purchase orders with this status. <button type="button" className="btn-secondary" style={{ marginLeft: 8, padding: '4px 10px' }} onClick={() => setStatusFilter('')}>Show all</button></>
+                    : 'No purchase orders found.'}
                 </td>
               </tr>
             ) : filteredPOs.map((po) => (
@@ -218,12 +253,10 @@ function PurchaseOrdersList() {
                   </div>
                 </td>
                 <td style={{ textAlign: 'right' }}>
-                  <button
-                    style={{ color: 'var(--text-muted)' }}
-                    onClick={(e) => { e.stopPropagation(); /* context menu */ }}
-                  >
-                    <MoreVertical size={18} />
-                  </button>
+                  {/* The whole row opens the order; this used to be a ⋮ button that did nothing. */}
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--text-secondary)', fontSize: '13px', fontWeight: 500 }}>
+                    Open <ChevronRight size={16} />
+                  </span>
                 </td>
               </tr>
             ))}

@@ -107,7 +107,8 @@ export default function SummaryCards({ data, isLoading, isError, error, noAccess
       icon: FileText,
       colorClass: 'var(--accent-gold)',
       bgColorClass: 'rgba(245, 158, 11, 0.1)',
-      onClick: () => navigate('/purchase-orders?filter=open')
+      // /purchase-orders does not exist and fell through to the dashboard; the list reads ?filter=open.
+      onClick: () => navigate('/inventory/purchase-orders?filter=open')
     },
     {
       title: "Low Stock Count",

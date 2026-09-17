@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { ClipboardCheck, Loader2, RotateCcw, Plus, Minus, CheckCircle2, TriangleAlert } from 'lucide-react';
 import { useLocationContext } from '../../contexts/LocationContext';
@@ -87,9 +87,13 @@ function CountSheet({ shelf, onDone }) {
   };
 
   const countedLines = items.filter(i => i.counted !== null);
+  const sending = useRef(false);
   const submit = () => {
+    if (sending.current || count.isPending) return;
+    sending.current = true;
     count.mutate({ spotId: shelf.spot.id, complete, counts: countedLines.map(i => ({ variantId: i.variantId, counted: i.counted })) }, {
-      onSuccess: (r) => setResult(r)
+      onSuccess: (r) => setResult(r),
+      onSettled: () => { sending.current = false; }
     });
   };
 

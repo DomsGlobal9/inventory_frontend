@@ -140,6 +140,7 @@ function PutAwayPanel({ variantId, locationId, onDone, hasSpots }) {
   useEffect(() => { if (!spot && suggestions[0]) setSpot({ id: suggestions[0].spotId, address: suggestions[0].address, name: suggestions[0].name, colour: suggestions[0].colour, isShopFloor: suggestions[0].isShopFloor }); }, [suggestions, spot]);
 
   const scanShelf = async (typed) => {
+    if (resolving || sending.current) return;
     if (!isLabelScan(typed) && !looksLikeAddress(typed)) { toast.error('That is not a shelf label. Scan the label on the shelf.'); return; }
     setResolving(true);
     try {
@@ -155,10 +156,14 @@ function PutAwayPanel({ variantId, locationId, onDone, hasSpots }) {
     }
   };
 
+  // A scanner can send Enter twice in the same moment; state would not have updated between them.
+  const sending = useRef(false);
   const confirm = (target = spot) => {
-    if (!target || put.isPending || quantity < 1 || quantity > waiting) return;
+    if (!target || sending.current || put.isPending || quantity < 1 || quantity > waiting) return;
+    sending.current = true;
     put.mutate({ locationId, variantId, spotId: target.id, quantity }, {
-      onSuccess: () => { onDone?.(waiting - quantity); setSpot(null); }
+      onSuccess: () => { onDone?.(waiting - quantity); setSpot(null); },
+      onSettled: () => { sending.current = false; }
     });
   };
 

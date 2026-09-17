@@ -56,15 +56,20 @@ export default function MoveStock() {
     finally { setBusy(false); }
   };
 
+  // A scanner can send Enter twice in the same moment; state would not have updated between them.
+  const sending = useRef(false);
   const go = (toSpot) => {
-    if (!item || move.isPending) return;
+    if (!item || sending.current || move.isPending) return;
     if (toSpot && toSpot.id === fromId) { toast.error('The pieces are already on that shelf.'); return; }
+    sending.current = true;
     move.mutate({ locationId, variantId: item.variantId, fromSpotId: fromId, toSpotId: toSpot?.id, quantity }, {
-      onSuccess: () => { setToScan(''); setVariantId(null); }
+      onSuccess: () => { setToScan(''); setVariantId(null); },
+      onSettled: () => { sending.current = false; }
     });
   };
 
   const scanTo = async (typed) => {
+    if (busy || sending.current) return;
     if (!isLabelScan(typed) && !looksLikeAddress(typed)) { toast.error('Scan the label on the shelf they are going to.'); return; }
     setBusy(true);
     try {

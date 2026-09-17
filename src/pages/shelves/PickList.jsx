@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { ClipboardList, CheckCircle2, Circle, Loader2, PackageX, Truck, RotateCcw, SearchX } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -114,7 +114,11 @@ function PickWalk({ locationId, orderIds, onBack, onDone, canDispatch }) {
     });
   };
 
+  const inFlight = useRef(false);
   const sendOut = async () => {
+    // Two presses before the button disables would send the orders twice.
+    if (inFlight.current) return;
+    inFlight.current = true;
     setSending(true);
     let sent = 0;
     const problems = [];
@@ -137,6 +141,7 @@ function PickWalk({ locationId, orderIds, onBack, onDone, canDispatch }) {
       }
     }
     setSending(false);
+    inFlight.current = false;
     invalidateDerivedViews(queryClient);
     queryClient.invalidateQueries({ queryKey: ['shelves'] });
     queryClient.invalidateQueries({ queryKey: ['sales-orders'] });

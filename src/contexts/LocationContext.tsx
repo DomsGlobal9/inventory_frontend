@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { api, LOCATION_STORAGE_KEY } from '../lib/api';
 import toast from 'react-hot-toast';
+import ConfirmModal from '../components/ConfirmModal';
+import { useUnsavedWorkRegistry } from './UnsavedWorkContext';
 
 export interface Location {
   id: string;
@@ -26,6 +28,9 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     localStorage.getItem(LOCATION_STORAGE_KEY)
   );
   const [isLoading, setIsLoading] = useState(true);
+  // A store change waiting on an answer, because a screen is holding work.
+  const [pending, setPending] = useState<{ id: string; work: string } | null>(null);
+  const unsavedWork = useUnsavedWorkRegistry();
 
   const fetchLocations = async () => {
     try {
@@ -53,22 +58,45 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const setCurrentLocationId = (id: string) => {
+  /**
+   * Changing the store starts the app again on the new store.
+   *
+   * The reload is deliberate: stock, shelves, orders and prices all belong to one store, and
+   * every screen -- including ones that read the store only when they open -- must show the new
+   * one. Refreshing each query by hand would leave whichever screen was forgotten showing the
+   * old store's numbers, which is the worst outcome of the three.
+   *
+   * What it must not do is throw away work without asking. A screen holding a half-typed count
+   * sheet or a half-ticked pick walk says so, and then the person decides.
+   */
+  const applySwitch = (id: string) => {
     setCurrentLocationIdState(id);
     localStorage.setItem(LOCATION_STORAGE_KEY, id);
-    // When location changes, we typically want the app to re-fetch data for the new location.
-    // The easiest way to ensure all components refresh is to reload the window, 
-    // or rely on React Query / Context to trigger updates if components are wired up properly.
-    // Let's rely on React state updates for now. 
-    // However, some components might not auto-refresh. A full page reload is safest if components are deeply nested and rely on mount-time fetch.
-    window.location.reload(); 
+    window.location.reload();
+  };
+
+  const setCurrentLocationId = (id: string) => {
+    if (id === currentLocationId) return;
+    const work = unsavedWork.inHand();
+    if (work) { setPending({ id, work }); return; }
+    applySwitch(id);
   };
 
   const currentLocation = locations.find(l => l.id === currentLocationId) || null;
+  const goingTo = locations.find(l => l.id === pending?.id);
 
   return (
     <LocationContext.Provider value={{ locations, currentLocation, setCurrentLocationId, isLoading, refreshLocations: fetchLocations }}>
       {children}
+      <ConfirmModal
+        isOpen={!!pending}
+        onClose={() => setPending(null)}
+        onConfirm={() => { const id = pending!.id; setPending(null); applySwitch(id); }}
+        title={`Change to ${goingTo?.name ?? 'the other store'}?`}
+        message={`${currentLocation?.name ?? 'This store'} has ${pending?.work} on screen. Changing the store starts again in ${goingTo?.name ?? 'the other store'}, and that work is lost.`}
+        confirmText="Change store"
+        confirmStyle="danger"
+      />
     </LocationContext.Provider>
   );
 };

@@ -1,6 +1,7 @@
 import React from 'react';
 import { usePermission } from '../hooks/usePermission';
 import NoAccess from './NoAccess';
+import { noAccessTitle, noAccessMessage } from '../lib/permissionText';
 
 /**
  * A page somebody's role does not reach.
@@ -18,10 +19,11 @@ import NoAccess from './NoAccess';
  * The UI gate is not the security -- the backend refuses every one of these calls regardless.
  * It is here so the screen tells the truth.
  */
-export default function Guard({ permission, children }) {
+/** @param what what the person came here to do, e.g. "pick orders": the screen says that back. */
+export default function Guard({ permission, what, children }) {
   const { can } = usePermission();
   if (permission && !can(permission)) {
-    return <NoAccess variant="page" message="This part of the app isn't part of your role. Ask whoever manages your team if you need it." />;
+    return <NoAccess variant="page" title={noAccessTitle(what)} message={noAccessMessage(permission)} />;
   }
   return children;
 }

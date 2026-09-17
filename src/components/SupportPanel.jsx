@@ -2,10 +2,11 @@ import React, { useRef, useEffect, useState } from 'react';
 import { firstMissingField, missingFieldMessage } from '../lib/formGuard';
 import toast from 'react-hot-toast';
 import LoadFailed from './LoadFailed';
-import { LifeBuoy, Plus, ArrowLeft, Send, Loader2, Clock } from 'lucide-react';
+import { LifeBuoy, Plus, ArrowLeft, Send, Loader2, Clock, Compass } from 'lucide-react';
 import { useSupportTickets, useSupportTicket, useCreateSupportTicket, useReplySupportTicket } from '../hooks/useSupportTickets';
 import Select from './common/Select';
 import { usePermission } from '../hooks/usePermission';
+import { START_TOUR_EVENT } from './onboarding/WelcomeTour';
 
 
 const STATUS_STYLE = {
@@ -242,6 +243,17 @@ export default function SupportPanel() {
 
   return (
     <div>
+      {/* The short tour shows itself once, on somebody's first visit. This is how to ask for it again. */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginBottom: '16px', padding: '12px 14px', border: '1px solid var(--border-light)', borderRadius: 10 }}>
+        <span style={{ color: 'var(--text-secondary)', fontSize: 13 }}>
+          New to ScaleEzy, or want the quick look around again?
+        </span>
+        <button type="button" className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px' }}
+          onClick={() => window.dispatchEvent(new CustomEvent(START_TOUR_EVENT))}>
+          <Compass size={16} /> Show me around
+        </button>
+      </div>
+
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <p style={{ color: 'var(--text-secondary)', margin: 0, maxWidth: '480px' }}>
           Raise an issue or question and hear back from Scaleezy support here.

@@ -124,7 +124,7 @@ function App() {
         {/* Outside the app's frame: a receipt is printed on its own, with nothing around it. */}
         <Route path="/orders/:id/receipt" element={<Guard permission="sales_order:view"><Receipt /></Guard>} />
         {/* Shelf labels print on their own too. */}
-        <Route path="/shelves/labels" element={<Guard permission="shelf:manage"><ShelfLabels /></Guard>} />
+        <Route path="/shelves/labels" element={<Guard permission="shelf:manage" what="print shelf labels"><ShelfLabels /></Guard>} />
         <Route element={<MainLayout />}>
           <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="/dashboard" element={<Guard permission="dashboard:view"><Dashboard /></Guard>} />
@@ -156,13 +156,13 @@ function App() {
           <Route path="/products/:id" element={<Guard permission="product:view"><ProductDetails /></Guard>} />
           <Route path="/products" element={<Guard permission="product:view"><Products /></Guard>} />
           <Route path="/orders" element={<Guard permission="sales_order:view"><SalesOrders /></Guard>} />
-          <Route path="/orders/new-sale" element={<Guard permission="sales_order:counter_sale"><NewSale /></Guard>} />
+          <Route path="/orders/new-sale" element={<Guard permission="sales_order:counter_sale" what="sell at the counter"><NewSale /></Guard>} />
           <Route path="/orders/:id" element={<Guard permission="sales_order:view"><SalesOrderDetail /></Guard>} />
           <Route path="/returns" element={<Guard permission="return:view"><ReturnsList /></Guard>} />
           <Route path="/returns/:id" element={<Guard permission="return:view"><ReturnDetail /></Guard>} />
           <Route path="/inventory/alerts" element={<Guard permission="inventory:view"><AlertCenter /></Guard>} />
-          <Route path="/inventory/audits" element={<Guard permission="stock_count:view"><AuditList /></Guard>} />
-          <Route path="/inventory/audits/:id" element={<Guard permission="stock_count:view"><ActiveAudit /></Guard>} />
+          <Route path="/inventory/audits" element={<Guard permission="stock_count:view" what="work with stock counts"><AuditList /></Guard>} />
+          <Route path="/inventory/audits/:id" element={<Guard permission="stock_count:view" what="work with stock counts"><ActiveAudit /></Guard>} />
           <Route path="/inventory/suppliers" element={<Guard permission="supplier:view"><PurchaseOrders /></Guard>} />
           <Route path="/inventory/suppliers/:id" element={<Guard permission="supplier:view"><SupplierDetails /></Guard>} />
           <Route path="/inventory/purchase-orders" element={<Guard permission="purchase_order:view"><PurchaseOrders /></Guard>} />
@@ -171,16 +171,16 @@ function App() {
           <Route path="/inventory/reorder" element={<Guard permission="purchase_order:view"><PurchaseOrders /></Guard>} />
           <Route path="/inventory/purchase-orders/:id" element={<Guard permission="purchase_order:view"><PurchaseOrderDetails /></Guard>} />
           <Route path="/inventory/ledger" element={<Guard permission="inventory:view"><InventoryLedger /></Guard>} />
-          <Route path="/inventory/transfers" element={<Guard permission="inventory:transfer"><TransfersPage /></Guard>} />
+          <Route path="/inventory/transfers" element={<Guard permission="inventory:transfer" what="move stock between stores"><TransfersPage /></Guard>} />
           <Route path="/inventory" element={<Guard permission="inventory:view"><InventoryOverview /></Guard>} />
-          <Route path="/shelves" element={<Guard permission="shelf:view"><WhereIsIt /></Guard>} />
-          <Route path="/shelves/put-away" element={<Guard permission="shelf:putaway"><PutAway /></Guard>} />
-          <Route path="/shelves/move" element={<Guard permission="shelf:putaway"><MoveStock /></Guard>} />
-          <Route path="/shelves/issues" element={<Guard permission="shelf:view"><ShelfIssues /></Guard>} />
-          <Route path="/shelves/pick" element={<Guard permission="shelf:putaway"><PickList /></Guard>} />
-          <Route path="/shelves/count" element={<Guard permission="shelf:putaway"><ShelfCount /></Guard>} />
-          <Route path="/shelves/map" element={<Guard permission="shelf:view"><RackMap /></Guard>} />
-          <Route path="/shelves/setup" element={<Guard permission="shelf:manage"><RackSetup /></Guard>} />
+          <Route path="/shelves" element={<Guard permission="shelf:view" what="look up where an item is"><WhereIsIt /></Guard>} />
+          <Route path="/shelves/put-away" element={<Guard permission="shelf:putaway" what="put stock away"><PutAway /></Guard>} />
+          <Route path="/shelves/move" element={<Guard permission="shelf:putaway" what="move stock between shelves"><MoveStock /></Guard>} />
+          <Route path="/shelves/issues" element={<Guard permission="shelf:view" what="see shelf issues"><ShelfIssues /></Guard>} />
+          <Route path="/shelves/pick" element={<Guard permission="shelf:putaway" what="pick orders"><PickList /></Guard>} />
+          <Route path="/shelves/count" element={<Guard permission="shelf:putaway" what="count shelves"><ShelfCount /></Guard>} />
+          <Route path="/shelves/map" element={<Guard permission="shelf:view" what="see the shelf map"><RackMap /></Guard>} />
+          <Route path="/shelves/setup" element={<Guard permission="shelf:manage" what="set up racks and shelves"><RackSetup /></Guard>} />
           {/* The day book now lives inside Settings. This route is kept so links and
               bookmarks that already point at it still land on the day book itself. */}
           <Route path="/offers" element={<Guard permission="offer:view"><Offers /></Guard>} />
@@ -189,7 +189,7 @@ function App() {
           <Route path="/customers" element={<Guard permission="customer:view"><Customers /></Guard>} />
           <Route path="/customers/:id" element={<Guard permission="customer:view"><CustomerDetail /></Guard>} />
           <Route path="/settings" element={<Settings />} />
-          <Route path="/settings/locations" element={<Guard permission="admin:locations"><StockLocationsPage /></Guard>} />
+          <Route path="/settings/locations" element={<Guard permission="admin:locations" what="set up stores and godowns"><StockLocationsPage /></Guard>} />
 
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Route>

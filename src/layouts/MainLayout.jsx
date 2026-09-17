@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import TopNav from '../components/TopNav';
 import Sidebar from '../components/Sidebar';
 import ImpersonationBanner from '../components/ImpersonationBanner';
+import WelcomeTour from '../components/onboarding/WelcomeTour';
 
 export default function MainLayout() {
   const location = useLocation();
@@ -17,6 +18,8 @@ export default function MainLayout() {
   return (
     <>
       <ImpersonationBanner />
+      {/* Inside the shell, so the menu and top bar it points at are already on screen. */}
+      <WelcomeTour />
       <div className="app-container">
         {/* Mobile Overlay */}
         {isMobileMenuOpen && (

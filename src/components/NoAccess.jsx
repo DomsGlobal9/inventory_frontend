@@ -15,7 +15,7 @@ import { firstLandingPath, permissionMessage } from '../lib/access';
  * offers a way out that the person can actually walk through -- worked out from what they hold,
  * not hard-coded to the dashboard, which is exactly the loop this used to create.
  */
-export default function NoAccess({ error, message, variant = 'widget', height }) {
+export default function NoAccess({ error, message, title = 'Not part of your role', variant = 'widget', height }) {
   const { can } = usePermission();
   const text = message || permissionMessage(error);
   const isPage = variant === 'page';
@@ -44,7 +44,7 @@ export default function NoAccess({ error, message, variant = 'widget', height })
           fontSize: isPage ? 18 : 14, fontWeight: 600,
           color: 'var(--text-primary)', margin: '0 0 6px'
         }}>
-          Not part of your role
+          {title}
         </h4>
         {/* The server's own sentence. It already names the thing and who to ask. */}
         <p style={{ fontSize: isPage ? 14 : 12.5, color: 'var(--text-muted, #71717a)', margin: 0, lineHeight: 1.5 }}>

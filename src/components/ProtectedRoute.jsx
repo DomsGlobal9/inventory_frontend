@@ -3,6 +3,7 @@ import { Navigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { holdsEverything } from '../lib/authority';
 import { LocationProvider } from '../contexts/LocationContext';
+import { UnsavedWorkProvider } from '../contexts/UnsavedWorkContext';
 
 import PageLoader from '../components/PageLoader';
 import NoAccess from './NoAccess';
@@ -38,8 +39,11 @@ export default function ProtectedRoute({ requiredRole, requiredPermission }) {
   }
 
   return (
-    <LocationProvider>
-      <Outlet />
-    </LocationProvider>
+    // Outside the store picker, so a screen can say "I am holding work" before the picker asks.
+    <UnsavedWorkProvider>
+      <LocationProvider>
+        <Outlet />
+      </LocationProvider>
+    </UnsavedWorkProvider>
   );
 }

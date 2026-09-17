@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useUnsavedWork } from '../../contexts/UnsavedWorkContext';
 import toast from 'react-hot-toast';
 import { ClipboardCheck, Loader2, RotateCcw, Plus, Minus, CheckCircle2, TriangleAlert } from 'lucide-react';
 import { useLocationContext } from '../../contexts/LocationContext';
@@ -62,6 +63,7 @@ function CountSheet({ shelf, onDone }) {
   const [finding, setFinding] = useState(false);
   // Items on the sheet: what the shelf is known to hold, plus anything scanned that it did not.
   const [items, setItems] = useState(() => shelf.items.map(i => ({ ...i, counted: null })));
+  useUnsavedWork(items.some(i => i.counted !== null), `a count of ${shelf.spot.address} that is not saved yet`);
   const [complete, setComplete] = useState(true);
   const [result, setResult] = useState(null);
 

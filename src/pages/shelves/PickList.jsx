@@ -1,4 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
+import { useUnsavedWork } from '../../contexts/UnsavedWorkContext';
 import toast from 'react-hot-toast';
 import { ClipboardList, CheckCircle2, Circle, Loader2, PackageX, Truck, RotateCcw, SearchX } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -76,6 +77,7 @@ function PickWalk({ locationId, orderIds, onBack, onDone, canDispatch }) {
   const queryClient = useQueryClient();
   // picked[key] = pieces confirmed at that stop for that line; key = spotId|salesOrderItemId, or loose|id
   const [picked, setPicked] = useState({});
+  useUnsavedWork(Object.keys(picked).length > 0, 'a pick walk that has not been sent out'); // eslint-disable-line react-hooks/exhaustive-deps
   const [scan, setScan] = useState('');
   const [sending, setSending] = useState(false);
   const data = pick.data;

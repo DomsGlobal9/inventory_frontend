@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useUnsavedWork } from '../../contexts/UnsavedWorkContext';
 import { useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { ArrowRightLeft, ArrowDown, PackageOpen, Loader2, RotateCcw, Layers } from 'lucide-react';
@@ -22,6 +23,7 @@ export default function MoveStock() {
   const from = useSpot(fromId);
   const [variantId, setVariantId] = useState(params.get('variant'));
   const [quantity, setQuantity] = useState(1);
+  useUnsavedWork(!!variantId, 'a move waiting for the shelf it goes to');
   const [fromScan, setFromScan] = useState('');
   const [toScan, setToScan] = useState('');
   const [busy, setBusy] = useState(false);

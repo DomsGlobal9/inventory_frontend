@@ -329,7 +329,7 @@ function SpotEditor({ spot, locationId, siblings, onQuick, onAdded, onRemoved })
             ))}
             {(history.data?.movements ?? []).map((m, i) => (
               <div key={i} className="sh-row" style={{ justifyContent: 'space-between', gap: 8 }}>
-                <span className="sh-muted" style={{ minWidth: 0 }}>{new Date(m.at).toLocaleString()} · {m.title ?? m.sku} · {labelFor(m)}</span>
+                <span className="sh-muted" style={{ minWidth: 0 }}>{new Date(m.at).toLocaleString()} · {m.title ?? m.sku}{[m.colour, m.size && m.size !== 'Free' ? m.size : null].filter(Boolean).length ? ` (${[m.colour, m.size && m.size !== 'Free' ? m.size : null].filter(Boolean).join(", ")})` : ''} · {labelFor(m)}</span>
                 <strong style={{ color: m.quantity > 0 ? 'var(--accent-success)' : 'var(--text-primary)' }}>{m.quantity > 0 ? `+${m.quantity}` : m.quantity}</strong>
               </div>
             ))}

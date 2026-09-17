@@ -859,7 +859,8 @@ Change it to ${chosen.name}? The order will say ${chosen.name} from now on, but 
 
           {/* Goods that arrived and are not on a shelf yet, where the last delivery went. */}
           {!isNew && po?.receipts?.length > 0 && (
-            <PutAwayNotice locationId={po.receipts[po.receipts.length - 1]?.locationId || po.locationId} variantIds={(po.items || []).map(i => i.variantId)} what="this order" />
+            <PutAwayNotice locationId={po.receipts[po.receipts.length - 1]?.locationId || po.locationId} variantIds={(po.items || []).map(i => i.variantId)} what="this order"
+              quantities={Object.fromEntries((po.items || []).map(i => [i.variantId, Number(i.receivedQty ?? i.quantityReceived ?? 0)]))} />
           )}
 
           {/* Every delivery against this order, each with its own goods receipt. */}

@@ -69,7 +69,7 @@ export default function ShelfLabels() {
       <div className="lbl-bar">
         <Link to="/shelves/setup" className="btn-secondary" style={{ textDecoration: 'none', display: 'flex', gap: 6, alignItems: 'center' }}><ArrowLeft size={15} /> Back</Link>
         <strong>{rows.length} {rows.length === 1 ? 'label' : 'labels'}</strong>
-        <select className="input-field" value={size} onChange={(e) => setSize(e.target.value)} aria-label="Label size">
+        <select className="input-field" value={size} onChange={(e) => setSize(e.target.value)} aria-label="Label size" style={{ width: 'auto', minWidth: 220 }}>
           {Object.entries(SIZES).map(([k, v]) => <option key={k} value={k}>{v.name}</option>)}
         </select>
         <label style={{ display: 'flex', gap: 6, alignItems: 'center', cursor: 'pointer' }}>

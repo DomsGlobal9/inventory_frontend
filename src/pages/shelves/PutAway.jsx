@@ -67,7 +67,11 @@ export default function PutAway() {
             <ScanInput ref={scanRef} value={text} onChange={setText} onSubmit={submitScan} placeholder="Scan the tag or filter…" busy={list.isFetching} />
             <div className="sh-row" style={{ justifyContent: 'space-between' }}>
               <h2 className="sh-section-title" style={{ margin: 0 }}>Waiting to be put away</h2>
-              <span className="sh-muted">{list.data?.total ?? 0} {list.data?.total === 1 ? 'item' : 'items'}</span>
+              {(() => {
+                // The count matches the list as shown: all of it, or only what just arrived.
+                const shown = onlyVariants.length ? items.length : (list.data?.total ?? 0);
+                return <span className="sh-muted">{shown} {shown === 1 ? 'item' : 'items'}</span>;
+              })()}
             </div>
             {onlyVariants.length > 0 && (
               <div className="sh-row" style={{ justifyContent: 'space-between', padding: '8px 12px', borderRadius: 10, background: 'var(--bg-input)' }}>

@@ -201,7 +201,12 @@ export default function ReturnDetail() {
           {ret.status === 'COMPLETED' && (
             <div style={{ marginTop: 12 }}>
               <PutAwayNotice locationId={ret.salesOrder?.locationId} what="this return"
-                variantIds={(ret.items || []).map(i => i.dispatchItem?.salesOrderItem?.variantId).filter(Boolean)} />
+                variantIds={(ret.items || []).map(i => i.dispatchItem?.salesOrderItem?.variantId).filter(Boolean)}
+                quantities={(ret.items || []).filter(i => i.disposition === 'RESTOCK').reduce((m, i) => {
+                  const v = i.dispatchItem?.salesOrderItem?.variantId;
+                  if (v) m[v] = (m[v] ?? 0) + (Number(i.quantity) || 0);
+                  return m;
+                }, {})} />
             </div>
           )}
         </div>

@@ -10,14 +10,18 @@ import { useNotShelved, useShelvesUsed } from '../../hooks/useShelves';
  */
 
 /** After a receipt, a return or a transfer: the pieces from it that are not on a shelf yet, here. */
-export function PutAwayNotice({ locationId, variantIds, what = 'these goods' }) {
+/**
+ * `quantities` is how many of each item this receipt or return brought in ({ variantId: n }). The notice
+ * counts at most that many, so "3 pieces of this return" never includes stock that was already waiting.
+ */
+export function PutAwayNotice({ locationId, variantIds, quantities, what = 'these goods' }) {
   const { can } = usePermission();
   const allowed = can('shelf:putaway');
   const list = useNotShelved(allowed ? locationId : null, 1);
   if (!allowed || !list.data?.usesShelves) return null;
   const wanted = new Set(variantIds ?? []);
   const waiting = (list.data.items ?? []).filter(i => wanted.size === 0 || wanted.has(i.variantId));
-  const pieces = waiting.reduce((t, i) => t + i.notShelved, 0);
+  const pieces = waiting.reduce((t, i) => t + (quantities?.[i.variantId] !== undefined ? Math.min(i.notShelved, quantities[i.variantId]) : i.notShelved), 0);
   if (pieces === 0) return null;
   const params = wanted.size ? `?variants=${[...wanted].join(',')}` : '';
   return (

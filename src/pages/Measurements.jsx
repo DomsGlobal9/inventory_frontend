@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { hasPartPaise, PAISA_MESSAGE } from '../utils/money';
 import { useProduct } from '../context/ProductContext';
 import { useCatalogData } from '../hooks/useCatalogConfig';
 import { useSuppliers } from '../hooks/useSuppliers';
@@ -245,7 +246,11 @@ export default function Measurements() {
               placeholder="e.g. 1250"
               value={productData.price}
               onChange={(e) => updateProductData('price', e.target.value)} 
+              aria-invalid={hasPartPaise(productData.price) || undefined}
             />
+            {hasPartPaise(productData.price) && (
+              <div role="alert" style={{ fontSize: '11px', color: 'var(--accent-danger)', marginTop: '4px' }}>{PAISA_MESSAGE}</div>
+            )}
           </div>
 
           {/* Asked for here because not asking is what produced stock the system believed was
@@ -261,7 +266,11 @@ export default function Measurements() {
               placeholder="what you paid"
               value={productData.costPrice}
               onChange={(e) => updateProductData('costPrice', e.target.value)}
+              aria-invalid={hasPartPaise(productData.costPrice) || undefined}
             />
+            {hasPartPaise(productData.costPrice) && (
+              <div role="alert" style={{ fontSize: '11px', color: 'var(--accent-danger)', marginTop: '4px' }}>{PAISA_MESSAGE}</div>
+            )}
             <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
               {Number(productData.costPrice) > 0 && Number(productData.price) > 0
                 ? `you keep ${(((Number(productData.price) - Number(productData.costPrice)) / Number(productData.price)) * 100).toFixed(0)}% of what you sell it for`
@@ -623,6 +632,11 @@ export default function Measurements() {
             }
             if (!(Number(productData.price) > 0)) {
               toast.error('Set a base price before continuing.');
+              return;
+            }
+            // The database would round 12.345 to 12.35 without a word; say so here instead.
+            if (hasPartPaise(productData.price) || hasPartPaise(productData.costPrice)) {
+              toast.error(PAISA_MESSAGE);
               return;
             }
             navigate('/add/upload');

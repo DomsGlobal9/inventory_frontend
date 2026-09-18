@@ -4,6 +4,7 @@ import { Plus, Play, Pause, Archive, Tag, Search, CalendarClock, Store, CopyPlus
 import { useOffers, useCreateOffer, useUpdateOffer, useSetOfferStatus, useDuplicateOffer } from '../hooks/useOffers';
 import TillRulesDialog from '../components/TillRulesDialog';
 import { usePermission } from '../hooks/usePermission';
+import { useMediaQuery } from '../hooks/useMediaQuery';
 import PageLoader from '../components/PageLoader';
 import ConfirmModal from '../components/ConfirmModal';
 import OfferEditor from '../components/OfferEditor';
@@ -78,6 +79,66 @@ export default function Offers() {
   const duplicateMutation = useDuplicateOffer();
   const navigate = useNavigate();
   const [tillRules, setTillRules] = useState(false);
+  const phone = useMediaQuery('(max-width: 640px)');
+
+  /**
+   * What can be done to one offer. The same buttons in the table and on a phone's card, so the two
+   * layouts can never offer different things.
+   */
+  const actionsFor = (offer) => (
+    <>
+      {can('offer:update') && offer.status !== 'ARCHIVED' && (
+        <>
+          {offer.status === 'ACTIVE' ? (
+            <button className="btn-secondary" title="Pause this offer"
+              style={{ padding: '6px 10px', marginRight: '6px' }}
+              onClick={() => statusMutation.mutate({ id: offer.id, status: 'PAUSED' })}>
+              <Pause size={15} />
+            </button>
+          ) : (
+            // "Schedule" when its start is still ahead. Pressing Start on an offer
+            // that begins next Friday and watching nothing happen is how a
+            // merchant concludes the button is broken.
+            <button className="btn-secondary"
+              title={new Date(offer.startsAt) > new Date() ? 'Schedule this offer' : 'Start this offer'}
+              style={{ padding: '6px 10px', marginRight: '6px' }}
+              onClick={() => statusMutation.mutate({ id: offer.id, status: 'ACTIVE' })}>
+              {new Date(offer.startsAt) > new Date()
+                ? <CalendarClock size={15} />
+                : <Play size={15} />}
+            </button>
+          )}
+          <button className="btn-secondary" style={{ padding: '6px 12px', marginRight: '6px' }}
+            onClick={() => setEditing(offer)}>Edit</button>
+        </>
+      )}
+      {can('offer:create') && (
+        <button className="btn-secondary" title="Copy into a new draft" aria-label={`Duplicate ${offer.name}`}
+          style={{ padding: '6px 10px', marginRight: '6px' }} disabled={duplicateMutation.isPending}
+          onClick={async () => {
+            try {
+              const copy = await duplicateMutation.mutateAsync(offer.id);
+              navigate(`/offers/${copy.id}`);
+            } catch { /* shown by the mutation */ }
+          }}>
+          <CopyPlus size={15} />
+        </button>
+      )}
+      {offer.status !== 'ARCHIVED' && (can('offer:publish_external') || offer.shopify) && (
+        <button className="btn-secondary" title="Shopify"
+          aria-label={`${offer.name} on Shopify`}
+          style={{ padding: '6px 10px', marginRight: '6px' }} onClick={() => setOnShopify(offer)}>
+          <Store size={15} />
+        </button>
+      )}
+      {can('offer:archive') && can('offer:update') && offer.status !== 'ARCHIVED' && (
+        <button className="btn-secondary" title="Retire this offer"
+          style={{ padding: '6px 10px' }} onClick={() => setRetiring(offer)}>
+          <Archive size={15} />
+        </button>
+      )}
+    </>
+  );
 
   if (isLoading) return <PageLoader text="LOADING OFFERS..." />;
 
@@ -138,6 +199,37 @@ export default function Offers() {
               : 'An offer written here applies at the till and on your website.'}
           </p>
         </div>
+      ) : phone ? (
+        /* A card per offer on a phone. The table needed 760px, so at 390px USED, STATUS and every
+           button sat off-screen inside a sideways scroller -- whether an offer was running could
+           not be seen without sliding. */
+        <ul aria-label="Offers" style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {rows.map(offer => (
+            <li key={offer.id} className="card" style={{ padding: '14px 16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px' }}>
+                <div style={{ minWidth: 0 }}>
+                  <Link to={`/offers/${offer.id}`} style={{ fontWeight: 600, color: 'var(--text-primary)', textDecoration: 'none', overflowWrap: 'anywhere' }}>
+                    {offer.name}
+                  </Link>
+                  <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                    {offer.offerCode}{offer.couponCode ? ` · ${offer.couponCode}` : ''}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', flexShrink: 0 }}>
+                  <OfferStatusPill status={offer.effectiveStatus} />
+                  {offer.shopify && <ShopifyChip status={offer.shopify.status} problem={offer.shopify.problem} />}
+                </div>
+              </div>
+              <div style={{ marginTop: '8px', fontSize: '14px', color: 'var(--text-primary)' }}>{describe(offer).headline}</div>
+              <div style={{ marginTop: '4px', fontSize: '12px', color: 'var(--text-secondary)' }}>
+                {whenLabel(offer)} · Used {offer.redemptionCount ?? 0}{offer.usageLimit ? ` of ${offer.usageLimit}` : ''}
+              </div>
+              <div style={{ marginTop: '10px', display: 'flex', flexWrap: 'wrap', gap: '6px 0' }}>
+                {actionsFor(offer)}
+              </div>
+            </li>
+          ))}
+        </ul>
       ) : (
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
           {/* Scrolls sideways inside the card rather than being clipped by it, and the first
@@ -193,56 +285,7 @@ export default function Offers() {
                       </div>
                     </td>
                     <td style={{ padding: '16px 20px', textAlign: 'right', whiteSpace: 'nowrap' }}>
-                      {can('offer:update') && offer.status !== 'ARCHIVED' && (
-                        <>
-                          {offer.status === 'ACTIVE' ? (
-                            <button className="btn-secondary" title="Pause this offer"
-                              style={{ padding: '6px 10px', marginRight: '6px' }}
-                              onClick={() => statusMutation.mutate({ id: offer.id, status: 'PAUSED' })}>
-                              <Pause size={15} />
-                            </button>
-                          ) : (
-                            // "Schedule" when its start is still ahead. Pressing Start on an offer
-                            // that begins next Friday and watching nothing happen is how a
-                            // merchant concludes the button is broken.
-                            <button className="btn-secondary"
-                              title={new Date(offer.startsAt) > new Date() ? 'Schedule this offer' : 'Start this offer'}
-                              style={{ padding: '6px 10px', marginRight: '6px' }}
-                              onClick={() => statusMutation.mutate({ id: offer.id, status: 'ACTIVE' })}>
-                              {new Date(offer.startsAt) > new Date()
-                                ? <CalendarClock size={15} />
-                                : <Play size={15} />}
-                            </button>
-                          )}
-                          <button className="btn-secondary" style={{ padding: '6px 12px', marginRight: '6px' }}
-                            onClick={() => setEditing(offer)}>Edit</button>
-                        </>
-                      )}
-                      {can('offer:create') && (
-                        <button className="btn-secondary" title="Copy into a new draft" aria-label={`Duplicate ${offer.name}`}
-                          style={{ padding: '6px 10px', marginRight: '6px' }} disabled={duplicateMutation.isPending}
-                          onClick={async () => {
-                            try {
-                              const copy = await duplicateMutation.mutateAsync(offer.id);
-                              navigate(`/offers/${copy.id}`);
-                            } catch { /* shown by the mutation */ }
-                          }}>
-                          <CopyPlus size={15} />
-                        </button>
-                      )}
-                      {offer.status !== 'ARCHIVED' && (can('offer:publish_external') || offer.shopify) && (
-                        <button className="btn-secondary" title="Shopify"
-                          aria-label={`${offer.name} on Shopify`}
-                          style={{ padding: '6px 10px', marginRight: '6px' }} onClick={() => setOnShopify(offer)}>
-                          <Store size={15} />
-                        </button>
-                      )}
-                      {can('offer:archive') && can('offer:update') && offer.status !== 'ARCHIVED' && (
-                        <button className="btn-secondary" title="Retire this offer"
-                          style={{ padding: '6px 10px' }} onClick={() => setRetiring(offer)}>
-                          <Archive size={15} />
-                        </button>
-                      )}
+                      {actionsFor(offer)}
                     </td>
                   </tr>
                 ))}
@@ -254,7 +297,9 @@ export default function Offers() {
 
       {editing && (
         <OfferEditor
-          offer={editing.id ? editing : null}
+          // The list's current copy rather than the one clicked, so an offer retired meanwhile
+          // shows as retired in the editor instead of failing at Save.
+          offer={editing.id ? (offers?.find(o => o.id === editing.id) ?? editing) : null}
           onClose={() => setEditing(null)}
           onSave={async (data) => {
             if (editing.id) await updateMutation.mutateAsync({ id: editing.id, ...data });

@@ -31,7 +31,7 @@ The Day Book opens on **today**. While the day is not over, it says **STILL RUNN
 2. click [[2]] **Previous day** to go back one day at a time.
 3. [[3]] Choose **All locations**, or one store or godown.
 4. [[4]] **PDF** downloads the day as a PDF file.
-5. [[5]] **Share** opens WhatsApp with a short summary of the day. Nothing is sent until you press send in WhatsApp.
+5. [[5]] **Share** opens WhatsApp with a short summary of the day. Choose the chat or group to send it to. Nothing is sent until you press send in WhatsApp.
 
 ![The Day Book header. The date is marked 1, Previous day 2, All locations 3, PDF 4 and Share 5.](2-choose-the-day.webp "Today is marked STILL RUNNING until the day is over.")
 
@@ -99,8 +99,8 @@ The Day Book shows money figures. Only the owner, admins and inventory managers 
 Check the location box next to **Previous day**. **All locations** adds up every store and godown.
 :::
 
-:::faq Share opens WhatsApp, but the chat does not work
-WhatsApp may say the phone number is not valid. Download the **PDF** instead and send the file in WhatsApp yourself.
+:::faq Share opens WhatsApp, but no chat is open
+That is how Share works: WhatsApp asks who to send the summary to. Pick a chat or a group, then press send. If this computer has no WhatsApp, it opens WhatsApp Web; sign in there, or download the **PDF** and send the file from your phone.
 :::
 
 :::faq PDF says "Preparing..." for a long time

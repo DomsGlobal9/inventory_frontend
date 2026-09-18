@@ -12,7 +12,10 @@ import { usePermission } from '../hooks/usePermission';
  * What is running out, grouped by who we would buy it from, and one action to turn that into
  * draft purchase orders.
  */
-const money = (v) => `₹${Number(v || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
+const money = (v) => `₹${Number(v || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+/** Digits only, at most seven of them: no minus, no point, no "e". Empty stays empty while typing. */
+const wholePieces = (raw) => String(raw ?? '').replace(/\D/g, '').slice(0, 7);
 
 export default function ReorderSuggestions() {
   const { can } = usePermission();
@@ -102,6 +105,9 @@ export default function ReorderSuggestions() {
   const storeName = data?.location?.name;
   const covered = data?.summary?.coveredByOpenOrders || 0;
   const withoutStore = data?.summary?.ordersWithoutStore || 0;
+  const neverStocked = data?.summary?.neverStockedHere || 0;
+  const notSold = data?.summary?.notSoldHere || 0;
+  const here = storeName ? ` at ${storeName}` : ' here';
 
   // Said above the list, and on the empty screen too: "nothing to order" is only true for this store.
   const storeNotes = (
@@ -109,6 +115,16 @@ export default function ReorderSuggestions() {
       {covered > 0 && (
         <p style={{ margin: '8px 0 0', fontSize: '13px', color: 'var(--text-secondary)' }}>
           {covered} more item{covered === 1 ? ' is' : 's are'} low, but enough is already on order{storeName ? ` for ${storeName}` : ''}.
+        </p>
+      )}
+      {neverStocked > 0 && (
+        <p style={{ margin: '8px 0 0', fontSize: '13px', color: 'var(--text-secondary)' }}>
+          {neverStocked} tracked item{neverStocked === 1 ? ' has' : 's have'} never been stocked{here}, only at your other locations, so {neverStocked === 1 ? 'it is' : 'they are'} not suggested. To stock one{here}, raise a purchase order for it.
+        </p>
+      )}
+      {notSold > 0 && (
+        <p style={{ margin: '8px 0 0', fontSize: '13px', color: 'var(--text-secondary)' }}>
+          {notSold} low item{notSold === 1 ? ' is' : 's are'} not sold{here} (Available is unticked in {notSold === 1 ? 'its' : 'their'} Location Settings), so {notSold === 1 ? 'it is' : 'they are'} not suggested.
         </p>
       )}
       {withoutStore > 0 && (
@@ -121,13 +137,20 @@ export default function ReorderSuggestions() {
   );
 
   if (suppliers.length === 0 && unassigned.length === 0) {
+    // "Healthy" is a claim about every tracked item. Something low but left out -- already on
+    // order, never stocked here, not sold here -- makes it false, so the heading says only what
+    // is true: there is nothing to order.
+    const healthy = covered === 0 && neverStocked === 0 && notSold === 0;
     return (
       <div style={{ padding: '120px 32px', textAlign: 'center', color: 'var(--text-muted)' }}>
         <PackageCheck size={56} style={{ opacity: 0.2, marginBottom: '24px' }} />
-        <h3 style={{ fontSize: '22px', fontWeight: '600', letterSpacing: '-0.02em', color: 'var(--text-primary)', margin: '0 0 12px' }}>Inventory is Healthy</h3>
+        <h3 style={{ fontSize: '22px', fontWeight: '600', letterSpacing: '-0.02em', color: 'var(--text-primary)', margin: '0 0 12px' }}>
+          {healthy ? 'Inventory is Healthy' : 'Nothing to order right now'}
+        </h3>
         <p style={{ fontSize: '15px', margin: 0, lineHeight: 1.6, maxWidth: '400px', marginInline: 'auto' }}>
-          Every tracked item{storeName ? ` at ${storeName}` : ''} is above its minimum reorder level.<br />
-          Enjoy the peace of mind.
+          {healthy
+            ? <>Every tracked item{storeName ? ` at ${storeName}` : ''} is above its reorder level.<br />Enjoy the peace of mind.</>
+            : <>Some items{storeName ? ` at ${storeName}` : ''} are at or under their reorder level, but none needs a new order from here:</>}
         </p>
         <div style={{ maxWidth: '460px', marginInline: 'auto' }}>{storeNotes}</div>
       </div>
@@ -277,11 +300,14 @@ export default function ReorderSuggestions() {
                     <td style={{ textAlign: 'right', color: 'var(--text-secondary)', fontSize: '14px' }}>{line.reorderLevel}</td>
                     <td style={{ textAlign: 'center' }}>
                       <input
-                        type="number"
-                        min="1"
+                        type="text"
+                        inputMode="numeric"
+                        aria-label={`Order quantity for ${line.sku}`}
                         className="input-field"
                         value={st.qty}
-                        onChange={(e) => setLine(line.variantId, { selected: st.selected, qty: e.target.value })}
+                        // Whole pieces only. A number box took "-4" and the header total read
+                        // ₹-19,720 before anything refused it.
+                        onChange={(e) => setLine(line.variantId, { selected: st.selected, qty: wholePieces(e.target.value) })}
                         disabled={!st.selected}
                         style={{
                           width: '90px', textAlign: 'center', padding: '8px', borderRadius: '6px',

@@ -156,3 +156,7 @@ A price or offer changed while you were billing. Check the new **To pay** and pr
 :::faq I don't see the % button
 Your role cannot give discounts by hand. Ask a manager or the owner.
 :::
+
+:::faq I want to start the bill again
+Click **Clear** at the top right, next to the **New sale** heading. ScaleEzy asks first. Click **Clear** again to remove the customer, the items and the discounts. Nothing is sold and no stock changes.
+:::

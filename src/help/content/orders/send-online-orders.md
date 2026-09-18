@@ -30,9 +30,9 @@ Check the message and click [[1]] **Confirm order**.
 
 ## 3. Open Create Dispatch
 
-When the parcel is packed, open the **CONFIRMED** [[1]] order and click [[2]] **Create Dispatch**.
+When the parcel is packed, open the **Confirmed** [[1]] order and click [[2]] **Create Dispatch**.
 
-![A confirmed order SO-000003 for Farah Khan. The CONFIRMED label is marked 1 and the Create Dispatch button is marked 2.](3-create-dispatch.webp "Stock room staff, admins and owners see Create Dispatch.")
+![A confirmed order SO-000003 for Farah Khan. The Confirmed label is marked 1 and the Create Dispatch button is marked 2.](3-create-dispatch.webp "Stock room staff, admins and owners see Create Dispatch.")
 
 :::tip Using shelves?
 Pick the pieces from their shelves first with [Pick online orders](/help/shelves/pick). The pick list can send the order out for you when you finish.
@@ -49,18 +49,18 @@ The pieces come off your stock straight away.
 
 ## 5. If only part was sent
 
-If some pieces are still to come, the order page shows **PARTIALLY_DISPATCHED** (the Orders list calls it **Partly sent**) and waits for the rest.
+If some pieces are still to come, the order says **Partly sent**, as it does in the Orders list, and waits for the rest.
 
 1. [[1]] **Line Items** shows how many of each item are still held (**RESERVED**) and how many went out (**DISPATCHED**).
 2. [[2]] When the rest is packed, click **Create Dispatch** again.
 3. [[3]] If the rest will never be sent, an admin or owner clicks **Close rest of order**. What was sent stays a sale. The pieces not sent go back on sale.
 
-![A partly sent order. Line Items is marked 1, Create Dispatch 2 and Close rest of order 3.](5-part-sent.webp "When everything has gone out, the order becomes DISPATCHED.")
+![A partly sent order. Line Items is marked 1, Create Dispatch 2 and Close rest of order 3.](5-part-sent.webp "When everything has gone out, the order becomes Dispatched.")
 
 ## Common problems
 
 :::faq I don't see Create Dispatch
-The order must be **CONFIRMED** or partly sent first. Also, only stock room staff, admins and owners can send orders out.
+The order must be **Confirmed** or partly sent first. Also, only stock room staff, admins and owners can send orders out.
 :::
 
 :::faq "Enter a quantity greater than 0 for at least one item."

@@ -8,6 +8,27 @@ import { invalidateDerivedViews } from '../lib/invalidate';
 // undefined here and silently falls through to the generic fallback.
 const showError = (fallback) => (error) => toast.error(error?.message || fallback);
 
+/*
+ * Put the server's answer on the open order at once.
+ *
+ * Invalidating alone left the page reading CONFIRMED, RESERVED 1 and offering Create Dispatch
+ * for four or five seconds after "Order cancelled" -- the refetch of a whole order is several
+ * round trips here. The confirm and cancel answers carry the order's new status, and what each
+ * does to the reservations is fixed (confirm holds every line in full, cancel and close-short
+ * release everything still held), so the page can show it now; the refetch then fills the rest.
+ */
+const patchOrder = (queryClient, orderId, answer, heldFor) => {
+  if (!answer?.status) return;
+  queryClient.setQueryData(['sales-orders', orderId], (old) => {
+    if (!old || typeof old !== 'object' || !Array.isArray(old.items)) return old;
+    return {
+      ...old,
+      status: answer.status,
+      items: old.items.map(item => ({ ...item, heldQty: heldFor(item) }))
+    };
+  });
+};
+
 export const useSalesOrders = (filters = {}) => {
   return useQuery({
     queryKey: ['sales-orders', filters],
@@ -99,8 +120,9 @@ export const useConfirmOrder = () => {
     mutationFn: async (orderId) => {
       return api.post(`/sales-orders/${orderId}/confirm`);
     },
-    onSuccess: (_, orderId) => {
+    onSuccess: (data, orderId) => {
       toast.success('Order confirmed. Stock is now reserved.');
+      patchOrder(queryClient, orderId, data, (item) => Math.max(0, (Number(item.quantity) || 0) - (Number(item.fulfilledQty) || 0)));
       queryClient.invalidateQueries({ queryKey: ['sales-orders', orderId] });
       queryClient.invalidateQueries({ queryKey: ['sales-orders'] });
       invalidateDerivedViews(queryClient); // confirm/cancel moves reserved stock
@@ -121,6 +143,7 @@ export const useCancelOrder = () => {
     onSuccess: (data, orderId) => {
       // A part-sent order comes back DISPATCHED: its rest was closed, not cancelled.
       toast.success(data?.status === 'DISPATCHED' ? 'Order closed. The rest was released back to stock.' : 'Order cancelled. Reserved stock released.');
+      patchOrder(queryClient, orderId, data, () => 0);
       queryClient.invalidateQueries({ queryKey: ['sales-orders', orderId] });
       queryClient.invalidateQueries({ queryKey: ['sales-orders'] });
       invalidateDerivedViews(queryClient); // confirm/cancel moves reserved stock

@@ -45,7 +45,7 @@ Sales and deliveries during the count can make the numbers wrong. If you can, co
 You can stop and come back later. What you typed is kept.
 
 :::tip Watch the small words under a box
-*unsaved* means press **Tab** or click outside the box. *saving...* means wait a moment. *not saved - retry* means it did not save: click it to try again.
+*unsaved* means press **Tab** or click outside the box. *saving...* means wait a moment. *not saved - retry* means the app could not reach the server: click it to try again. A red sentence under a box, such as *A count cannot be less than 0*, means that number is not allowed: type a whole number of pieces, 0 or more. 0 is fine when there are none.
 :::
 
 ## 5. Press Complete Audit
@@ -70,9 +70,20 @@ The count is now **COMPLETED**. [[1]] **Accuracy** is how many of the counted it
 
 ![The Inventory Audits list. The count is COMPLETED and its Accuracy is marked 1.](7-done.webp "Green with a tick is 95% or better. Red is under 95%.")
 
+## Cancel a count
+
+A count started by mistake, or never finished, can be called off. Only the shop's super admin (the owner account that made the shop) can do this.
+
+1. Open the count.
+2. Click **Cancel count** at the top right, then **Cancel count** again to confirm.
+
+No stock is changed. The count shows as **CANCELLED** in the list and nobody can type into it again. A count that is **COMPLETED** cannot be cancelled: its corrections are already in your stock. To fix a number after that, start a new count or use [Correct stock](/help/inventory/correct-stock).
+
+What was counted before the cancel is kept on the count, so you can still open it and check the numbers.
+
 ## Who can do this
 
-Owners, admins, managers and stock room staff.
+Owners, admins, managers and stock room staff. Only the super admin can cancel a count.
 
 ## Common problems
 
@@ -82,6 +93,10 @@ A count box did not save. Click into that box, press **Tab**, wait for it to sav
 
 :::faq No item in this audit matches what I scanned
 The barcode is not on this count. The item may be archived, or it was added after the count was made. Count it later with [Correct stock](/help/inventory/correct-stock).
+:::
+
+:::faq I do not see Cancel count
+Only the shop's super admin sees it, and only on a count that is **DRAFT** or **IN PROGRESS**. Ask them to cancel it.
 :::
 
 :::faq A Changed to number shows under Expected

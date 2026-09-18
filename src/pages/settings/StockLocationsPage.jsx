@@ -22,6 +22,10 @@ export default function StockLocationsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingLocation, setEditingLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
+  // Why the last save was refused, shown in the form beside the boxes rather than in a toast that
+  // is gone before it is read.
+  const [formError, setFormError] = useState('');
+  const [saving, setSaving] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -57,7 +61,10 @@ export default function StockLocationsPage() {
     // The browser no longer draws this warning (the form carries noValidate) -- see
     // lib/formGuard. Same `required` fields, same rule, said in the app's own voice.
     const missing = firstMissingField(e.currentTarget);
-    if (missing) { toast.error(missingFieldMessage(missing)); return; }
+    if (missing) { setFormError(missingFieldMessage(missing)); return; }
+    if (saving) return;
+    setSaving(true);
+    setFormError('');
     try {
       if (editingLocation) {
         await api.put(`/locations/${editingLocation.id}`, formData);
@@ -70,19 +77,28 @@ export default function StockLocationsPage() {
       fetchLocations();
       refreshLocations();
     } catch (error) {
-      toast.error(error?.error || 'Failed to save location');
+      setFormError(error?.error || error?.message || 'Could not save this location. Please try again.');
+      // Switching the store off was refused, so it is still on: the switch says so, rather than
+      // staying off as if that had been saved.
+      if (error?.field === 'active' && editingLocation) {
+        setFormData(f => ({ ...f, active: editingLocation.active }));
+      }
+    } finally {
+      setSaving(false);
     }
   };
 
   const openNewModal = () => {
     setEditingLocation(null);
     setFormData({ name: '', code: '', type: 'STORE', active: true, address: '', phone: '' });
+    setFormError('');
     setIsModalOpen(true);
   };
 
   const openEditModal = (loc) => {
     setEditingLocation(loc);
     setFormData({ name: loc.name, code: loc.code, type: loc.type, active: loc.active, address: loc.address || '', phone: loc.phone || '' });
+    setFormError('');
     setIsModalOpen(true);
   };
 
@@ -308,11 +324,16 @@ export default function StockLocationsPage() {
                 padding: '16px', background: 'var(--bg-input)', borderRadius: '8px', marginTop: '4px'
               }}>
                 <div>
-                  <div style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>Active Status</div>
-                  <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>Inactive locations hide from active inventory.</div>
+                  <div id="location-active-label" style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>Active Status</div>
+                  <div id="location-active-hint" style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>Inactive locations hide from active inventory.</div>
                 </div>
-                <label style={{ position: 'relative', display: 'inline-block', width: '44px', height: '24px' }}>
-                  <input type="checkbox" checked={formData.active} onChange={e => setFormData({...formData, active: e.target.checked})} style={{ opacity: 0, width: 0, height: 0 }} />
+                {/* A switch with a name: the checkbox is invisible, so without these a screen reader
+                    announced an unlabelled checkbox and a keyboard user could not see it had focus. */}
+                <label className="loc-switch" style={{ position: 'relative', display: 'inline-block', width: '44px', height: '24px' }}>
+                  <input type="checkbox" role="switch" aria-checked={formData.active}
+                    aria-labelledby="location-active-label" aria-describedby="location-active-hint"
+                    checked={formData.active} onChange={e => { setFormError(''); setFormData({...formData, active: e.target.checked}); }}
+                    style={{ position: 'absolute', opacity: 0, width: '100%', height: '100%', margin: 0, cursor: 'pointer', zIndex: 1 }} />
                   <span style={{
                     position: 'absolute', cursor: 'pointer', top: 0, left: 0, right: 0, bottom: 0,
                     backgroundColor: formData.active ? 'var(--accent-success)' : 'var(--border-focus)',
@@ -327,9 +348,15 @@ export default function StockLocationsPage() {
                 </label>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '24px' }}>
+              {formError && (
+                <p role="alert" style={{ margin: 0, padding: '10px 12px', borderRadius: '8px', fontSize: '13px', lineHeight: 1.5, color: 'var(--accent-danger)', background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.25)' }}>
+                  {formError}
+                </p>
+              )}
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: formError ? '4px' : '24px' }}>
                 <button type="button" className="btn-secondary" onClick={() => setIsModalOpen(false)} style={{ padding: '10px 20px', borderRadius: '8px' }}>Cancel</button>
-                <button type="submit" className="btn-primary" style={{ padding: '10px 20px', borderRadius: '8px' }}>{editingLocation ? 'Save Changes' : 'Create Location'}</button>
+                <button type="submit" className="btn-primary" disabled={saving} style={{ padding: '10px 20px', borderRadius: '8px' }}>{saving ? 'Saving...' : editingLocation ? 'Save Changes' : 'Create Location'}</button>
               </div>
             </form>
           </div>
@@ -339,6 +366,10 @@ export default function StockLocationsPage() {
       <style>{`
         .table-row-hover:hover {
           background-color: var(--bg-hover) !important;
+        }
+        .loc-switch input:focus-visible + span {
+          outline: 2px solid var(--accent-primary, #3b82f6);
+          outline-offset: 2px;
         }
       `}</style>
 

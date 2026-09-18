@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { X, Loader2, Save } from 'lucide-react';
 import { api } from '../lib/api';
 import toast from 'react-hot-toast';
+import { hasPartPaise, PAISA_MESSAGE } from '../utils/money';
 
 export function LocationSettingsModal({ variant, onClose, onSaveSuccess }) {
   const [locations, setLocations] = useState([]);
@@ -25,7 +26,7 @@ export function LocationSettingsModal({ variant, onClose, onSaveSuccess }) {
           const existing = variant.locationSettings?.find(s => s.locationId === loc.id);
           initialSettings[loc.id] = {
             isAvailable: existing ? existing.isAvailable : true,
-            priceOverride: existing?.priceOverride || ''
+            priceOverride: existing?.priceOverride ?? ''
           };
         });
         setSettings(initialSettings);
@@ -39,12 +40,16 @@ export function LocationSettingsModal({ variant, onClose, onSaveSuccess }) {
   }, [variant]);
 
   const handleSave = async (locationId) => {
+    const typed = settings[locationId]?.priceOverride;
+    // Said here, before sending: the server refuses both, and a refusal is slower to read.
+    if (typed !== '' && typed !== undefined && Number(typed) < 0) { toast.error('A price cannot be less than zero.'); return; }
+    if (hasPartPaise(typed)) { toast.error(PAISA_MESSAGE); return; }
     setSavingId(locationId);
     try {
       const data = settings[locationId];
       const payload = {
         isAvailable: data.isAvailable,
-        priceOverride: data.priceOverride ? Number(data.priceOverride) : null
+        priceOverride: data.priceOverride !== '' && data.priceOverride != null ? Number(data.priceOverride) : null
       };
 
       await api.patch(`/products/${variant.productId}/variants/${variant.id}/locations/${locationId}`, payload);
@@ -110,7 +115,7 @@ export function LocationSettingsModal({ variant, onClose, onSaveSuccess }) {
                       <input 
                         type="number"
                         placeholder="Global Price"
-                        value={settings[loc.id]?.priceOverride || ''}
+                        value={settings[loc.id]?.priceOverride ?? ''}
                         onChange={(e) => setSettings(prev => ({
                           ...prev,
                           [loc.id]: { ...prev[loc.id], priceOverride: e.target.value }

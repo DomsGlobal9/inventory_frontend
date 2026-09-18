@@ -2,7 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 
-export default function Dropdown({ value, onChange, options, placeholder, className = '' }) {
+// Said instead of an empty grey strip when there is nothing to choose. A shop whose catalogue was
+// never set up opened Product Category onto nothing at all, with no hint where the choices come from.
+const NOTHING_SET_UP = 'Nothing set up yet — add them in Settings → Catalog Configuration.';
+
+export default function Dropdown({ value, onChange, options, placeholder, className = '', emptyText = NOTHING_SET_UP }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -76,6 +80,11 @@ export default function Dropdown({ value, onChange, options, placeholder, classN
               gap: '4px'
             }}
           >
+            {options.length === 0 && (
+              <div role="note" style={{ padding: '8px 12px', fontSize: '13px', lineHeight: 1.4, color: 'var(--text-secondary)' }}>
+                {emptyText}
+              </div>
+            )}
             {options.map((opt, i) => {
               const optValue = typeof opt === 'string' ? opt : opt.value;
               const optLabel = typeof opt === 'string' ? opt : opt.label;

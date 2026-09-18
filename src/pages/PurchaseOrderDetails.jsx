@@ -22,6 +22,56 @@ import Select from '../components/common/Select';
 import { usePermission } from '../hooks/usePermission';
 import { PutAwayNotice } from '../components/shelves/ShelfLinks';
 
+/** Money to the paisa, grouped the Indian way: ₹1,23,456.50. A purchase order is a bill. */
+const rupees = (v) => `₹${(Number(v) || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+/*
+ * What the two boxes on a new line will take as they are typed.
+ *
+ * Number boxes took "-5" (Grand Total ₹-3,144 before anything refused it) and "10.555", which was
+ * saved and printed as ₹10.555. Text boxes that only keep what can be right: whole pieces, and
+ * rupees with at most two digits of paise.
+ */
+const wholePieces = (raw) => String(raw ?? '').replace(/\D/g, '').slice(0, 7);
+const toPaise = (raw) => {
+  let t = String(raw ?? '').replace(/[^\d.]/g, '');
+  const dot = t.indexOf('.');
+  if (dot >= 0) t = t.slice(0, dot + 1) + t.slice(dot + 1).replace(/\./g, '').slice(0, 2);
+  return t.slice(0, 11);
+};
+/*
+ * A supplier as the picker lists it. When another supplier's name is close -- "Surat Silk Mills" and
+ * "Surat Silk Mill" -- the picker showed two lines that differed only by a code nobody remembers, so
+ * a phone, email or town is added to tell them apart.
+ */
+const nameKey = (name) => String(name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+const editDistance = (a, b) => {
+  if (Math.abs(a.length - b.length) > 2) return 3;
+  let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    const row = [i];
+    for (let j = 1; j <= b.length; j++) {
+      row[j] = Math.min(prev[j] + 1, row[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    }
+    prev = row;
+  }
+  return prev[b.length];
+};
+const namesClose = (a, b) => {
+  const x = nameKey(a), y = nameKey(b);
+  return x === y || (Math.min(x.length, y.length) >= 6 && editDistance(x, y) <= 2);
+};
+const supplierLabel = (supplier, all) => {
+  const base = `${supplier.name} (${supplier.supplierCode})`;
+  if (!all.some(o => o.id !== supplier.id && namesClose(o.name, supplier.name))) return base;
+  const town = String(supplier.address || '').split(/[,\n]/)[0].trim().slice(0, 30);
+  const detail = supplier.phone || supplier.email || town || 'no phone or email saved';
+  return `${base} · ${detail}`;
+};
+
+/** A suggested price rounded to the paisa -- an average cost carries six decimals. */
+const startingPrice = (v) => String(Math.round((Number(v) || 0) * 100) / 100);
+
 
 export default function PurchaseOrderDetails() {
   const { id } = useParams();
@@ -144,7 +194,7 @@ export default function PurchaseOrderDetails() {
           color: location.state.color || '',
           size: location.state.size || '',
           orderedQty: location.state.orderedQty,
-          unitPrice: location.state.costPrice || 0,
+          unitPrice: startingPrice(location.state.costPrice),
           // Only the variant supplier panel knows this, and only it sends it. The older
           // callers leave it undefined, which getMarginWarning already reads as "nothing
           // to compare against" -- the same silence they had before, not a new one.
@@ -188,13 +238,17 @@ export default function PurchaseOrderDetails() {
 
     // Strict validation
     for (const item of formData.items) {
-      if (item.orderedQty <= 0) return toast.error(`Quantity must be > 0 for SKU: ${item.sku}`);
-      if (item.unitPrice < 0) return toast.error(`Cost must be >= 0 for SKU: ${item.sku}`);
+      if (!(Number(item.orderedQty) > 0)) return toast.error(`Enter how many of ${item.sku} to order.`);
+      if (String(item.unitPrice ?? '').trim() === '' || !(Number(item.unitPrice) >= 0)) {
+        return toast.error(`Enter what you pay for one ${item.sku}.`);
+      }
     }
 
     // Include grand total in submission payload (it can be computed on backend but good to have)
     const payload = {
       ...formData,
+      // The boxes hold what was typed; the order carries numbers.
+      items: formData.items.map(i => ({ ...i, orderedQty: Number(i.orderedQty), unitPrice: Number(i.unitPrice) })),
       // A shop with no store yet has nothing to choose; the order is raised without one.
       locationId: formData.locationId || null,
       totalAmount: grandTotal
@@ -327,7 +381,7 @@ The stock will go into ${chosen?.name || 'that store'}. ${orderedFor.name} stays
 
       if (existingIdx >= 0) {
         // Merge duplicate
-        newItems[existingIdx].orderedQty += variant.orderedQty;
+        newItems[existingIdx].orderedQty = Number(newItems[existingIdx].orderedQty || 0) + Number(variant.orderedQty || 0);
         // Optionally update cost to latest if different, but usually we just sum qty
       } else {
         // Add new
@@ -340,7 +394,7 @@ The stock will go into ${chosen?.name || 'that store'}. ${orderedFor.name} stays
           color: variant.color,
           size: variant.size,
           orderedQty: variant.orderedQty,
-          unitPrice: variant.unitPrice,
+          unitPrice: startingPrice(variant.unitPrice),
           // effectiveSellingPrice, not sellingPrice: most variants have no price of their
           // own and sell at the product's, and the margin warning was silent for all of them.
           sellingPrice: variant.effectiveSellingPrice ?? variant.sellingPrice,
@@ -352,7 +406,8 @@ The stock will go into ${chosen?.name || 'that store'}. ${orderedFor.name} stays
     setShowVariantModal(false);
   };
 
-  const grandTotal = formData.items.reduce((sum, item) => sum + (item.orderedQty * item.unitPrice), 0);
+  // In whole paise, so many lines cannot add up to a float tail. Never below zero: the boxes take no minus.
+  const grandTotal = formData.items.reduce((sum, item) => sum + Math.round((Number(item.orderedQty) || 0) * (Number(item.unitPrice) || 0) * 100), 0) / 100;
 
   // Built from the SAVED order rather than formData: this button only appears on a
   // persisted DRAFT, and formData carries unsaved edits that the supplier would otherwise
@@ -626,7 +681,7 @@ Change it to ${chosen.name}? The order will say ${chosen.name} from now on, but 
                 >
                   <option value="">Select Supplier...</option>
                   {suppliers.map(s => (
-                    <option key={s.id} value={s.id}>{s.name} ({s.supplierCode})</option>
+                    <option key={s.id} value={s.id}>{supplierLabel(s, suppliers)}</option>
                   ))}
                 </Select>
               </div>
@@ -756,14 +811,15 @@ Change it to ${chosen.name}? The order will say ${chosen.name} from now on, but 
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px' }}>
                               <span style={{ color: 'var(--text-muted)' }}>₹</span>
                               <input
-                                type="number"
-                                min="0"
+                                type="text"
+                                inputMode="decimal"
+                                aria-label={`You pay for one ${item.sku}`}
                                 className="input-field"
-                                style={{ width: '80px', textAlign: 'right', padding: '6px 8px' }}
+                                style={{ width: '90px', textAlign: 'right', padding: '6px 8px' }}
                                 value={item.unitPrice}
                                 onChange={e => {
                                   const newItems = [...formData.items];
-                                  newItems[idx].unitPrice = parseFloat(e.target.value) || 0;
+                                  newItems[idx] = { ...newItems[idx], unitPrice: toPaise(e.target.value) };
                                   setFormData({...formData, items: newItems});
                                 }}
                               />
@@ -777,7 +833,7 @@ Change it to ${chosen.name}? The order will say ${chosen.name} from now on, but 
                           </div>
                         ) : (
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
-                            <span style={{ color: 'var(--text-primary)' }}>₹{Number(item.unitPrice).toLocaleString()}</span>
+                            <span style={{ color: 'var(--text-primary)' }}>{rupees(item.unitPrice)}</span>
                             {/* Previously only shown while creating a new PO -- a merchant
                                 reopening a saved Draft to review it before sending or
                                 confirming had no way to see this at all. */}
@@ -793,14 +849,15 @@ Change it to ${chosen.name}? The order will say ${chosen.name} from now on, but 
                       <td style={{ padding: '16px 0', textAlign: 'right' }}>
                         {isNew ? (
                           <input
-                            type="number"
-                            min="1"
+                            type="text"
+                            inputMode="numeric"
+                            aria-label={`How many ${item.sku} to order`}
                             className="input-field"
                             style={{ width: '80px', textAlign: 'right', padding: '6px 8px' }}
                             value={item.orderedQty}
                             onChange={e => {
                               const newItems = [...formData.items];
-                              newItems[idx].orderedQty = parseInt(e.target.value) || 0;
+                              newItems[idx] = { ...newItems[idx], orderedQty: wholePieces(e.target.value) };
                               setFormData({...formData, items: newItems});
                             }}
                           />
@@ -809,7 +866,7 @@ Change it to ${chosen.name}? The order will say ${chosen.name} from now on, but 
                         )}
                       </td>
                       <td style={{ padding: '16px 0', textAlign: 'right', fontWeight: '500', color: 'var(--text-primary)' }}>
-                        ₹{(item.orderedQty * item.unitPrice).toLocaleString()}
+                        {rupees((Number(item.orderedQty) || 0) * (Number(item.unitPrice) || 0))}
                       </td>
                       {!isNew && (
                         <td style={{ padding: '16px 0', textAlign: 'right', color: 'var(--text-secondary)' }}>
@@ -849,7 +906,7 @@ Change it to ${chosen.name}? The order will say ${chosen.name} from now on, but 
                   <tr>
                     <td colSpan="3" style={{ padding: '16px 0', textAlign: 'right', fontWeight: '600', color: 'var(--text-secondary)' }}>Grand Total</td>
                     <td style={{ padding: '16px 0', textAlign: 'right', fontWeight: '700', fontSize: '18px', color: 'var(--text-primary)' }}>
-                      ₹{grandTotal.toLocaleString()}
+                      {rupees(grandTotal)}
                     </td>
                     {!isNew && <td colSpan={isReceivable ? 2 : 1}></td>}
                   </tr>

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Plus, Trash2, Loader2, AlertCircle, Download, AlertTriangle, X, Copy, CheckCircle2, Printer, Info, Settings, Check, Truck, ImageOff, MapPinned } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
+import { hasPartPaise, PAISA_MESSAGE } from '../utils/money';
 import Barcode from 'react-barcode';
 import { pdf } from '@react-pdf/renderer';
 import { LabelDocument } from './LabelDocument';
@@ -270,15 +271,18 @@ export default function VariantTable({ productId, productName, productCode, prod
     return productBasePrice ? Number(productBasePrice) : null;
   };
 
-  // What a markup is calculated against. Real money actually paid (averageCost, blended
-  // from receipts) wins whenever it exists; the manually-typed costPrice is the fallback
-  // for items not purchased through the system yet. Which one was used is shown in the UI
-  // so a price is never derived from a number the merchant can't see.
+  // What a markup is calculated against: the item's You pay when it is set, and the average
+  // cost of the stock received only when it is not. Which one was used is shown in the UI so a
+  // price is never derived from a number the merchant can't see.
+  //
+  // It used to be the other way round. The guide promises "what you paid plus 40%", and a
+  // merchant who typed You pay 900 and 40% got 1177.40 -- 841 (an older delivery's average)
+  // plus 40% -- with the 900 they had just typed sitting beside it.
   const effectiveCostOf = (v) => {
-    const avg = Number(v.averageCost || 0);
-    if (avg > 0) return { value: avg, source: 'received stock' };
     const manual = v.costPrice ? Number(v.costPrice) : 0;
-    if (manual > 0) return { value: manual, source: 'your cost' };
+    if (manual > 0) return { value: manual, source: 'what you pay' };
+    const avg = Number(v.averageCost || 0);
+    if (avg > 0) return { value: avg, source: 'average cost of stock received' };
     return { value: 0, source: null };
   };
 
@@ -330,7 +334,8 @@ export default function VariantTable({ productId, productName, productCode, prod
     const pct = Number(rawPct);
     const cost = effectiveCostOf(variant).value;
     if (rawPct === '' || !Number.isFinite(pct) || pct < 0 || cost <= 0) return;
-    const price = cost * (1 + pct / 100);
+    // Rounded to the paisa here, so the worked-out price is one the server will take.
+    const price = Math.round(cost * (1 + pct / 100) * 100) / 100;
     setPriceDrafts(prev => ({ ...prev, [variant.id]: price.toFixed(2) }));
   };
 
@@ -365,7 +370,18 @@ export default function VariantTable({ productId, productName, productCode, prod
       return;
     }
     const parsed = Number(value);
-    if (!Number.isFinite(parsed) || parsed <= 0) { discardCostDraft(variant.id); return; }
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      toast.error('What you pay has to be more than zero. Leave it empty if you do not know it.');
+      discardCostDraft(variant.id);
+      return;
+    }
+    if (parsed > 99999999.99) {
+      toast.error('That price is too large. The most a piece can cost is ₹9,99,99,999.');
+      discardCostDraft(variant.id);
+      return;
+    }
+    // Kept in the box: the person can take the extra digit off rather than type it all again.
+    if (hasPartPaise(value)) { toast.error(PAISA_MESSAGE); return; }
     updateVariantMutation.mutate({ id: variant.id, data: { costPrice: parsed } });
     discardCostDraft(variant.id);
   };
@@ -410,6 +426,8 @@ export default function VariantTable({ productId, productName, productCode, prod
       discardPriceDraft(variant.id);
       return;
     }
+    // 1499.999 used to be saved as 1500, with a success toast. Kept in the box to correct.
+    if (hasPartPaise(value)) { toast.error(PAISA_MESSAGE); return; }
     updateVariantMutation.mutate({ id: variant.id, data: { sellingPrice: parsed } });
     discardPriceDraft(variant.id);
   };
@@ -548,9 +566,12 @@ export default function VariantTable({ productId, productName, productCode, prod
             <div style={{ flex: 1, minWidth: 0 }}>
               <p style={{ fontSize: '11px', letterSpacing: '0.05em', color: 'var(--text-secondary)', marginBottom: '10px', textTransform: 'uppercase' }}>1. Select Sizes</p>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                {SIZES.map(size => (
+                {/* Keyed by position too: a shop's catalogue can hold the same size or shade twice
+                    (added by hand under two names), and a repeated key made React warn and
+                    could toggle the wrong button. */}
+                {SIZES.map((size, i) => (
                   <button
-                    key={size}
+                    key={`${size}-${i}`}
                     onClick={() => toggleSize(size)}
                     style={{
                       padding: '8px 16px',
@@ -572,9 +593,9 @@ export default function VariantTable({ productId, productName, productCode, prod
                 <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Click for shades • Double-click for base color</span>
               </div>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                {COLORS_PALETTE.map(color => (
+                {COLORS_PALETTE.map((color, i) => (
                   <button
-                    key={color.code}
+                    key={`${color.code}-${i}`}
                     onClick={() => setActiveShadeColor(color)}
                     onDoubleClick={() => toggleColor(color)}
                     title={color.name}
@@ -598,12 +619,12 @@ export default function VariantTable({ productId, productName, productCode, prod
             <div style={{ marginBottom: '16px', padding: '10px 16px', background: 'var(--bg-card)', borderRadius: '6px', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
               <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 500, flexShrink: 0 }}>{activeShadeColor.name} Shades:</span>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                {shadesOf(activeShadeColor).map((shade) => {
+                {shadesOf(activeShadeColor).map((shade, i) => {
                   const shadeCode = shadeCodeFor(activeShadeColor, shade.hex);
                   const selected = selectedColors.some(c => c.code === shadeCode);
                   return (
                     <button
-                      key={shade.hex}
+                      key={`${shade.hex}-${i}`}
                       onClick={() => toggleShade(shade, activeShadeColor)}
                       title={shade.name}
                       style={{

@@ -2,11 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { ArrowLeft, Save, CheckCircle, Search, AlertTriangle } from 'lucide-react';
-import { useStockCount, useStartStockCount, useUpdateStockCountItem, useCompleteStockCount } from '../hooks/useStockCounts';
+import { ArrowLeft, Save, CheckCircle, Search, AlertTriangle, XCircle } from 'lucide-react';
+import { useStockCount, useStartStockCount, useUpdateStockCountItem, useCompleteStockCount, useCancelStockCount } from '../hooks/useStockCounts';
 import PageLoader from '../components/PageLoader';
 import ConfirmModal from '../components/ConfirmModal';
 import { useAuth } from '../context/AuthContext';
+import { holdsEverything } from '../lib/authority';
+import StatusPill from '../components/StockCountStatus';
 
 export default function ActiveAudit() {
   const { id } = useParams();
@@ -16,6 +18,10 @@ export default function ActiveAudit() {
   const startMutation = useStartStockCount();
   const updateMutation = useUpdateStockCountItem();
   const completeMutation = useCompleteStockCount();
+  const cancelMutation = useCancelStockCount();
+  // Cancelling is the shop's super admin's alone -- the server enforces it; this only avoids
+  // offering a button that would be refused.
+  const canCancel = holdsEverything(user);
 
   const [searchQuery, setSearchQuery] = useState('');
   // One <input> per audit row, so a scan can drop the cursor straight into the count box.
@@ -31,6 +37,10 @@ export default function ActiveAudit() {
   const [serverCounts, setServerCounts] = useState({});
   // 'saving' | 'error' per row, so a row can say for itself where it got to.
   const [saveState, setSaveState] = useState({});
+  // Why a row was not saved, when trying again cannot help: a count that is not a whole number
+  // of pieces, or a count the server refused. Such a row used to show "not saved - retry" for
+  // ever -- -3 was sent, refused, and offered again, with nothing to say why.
+  const [rowProblem, setRowProblem] = useState({});
   const [confirmState, setConfirmState] = useState({ isOpen: false });
 
   // A ref alongside the state so the merge below can read the PREVIOUS server values without
@@ -80,6 +90,7 @@ export default function ActiveAudit() {
     }));
     // Typing again clears a previous failure marker -- the row is being worked on, not stuck.
     setSaveState(prev => (prev[itemId] ? { ...prev, [itemId]: undefined } : prev));
+    setRowProblem(prev => (prev[itemId] ? { ...prev, [itemId]: undefined } : prev));
   };
 
   // A row is unsaved when what is in the box differs from what the server confirmed.
@@ -87,7 +98,7 @@ export default function ActiveAudit() {
     String(localCounts[itemId] ?? '') !== String(serverCounts[itemId] ?? '');
 
   const unsavedRows = () =>
-    (data?.items || []).filter(i => isRowUnsaved(i.id) || saveState[i.id] === 'error');
+    (data?.items || []).filter(i => isRowUnsaved(i.id) || saveState[i.id] === 'error' || rowProblem[i.id]);
 
   const handleSaveItem = async (itemId) => {
     const value = localCounts[itemId];
@@ -99,6 +110,19 @@ export default function ActiveAudit() {
     // specially). Previously this just returned here with nothing saved, leaving the
     // input showing blank while the server still held the old count.
     const countedQty = value === '' ? null : Number(value);
+    // Refused here, in the box, and never sent: the server would refuse it too, and no retry
+    // can change that. Zero is a real count -- nothing left on the shelf.
+    const problem = countedQty === null ? null
+      : !Number.isFinite(countedQty) ? 'Type how many pieces you counted, as a number.'
+      : countedQty < 0 ? 'A count cannot be less than 0. Type 0 if there are none.'
+      : !Number.isInteger(countedQty) ? 'Count whole pieces, for example 3, not 2.5.'
+      : null;
+    if (problem) {
+      setRowProblem(prev => ({ ...prev, [itemId]: problem }));
+      setSaveState(prev => ({ ...prev, [itemId]: undefined }));
+      return;
+    }
+    setRowProblem(prev => (prev[itemId] ? { ...prev, [itemId]: undefined } : prev));
     setSaveState(prev => ({ ...prev, [itemId]: 'saving' }));
     try {
       await updateMutation.mutateAsync({ countId: id, itemId, countedQty });
@@ -110,7 +134,13 @@ export default function ActiveAudit() {
       // Keep the number the person counted -- it is the only copy of it -- but mark the row so
       // it is obvious the figure has not reached the server, and stop the audit being
       // completed against numbers that were never stored.
-      setSaveState(prev => ({ ...prev, [itemId]: 'error' }));
+      //
+      // Retry is offered only where a retry can work: no answer at all, or the server failing.
+      // A refusal (a closed count, a number it will not take) says why instead.
+      const status = error?.statusCode;
+      const retryable = !status || status >= 500 || status === 429;
+      setSaveState(prev => ({ ...prev, [itemId]: retryable ? 'error' : undefined }));
+      if (!retryable) setRowProblem(prev => ({ ...prev, [itemId]: error?.message || 'This count was not saved.' }));
       console.error(error);
     }
   };
@@ -142,6 +172,20 @@ export default function ActiveAudit() {
       onConfirm: async () => {
         await completeMutation.mutateAsync({ id, completedBy: user?.name || user?.id });
         navigate('/inventory/audits');
+      }
+    });
+  };
+
+  const handleCancel = () => {
+    setConfirmState({
+      isOpen: true,
+      title: 'Cancel this count?',
+      message: 'The count is closed and nobody can type into it again. No stock is changed, and what was already counted stays on it for reference. This cannot be undone.',
+      confirmText: 'Cancel count',
+      confirmStyle: 'danger',
+      // Rejection reaches the modal on purpose, as for Complete: it stays open with the reason.
+      onConfirm: async () => {
+        await cancelMutation.mutateAsync(id);
       }
     });
   };
@@ -183,7 +227,8 @@ export default function ActiveAudit() {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', flexDirection: 'column', gap: '24px', height: '100%', minHeight: 0 }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexShrink: 0 }}>
+      {/* Wraps on a phone: the buttons drop under the name instead of squeezing it to one word a line. */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexShrink: 0, flexWrap: 'wrap', gap: '12px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <button className="btn-secondary" onClick={() => navigate('/inventory/audits')} style={{ padding: '8px' }}>
             <ArrowLeft size={16} />
@@ -191,23 +236,26 @@ export default function ActiveAudit() {
           <div>
             <h1 style={{ fontSize: '24px', margin: 0, color: 'var(--text-primary)' }}>{audit.name}</h1>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginTop: '4px' }}>
-              <span style={{ 
-                padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: '600',
-                backgroundColor: audit.status === 'COMPLETED' ? 'rgba(16, 185, 129, 0.1)' : 
-                               audit.status === 'IN_PROGRESS' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(156, 163, 175, 0.1)',
-                color: audit.status === 'COMPLETED' ? 'var(--accent-success)' : 
-                       audit.status === 'IN_PROGRESS' ? 'var(--accent-gold)' : 'var(--text-secondary)'
-              }}>
-                {audit.status.replace('_', ' ')}
-              </span>
-              <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>
-                {audit.items?.length || 0} items to count
+              <StatusPill status={audit.status} small />
+              <span style={{ color: 'var(--text-secondary)', fontSize: '13px', whiteSpace: 'nowrap' }}>
+                {audit.status === 'CANCELLED' ? `${audit.totalItems || 0} items` : `${audit.items?.length || 0} items to count`}
               </span>
             </div>
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '12px' }}>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          {canCancel && (audit.status === 'DRAFT' || audit.status === 'IN_PROGRESS') && (
+            <button
+              className="btn-secondary"
+              onClick={handleCancel}
+              disabled={cancelMutation.isPending || completeMutation.isPending}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-danger)' }}
+              title="Close this count without changing any stock"
+            >
+              <XCircle size={16} /> Cancel count
+            </button>
+          )}
           {audit.status === 'DRAFT' && (
             <button className="btn-primary" onClick={handleStart} disabled={startMutation.isLoading}>
               Start Counting
@@ -226,6 +274,15 @@ export default function ActiveAudit() {
         </div>
       </div>
 
+      {audit.status === 'CANCELLED' && (
+        <div role="status" style={{ padding: '12px 16px', backgroundColor: 'rgba(239, 68, 68, 0.06)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '8px', display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <XCircle size={20} color="var(--accent-danger)" style={{ flexShrink: 0 }} />
+          <span style={{ fontSize: '14px', color: 'var(--text-primary)' }}>
+            This count was cancelled{audit.completedBy ? ` by ${audit.completedBy}` : ''}{audit.completedAt ? ` on ${new Date(audit.completedAt).toLocaleDateString()}` : ''}. No stock was changed. What was counted before then is kept below, for reference. To count again, start a new count from the list.
+          </span>
+        </div>
+      )}
+
       {/* Warning Banner */}
       {audit.status === 'IN_PROGRESS' && (
         <div style={{ padding: '12px 16px', backgroundColor: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)', borderRadius: '8px', display: 'flex', gap: '12px', alignItems: 'center' }}>
@@ -236,7 +293,8 @@ export default function ActiveAudit() {
         </div>
       )}
 
-      {/* Table Area */}
+      {/* Table Area. A cancelled count keeps its lines, shown read-only (every box is locked
+          outside IN_PROGRESS), so what was counted before the cancel can still be checked. */}
       <div className="glass-panel mobile-no-scroll" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
         
         {/* Toolbar */}
@@ -273,7 +331,8 @@ export default function ActiveAudit() {
                 // typed into that gap.
                 const counted = localCounts[item.id] ?? '';
                 const expected = item.expectedQty;
-                const hasValue = counted !== '' && counted !== undefined && counted !== null;
+                // A refused count has no difference to show: -3 against 13 is not "-16".
+                const hasValue = counted !== '' && counted !== undefined && counted !== null && !rowProblem[item.id];
                 const diff = hasValue ? Number(counted) - expected : null;
                 const concurrentChange = audit.status === 'IN_PROGRESS' && item.variant.quantity !== expected;
                 
@@ -308,7 +367,8 @@ export default function ActiveAudit() {
                         // Red when the save failed, amber while it is unsaved, normal once the
                         // server has it. A counted number that exists only on screen should not
                         // look identical to one that is safely stored.
-                        const borderColor = rowState === 'error'
+                        const problem = rowProblem[item.id];
+                        const borderColor = (rowState === 'error' || problem)
                           ? 'var(--accent-danger, #ef4444)'
                           : (unsaved ? 'var(--accent-gold, #f59e0b)' : 'var(--border-light)');
                         return (
@@ -316,6 +376,9 @@ export default function ActiveAudit() {
                             <input
                               type="number"
                               min="0"
+                              step="1"
+                              inputMode="numeric"
+                              aria-invalid={problem ? true : undefined}
                               ref={(el) => { countInputRefs.current[item.id] = el; }}
                               value={counted}
                               onChange={(e) => handleCountChange(item.id, e.target.value)}
@@ -328,7 +391,9 @@ export default function ActiveAudit() {
                                 fontWeight: '600', fontSize: '16px'
                               }}
                             />
-                            {rowState === 'error' ? (
+                            {problem ? (
+                              <span role="alert" style={{ fontSize: '11px', lineHeight: 1.3, color: 'var(--accent-danger, #ef4444)', maxWidth: '160px' }}>{problem}</span>
+                            ) : rowState === 'error' ? (
                               <button
                                 onClick={() => handleSaveItem(item.id)}
                                 style={{ fontSize: '10px', color: 'var(--accent-danger, #ef4444)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
@@ -369,7 +434,7 @@ export default function ActiveAudit() {
           </table>
         </div>
       </div>
-      <ConfirmModal 
+      <ConfirmModal
         isOpen={confirmState.isOpen}
         onClose={() => setConfirmState({ isOpen: false })}
         onConfirm={confirmState.onConfirm}

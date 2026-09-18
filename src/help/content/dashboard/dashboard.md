@@ -57,7 +57,7 @@ Clicking **Open PO Value** opens **Purchase Orders** with [[1]] **Open (waiting 
 
 Stock value, open orders and dead stock are money figures. Only roles that may see financial reports see the tiles: the owner, admins and inventory managers.
 
-A salesperson or stock room staff sees [[1]] *Stock value, open orders and dead stock aren't part of your role. Ask whoever manages your team.* instead. Parts of the tabs below can also show *Not part of your role*.
+A salesperson or stock room staff sees [[1]] *Stock value, open orders and dead stock aren't part of your role. Ask whoever manages your team.* instead. The tabs below show only what your role may see, and a tab with nothing for you is left out.
 
 ![The Dashboard for a salesperson. The message Not part of your role is marked 1 where the tiles would be.](7-salesperson.webp "The shortcut buttons are hidden too, because this role cannot use them.")
 

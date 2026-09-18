@@ -29,7 +29,13 @@ export default function Suppliers() {
     // lib/formGuard. Same `required` fields, same rule, said in the app's own voice.
     const missing = firstMissingField(e.currentTarget);
     if (missing) { toast.error(missingFieldMessage(missing)); return; }
-    await createSupplier.mutateAsync(newSupplier);
+    try {
+      await createSupplier.mutateAsync(newSupplier);
+    } catch {
+      // Refused -- a name another supplier has, say. The toast gives the reason; the form stays
+      // open with what was typed.
+      return;
+    }
     setShowAddModal(false);
     setNewSupplier({ name: '', email: '', phone: '', address: '' });
   };

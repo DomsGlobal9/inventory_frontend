@@ -13,15 +13,22 @@ import { useNotShelved, useShelvesUsed } from '../../hooks/useShelves';
 /**
  * `quantities` is how many of each item this receipt or return brought in ({ variantId: n }). The notice
  * counts at most that many, so "3 pieces of this return" never includes stock that was already waiting.
+ *
+ * When `quantities` is given it is the whole story: an item it does not mention brought nothing in and
+ * counts 0. It used to fall back to the store's whole unshelved count for such an item, so a return whose
+ * one saree was marked Damaged still said "2 pieces of this return are not on a shelf yet".
  */
 export function PutAwayNotice({ locationId, variantIds, quantities, what = 'these goods' }) {
   const { can } = usePermission();
   const allowed = can('shelf:putaway');
-  const list = useNotShelved(allowed ? locationId : null, 1);
-  if (!allowed || !list.data?.usesShelves) return null;
-  const wanted = new Set(variantIds ?? []);
+  // Nothing came in, so there is nothing to ask about -- and no reason to fetch the store's list.
+  const broughtIn = quantities ? Object.keys(quantities).filter(v => Number(quantities[v]) > 0) : null;
+  const nothingIn = broughtIn !== null && broughtIn.length === 0;
+  const list = useNotShelved(allowed && !nothingIn ? locationId : null, 1);
+  if (!allowed || nothingIn || !list.data?.usesShelves) return null;
+  const wanted = new Set(broughtIn ? (variantIds ?? broughtIn).filter(v => broughtIn.includes(v)) : (variantIds ?? []));
   const waiting = (list.data.items ?? []).filter(i => wanted.size === 0 || wanted.has(i.variantId));
-  const pieces = waiting.reduce((t, i) => t + (quantities?.[i.variantId] !== undefined ? Math.min(i.notShelved, quantities[i.variantId]) : i.notShelved), 0);
+  const pieces = waiting.reduce((t, i) => t + (quantities ? Math.min(i.notShelved, Number(quantities[i.variantId]) || 0) : i.notShelved), 0);
   if (pieces === 0) return null;
   const params = wanted.size ? `?variants=${[...wanted].join(',')}` : '';
   return (

@@ -51,7 +51,11 @@ export default function SupplierDetails() {
     // lib/formGuard. Same `required` fields, same rule, said in the app's own voice.
     const missing = firstMissingField(e.currentTarget);
     if (missing) { toast.error(missingFieldMessage(missing)); return; }
-    await updateSupplier.mutateAsync({ id, data: editForm });
+    try {
+      await updateSupplier.mutateAsync({ id, data: editForm });
+    } catch {
+      return; // the toast says why; the form keeps what was typed
+    }
     setShowEditModal(false);
   };
   const metrics = supplier.metrics || { openOrders: 0, totalSpend: 0, totalOrders: 0, lastOrderDate: null };
@@ -150,7 +154,7 @@ export default function SupplierDetails() {
                 <IndianRupee size={14} /> Total Spend
               </div>
               <div style={{ fontSize: '24px', fontWeight: '600', color: 'var(--text-primary)' }}>
-                ₹{metrics.totalSpend.toLocaleString()}
+                ₹{Number(metrics.totalSpend || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
             </div>
             <div>
@@ -233,7 +237,7 @@ export default function SupplierDetails() {
                     </td>
                     <td>
                       <span style={{ fontWeight: '500' }}>
-                        ₹{po.totalAmount ? Number(po.totalAmount).toLocaleString() : '0'}
+                        ₹{Number(po.totalAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </span>
                     </td>
                     <td style={{ textAlign: 'right' }}>

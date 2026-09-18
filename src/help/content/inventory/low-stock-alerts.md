@@ -58,7 +58,7 @@ The reorder level is the number that sets off a low stock alert. There is no box
 - To change it, use a file: the **reorderLevel** column in [Change stock or reorder levels in bulk](/help/products/bulk-updates), or the **ReorderLevel** column when you [import products from a sheet](/help/products/import-products).
 - A reorder level of **0** means the item is not tracked. It is never marked low, only out of stock.
 - One item has one reorder level. It is the same in every store.
-- The new level counts from the next time that item's stock changes.
+- A new level counts at once: as soon as the file is in, alerts are checked again, in every store. An item no longer low loses its alert, and **Reorder Level** shows the new number.
 
 :::warning Do not import the Variants export as it is
 The **Export** on a product's **Variants** tab has a **Quantity** column. That number is the stock of **all** your stores added together. **Import Updates** treats **Quantity** as the stock of **one** store. If you import that file as it is, the store you choose gets the total of all stores. Delete the **Quantity** column before you import it.

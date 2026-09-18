@@ -47,9 +47,9 @@ keywords: रिटर्न वापसी रिफ़ंड एक्सच�
 
 ## 5. Returns में ढूँढें
 
-रिटर्न अब **Returns** में [[1]] **REQUESTED** के रूप में है। माल आने पर स्टॉक रूम उसे लेकर जाँचता है।
+रिटर्न अब **Returns** में [[1]] **Requested** के रूप में है। माल आने पर स्टॉक रूम उसे लेकर जाँचता है।
 
-![Customer Returns लिस्ट। SO-000001 का नया रिटर्न, REQUESTED, वजह DEFECTIVE, इस पर 1 का निशान है।](5-on-returns-list.webp "लिस्ट में वजह छोटे शब्दों में दिखती है, जैसे Faulty or badly made के लिए DEFECTIVE।")
+![Customer Returns लिस्ट। SO-000001 का नया रिटर्न, Requested, वजह Faulty or badly made, इस पर 1 का निशान है।](5-on-returns-list.webp "लिस्ट में वजह उन्हीं शब्दों में दिखती है जो रिटर्न फ़ॉर्म में हैं।")
 
 आगे: [रिटर्न लें, जाँचें और पूरा करें](/help/returns/finish-a-return)।
 

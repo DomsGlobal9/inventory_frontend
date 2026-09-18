@@ -17,7 +17,7 @@ keywords: reorder suggestions low stock restock replenish draft orders auto purc
 
 **Action Required** lists items at or under their reorder level in this store, grouped by the supplier you buy them from (the **PREFERRED** one, see [Suppliers](/help/purchase-orders/suppliers)).
 
-Items that are low but already have enough on an open purchase order are left out. A line under the title says how many.
+Items that have run out are listed too. Left out, with a line under the title saying how many: items that already have enough on an open purchase order, items only ever stocked at your other locations, and items not sold in this store.
 
 ## 2. Choose what to order
 
@@ -56,7 +56,7 @@ Owners, admins and managers. Stock room staff can open the tab but cannot create
 ## Common problems
 
 :::faq Inventory is Healthy, but I know something is low
-Either enough is already on order (see the line under the message), the item's reorder level is 0, or you are looking at a different store. Check the store at the top of the screen.
+**Inventory is Healthy** shows only when nothing tracked in this store is at or under its reorder level. Check the store at the top of the screen, and the item's reorder level: at 0 the item is not tracked. If the screen says **Nothing to order right now**, the lines under it say why each low item was left out.
 :::
 
 :::faq An item keeps showing even after I ordered it

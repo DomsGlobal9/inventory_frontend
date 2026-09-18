@@ -13,6 +13,7 @@ import CustomerModal from '../../components/sales/CustomerModal';
 import { formatPhone } from '../../utils/phone';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { COUNTER_PHONE_QUERY } from '../../hooks/useCounterSale';
+import { ORDER_STATUS, DISPATCH_STATUS, CUSTOMER_STATUS, RETURN_REASONS, StatusPill } from '../../components/sales/labels';
 
 export default function CustomerDetail() {
   const { id } = useParams();
@@ -32,24 +33,15 @@ export default function CustomerDetail() {
   const [editing, setEditing] = useState(false);
   const phoneScreen = useMediaQuery(COUNTER_PHONE_QUERY);
 
-  /**
-   * The reasons a return can be filed under, in the words a shop uses on the left and the
-   * values the server stores on the right.
+  /*
+   * The reasons a return can be filed under (components/sales/labels, shared with the Returns
+   * screens so a reason reads the same where it is chosen and where it is read back).
    *
    * This picker did not exist. The notes box was placeholdered "Reason for return..." so the
    * intent was there, but free text cannot be grouped in a report, and the API's own reason
    * field was never sent -- so every return went in as OTHER and "why are things coming
-   * back?" had no answer. The server now validates this against its enum and refuses
-   * anything else, which is why the values here are the enum and not prettier strings.
+   * back?" had no answer. The server validates the value against its enum.
    */
-  const RETURN_REASONS = [
-    { value: 'DAMAGED_IN_TRANSIT', label: 'Damaged on the way to the customer' },
-    { value: 'DEFECTIVE', label: 'Faulty or badly made' },
-    { value: 'WRONG_ITEM', label: 'We sent the wrong thing' },
-    { value: 'SIZE_ISSUE', label: 'Size did not fit' },
-    { value: 'CUSTOMER_REJECTED', label: 'Customer changed their mind' },
-    { value: 'OTHER', label: 'Something else' }
-  ];
 
   /** How many of one shipped line can still come back: not returned, and not on a return still open. */
   const lineReturnable = (item) =>
@@ -134,9 +126,7 @@ export default function CustomerDetail() {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <h1 style={{ fontSize: '32px', margin: 0, color: 'var(--text-primary)' }}>{customer.name}</h1>
-            <span style={{ padding: '4px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: '500', backgroundColor: 'rgba(16, 185, 129, 0.1)', color: 'rgb(16, 185, 129)' }}>
-              {customer.status}
-            </span>
+            <StatusPill map={CUSTOMER_STATUS} value={customer.status} />
           </div>
           <p style={{ margin: '8px 0 0', color: 'var(--text-secondary)' }}>{customer.customerCode}</p>
         </div>
@@ -247,13 +237,7 @@ export default function CustomerDetail() {
                         <td style={{ padding: '16px 24px', fontWeight: '500' }}>{order.orderNumber}</td>
                         <td style={{ padding: '16px 24px', color: 'var(--text-secondary)' }}>{new Date(order.createdAt).toLocaleDateString()}</td>
                         <td style={{ padding: '16px 24px' }}>
-                          <span style={{
-                            padding: '4px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: '500',
-                            backgroundColor: order.status === 'CONFIRMED' || order.status === 'DISPATCHED' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(107, 114, 128, 0.1)',
-                            color: order.status === 'CONFIRMED' || order.status === 'DISPATCHED' ? 'rgb(16, 185, 129)' : 'rgb(107, 114, 128)'
-                          }}>
-                            {order.status}
-                          </span>
+                          <StatusPill map={ORDER_STATUS} value={order.status} />
                         </td>
                         <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '500' }}>{formatINR(Number(order.total))}</td>
                         <td style={{ padding: '16px 24px', textAlign: 'right' }}>
@@ -308,12 +292,7 @@ export default function CustomerDetail() {
                           <td style={{ padding: '16px 24px' }}>{dispatch.orderNumber}</td>
                           <td style={{ padding: '16px 24px', color: 'var(--text-secondary)' }}>{new Date(dispatch.createdAt).toLocaleDateString()}</td>
                           <td style={{ padding: '16px 24px' }}>
-                            <span style={{
-                              padding: '4px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: '500',
-                              backgroundColor: 'rgba(59, 130, 246, 0.1)', color: 'rgb(59, 130, 246)'
-                            }}>
-                              {dispatch.status}
-                            </span>
+                            <StatusPill map={DISPATCH_STATUS} value={dispatch.status} />
                           </td>
                           <td style={{ padding: '16px 24px', textAlign: 'right' }}>
                             {can('return:create') && (() => {
@@ -437,6 +416,7 @@ export default function CustomerDetail() {
               <label>Why is it coming back?</label>
               <Select
                 className="input-field"
+                aria-label="Why is it coming back?"
                 style={{ width: '100%' }}
                 value={returnReason}
                 onChange={(e) => setReturnReason(e.target.value)}

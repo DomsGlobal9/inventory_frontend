@@ -8,6 +8,20 @@ import { normalisePhone, formatPhone, typedPhone } from '../../utils/phone';
 
 const EMPTY = { phone: '', name: '', email: '', companyName: '', gstNumber: '', status: 'ACTIVE' };
 
+/*
+ * Checked here, before anything is sent, and said under the Email box. The server used to be the
+ * only check, and its answer -- the library's "Invalid email" -- arrived in a red box at the bottom
+ * of the form, nowhere near the box that was wrong. The server still checks (and says the same
+ * sentence) for anything this lets through.
+ */
+const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+function emailProblem(value) {
+  const email = (value || '').trim();
+  if (!email) return null;
+  if (email.length > 254) return 'That email address is too long. Check it, or leave the box empty.';
+  return EMAIL_SHAPE.test(email) ? null : "That email address doesn't look right. Check it, or leave the box empty.";
+}
+
 /**
  * Add or change a customer.
  *
@@ -24,12 +38,16 @@ const CustomerModal = ({ isOpen, onClose, customer, onSaved }) => {
   const createMutation = useCreateCustomer();
   const updateMutation = useUpdateCustomer();
   const phoneRef = useRef(null);
+  const emailRef = useRef(null);
 
   // What the server said when it refused, shown in the form rather than a toast that vanishes
   // while they are still reading it. `existing` is set when the number already belongs to somebody.
   const [saveError, setSaveError] = useState(null);
   const [existing, setExisting] = useState(null);
   const [phoneTouched, setPhoneTouched] = useState(false);
+  const [emailTouched, setEmailTouched] = useState(false);
+  // The server's word on the email, when it refuses one this form thought was fine.
+  const [emailRefused, setEmailRefused] = useState(null);
   const [formData, setFormData] = useState(EMPTY);
 
   useEffect(() => {
@@ -44,6 +62,8 @@ const CustomerModal = ({ isOpen, onClose, customer, onSaved }) => {
     setSaveError(null);
     setExisting(null);
     setPhoneTouched(false);
+    setEmailTouched(false);
+    setEmailRefused(null);
   }, [customer, isOpen]);
 
   if (!isOpen) return null;
@@ -53,6 +73,7 @@ const CustomerModal = ({ isOpen, onClose, customer, onSaved }) => {
   const phoneCheck = formData.phone.trim() ? normalisePhone(formData.phone) : null;
   // Said once there is enough to judge -- not on the first digit typed.
   const showPhoneCheck = phoneCheck && (phoneTouched || formData.phone.replace(/\D/g, '').length >= 10);
+  const emailMessage = emailRefused || (emailTouched ? emailProblem(formData.email) : null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -71,8 +92,15 @@ const CustomerModal = ({ isOpen, onClose, customer, onSaved }) => {
       }
     }
 
+    if (emailProblem(formData.email)) {
+      setEmailTouched(true);
+      emailRef.current?.focus();
+      return;
+    }
+
     setSaveError(null);
     setExisting(null);
+    setEmailRefused(null);
     const payload = { ...formData };
     if (phoneOptional && !formData.phone.trim()) delete payload.phone;
 
@@ -83,6 +111,12 @@ const CustomerModal = ({ isOpen, onClose, customer, onSaved }) => {
     const onError = (error) => {
       if (error?.existingCustomerId) {
         setExisting({ id: error.existingCustomerId, name: error.existingCustomerName || 'that customer' });
+      }
+      // A refusal about the email goes under the Email box, where the mistake is.
+      if (error?.errors?.[0]?.path?.[0] === 'email') {
+        setEmailRefused(error.message);
+        emailRef.current?.focus();
+        return;
       }
       setSaveError(error?.message || 'That did not save. Try again in a moment.');
     };
@@ -160,7 +194,20 @@ const CustomerModal = ({ isOpen, onClose, customer, onSaved }) => {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
             <div style={{ minWidth: 0 }}>
               <label htmlFor="customer-email" style={label}>Email</label>
-              <input id="customer-email" type="email" autoComplete="email" className="input-field" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} placeholder="Optional" style={{ width: '100%' }} />
+              <input id="customer-email" ref={emailRef} type="email" autoComplete="email" maxLength={254} className="input-field" value={formData.email}
+                onChange={e => { setFormData({ ...formData, email: e.target.value }); setEmailRefused(null); }}
+                // Not when leaving for the Save button: the message appearing would push the button
+                // down under the pointer and swallow the click. Saving checks it anyway.
+                onBlur={(e) => { if (e.relatedTarget?.type !== 'submit') setEmailTouched(true); }}
+                aria-invalid={emailMessage ? true : undefined}
+                aria-describedby={emailMessage ? 'customer-email-problem' : undefined}
+                placeholder="Optional" style={{ width: '100%' }} />
+              {emailMessage && (
+                <p id="customer-email-problem" role="alert" style={{ margin: '6px 0 0', fontSize: '12.5px', display: 'flex', gap: '6px', alignItems: 'flex-start', color: 'var(--accent-warning, #f59e0b)' }}>
+                  <AlertCircle size={14} style={{ flexShrink: 0, marginTop: '1px' }} />
+                  <span>{emailMessage}</span>
+                </p>
+              )}
             </div>
             <div style={{ minWidth: 0 }}>
               <label htmlFor="customer-company" style={label}>Company</label>

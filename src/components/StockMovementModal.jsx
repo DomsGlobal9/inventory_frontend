@@ -28,6 +28,7 @@ export default function StockMovementModal({ isOpen, onClose, productId }) {
     const missing = firstMissingField(e.currentTarget);
     if (missing) { toast.error(missingFieldMessage(missing)); return; }
     if (!formData.variantId) return toast.error('Please select a variant');
+    if (!formData.reason) return toast.error('Choose why these pieces are going out: damaged, a sample, or returned to the supplier.');
 
     createMutation.mutate({
       ...formData,
@@ -100,7 +101,7 @@ export default function StockMovementModal({ isOpen, onClose, productId }) {
                   <Select 
                     className="input-field"
                     value={formData.type}
-                    onChange={e => setFormData({ ...formData, type: e.target.value, reason: e.target.value === 'IN' ? 'PURCHASE' : e.target.value === 'OUT' ? 'SALE' : 'MANUAL_CORRECTION' })}
+                    onChange={e => setFormData({ ...formData, type: e.target.value, reason: e.target.value === 'IN' ? 'PURCHASE' : e.target.value === 'OUT' ? '' : 'MANUAL_CORRECTION' })}
                   >
                     <option value="IN">Stock IN</option>
                     <option value="OUT">Stock OUT</option>
@@ -140,8 +141,11 @@ export default function StockMovementModal({ isOpen, onClose, productId }) {
                   )}
                   {formData.type === 'OUT' && (
                     <>
-                      <option value="SALE">Sale</option>
+                      {/* No Sale, and nothing chosen for the person: a sale takes its pieces off by itself. */}
+                      <option value="" disabled>Choose a reason…</option>
                       <option value="DAMAGE">Damage</option>
+                      <option value="SAMPLE">Sample</option>
+                      <option value="RETURN_TO_VENDOR">Return to vendor</option>
                     </>
                   )}
                   {formData.type === 'ADJUSTMENT' && (

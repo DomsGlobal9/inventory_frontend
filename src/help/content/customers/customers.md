@@ -70,7 +70,7 @@ Another customer has this phone number. Click **Open** to go to them. If it real
 :::
 
 :::faq I can't find a customer
-Search with only the last few digits of the phone, or only the first name. Also set the status list next to the search box back to **All Statuses**.
+Search with only the last few digits of the phone, or only the first name. You can also search by the customer code or the email.
 :::
 
 :::faq I don't see Customers in the menu

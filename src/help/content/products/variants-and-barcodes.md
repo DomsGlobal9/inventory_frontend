@@ -65,7 +65,7 @@ ScaleEzy makes the SKU and barcode for you. The new row appears in the table.
 If you click somewhere else without pressing **Enter** or the tick, the new price is not saved. Leave the box empty and save to use the product's base price again.
 :::
 
-**Add profit** helps you set a price: type a percentage, for example 40, and ScaleEzy fills in **You sell at** as what you paid plus 40%. You still press **Enter** to save it.
+**Add profit** helps you set a price: type a percentage, for example 40, and ScaleEzy fills in **You sell at** as **You pay** plus 40%. If **You pay** is empty, it uses the average cost of the stock you received instead. The small line under **You pay** says which one. You still press **Enter** to save it.
 
 For a different price in one store only, see [A different price in one store](/help/products/price-per-store).
 
@@ -79,7 +79,7 @@ For a different price in one store only, see [A different price in one store](/h
 ![The You pay box of the Blue M row with 820 typed in, marked 1. A green tick and a cross are next to it.](5b-change-cost.webp "The small line under the box says which cost the profit is worked out from.")
 
 - If this stock never had a cost before, saving also gives the pieces you already hold this cost. Your stock value then counts them.
-- When the item came in on a purchase order, the small line under the box says *received stock*. Profit is then worked out from what you really paid on those orders, not from the number you type here.
+- The small line under the box says which cost profit is worked out from: *what you pay* when this box has a number in it, or *average cost of stock received* when it is empty.
 - Clicking away without **Enter** or the tick does not save.
 
 Only the owner, an admin or an inventory manager sees **You pay** and can change it.

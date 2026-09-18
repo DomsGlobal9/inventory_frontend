@@ -48,9 +48,9 @@ Click [[1]] **Book it in**.
 
 ## 5. Find it in Returns
 
-The return is now in **Returns** as [[1]] **REQUESTED**. When the goods arrive, the stock room receives and checks it.
+The return is now in **Returns** as [[1]] **Requested**. When the goods arrive, the stock room receives and checks it.
 
-![The Customer Returns list. The new return for SO-000001, REQUESTED, reason DEFECTIVE, is marked 1.](5-on-returns-list.webp "The list shows the reason in short words, for example DEFECTIVE for Faulty or badly made.")
+![The Customer Returns list. The new return for SO-000001, Requested, reason Faulty or badly made, is marked 1.](5-on-returns-list.webp "The list shows the reason in the same words as the return form.")
 
 Next: [Receive, check and finish a return](/help/returns/finish-a-return).
 

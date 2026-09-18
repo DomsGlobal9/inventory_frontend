@@ -19,6 +19,8 @@ import PageLoader from '../../components/PageLoader';
 import ConfirmModal from '../../components/ConfirmModal';
 import toast from 'react-hot-toast';
 import { ShelvesUsed } from '../../components/shelves/ShelfLinks';
+import { ORDER_STATUS, StatusPill } from '../../components/sales/labels';
+import { useDialog } from '../../hooks/useDialog';
 
 export default function SalesOrderDetail() {
   const { id } = useParams();
@@ -37,6 +39,10 @@ export default function SalesOrderDetail() {
   const [pendingAction, setPendingAction] = useState(null);
   // Readable in the same tick it is written, unlike state. See handleCreateDispatch.
   const dispatchInFlight = useRef(false);
+  // Keyboard and screen-reader behaviour for the Create Dispatch box (see hooks/useDialog). Not
+  // closable while the dispatch is being sent, so the answer cannot arrive to a closed box.
+  const closeDispatch = () => { if (!dispatchMutation.isPending) setIsDispatching(false); };
+  const dispatchDialogRef = useDialog(isDispatching, { onClose: closeDispatch, canClose: !dispatchMutation.isPending });
 
   if (isLoading) {
     return <PageLoader text="LOADING ORDERS..." />;
@@ -84,6 +90,18 @@ export default function SalesOrderDetail() {
   // page invited the user to ship the whole order a second time -- and the backend
   // rejected it with "Cannot dispatch N. Only M reserved remaining."
   const remainingQty = (item) => Math.max(0, (item.quantity || 0) - (item.fulfilledQty || 0));
+
+  /*
+   * What a line still holds back from sale. The server reads it off the live reservations
+   * (heldQty), which is the only thing that knows: ordered-minus-sent guessed per status, and
+   * missed that a part-sent order closed short ends DISPATCHED, so its unsent line said
+   * "RESERVED 1" for a piece that was already back on sale. The guess stays only for a server
+   * too old to send heldQty -- and even then an order that is finished holds nothing.
+   */
+  const heldQty = (item) => {
+    if (item.heldQty !== undefined && item.heldQty !== null) return Number(item.heldQty) || 0;
+    return ['CANCELLED', 'DISPATCHED', 'DRAFT'].includes(order.status) ? 0 : remainingQty(item);
+  };
 
   /*
    * Everything taken off one line, from either direction.
@@ -178,9 +196,7 @@ export default function SalesOrderDetail() {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <h1 style={{ fontSize: '32px', margin: 0, color: 'var(--text-primary)' }}>Order {order.orderNumber}</h1>
-            <span style={{ padding: '4px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: '500', backgroundColor: 'rgba(107, 114, 128, 0.1)', color: 'rgb(107, 114, 128)' }}>
-              {order.status}
-            </span>
+            <StatusPill map={ORDER_STATUS} value={order.status} />
           </div>
           <p style={{ margin: '8px 0 0', color: 'var(--text-secondary)' }}>
             Customer: {order.customer?.name} | Created: {new Date(order.createdAt).toLocaleDateString()}
@@ -259,17 +275,8 @@ export default function SalesOrderDetail() {
                   <tr><td colSpan={(order.status === 'DRAFT' ? 6 : 8) + (anyDiscount ? 1 : 0)} style={{ padding: '48px', textAlign: 'center', color: 'var(--text-secondary)' }}>No items added yet.</td></tr>
                 ) : (
                   order.items?.map(item => {
-                    // We can compute reserved and dispatched from the item relations if populated, 
-                    // or just use fulfilledQty for dispatched. We assume fulfilledQty exists or we use reservations.
-                    // For Sprint 4, we use fulfilledQty which we should be maintaining. Wait, did we add fulfilledQty update?
-                    // The schema has fulfilledQty. We can just use item.fulfilledQty for UI, but wait, the backend doesn't update fulfilledQty yet!
-                    // fulfilledQty is the single source for both columns here: DISPATCHED is
-                    // this number, RESERVED is the ordered quantity minus it. DispatchService
-                    // does maintain it -- verified against the database, where dispatching one
-                    // of two moved the line to fulfilledQty 1 and the order to
-                    // PARTIALLY_DISPATCHED. (The notes previously here said it did not, which
-                    // was wrong and would have sent the next reader looking for a bug that is
-                    // not there.)
+                    // DISPATCHED is fulfilledQty, which DispatchService maintains. RESERVED is
+                    // heldQty, read off the line's live reservations (see heldQty above).
                     return (
                     <tr key={item.id} style={{ borderBottom: '1px solid var(--border-light)' }}>
                       <td style={{ padding: '16px 24px', fontWeight: '500' }}>{item.variant?.sku}</td>
@@ -278,10 +285,7 @@ export default function SalesOrderDetail() {
                       {order.status !== 'DRAFT' && (
                         <>
                           <td style={{ padding: '16px 24px', textAlign: 'right', color: 'var(--accent-warning)', fontWeight: '500' }}>
-                            {/* A cancelled order holds nothing -- its reservation was released. Ordered
-                                minus shipped said "1 reserved" on a cancelled order, telling a shop
-                                that stock was spoken for when it was free to sell. */}
-                            {order.status === 'CANCELLED' ? 0 : remainingQty(item)}
+                            {heldQty(item)}
                           </td>
                           <td style={{ padding: '16px 24px', textAlign: 'right', color: 'var(--accent-success)', fontWeight: '500' }}>
                             {item.fulfilledQty || 0}
@@ -478,11 +482,15 @@ export default function SalesOrderDetail() {
 
       {/* Dispatch Modal */}
       {isDispatching && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="card" style={{ width: '600px', maxWidth: '90vw', padding: '24px' }}>
+        <div
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}
+          onClick={(e) => { if (e.target === e.currentTarget) closeDispatch(); }}
+        >
+          <div ref={dispatchDialogRef} role="dialog" aria-modal="true" aria-labelledby="create-dispatch-title" tabIndex={-1}
+            className="card" style={{ width: '600px', maxWidth: '90vw', padding: '24px', maxHeight: 'calc(100dvh - 32px)', overflowY: 'auto' }}>
             <div className="table-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <h3 style={{ margin: 0, fontSize: '20px' }}>Create Dispatch</h3>
-              <button onClick={() => setIsDispatching(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}>
+              <h3 id="create-dispatch-title" style={{ margin: 0, fontSize: '20px' }}>Create Dispatch</h3>
+              <button type="button" aria-label="Close" onClick={closeDispatch} style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}>
                 <XCircle size={24} color="var(--text-secondary)" />
               </button>
             </div>
@@ -510,6 +518,7 @@ export default function SalesOrderDetail() {
                     <td style={{ padding: '12px 8px', textAlign: 'right' }}>
                       <input 
                         type="number" 
+                        aria-label={`How many of ${item.variant?.sku || 'this item'} to send now`}
                         min="0"
                         max={remainingQty(item)}
                         disabled={remainingQty(item) === 0}
@@ -528,7 +537,7 @@ export default function SalesOrderDetail() {
             </table>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-              <button className="btn-secondary" onClick={() => setIsDispatching(false)}>Cancel</button>
+              <button type="button" className="btn-secondary" onClick={closeDispatch}>Cancel</button>
               <button 
                 className="btn-primary" 
                 onClick={handleCreateDispatch}

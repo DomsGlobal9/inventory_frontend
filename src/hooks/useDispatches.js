@@ -33,9 +33,14 @@ export const useCreateDispatch = () => {
         const lines = order.items.map(line => {
           const shipped = byLine.get(line.id) || 0;
           if (!shipped) return line;
-          // fulfilledQty is what the page renders BOTH columns from: dispatched directly, and
-          // reserved as quantity minus this. One field, both numbers.
-          return { ...line, fulfilledQty: (Number(line.fulfilledQty) || 0) + shipped };
+          // fulfilledQty is the DISPATCHED column.
+          // heldQty (what the line still holds back from sale) drops by the same pieces: they
+          // have left the building, so they are no longer set aside for anybody.
+          return {
+            ...line,
+            fulfilledQty: (Number(line.fulfilledQty) || 0) + shipped,
+            ...(line.heldQty !== undefined ? { heldQty: Math.max(0, (Number(line.heldQty) || 0) - shipped) } : {})
+          };
         });
         const allOut = lines.every(
           line => (Number(line.fulfilledQty) || 0) >= (Number(line.quantity) || 0)

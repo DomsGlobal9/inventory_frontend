@@ -9,6 +9,13 @@ import TakeFromShelf, { fromSpotsFor } from '../shelves/TakeFromShelf';
 import { useLocationContext } from '../../contexts/LocationContext';
 
 
+// Why stock may be taken off by hand -- the server accepts these three and nothing else.
+const MANUAL_REASONS = [
+  { value: 'DAMAGE', label: 'DAMAGE' },
+  { value: 'SAMPLE', label: 'SAMPLE' },
+  { value: 'RETURN_TO_VENDOR', label: 'RETURN TO VENDOR' }
+];
+
 export default function StockOutModal({ variant, onClose }) {
   const { data: metadata } = useInventoryMetadata();
   const stockOutMutation = useStockOut();
@@ -17,8 +24,10 @@ export default function StockOutModal({ variant, onClose }) {
 
   const [formData, setFormData] = useState({
     quantity: '',
-    reason: 'SALE',
-    referenceType: 'SALE_ORDER',
+    // No reason chosen for the person. It started on SALE, so a damaged saree written off
+    // without changing it went into the ledger -- and the day book -- as a sale.
+    reason: '',
+    referenceType: '',
     reference: '',
     notes: ''
   });
@@ -31,6 +40,7 @@ export default function StockOutModal({ variant, onClose }) {
     // lib/formGuard. Same `required` fields, same rule, said in the app's own voice.
     const missing = firstMissingField(e.currentTarget);
     if (missing) { toast.error(missingFieldMessage(missing)); return; }
+    if (!formData.reason) { toast.error('Choose why these pieces are going out: damaged, a sample, or returned to the supplier.'); return; }
     stockOutMutation.mutate({
       variantId: variant.variantId,
       quantity: Number(formData.quantity),
@@ -48,12 +58,13 @@ export default function StockOutModal({ variant, onClose }) {
 
   return (
     <AnimatePresence>
-      <motion.div
+      {/* Keyed: AnimatePresence tells its children apart by key, and two unkeyed ones made React warn of a repeated key every time this opened. */}
+      <motion.div key="backdrop"
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 999, backdropFilter: 'blur(4px)' }}
         onClick={onClose}
       />
-      <motion.div
+      <motion.div key="panel"
         initial={{ opacity: 0, y: 50, scale: 0.95, x: '-50%', y: '-50%' }}
         animate={{ opacity: 1, y: '-50%', scale: 1, x: '-50%' }}
         exit={{ opacity: 0, scale: 0.95, y: '-40%', x: '-50%' }}
@@ -80,9 +91,11 @@ export default function StockOutModal({ variant, onClose }) {
 
           <div className="form-group">
             <label className="form-label">Reason</label>
-            <Select className="input-field" value={formData.reason} onChange={e => setFormData({...formData, reason: e.target.value})} required>
-              {metadata?.inventoryReasons?.filter(r => ['SALE', 'DAMAGE', 'RETURN_TO_VENDOR', 'SAMPLE'].includes(r)).map(r => (
-                <option key={r} value={r}>{r.replace(/_/g, ' ')}</option>
+            <Select className="input-field" value={formData.reason} onChange={e => setFormData({...formData, reason: e.target.value})} aria-required="true">
+              <option value="">Choose a reason…</option>
+              {/* Not SALE: a sale takes its pieces off by itself. */}
+              {MANUAL_REASONS.filter(r => !metadata?.inventoryReasons || metadata.inventoryReasons.includes(r.value)).map(r => (
+                <option key={r.value} value={r.value}>{r.label}</option>
               ))}
             </Select>
           </div>
@@ -92,7 +105,7 @@ export default function StockOutModal({ variant, onClose }) {
           <div className="mobile-stack-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <div className="form-group">
               <label className="form-label">Reference Type</label>
-              <input type="text" className="input-field" value={formData.referenceType} onChange={e => setFormData({...formData, referenceType: e.target.value})} placeholder="e.g. SALE_ORDER" />
+              <input type="text" className="input-field" value={formData.referenceType} onChange={e => setFormData({...formData, referenceType: e.target.value})} placeholder="e.g. SUPPLIER_RETURN" />
             </div>
             <div className="form-group">
               <label className="form-label">Reference No</label>

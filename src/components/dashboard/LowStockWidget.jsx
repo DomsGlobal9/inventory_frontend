@@ -3,13 +3,22 @@ import { useNavigate } from 'react-router-dom';
 import { useAlerts } from '../../hooks/useAlerts';
 import WidgetSkeleton from './WidgetSkeleton';
 import ErrorCard from './ErrorCard';
+import NoAccess from '../NoAccess';
+import { usePermission } from '../../hooks/usePermission';
 
 export default function LowStockWidget() {
-  const { data: alertsData, isLoading, isError } = useAlerts();
+  const { can } = usePermission();
+  const { data: alertsData, isLoading, isError, error } = useAlerts();
   const navigate = useNavigate();
 
+  // The alerts query is switched off for anyone who may not see stock, and an empty answer then
+  // read as "all healthy". The dashboard does not place this widget for them; this is the guard
+  // for anywhere else that does.
+  if (!can('inventory:view')) {
+    return <NoAccess height="400px" message="Stock levels aren't part of your role. Ask whoever manages your team." />;
+  }
   if (isLoading) return <WidgetSkeleton height="400px" />;
-  if (isError) return <ErrorCard message="Failed to load stock alerts." height="400px" />;
+  if (isError) return <ErrorCard message="Could not load stock alerts. Refresh the page to try again." height="400px" error={error} />;
 
   // Combine outOfStock and lowStock, take top 10
   const allAlerts = alertsData?.alerts || [];
@@ -33,7 +42,9 @@ export default function LowStockWidget() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', overflowY: 'auto', flex: 1, paddingRight: '4px' }}>
         {criticalItems.length === 0 ? (
           <div style={{ color: 'var(--text-muted)', fontSize: '14px', textAlign: 'center', marginTop: '32px' }}>
-            All stock levels are healthy.
+            {/* What this list knows is alerts, which are raised as stock moves -- not a check of
+                every item, so it does not claim that everything is fine. */}
+            No low-stock alerts right now.
           </div>
         ) : (
           criticalItems.map(item => (

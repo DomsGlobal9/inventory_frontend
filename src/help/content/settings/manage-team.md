@@ -77,7 +77,7 @@ If only one person is **SUPER ADMIN**, ScaleEzy refuses to switch them off or ch
 
 ## 6. See recent activity
 
-Click **Recent Activity** at the top of **Team & Users**. It lists the last 30 things people did, newest first, with the date and time.
+Click **Recent Activity** at the top of **Team & Users**. It lists the last 30 things people did, newest first, with the date and time. Price look-ups at the till and previews are left out, since they change nothing.
 
 ![The Recent Activity box listing actions such as Priya Reddy changed a team member's status and Priya Reddy created location, each with date and time.](6-recent-activity.webp "Click outside the box or the X to close it.")
 

@@ -21,7 +21,7 @@ In **Inventory**, click [[1]] **−** (Issue Stock) on the item's line.
 ## 2. Fill in the form
 
 1. [[1]] **Quantity to Deduct**: how many pieces. You cannot take more than the store has (the **Max** number).
-2. [[2]] **Reason**: **DAMAGE**, **SAMPLE**, **RETURN TO VENDOR** (back to the supplier) or **SALE**.
+2. [[2]] **Reason**: **DAMAGE**, **SAMPLE** or **RETURN TO VENDOR** (back to the supplier). Nothing is chosen for you: pick one, or the form asks you to. There is no Sale here, because sales take stock off by themselves.
 3. [[3]] **Taken from which shelf?** Choose the shelf the pieces really came off.
 4. Add a **Note**, for example what the damage was. Optional.
 

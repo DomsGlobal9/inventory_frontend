@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useId } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronDown, Check } from 'lucide-react';
 
@@ -36,9 +36,11 @@ const styles = `
     border-color: var(--border-focus, rgba(255, 255, 255, 0.2));
   }
   
-  .custom-select-trigger.open {
+  .custom-select-trigger.open,
+  .custom-select-trigger:focus-visible {
     border-color: var(--border-focus, rgba(255, 255, 255, 0.2));
     box-shadow: 0 0 0 1px var(--border-focus, rgba(255, 255, 255, 0.2));
+    outline: none;
   }
   
   .custom-select-trigger.disabled {
@@ -95,9 +97,15 @@ const styles = `
     transition: all 0.15s ease;
   }
   
-  .custom-select-option:hover {
+  .custom-select-option:hover:not(.disabled),
+  .custom-select-option.active {
     background: var(--bg-hover, rgba(255,255,255,0.05));
     color: var(--text-primary, #fff);
+  }
+
+  .custom-select-option.disabled {
+    cursor: default;
+    opacity: 0.55;
   }
   
   .custom-select-option.selected {
@@ -106,21 +114,55 @@ const styles = `
   }
 `;
 
-export default function Select({ value, onChange, children, className = '', style, disabled, required, variant = 'default' }) {
+/** The words of an option, for type-to-jump. Labels can be arrays like ["Main Store", " (", "MS", ")"]. */
+const textOf = (label) => React.Children.toArray(label).filter(x => typeof x === 'string' || typeof x === 'number').join('');
+
+/**
+ * A dropdown that looks like the app, and behaves like a native <select> for a keyboard and a
+ * screen reader.
+ *
+ * It was mouse-only: the field was a bare div with no tab stop, no role and no keys, so Tab jumped
+ * straight past every filter built on it, and an aria-label passed by the caller went nowhere. It
+ * now follows the ARIA "select-only combobox" pattern -- focus stays on the field, and the list
+ * says which option is highlighted through aria-activedescendant:
+ *   closed: Enter, Space or the arrow keys open it on the chosen option;
+ *   open:   the arrows, Home and End move, Enter or Space picks, Escape or Tab closes;
+ *   either: typing the first letters jumps to the matching option.
+ */
+export default function Select({
+  value, onChange, children, className = '', style, disabled, required, variant = 'default',
+  id, title, 'aria-label': ariaLabel, 'aria-labelledby': ariaLabelledby
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
   const dropdownRef = useRef(null);
   const [menuBox, setMenuBox] = useState(null);
+  // The highlighted option while the list is open -- not chosen yet, as in a native select.
+  const [active, setActive] = useState(-1);
+  const typed = useRef({ text: '', at: 0 });
+  const listId = useId();
+  const optionId = (i) => `${listId}-opt-${i}`;
+  // Read by the document-level Escape handler, which is attached once.
+  const openRef = useRef(false);
+  openRef.current = isOpen;
 
-  // Parse standard <option> children into a usable array
-  const options = React.Children.toArray(children)
+  // Parse standard <option> children into a usable array. Fragments are opened up: a caller that
+  // wraps a group of options in <>...</> (Record Stock Movement's reasons, per type) otherwise got
+  // an empty list that could not be opened, and a form that then refused for want of a reason.
+  const flatten = (nodes) => React.Children.toArray(nodes).flatMap(child =>
+    React.isValidElement(child) && child.type === React.Fragment ? flatten(child.props.children) : [child]);
+  const options = flatten(children)
     .filter(child => React.isValidElement(child) && child.type === 'option')
     .map(child => ({
       value: child.props.value,
-      label: child.props.children
+      label: child.props.children,
+      // A placeholder such as "Choose..." is disabled so it cannot be chosen back. It used to be
+      // clickable here, which quietly un-chose a decision the form then refused.
+      disabled: !!child.props.disabled
     }));
 
-  const selectedOption = options.find(opt => String(opt.value) === String(value)) || options[0];
+  const selectedIndex = options.findIndex(opt => String(opt.value) === String(value));
+  const selectedOption = options[selectedIndex] || options[0];
 
   /**
    * Work out where the menu should sit, in viewport coordinates.
@@ -180,6 +222,25 @@ export default function Select({ value, onChange, children, className = '', styl
     };
   }, [isOpen, positionMenu]);
 
+  // Keep the highlighted option in sight in a long list (a store's variants, say).
+  useEffect(() => {
+    if (!isOpen || active < 0) return;
+    document.getElementById(optionId(active))?.scrollIntoView?.({ block: 'nearest' });
+  }, [isOpen, active, menuBox]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /*
+   * A <label htmlFor> names a real form field, but the field here is a div, so the label would name
+   * nothing. When the caller gave an id and no name of its own, borrow the label that points at it.
+   */
+  const [labelledBy, setLabelledBy] = useState(null);
+  useEffect(() => {
+    if (!id || ariaLabel || ariaLabelledby) return;
+    const label = document.querySelector(`label[for="${CSS.escape(id)}"]`);
+    if (!label) return;
+    if (!label.id) label.id = `${id}-label`;
+    setLabelledBy(label.id);
+  }, [id, ariaLabel, ariaLabelledby]);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       // The menu is portalled out of this component's DOM, so containerRef no longer contains
@@ -190,7 +251,10 @@ export default function Select({ value, onChange, children, className = '', styl
         setIsOpen(false);
       }
     };
-    const handleEscape = (event) => { if (event.key === 'Escape') setIsOpen(false); };
+    // An open menu takes the Escape, so a dialog it sits in does not close along with it.
+    const handleEscape = (event) => {
+      if (event.key === 'Escape' && openRef.current) { event.preventDefault(); setIsOpen(false); }
+    };
     document.addEventListener('mousedown', handleClickOutside);
     document.addEventListener('keydown', handleEscape);
     return () => {
@@ -206,6 +270,60 @@ export default function Select({ value, onChange, children, className = '', styl
     setIsOpen(false);
   };
 
+  /** The next option that can be chosen, `step` away; stays put at either end. */
+  const enabledStep = (from, step) => {
+    for (let i = from + step; i >= 0 && i < options.length; i += step) if (!options[i].disabled) return i;
+    return from;
+  };
+  const firstEnabled = () => enabledStep(-1, 1);
+  const lastEnabled = () => enabledStep(options.length, -1);
+
+  const open = (at) => {
+    if (disabled || options.length === 0) return;
+    setActive(at ?? (selectedIndex >= 0 && !options[selectedIndex].disabled ? selectedIndex : firstEnabled()));
+    setIsOpen(true);
+  };
+
+  /** Typing the start of an option jumps to it; letters typed quickly run together ("ch" for Chanderi). */
+  const jumpTo = (key) => {
+    const now = Date.now();
+    const text = (now - typed.current.at < 700 ? typed.current.text : '') + key.toLowerCase();
+    typed.current = { text, at: now };
+    const from = isOpen ? active : selectedIndex;
+    const order = options.map((_, i) => (from + 1 + i + options.length) % options.length);
+    // The same letter pressed again moves on to the next option starting with it.
+    const needle = text.split('').every(c => c === text[0]) ? text[0] : text;
+    const hit = order.find(i => !options[i].disabled && textOf(options[i].label).trim().toLowerCase().startsWith(needle));
+    if (hit === undefined) return;
+    if (isOpen) setActive(hit);
+    else handleSelect(options[hit].value);
+  };
+
+  const onKeyDown = (e) => {
+    if (disabled) return;
+    const { key } = e;
+    const letter = key.length === 1 && key !== ' ' && !e.ctrlKey && !e.metaKey && !e.altKey;
+    if (!isOpen) {
+      if (key === 'Enter' || key === ' ' || key === 'ArrowDown' || key === 'ArrowUp') { e.preventDefault(); open(); }
+      else if (key === 'Home' || key === 'End') { e.preventDefault(); open(key === 'Home' ? firstEnabled() : lastEnabled()); }
+      else if (letter) jumpTo(key);
+      return;
+    }
+    if (key === 'ArrowDown') { e.preventDefault(); setActive(a => enabledStep(a, 1)); }
+    else if (key === 'ArrowUp') { e.preventDefault(); setActive(a => enabledStep(a, -1)); }
+    else if (key === 'Home') { e.preventDefault(); setActive(firstEnabled()); }
+    else if (key === 'End') { e.preventDefault(); setActive(lastEnabled()); }
+    else if (key === 'Enter' || key === ' ') {
+      e.preventDefault();
+      if (options[active] && !options[active].disabled) handleSelect(options[active].value);
+      else setIsOpen(false);
+    }
+    // preventDefault tells a dialog around this field that the Escape was for the menu.
+    else if (key === 'Escape') { e.preventDefault(); setIsOpen(false); }
+    else if (key === 'Tab') setIsOpen(false);
+    else if (letter) jumpTo(key);
+  };
+
   const cleanClassName = className.replace(/\b(input-field|input)\b/g, '').trim();
 
   return (
@@ -217,8 +335,21 @@ export default function Select({ value, onChange, children, className = '', styl
         style={style}
       >
         <div 
+          id={id}
+          role="combobox"
+          tabIndex={disabled ? -1 : 0}
+          title={title}
+          aria-label={ariaLabel}
+          aria-labelledby={ariaLabel ? undefined : (ariaLabelledby || labelledBy || undefined)}
+          aria-haspopup="listbox"
+          aria-expanded={isOpen}
+          aria-controls={isOpen ? listId : undefined}
+          aria-activedescendant={isOpen && active >= 0 ? optionId(active) : undefined}
+          aria-disabled={disabled || undefined}
+          aria-required={required || undefined}
           className={`custom-select-trigger ${isOpen ? 'open' : ''} ${disabled ? 'disabled' : ''} ${variant === 'ghost' ? 'ghost' : ''}`}
-          onClick={() => !disabled && setIsOpen(!isOpen)}
+          onClick={() => { if (disabled) return; if (isOpen) setIsOpen(false); else open(); }}
+          onKeyDown={onKeyDown}
         >
           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {selectedOption ? selectedOption.label : 'Select...'}
@@ -229,6 +360,12 @@ export default function Select({ value, onChange, children, className = '', styl
         {isOpen && menuBox && createPortal(
           <div
             ref={dropdownRef}
+            id={listId}
+            role="listbox"
+            aria-label={ariaLabel}
+            aria-labelledby={ariaLabel ? undefined : (ariaLabelledby || labelledBy || undefined)}
+            // A click in the list must not take focus off the field, or the keyboard is lost.
+            onMouseDown={(e) => e.preventDefault()}
             className="custom-select-dropdown open"
             style={{
               left: menuBox.left,
@@ -257,8 +394,13 @@ export default function Select({ value, onChange, children, className = '', styl
               return (
                 <div
                   key={i}
-                  className={`custom-select-option ${isSelected ? 'selected' : ''}`}
-                  onClick={() => handleSelect(opt.value)}
+                  id={optionId(i)}
+                  role="option"
+                  aria-selected={isSelected}
+                  aria-disabled={opt.disabled || undefined}
+                  className={`custom-select-option ${isSelected ? 'selected' : ''} ${i === active ? 'active' : ''} ${opt.disabled ? 'disabled' : ''}`}
+                  onMouseEnter={() => { if (!opt.disabled) setActive(i); }}
+                  onClick={() => { if (!opt.disabled) handleSelect(opt.value); }}
                 >
                   <span style={{ whiteSpace: 'nowrap' }}>
                     {opt.label}
@@ -278,6 +420,8 @@ export default function Select({ value, onChange, children, className = '', styl
           disabled={disabled}
           required={required}
           style={{ display: 'none' }}
+          tabIndex={-1}
+          aria-hidden="true"
         >
           {children}
         </select>

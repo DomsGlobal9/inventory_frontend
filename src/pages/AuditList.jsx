@@ -7,6 +7,7 @@ import { ClipboardList, Plus, ChevronRight, Clock, CheckCircle2 } from 'lucide-r
 import { useStockCounts, useCreateStockCount } from '../hooks/useStockCounts';
 import PageLoader from '../components/PageLoader';
 import { useAuth } from '../context/AuthContext';
+import StatusPill from '../components/StockCountStatus';
 
 export default function AuditList() {
   const navigate = useNavigate();
@@ -99,15 +100,7 @@ export default function AuditList() {
                     <div style={{ fontWeight: '500', color: 'var(--text-primary)' }}>{audit.name}</div>
                   </td>
                   <td>
-                    <span style={{ 
-                      padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: '500',
-                      backgroundColor: audit.status === 'COMPLETED' ? 'rgba(16, 185, 129, 0.1)' : 
-                                     audit.status === 'IN_PROGRESS' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(156, 163, 175, 0.1)',
-                      color: audit.status === 'COMPLETED' ? 'var(--accent-success)' : 
-                             audit.status === 'IN_PROGRESS' ? 'var(--accent-gold)' : 'var(--text-secondary)'
-                    }}>
-                      {audit.status.replace('_', ' ')}
-                    </span>
+                    <StatusPill status={audit.status} />
                   </td>
                   <td>
                     <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>
@@ -116,7 +109,8 @@ export default function AuditList() {
                   </td>
                   <td>
                     <span style={{ color: 'var(--text-secondary)' }}>
-                      {audit._count?.items || 0} items
+                      {/* A cancelled count lets go of its lines; how many it held is kept. */}
+                      {(audit.status === 'CANCELLED' ? audit.totalItems : audit._count?.items) || 0} items
                     </span>
                   </td>
                   <td>
@@ -134,7 +128,14 @@ export default function AuditList() {
                     )}
                   </td>
                   <td style={{ textAlign: 'right' }}>
-                    <button className="btn-secondary" style={{ padding: '4px 8px' }}>
+                    {/* Did nothing of its own and had no name, so a screen reader announced "button". */}
+                    <button
+                      className="btn-secondary"
+                      style={{ padding: '4px 8px' }}
+                      onClick={(e) => { e.stopPropagation(); navigate(`/inventory/audits/${audit.id}`); }}
+                      aria-label={`Open ${audit.name}`}
+                      title="Open this count"
+                    >
                       <ChevronRight size={16} />
                     </button>
                   </td>

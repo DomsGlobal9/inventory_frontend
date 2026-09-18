@@ -8,14 +8,7 @@ import Select from '../../components/common/Select';
 import { usePermission } from '../../hooks/usePermission';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { COUNTER_PHONE_QUERY } from '../../hooks/useCounterSale';
-
-const STATUS = {
-  DRAFT: { label: 'Draft', color: '107, 114, 128' },
-  CONFIRMED: { label: 'Confirmed', color: '59, 130, 246' },
-  PARTIALLY_DISPATCHED: { label: 'Partly sent', color: '245, 158, 11' },
-  DISPATCHED: { label: 'Dispatched', color: '16, 185, 129' },
-  CANCELLED: { label: 'Cancelled', color: '239, 68, 68' }
-};
+import { ORDER_STATUS as STATUS } from '../../components/sales/labels';
 
 const PAYMENT = {
   PAID: { label: 'Paid', color: '16, 185, 129' },

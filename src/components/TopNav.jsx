@@ -254,11 +254,47 @@ export default function TopNav({ onMenuClick }) {
       </div>
       
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-        <div className="alert-dropdown-container" style={{ position: 'relative' }}>
-          <button className="btn-icon" onClick={() => setIsAlertMenuOpen(!isAlertMenuOpen)} aria-label="Stock alerts" title="Stock alerts" data-tour="alerts">
+        <div className="alert-dropdown-container" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {/*
+            The "new alert" notice, INSIDE the bar rather than hanging below it.
+
+            It used to drop 40px under the bell as a 250px card, which on every screen is exactly
+            where the page keeps its main buttons: it sat over Import Updates on Products, and on a
+            phone over the page heading and the Active & Drafts filter. Closing on a click or after
+            a few seconds only shortened how long it was in the way. In the bar it covers nothing.
+            On a phone there is no room in the bar for words, so the bell's badge pulses instead.
+          */}
+          {showNotification && !isAlertMenuOpen && (
+            <div className="new-alert-chip" role="status" style={{
+              display: 'flex', alignItems: 'center', gap: '6px', height: '32px', padding: '0 4px 0 10px',
+              borderRadius: '16px', border: '1px solid var(--accent-danger)', background: 'var(--bg-card)',
+              fontSize: '12px', whiteSpace: 'nowrap', animation: 'newAlertIn 0.3s ease-out'
+            }}>
+              <button
+                onClick={() => { setShowNotification(false); setIsAlertMenuOpen(true); }}
+                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--text-primary)', fontSize: '12px', fontWeight: 600 }}
+                title="Open the stock alerts"
+              >
+                {alertData?.unreadCount === 1 ? '1 new stock alert' : `${alertData?.unreadCount} new stock alerts`} · View
+              </button>
+              <button
+                onClick={() => setShowNotification(false)}
+                aria-label="Close this notice"
+                title="Close"
+                style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '0 6px', fontSize: '16px', lineHeight: 1 }}
+              >&times;</button>
+            </div>
+          )}
+          <style>{`
+            @keyframes newAlertIn { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: none; } }
+            @keyframes newAlertPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.35); } }
+            @media (max-width: 900px) { .new-alert-chip { display: none !important; } }
+            .alert-badge.fresh { animation: newAlertPulse 0.9s ease-in-out 4; }
+          `}</style>
+          <button className="btn-icon" onClick={() => setIsAlertMenuOpen(!isAlertMenuOpen)} aria-label="Stock alerts" title="Stock alerts" data-tour="alerts" style={{ position: 'relative' }}>
             <Bell size={20} />
             {alertData?.unreadCount > 0 && (
-              <span style={{
+              <span className={showNotification ? 'alert-badge fresh' : 'alert-badge'} style={{
                 position: 'absolute', top: '-4px', right: '-4px',
                 background: 'var(--accent-danger)', color: 'white',
                 fontSize: '10px', fontWeight: 'bold', padding: '2px 6px',
@@ -269,44 +305,6 @@ export default function TopNav({ onMenuClick }) {
             )}
           </button>
           
-          {/* Notification Toast (New Alert) */}
-          {showNotification && !isAlertMenuOpen && (
-            <div style={{
-              position: 'absolute',
-              top: '40px',
-              right: 0,
-              width: '250px',
-              background: 'var(--bg-card)',
-              border: '1px solid var(--accent-danger)',
-              borderRadius: '8px',
-              padding: '12px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-              zIndex: 50,
-              animation: 'slideDown 0.3s ease-out'
-            }}>
-              <style>{`
-                @keyframes slideDown {
-                  from { opacity: 0; transform: translateY(-10px); }
-                  to { opacity: 1; transform: translateY(0); }
-                }
-              `}</style>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Bell size={16} color="var(--accent-danger)" />
-                <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>New Inventory Alert!</span>
-                <button onClick={() => setShowNotification(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', marginLeft: 'auto', padding: 0 }}>&times;</button>
-              </div>
-              <p style={{ margin: '4px 0 0', fontSize: '12px', color: 'var(--text-secondary)' }}>
-                You have {alertData?.unreadCount} unread alerts.
-              </p>
-              <button 
-                onClick={() => { setShowNotification(false); setIsAlertMenuOpen(true); }}
-                style={{ marginTop: '8px', width: '100%', padding: '6px', background: 'var(--accent-danger)', color: 'white', border: 'none', borderRadius: '4px', fontSize: '12px', cursor: 'pointer' }}
-              >
-                View Now
-              </button>
-            </div>
-          )}
-
           {/* Alert Dropdown Menu */}
           {isAlertMenuOpen && (
             <div style={{

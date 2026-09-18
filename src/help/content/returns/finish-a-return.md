@@ -8,7 +8,7 @@ appLabel: Returns
 keywords: return received arrive inspect check restock damaged scrap complete finish refund put back stock turn down reject
 ---
 
-A return moves through four steps: **REQUESTED** (booked in) → **RECEIVED** (the goods arrived) → **INSPECTED** (checked) → **COMPLETED** (finished). Stock only changes at the last step.
+A return moves through four steps: **Requested** (booked in) → **Received** (the goods arrived) → **Inspected** (checked) → **Completed** (finished). Stock only changes at the last step.
 
 To book a return in first, see [Book in a return](/help/returns/book-a-return).
 
@@ -19,20 +19,20 @@ With the standard roles, **stock room staff, admins and the owner**. Sales staff
 ## 1. Open the return
 
 1. In the menu on the left, click [[1]] **Returns**.
-2. Click [[2]] the return that has arrived. New returns say **REQUESTED**.
+2. Click [[2]] the return that has arrived. New returns say **Requested**.
 
-![The Customer Returns list. Returns is marked 1 in the left menu and a REQUESTED return for Lakshmi Narayanan is marked 2.](1-open.webp "The newest return is at the top.")
+![The Customer Returns list. Returns is marked 1 in the left menu and a Requested return for Lakshmi Narayanan is marked 2.](1-open.webp "The newest return is at the top.")
 
 ## 2. Mark it as received
 
 When the parcel or the customer's bag is in your hands:
 
-1. [[1]] Check the status says **REQUESTED**.
+1. [[1]] Check the status says **Requested**.
 2. Click [[2]] **Mark as Received**.
 
-![The return page. The REQUESTED status is marked 1 and the Mark as Received button is marked 2.](2-mark-as-received.webp "Returned Items shows what should be in the parcel. Count it.")
+![The return page. The Requested status is marked 1 and the Mark as Received button is marked 2.](2-mark-as-received.webp "Returned Items shows what should be in the parcel. Count it.")
 
-The status changes to **RECEIVED**.
+The status changes to **Received**.
 
 ## 3. Check each piece
 
@@ -48,7 +48,7 @@ The status changes to **RECEIVED**.
 
 ![The Inspect Items box. DUP-CHA-PCH set to Restock is marked 1 and the Save Dispositions button is marked 2.](3-inspect-items.webp "Save Dispositions stays grey until every item has a choice.")
 
-The status changes to **INSPECTED**.
+The status changes to **Inspected**.
 
 ## 4. Complete the return
 
@@ -57,7 +57,7 @@ The status changes to **INSPECTED**.
 
 ![The return page after checking. Restock in the Disposition column is marked 1 and the Complete Return button is marked 2.](4-complete-return.webp "After Complete Return you cannot change the choices.")
 
-The status changes to **COMPLETED**. Pieces marked Restock are added back to the stock of the store the order was sold from.
+The status changes to **Completed**. Pieces marked Restock are added back to the stock of the store the order was sold from.
 
 ## 5. Put it on a shelf and give the money back
 
@@ -81,7 +81,7 @@ One or more items still say **Choose…**. Choose Restock, Damaged or Scrap for 
 :::
 
 :::faq The goods never came, or the return was booked by mistake
-Open the return and click **Turn down**, then **Turn down** again in the box. Nothing goes back into stock and nothing is owed. You can do this until the return is completed.
+Open the return and click **Turn down**, then **Turn down** again in the box. Nothing goes back into stock and nothing is owed. The return then says **Turned down**. You can do this until the return is completed.
 :::
 
 :::faq I chose Restock but the piece is damaged
@@ -89,5 +89,5 @@ Before **Complete Return**, click **Inspect Items** and change it. After complet
 :::
 
 :::faq There is no yellow Put away box
-Your shop does not use shelves, your role cannot put stock away, or the pieces are already on a shelf.
+Your shop does not use shelves, your role cannot put stock away, no piece was marked Restock, or the pieces are already on a shelf.
 :::

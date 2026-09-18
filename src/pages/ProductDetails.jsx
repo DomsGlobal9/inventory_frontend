@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
+import { formatRupees } from '../utils/money';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Package, Box, History, Image as ImageIcon, ImageOff, Copy, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -45,6 +46,12 @@ export default function ProductDetails() {
 
   const { data, isLoading, isError } = useProductHook(id);
   const product = data?.data;
+
+  const trashedAt = product?.trashedAt ? new Date(product.trashedAt) : null;
+  const deletableFrom = product?.status === 'TRASHED' && !product?.canHardDelete && trashedAt
+    && /7 days/.test(product?.hardDeleteReason || '')
+    ? new Date(trashedAt.getTime() + 7 * 86400000).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+    : null;
 
   if (isLoading) return <PageLoader text="Loading product details..." />;
   if (isError || !product) return <div style={{ padding: '48px', color: 'var(--text-muted)' }}>Product not found.</div>;
@@ -272,21 +279,21 @@ export default function ProductDetails() {
             </button>
           )}
           {!product.canHardDelete && product.status === 'TRASHED' && (
-            // Was a button that merely LOOKED disabled -- no disabled attribute, no handler --
-            // so pressing it did nothing at all and the reason lived in a title tooltip, which
-            // does not exist on a touch screen and is missed on a desktop. Somebody trying to
-            // delete something got silence. Now the reason is on the page, and pressing it
-            // says the same thing out loud.
+            // Grey and really disabled, with the reason written under it -- and, while it is only
+            // the seven days in the Trash, the date it can go. It used to be pressable and answer
+            // with a toast, which made it look like a button that works and then refuses.
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
               <button
                 className="btn-secondary"
+                disabled
+                aria-describedby="hard-delete-reason"
                 style={{ opacity: 0.5, cursor: 'not-allowed' }}
-                onClick={() => toast(product.hardDeleteReason || 'This product cannot be deleted yet.', { icon: 'ℹ️' })}
               >
                 Permanently Delete
               </button>
-              <span style={{ fontSize: '11px', color: 'var(--text-muted)', maxWidth: '220px' }}>
-                {product.hardDeleteReason}
+              <span id="hard-delete-reason" style={{ fontSize: '11px', color: 'var(--text-muted)', maxWidth: '220px' }}>
+                {product.hardDeleteReason || 'This product cannot be deleted yet.'}
+                {deletableFrom && <>{' '}You can delete it from <strong>{deletableFrom}</strong>.</>}
               </span>
             </div>
           )}
@@ -297,7 +304,7 @@ export default function ProductDetails() {
       <motion.div variants={item} className="mobile-2-col-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', flexShrink: 0 }}>
         <div className="glass-panel" style={{ padding: '20px' }}>
           <p style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Base Price</p>
-          <h2 style={{ fontSize: '24px', margin: '8px 0 0' }}>₹{product.basePrice}</h2>
+          <h2 style={{ fontSize: '24px', margin: '8px 0 0' }}>{formatRupees(product.basePrice)}</h2>
         </div>
         <div className="glass-panel" style={{ padding: '20px' }}>
           <p style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Total Variants</p>

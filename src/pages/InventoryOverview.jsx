@@ -40,7 +40,12 @@ export default function InventoryOverview() {
   });
 
   const { data, isLoading, isError, error, refetch } = useInventoryVariants(filters);
-  const variants = data?.items || [];
+  // One row per item, whatever the page brought back: a row repeated in the answer gave React the
+  // same key twice and it warned (and could draw the wrong row after an update).
+  const variants = React.useMemo(() => {
+    const seen = new Set();
+    return (data?.items || []).filter(v => (seen.has(v.variantId) ? false : seen.add(v.variantId)));
+  }, [data]);
   
   const [modalState, setModalState] = useState({ type: null, variant: null }); // type: 'IN', 'OUT', 'ADJUST'
 

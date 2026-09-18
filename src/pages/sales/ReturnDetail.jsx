@@ -13,6 +13,8 @@ import Select from '../../components/common/Select';
 import PageLoader from '../../components/PageLoader';
 import { formatINRExact } from '../../utils/formatUtils';
 import { PutAwayNotice } from '../../components/shelves/ShelfLinks';
+import { RETURN_STATUS, RETURN_DISPOSITION, StatusPill, describe, returnReasonLabel } from '../../components/sales/labels';
+import { useDialog } from '../../hooks/useDialog';
 
 export default function ReturnDetail() {
   const { id } = useParams();
@@ -22,6 +24,7 @@ export default function ReturnDetail() {
   const [inspectModalOpen, setInspectModalOpen] = useState(false);
   const [confirmReject, setConfirmReject] = useState(false);
   const [inspectionData, setInspectionData] = useState({});
+  const inspectDialogRef = useDialog(inspectModalOpen, { onClose: () => setInspectModalOpen(false) });
 
   const { data: returnData, isLoading } = useQuery({
     queryKey: ['return', id],
@@ -132,25 +135,22 @@ export default function ReturnDetail() {
   const ret = returnData?.data;
   if (!ret) return <div style={{ padding: '24px' }}>Return not found.</div>;
 
-  const getStatusColor = (status) => {
-    switch(status) {
-      case 'REQUESTED': return 'var(--accent-warning)';
-      case 'RECEIVED': return 'var(--accent-primary)';
-      case 'INSPECTED': return 'var(--primary-color)';
-      case 'COMPLETED': return 'var(--accent-success)';
-      case 'REJECTED': return 'var(--accent-danger)';
-      default: return 'var(--text-secondary)';
-    }
+  const getDispositionBadge = (disp) => {
+    const { label, color } = describe(RETURN_DISPOSITION, disp || 'PENDING');
+    return <span style={{ color: `rgb(${color})` }}>{label}</span>;
   };
 
-  const getDispositionBadge = (disp) => {
-    switch(disp) {
-      case 'RESTOCK': return <span style={{ color: 'var(--accent-success)' }}>Restock</span>;
-      case 'DAMAGED': return <span style={{ color: 'var(--accent-danger)' }}>Damaged</span>;
-      case 'SCRAP': return <span style={{ color: 'var(--text-secondary)' }}>Scrap</span>;
-      default: return <span style={{ color: 'var(--accent-warning)' }}>Pending Inspection</span>;
-    }
-  };
+  /*
+   * Only what this return put back into stock can be waiting for a shelf: the Restock lines. The
+   * notice used to be handed every line's item, and counted the store's whole unshelved stock for
+   * any item that was not restocked -- so a return whose one saree was marked Damaged said "2 pieces
+   * of this return are not on a shelf yet". No Restock line, no notice.
+   */
+  const restocked = (ret?.items || []).filter(i => i.disposition === 'RESTOCK').reduce((m, i) => {
+    const v = i.dispatchItem?.salesOrderItem?.variantId;
+    if (v) m[v] = (m[v] ?? 0) + (Number(i.quantity) || 0);
+    return m;
+  }, {});
 
   // Inspection is a one-shot decision: once it's saved the return moves to INSPECTED and
   // can't be re-inspected, so every line must be decided here. Sending only the rows the
@@ -184,29 +184,15 @@ export default function ReturnDetail() {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
             <h1 style={{ fontSize: '28px', margin: 0 }}>{ret.returnNumber}</h1>
-            <span style={{
-              padding: '6px 12px',
-              borderRadius: '4px',
-              fontSize: '13px',
-              fontWeight: 600,
-              backgroundColor: `${getStatusColor(ret.status)}15`,
-              color: getStatusColor(ret.status)
-            }}>
-              {ret.status}
-            </span>
+            <StatusPill map={RETURN_STATUS} value={ret.status} size="large" />
           </div>
           <p style={{ color: 'var(--text-secondary)', margin: 0 }}>
             Order {ret.salesOrder?.orderNumber} • Customer: {ret.salesOrder?.customer?.name}
           </p>
-          {ret.status === 'COMPLETED' && (
+          {ret.status === 'COMPLETED' && Object.keys(restocked).length > 0 && (
             <div style={{ marginTop: 12 }}>
               <PutAwayNotice locationId={ret.salesOrder?.locationId} what="this return"
-                variantIds={(ret.items || []).map(i => i.dispatchItem?.salesOrderItem?.variantId).filter(Boolean)}
-                quantities={(ret.items || []).filter(i => i.disposition === 'RESTOCK').reduce((m, i) => {
-                  const v = i.dispatchItem?.salesOrderItem?.variantId;
-                  if (v) m[v] = (m[v] ?? 0) + (Number(i.quantity) || 0);
-                  return m;
-                }, {})} />
+                variantIds={Object.keys(restocked)} quantities={restocked} />
             </div>
           )}
         </div>
@@ -343,7 +329,7 @@ export default function ReturnDetail() {
               )}
               <div>
                 <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Reason</div>
-                <div style={{ fontWeight: 500 }}>{ret.reason.replace(/_/g, ' ')}</div>
+                <div style={{ fontWeight: 500 }}>{returnReasonLabel(ret.reason)}</div>
               </div>
               <div>
                 <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Created Date</div>
@@ -368,8 +354,9 @@ export default function ReturnDetail() {
 
       {inspectModalOpen && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="card" style={{ width: '500px', maxWidth: '90vw' }}>
-            <h2 style={{ margin: '0 0 16px 0', fontSize: '20px' }}>Inspect Items</h2>
+          <div ref={inspectDialogRef} role="dialog" aria-modal="true" aria-labelledby="inspect-items-title" tabIndex={-1}
+            className="card" style={{ width: '500px', maxWidth: '90vw', maxHeight: 'calc(100dvh - 32px)', overflowY: 'auto' }}>
+            <h2 id="inspect-items-title" style={{ margin: '0 0 16px 0', fontSize: '20px' }}>Inspect Items</h2>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>Select the disposition for each returned item.</p>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
@@ -381,6 +368,7 @@ export default function ReturnDetail() {
                   </div>
                   <Select 
                     className="input-field" 
+                    aria-label={`What to do with ${item.dispatchItem?.salesOrderItem?.variant?.sku || 'this item'}`}
                     style={{ width: '150px' }}
                     value={inspectionData[item.id] || ''}
                     onChange={(e) => setInspectionData({ ...inspectionData, [item.id]: e.target.value })}

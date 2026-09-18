@@ -94,3 +94,26 @@ export const useCompleteStockCount = () => {
     }
   });
 };
+
+// The shop's super admin only; the server refuses everyone else with a sentence, shown as is.
+export const useCancelStockCount = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id) => {
+      const response = await api.post(`/stock-counts/${id}/cancel`);
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success('Count cancelled. No stock was changed.');
+    },
+    onError: (error) => {
+      toast.error(error?.message || 'Could not cancel this count. Refresh and try again.');
+    },
+    // Either way the screen should show where the count now stands: a refusal usually means
+    // somebody else completed or cancelled it a moment ago.
+    onSettled: (_, __, id) => {
+      queryClient.invalidateQueries({ queryKey: ['stock-counts'] });
+      queryClient.invalidateQueries({ queryKey: ['stock-counts', id] });
+    }
+  });
+};

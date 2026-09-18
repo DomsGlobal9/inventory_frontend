@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getProducts, getProductById, createProduct, updateProduct, archiveProduct, trashProduct, restoreProduct, hardDeleteProduct, bulkSetProductStatus } from '../services/product.service';
 import { queryKeys } from '../lib/queryKeys';
@@ -227,4 +228,38 @@ export const useBulkSetProductStatus = () => {
       toast.error(error?.response?.data?.message || error?.message || 'Could not change those products');
     }
   });
+};
+
+/**
+ * Products already called `title` (ignoring case and spaces at the ends), apart from `exceptId`.
+ *
+ * Import Products warns when a file adds a second product of the same name; the Add Product
+ * wizard said nothing, so two "Kanchipuram Silk Saree" could be made by hand without a word.
+ * A warning, never a block -- a shop can genuinely stock two products of one name. Archived ones
+ * count too, as they do on import: they are still the shop's.
+ */
+export const useSameNameProducts = (title: string, exceptId?: string) => {
+  const name = String(title || '').trim();
+  const [settled, setSettled] = useState(name);
+  // Asked once the person stops typing, not on every key.
+  useEffect(() => {
+    const timer = setTimeout(() => setSettled(name), 400);
+    return () => clearTimeout(timer);
+  }, [name]);
+
+  const { data } = useQuery({
+    queryKey: [...queryKeys.products, 'same-name', settled.toLowerCase()],
+    queryFn: async () => {
+      const [current, archived]: any[] = await Promise.all([
+        getProducts({ search: settled, limit: 100 }),
+        getProducts({ search: settled, limit: 100, status: 'ARCHIVED' })
+      ]);
+      return [...(current?.data || []), ...(archived?.data || [])];
+    },
+    enabled: settled.length >= 2,
+    staleTime: 30_000
+  });
+
+  if (settled.length < 2 || settled.toLowerCase() !== name.toLowerCase()) return [];
+  return (data || []).filter((p: any) => p.id !== exceptId && String(p.title || '').trim().toLowerCase() === name.toLowerCase());
 };

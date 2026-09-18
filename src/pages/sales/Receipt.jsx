@@ -27,22 +27,40 @@ export default function Receipt() {
   const printed = useRef(false);
 
   const original = params.get('fresh') === '1' && sale && Date.now() - new Date(sale.createdAt).getTime() < ORIGINAL_WINDOW_MS;
+  /*
+   * Only a sale made at the counter has a receipt. No button leads here for an online or Shopify
+   * order, but the address did, and it printed a till receipt for an order the shop never rang up
+   * -- ending "Due 12,980.00" for an order paid elsewhere.
+   */
+  const notCounter = !!sale && sale.atCounter === false;
 
   useEffect(() => {
-    if (sale && params.get('print') === '1' && !printed.current) {
+    if (sale && !notCounter && params.get('print') === '1' && !printed.current) {
       printed.current = true;
       // A moment for the logo to arrive, or it prints as an empty box.
       const t = setTimeout(() => window.print(), 400);
       return () => clearTimeout(t);
     }
-  }, [sale, params]);
+  }, [sale, notCounter, params]);
 
   useEffect(() => {
-    if (sale) document.title = `Receipt ${sale.orderNumber}`;
-  }, [sale]);
+    if (sale && !notCounter) document.title = `Receipt ${sale.orderNumber}`;
+  }, [sale, notCounter]);
 
   if (isLoading) return <div style={{ padding: 48, textAlign: 'center' }}><Loader2 className="animate-spin" /></div>;
   if (isError || !sale) return <div style={{ padding: 48, textAlign: 'center', color: 'var(--text-secondary)' }}>{error?.message || 'Receipt not found.'}</div>;
+  if (notCounter) {
+    return (
+      <div style={{ padding: 48, display: 'grid', justifyItems: 'center', gap: 16, textAlign: 'center' }}>
+        <p style={{ margin: 0, color: 'var(--text-secondary)', maxWidth: 420 }}>
+          Receipts are only for sales made at the counter with New sale. Order {sale.orderNumber} was not sold at the counter.
+        </p>
+        <button className="btn-secondary" onClick={() => navigate(`/orders/${sale.id}`)} style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}>
+          <ArrowLeft size={15} /> Back to the order
+        </button>
+      </div>
+    );
+  }
 
   const when = new Date(sale.createdAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' });
   const payments = sale.payments.filter(p => p.kind === 'PAYMENT');

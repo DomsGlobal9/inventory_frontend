@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { api } from '../lib/api';
 import { optimisticRowPatch, restoreRows } from '../lib/invalidate';
@@ -22,6 +22,18 @@ export const useTeamActivity = () => {
     queryKey: ['team', 'activity'],
     queryFn: async () => (await api.get('/team/activity')).data,
     refetchInterval: 30000
+  });
+};
+
+// Security log: sign-ins, passwords, roles and team changes. Paged by time, newest first.
+export const useSecurityLog = (enabled) => {
+  return useInfiniteQuery({
+    queryKey: ['team', 'security-log'],
+    enabled,
+    initialPageParam: null,
+    queryFn: async ({ pageParam }) =>
+      (await api.get('/team/security-log', { params: { limit: 50, ...(pageParam ? { before: pageParam } : {}) } })).data,
+    getNextPageParam: (last) => (last?.hasMore && last.entries?.length ? last.entries[last.entries.length - 1].at : undefined)
   });
 };
 

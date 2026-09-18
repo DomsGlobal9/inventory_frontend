@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useId } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, X, Loader2 } from 'lucide-react';
+import { useDialog } from '../hooks/useDialog';
 
 export default function ConfirmModal({ isOpen, onClose, onConfirm, title, message, confirmText = 'Confirm', confirmStyle = 'primary', requireTypeToConfirm = null }) {
   const [typedText, setTypedText] = useState('');
@@ -39,6 +40,15 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, title, messag
       inFlight.current = false;
     }
   }, [isOpen]);
+
+  /*
+   * A real dialog to a keyboard and a screen reader: focus lands on Cancel (the safe answer to
+   * "Cancel this order?"), Tab stays inside, Escape closes, and focus goes back to the button that
+   * opened it. It was a plain div -- Tab walked out into the page behind and Escape did nothing.
+   * Escape is refused while the action runs, like every other way of closing.
+   */
+  const titleId = useId();
+  const dialogRef = useDialog(isOpen, { onClose, canClose: !busy, initialFocus: '[data-dialog-cancel]' });
   if (!isOpen) return null;
 
   /** Nothing dismisses this modal while the action it started is still in flight. */
@@ -75,6 +85,11 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, title, messag
         onClick={(e) => { if (e.target === e.currentTarget) closeIfIdle(); }}
       >
         <motion.div
+          ref={dialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={titleId}
+          tabIndex={-1}
           initial={{ scale: 0.95, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.95, opacity: 0, y: 20 }}
@@ -92,10 +107,12 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, title, messag
             <div style={{ padding: '8px', borderRadius: '50%', backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--accent-warning)' }}>
                <AlertTriangle size={24} />
             </div>
-            <h2 style={{ fontSize: '18px', fontWeight: '600', margin: 0, color: 'var(--text-primary)' }}>{title}</h2>
+            <h2 id={titleId} style={{ fontSize: '18px', fontWeight: '600', margin: 0, color: 'var(--text-primary)', paddingRight: '28px' }}>{title}</h2>
             <button 
+              type="button"
               onClick={closeIfIdle}
               disabled={busy}
+              aria-label="Close"
               className="btn-icon"
               style={{ position: 'absolute', top: '20px', right: '20px', opacity: busy ? 0.4 : 1, cursor: busy ? 'not-allowed' : 'pointer' }}
             >
@@ -124,11 +141,12 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, title, messag
           </div>
 
           <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border-light)', display: 'flex', justifyContent: 'flex-end', gap: '12px', backgroundColor: 'var(--bg-dark)' }}>
-            <button onClick={closeIfIdle} disabled={busy} className="btn-secondary"
+            <button type="button" data-dialog-cancel onClick={closeIfIdle} disabled={busy} className="btn-secondary"
               style={{ opacity: busy ? 0.4 : 1, cursor: busy ? 'not-allowed' : 'pointer' }}>
               Cancel
             </button>
             <button 
+              type="button"
               onClick={handleConfirm}
               className={confirmStyle === 'danger' ? 'btn-danger' : 'btn-primary'}
               style={{

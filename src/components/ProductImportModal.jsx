@@ -1,4 +1,6 @@
 import React, { useState, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { invalidateDerivedViews } from '../lib/invalidate';
 import { X, Upload, Download, Loader2, AlertTriangle, CheckCircle2, FileSpreadsheet } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { api } from '../lib/api';
@@ -51,6 +53,7 @@ const IssueList = ({ items, tone, icon: Icon, title, limit = 8 }) => {
 };
 
 export default function ProductImportModal({ isOpen, onClose, onImported }) {
+  const queryClient = useQueryClient();
   const [file, setFile] = useState(null);
   const [rows, setRows] = useState(null);
   const [plan, setPlan] = useState(null);
@@ -101,6 +104,9 @@ export default function ProductImportModal({ isOpen, onClose, onImported }) {
       const res = await api.post('/products/import/apply', { rows, fingerprint: plan.fingerprint });
       const d = res.data;
       toast.success(`Imported ${d.createdProducts} products and ${d.createdVariants + d.updatedVariants} variants`);
+      // Stock, values and alerts all moved: the bell and Stock alerts are re-checked on the
+      // server, and every screen that shows them asks again.
+      invalidateDerivedViews(queryClient);
       onImported?.();
       close();
     } catch (err) {

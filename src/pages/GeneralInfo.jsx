@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { useProduct } from '../context/ProductContext';
 import { useCatalogData } from '../hooks/useCatalogConfig';
 import Dropdown from '../components/Dropdown';
+import { useSameNameProducts } from '../hooks/useProducts';
 
 export default function GeneralInfo() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ export default function GeneralInfo() {
 
   const PRODUCT_TYPES_LABELS = productTypes.map(p => p.label ?? p);
   const DRESS_TYPES = dressByCategory[productData.category] || [];
+  const sameName = useSameNameProducts(productData.title, productData.id);
 
   return (
     <div className="animate-fade-in mobile-no-scroll" style={{ display: 'flex', flexDirection: 'column', gap: '24px', flex: 1, minHeight: 0 }}>
@@ -29,6 +31,11 @@ export default function GeneralInfo() {
               maxLength={120}
               onChange={(e) => updateProductData('title', e.target.value)}
             />
+            {sameName.length > 0 && (
+              <p role="status" style={{ margin: '6px 0 0', fontSize: '13px', color: 'var(--accent-gold)' }}>
+                You already have a product called "{sameName[0].title}"{sameName[0].productCode ? ` (${sameName[0].productCode})` : ''}. Saving adds a second one. Change the name if it is not a different product.
+              </p>
+            )}
           </div>
 
           <div className="mobile-col" style={{ display: 'flex', gap: '24px' }}>
@@ -51,6 +58,7 @@ export default function GeneralInfo() {
                 value={productData.dressType}
                 placeholder="Select Dress Type"
                 options={DRESS_TYPES}
+                emptyText={productData.category ? undefined : 'Choose a Product Category first.'}
                 onChange={(val) => updateProductData('dressType', val)}
               />
             </div>

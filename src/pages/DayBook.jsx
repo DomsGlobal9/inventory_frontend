@@ -7,7 +7,6 @@ import {
 import { useDayBook } from '../hooks/useDayBook';
 import { useLocationContext } from '../contexts/LocationContext';
 import { useAuth } from '../context/AuthContext';
-import { buildWhatsAppUrl } from '../utils/whatsappUtils';
 import toast from 'react-hot-toast';
 import { pdf } from '@react-pdf/renderer';
 import DayBookPDF from '../components/DayBookPDF';
@@ -88,7 +87,10 @@ export default function DayBook() {
     user?.name || ''
   ].filter(Boolean).join('\n') : '';
 
-  const waUrl = buildWhatsAppUrl(user?.phone || '0000000000', summaryText);
+  // No number: WhatsApp then asks who to send it to. The day book goes to a partner, an
+  // accountant or a family group, never to a fixed chat -- and the old stand-in number built
+  // wa.me/910000000000 for anyone without a phone saved, a chat that does not exist.
+  const waUrl = summaryText ? `https://wa.me/?text=${encodeURIComponent(summaryText)}` : null;
 
   // The document is built only when it is asked for. A PDFDownloadLink renders the whole PDF
   // on every page render, so it would rebuild each time the date or location changes, for a

@@ -11,6 +11,7 @@ import ProductImportModal from '../components/ProductImportModal';
 import PageLoader from '../components/PageLoader';
 import Select from '../components/common/Select';
 import ConfirmModal from '../components/ConfirmModal';
+import { formatRupees } from '../utils/money';
 
 
 export default function Products() {
@@ -302,7 +303,7 @@ export default function Products() {
                   <td style={{ color: product.variantSummary?.lowStockVariants > 0 ? 'var(--accent-danger)' : 'inherit', fontWeight: '500' }}>
                     {product.variantSummary?.totalUnits || 0}
                   </td>
-                  <td style={{ fontWeight: '500' }}>₹{product.basePrice}</td>
+                  <td style={{ fontWeight: '500', whiteSpace: 'nowrap' }}>{formatRupees(product.basePrice)}</td>
                   <td>
                     <span style={{ 
                       padding: '4px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: '600', textTransform: 'uppercase',

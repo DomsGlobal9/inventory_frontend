@@ -6,8 +6,9 @@ import { useAuth } from '../context/AuthContext';
 import {
   useTeamMembers, useTeamRoles, useTeamActivity, useInviteTeamMember, useUpdateTeamMemberRole,
   useSetTeamMemberStatus, useViewTeamMemberPassword, useSetTeamMemberPassword,
-  useResendTeamMemberCredentials
+  useResendTeamMemberCredentials, useSecurityLog
 } from '../hooks/useTeam';
+import { useDialog } from '../hooks/useDialog';
 import { buildCredentialWhatsapp } from '../lib/credentialShare';
 import Select from './common/Select';
 
@@ -25,7 +26,7 @@ function RecentActivity({ onClose }) {
             </div>
             <div>
               <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>Recent Activity</h3>
-              <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '2px 0 0 0' }}>Security and access events</p>
+              <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '2px 0 0 0' }}>What your team changed lately. Sign-ins and passwords are in the Security log.</p>
             </div>
           </div>
           <button onClick={onClose} style={{ background: 'var(--bg-input)', border: '1px solid var(--border-light)', cursor: 'pointer', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '8px' }}><X size={16} /></button>
@@ -56,6 +57,83 @@ function RecentActivity({ onClose }) {
                   </div>
                 );
               })}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Who signed in, who viewed or set a password, and who changed a role or the team -- kept for
+ * months, unlike Recent Activity. Refused and failed attempts are marked so they stand out.
+ */
+function SecurityLog({ onClose }) {
+  const dialogRef = useDialog(true, { onClose });
+  const { data, isLoading, isError, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } = useSecurityLog(true);
+  const entries = data?.pages.flatMap(p => p.entries ?? []) ?? [];
+  const days = data?.pages[0]?.keptForDays ?? 180;
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', backdropFilter: 'blur(4px)' }} onClick={onClose}>
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="security-log-title" tabIndex={-1}
+        style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '600px', maxHeight: '85vh', display: 'flex', flexDirection: 'column', boxShadow: 'var(--shadow-modal)' }} onClick={e => e.stopPropagation()}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
+            <div style={{ padding: '8px', background: 'var(--bg-input)', borderRadius: '8px', color: 'var(--text-secondary)' }}>
+              <Shield size={20} />
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <h3 id="security-log-title" style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>Security log</h3>
+              <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '2px 0 0 0' }}>
+                Sign-ins, passwords, roles and team changes. Kept for {days} days.
+              </p>
+            </div>
+          </div>
+          <button onClick={onClose} aria-label="Close the security log" style={{ background: 'var(--bg-input)', border: '1px solid var(--border-light)', cursor: 'pointer', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '8px', flexShrink: 0 }}><X size={16} /></button>
+        </div>
+
+        <div style={{ flex: 1, overflowY: 'auto', minHeight: '200px', paddingRight: '4px' }}>
+          {isLoading ? (
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '40px', color: 'var(--text-muted)' }}>
+              <Loader2 size={24} className="animate-spin" />
+            </div>
+          ) : isError ? (
+            <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '14px' }}>
+              Could not load the security log.{' '}
+              <button onClick={() => refetch()} className="btn-secondary" style={{ marginLeft: '8px', padding: '4px 12px' }}>Try again</button>
+            </div>
+          ) : entries.length === 0 ? (
+            <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '14px', border: '1px dashed var(--border-light)', borderRadius: '10px', background: 'var(--bg-input)' }}>
+              Nothing recorded in the last {days} days.
+            </div>
+          ) : (
+            <ul style={{ display: 'flex', flexDirection: 'column', gap: '8px', listStyle: 'none', margin: 0, padding: 0 }}>
+              {entries.map(entry => (
+                <li key={entry.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '12px 14px', border: `1px solid ${entry.warning ? 'var(--status-error, #d9534f)' : 'var(--border-light)'}`, borderRadius: '10px', background: 'var(--bg-input)' }}>
+                  <span style={{ marginTop: '2px', flexShrink: 0 }} aria-hidden="true">
+                    {entry.warning ? <Shield size={16} color="var(--status-error, #d9534f)" /> : <ShieldCheck size={16} color="var(--text-secondary)" />}
+                  </span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)', marginBottom: '2px', overflowWrap: 'anywhere' }}>
+                      {entry.warning && <span style={{ color: 'var(--status-error, #d9534f)', fontWeight: 600 }}>Check this: </span>}
+                      {entry.sentence}
+                    </div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                      {new Date(entry.at).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      {entry.ipAddress ? ` · from ${entry.ipAddress.replace(/^::ffff:/, '')}` : ''}
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+          {hasNextPage && (
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px' }}>
+              <button onClick={() => fetchNextPage()} disabled={isFetchingNextPage} className="btn-secondary" style={{ padding: '6px 16px' }}>
+                {isFetchingNextPage ? 'Loading…' : 'Show older'}
+              </button>
             </div>
           )}
         </div>
@@ -358,6 +436,7 @@ export default function TeamManager() {
   const { data: roles } = useTeamRoles();
   const [showInvite, setShowInvite] = useState(false);
   const [showActivity, setShowActivity] = useState(false);
+  const [showSecurity, setShowSecurity] = useState(false);
   const [passwordTarget, setPasswordTarget] = useState(null);
 
   const updateRoleMutation = useUpdateTeamMemberRole();
@@ -410,6 +489,9 @@ export default function TeamManager() {
         <div className="team-head-actions">
           <button onClick={() => setShowActivity(true)} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', flexShrink: 0 }}>
             <Activity size={16} /> Recent Activity
+          </button>
+          <button onClick={() => setShowSecurity(true)} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', flexShrink: 0 }}>
+            <Shield size={16} /> Security log
           </button>
           {!showInvite && (
             <button onClick={() => setShowInvite(true)} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', flexShrink: 0 }}>
@@ -506,6 +588,7 @@ export default function TeamManager() {
       )}
 
       {showActivity && <RecentActivity onClose={() => setShowActivity(false)} />}
+      {showSecurity && <SecurityLog onClose={() => setShowSecurity(false)} />}
       {passwordTarget && <PasswordManager member={passwordTarget} onClose={() => setPasswordTarget(null)} />}
     </div>
   );

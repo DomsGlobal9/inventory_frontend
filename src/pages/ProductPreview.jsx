@@ -2,8 +2,9 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Image as ImageIcon, CheckCircle, Loader2, ArrowLeft, Eye } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { hasPartPaise, PAISA_MESSAGE } from '../utils/money';
 import { useProduct } from '../context/ProductContext';
-import { useCreateProduct, useUpdateProduct } from '../hooks/useProducts';
+import { useCreateProduct, useUpdateProduct, useSameNameProducts } from '../hooks/useProducts';
 import { mapProductFormToApiPayload } from '../mappers/product.mapper';
 import { buildVariantSku } from '../utils/skuUtils';
 import { bulkCreateVariants } from '../services/variant.service';
@@ -44,6 +45,7 @@ export default function ProductPreview() {
 
   const createMutation = useCreateProduct();
   const updateMutation = useUpdateProduct();
+  const sameName = useSameNameProducts(productData.title, productData.id);
 
   // The same resolution the picker used, from the same module. This is the screen that
   // actually writes colorName onto the variant, so a copy that disagreed with the picker
@@ -133,6 +135,11 @@ export default function ProductPreview() {
   const canPublish = checklist.every(item => item.done);
 
   const handlePublish = async ({ publish }) => {
+    // Step 2 refuses these too; this is for a price changed and come straight back to.
+    if (hasPartPaise(productData.price) || hasPartPaise(productData.costPrice)) {
+      toast.error(PAISA_MESSAGE);
+      return;
+    }
     // `isPublished` is what product.mapper.ts reads to decide ACTIVE vs DRAFT, and nothing
     // in the app ever set it -- so every product created through this wizard was written as
     // DRAFT no matter what, and there is no other UI anywhere that can activate one
@@ -602,6 +609,13 @@ export default function ProductPreview() {
               </div>
             ))}
           </div>
+
+          {/* Said here, where the saving happens, as well as under the name on step 1. */}
+          {sameName.length > 0 && (
+            <div role="status" style={{ padding: '10px 12px', marginBottom: '16px', borderRadius: '4px', fontSize: '13px', lineHeight: 1.4, background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', color: 'var(--text-primary)' }}>
+              You already have a product called "{sameName[0].title}"{sameName[0].productCode ? ` (${sameName[0].productCode})` : ''}. Saving adds a second one. Go back and change the name if it is not a different product.
+            </div>
+          )}
 
           <button
             className="btn-primary"

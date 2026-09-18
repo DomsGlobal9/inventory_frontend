@@ -4,13 +4,12 @@ import { IndianRupee, FileText, AlertTriangle, Package, Box } from 'lucide-react
 import SummaryCard from './SummaryCard';
 import { formatINR, formatNumber } from '../../utils/formatUtils';
 import WidgetSkeleton from './WidgetSkeleton';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useLocationContext } from '../../contexts/LocationContext';
 import NoAccess from '../NoAccess';
 import { isPermissionError } from '../../lib/access';
 
 export default function SummaryCards({ data, isLoading, isError, error, noAccess }) {
-  const navigate = useNavigate();
   const { currentLocation } = useLocationContext();
 
   // Known before asking, so the panel is there immediately rather than after a refused
@@ -99,7 +98,7 @@ export default function SummaryCards({ data, isLoading, isError, error, noAccess
       icon: IndianRupee,
       colorClass: '#3b82f6',
       bgColorClass: 'rgba(59, 130, 246, 0.1)',
-      onClick: () => navigate('/inventory')
+      to: '/inventory'
     },
     {
       title: "Open PO Value",
@@ -108,7 +107,7 @@ export default function SummaryCards({ data, isLoading, isError, error, noAccess
       colorClass: 'var(--accent-gold)',
       bgColorClass: 'rgba(245, 158, 11, 0.1)',
       // /purchase-orders does not exist and fell through to the dashboard; the list reads ?filter=open.
-      onClick: () => navigate('/inventory/purchase-orders?filter=open')
+      to: '/inventory/purchase-orders?filter=open'
     },
     {
       title: "Low Stock Count",
@@ -122,7 +121,7 @@ export default function SummaryCards({ data, isLoading, isError, error, noAccess
       icon: AlertTriangle,
       colorClass: safeData?.lowStockCount > 0 ? 'var(--accent-danger)' : 'var(--text-secondary)',
       bgColorClass: safeData?.lowStockCount > 0 ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255, 255, 255, 0.05)',
-      onClick: () => navigate('/inventory?filter=low_stock')
+      to: '/inventory?filter=low_stock'
     },
     {
       title: "Dead Stock Value",
@@ -130,7 +129,7 @@ export default function SummaryCards({ data, isLoading, isError, error, noAccess
       icon: Box,
       colorClass: safeData?.deadStockValue > 0 ? 'var(--accent-warning)' : 'var(--text-secondary)',
       bgColorClass: safeData?.deadStockValue > 0 ? 'rgba(249, 115, 22, 0.1)' : 'rgba(255, 255, 255, 0.05)',
-      onClick: () => navigate('/inventory?filter=dead_stock')
+      to: '/inventory?filter=dead_stock'
     },
     {
       title: "Active Products",
@@ -138,7 +137,7 @@ export default function SummaryCards({ data, isLoading, isError, error, noAccess
       icon: Package,
       colorClass: 'var(--accent-success)',
       bgColorClass: 'rgba(16, 185, 129, 0.1)',
-      onClick: () => navigate('/products')
+      to: '/products'
     }
   ];
 
@@ -149,8 +148,10 @@ export default function SummaryCards({ data, isLoading, isError, error, noAccess
 
   return (
     <motion.div variants={itemVariants} className="dashboard-grid">
+      {/* Links, because each tile opens a list: reachable with Tab, opened with Enter, and read
+          out as a link with its figure. They were bare divs with a click handler -- mouse only. */}
       {cards.map((card, index) => (
-        <div key={index} onClick={card.onClick} style={{ cursor: 'pointer' }}>
+        <Link key={index} to={card.to} className="dash-focus" style={{ display: 'block', color: 'inherit', textDecoration: 'none', borderRadius: '12px' }}>
           <SummaryCard
             title={card.title}
             value={card.value}
@@ -159,8 +160,9 @@ export default function SummaryCards({ data, isLoading, isError, error, noAccess
             icon={card.icon}
             colorClass={card.colorClass}
             bgColorClass={card.bgColorClass}
+            clickable
           />
-        </div>
+        </Link>
       ))}
     </motion.div>
   );

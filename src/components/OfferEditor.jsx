@@ -491,7 +491,40 @@ export default function OfferEditor({ offer, onClose, onSave }) {
   // An empty or unreadable start date used to throw while building the request, and the catch below
   // took it for a failed save: the spinner stopped and nothing was said.
   const noStart = !form.startsAt || Number.isNaN(momentOf(form.startsAt, form.startsTime).getTime());
-  const blocked = nothingSells || noDays || noGroups || noStart;
+
+  /*
+   * What stops this offer being saved, in the server's own terms, so the button can be greyed with
+   * the reason beside it. It used to be always pressable: a 150% offer read "150% off everything"
+   * underneath -- a sentence the till would never honour -- and only the server said no.
+   * `wrong` is a value that cannot work (said in red); `missing` is something not filled in yet.
+   */
+  const valueText = String(form.value ?? '').trim();
+  const valueNumber = Number(valueText);
+  const wrong =
+    valueText !== '' && !Number.isFinite(valueNumber) ? 'Enter how much it takes off as a number.'
+    : valueText !== '' && valueNumber <= 0 ? 'An offer has to take off more than nothing.'
+    : form.valueType === 'PERCENTAGE' && valueNumber > 100 ? 'A percentage cannot be more than 100.'
+    : form.valueType === 'PERCENTAGE' && String(form.maxDiscount).trim() !== '' && !(Number(form.maxDiscount) > 0)
+      ? 'A cap has to be more than nothing. Leave it empty for no cap.'
+    : null;
+  const whatToPick = { CATEGORY: 'departments', DRESS_TYPE: 'types of garment', PRODUCT: 'products', VARIANT: 'items' }[scope] ?? 'items';
+  const missing =
+    !form.name.trim() ? 'Give the offer a name.'
+    : valueText === '' ? 'Enter how much it takes off.'
+    : form.trigger === 'CODE' && !uniqueCodes && !form.couponCode.trim() ? 'Type the code customers will use.'
+    : scope !== 'ALL' && picked.length === 0 ? `Choose which ${whatToPick} this applies to.`
+    : noStart ? 'Say when the offer starts.'
+    : nothingSells ? 'Tick at least one place it sells at.'
+    : noDays ? 'Choose at least one day for its hours.'
+    : noGroups ? 'Choose at least one customer group.'
+    : null;
+  // Retired while this was open -- by someone else, or from another tab. Saving could only be
+  // refused, so it is said here instead of after the merchant has typed their changes.
+  const retired = offer?.status === 'ARCHIVED'
+    ? 'This offer has been retired, so it cannot be changed. Close this and use Duplicate to copy it into a new one.'
+    : null;
+  const stopReason = retired ?? wrong ?? missing;
+  const blocked = Boolean(stopReason);
 
   const submit = async () => {
     if (inFlight.current || blocked) return;
@@ -586,7 +619,10 @@ export default function OfferEditor({ offer, onClose, onSave }) {
                 </select>
               </Field>
               <Field label={form.valueType === 'PERCENTAGE' ? 'Percent' : 'Amount (₹)'} hint={valueHint} htmlFor="offer-value">
-                <input id="offer-value" className="input-field" type="number" min="0" step="0.01" inputMode="decimal" style={{ width: '100%' }}
+                <input id="offer-value" className="input-field" type="number" min="0" step="0.01" inputMode="decimal"
+                  max={form.valueType === 'PERCENTAGE' ? 100 : undefined}
+                  aria-invalid={Boolean(wrong) || undefined} aria-describedby="offer-editor-status"
+                  style={{ width: '100%', ...(wrong ? { borderColor: 'var(--accent-danger)' } : {}) }}
                   value={form.value} onChange={set('value')} />
               </Field>
             </div>
@@ -824,12 +860,15 @@ export default function OfferEditor({ offer, onClose, onSave }) {
         </div>
 
         <div style={{ borderTop: '1px solid var(--border-light)', backgroundColor: 'var(--bg-dark)' }}>
-          <div aria-live="polite" style={{ padding: '12px 24px 0', fontSize: '13px', lineHeight: 1.5, color: noStart ? 'var(--accent-danger)' : summary.sentence ? 'var(--text-primary)' : 'var(--text-muted)' }}>
-            {noStart ? 'Say when the offer starts.' : summary.sentence ?? 'Enter how much it takes off to see what this offer will do.'}
+          {/* The offer in one sentence -- or, while it cannot be saved, why not. Never the sentence
+              for a value that will be refused. */}
+          <div id="offer-editor-status" aria-live="polite" style={{ padding: '12px 24px 0', fontSize: '13px', lineHeight: 1.5, color: retired || wrong || noStart ? 'var(--accent-danger)' : missing ? 'var(--text-secondary)' : 'var(--text-primary)' }}>
+            {stopReason ?? summary.sentence ?? 'Enter how much it takes off to see what this offer will do.'}
           </div>
           <div style={{ padding: '12px 24px 16px', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
             <button className="btn-secondary" onClick={onClose} disabled={saving}>Cancel</button>
             <button className="btn-primary" onClick={submit} disabled={saving || blocked}
+              aria-describedby="offer-editor-status" title={stopReason ?? undefined}
               style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               {saving && <Loader2 size={16} className="animate-spin" />}
               {saving ? 'Saving...' : offer ? 'Save changes' : 'Create offer'}

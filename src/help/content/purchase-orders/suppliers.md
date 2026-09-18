@@ -86,3 +86,7 @@ The supplier has no email address. Add one with **Edit Supplier**. Also check th
 :::faq Items We Buy Here is empty
 Nothing has been ordered from this supplier in ScaleEzy yet. Items appear after your first purchase order to them.
 :::
+
+:::faq "... is already a supplier"
+Another supplier already has that name, even if the capitals or spaces differ. Use that supplier, or add something to the name to tell them apart, such as the town. A supplier that was switched off still counts: switch it back on instead.
+:::

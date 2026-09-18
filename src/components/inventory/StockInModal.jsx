@@ -51,12 +51,13 @@ export default function StockInModal({ variant, onClose }) {
 
   return (
     <AnimatePresence>
-      <motion.div
+      {/* Keyed: AnimatePresence tells its children apart by key, and two unkeyed ones made React warn of a repeated key every time this opened. */}
+      <motion.div key="backdrop"
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 999, backdropFilter: 'blur(4px)' }}
         onClick={onClose}
       />
-      <motion.div
+      <motion.div key="panel"
         initial={{ opacity: 0, y: 50, scale: 0.95, x: '-50%', y: '-50%' }}
         animate={{ opacity: 1, y: '-50%', scale: 1, x: '-50%' }}
         exit={{ opacity: 0, scale: 0.95, y: '-40%', x: '-50%' }}

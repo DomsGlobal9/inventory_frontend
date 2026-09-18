@@ -12,6 +12,7 @@ import { normalisePhone, formatPhone, typedPhone } from '../../utils/phone';
 import { formatINRExact } from '../../utils/formatUtils';
 import ItemSearch from '../../components/sales/counter/ItemSearch';
 import PaymentPanel, { buildPayments, paise, EMPTY_PAYMENT } from '../../components/sales/counter/PaymentPanel';
+import ConfirmModal from '../../components/ConfirmModal';
 
 const rupees = (p) => formatINRExact(p / 100);
 
@@ -100,6 +101,7 @@ export default function NewSale() {
   const [sale, setSale] = useState(null);
   const [done, setDone] = useState(null);
   const [codeInput, setCodeInput] = useState('');
+  const [confirmClear, setConfirmClear] = useState(false);
   const complete = useCompleteSale();
   // Set in the same tick as the press. isPending only changes on the next render, so a quick double
   // press sent the sale twice -- harmless, the sale id makes it one sale, but a request too many.
@@ -295,6 +297,16 @@ export default function NewSale() {
   const card = { background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: 14, padding: 16, display: 'grid', gap: 12 };
   const busy = complete.isPending;
 
+  /*
+   * Clear asks first when it would throw work away. One click next to the heading used to wipe the
+   * customer, every line, every discount and the saved basket, with no way back -- an easy slip
+   * while reaching for something else at a busy counter. A number typed on its own is not worth a
+   * question: it is quicker to type again than to answer one.
+   */
+  const clearNow = () => { setSale(newSale(null)); setDone(null); setCodeInput(''); };
+  const somethingToLose = items.length > 0 || sale.codes.length > 0 || !!sale.billManual || !!sale.name?.trim() || !!sale.email?.trim();
+  const askToClear = () => { if (somethingToLose) setConfirmClear(true); else clearNow(); };
+
   return (
     <div style={{ display: 'grid', gap: 16, paddingTop: 16, paddingBottom: 32 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
@@ -303,8 +315,8 @@ export default function NewSale() {
           <h1 style={{ fontSize: 26, margin: 0 }}>New sale</h1>
           <div style={{ color: 'var(--text-secondary)', fontSize: 14 }}>Selling from {currentLocation.name}</div>
         </div>
-        {(items.length > 0 || sale.phone) && (
-          <button className="btn-secondary" disabled={busy} onClick={() => { setSale(newSale(null)); setDone(null); }} style={{ fontSize: 13 }}>Clear</button>
+        {(items.length > 0 || sale.phone || sale.codes.length > 0) && (
+          <button className="btn-secondary" disabled={busy} onClick={askToClear} style={{ fontSize: 13 }}>Clear</button>
         )}
       </div>
 
@@ -477,6 +489,15 @@ export default function NewSale() {
           </section>
         </div>
       </div>
+      <ConfirmModal
+        isOpen={confirmClear}
+        onClose={() => setConfirmClear(false)}
+        onConfirm={clearNow}
+        title="Clear this sale?"
+        message="The customer, items and discounts are removed."
+        confirmText="Clear"
+        confirmStyle="danger"
+      />
     </div>
   );
 }

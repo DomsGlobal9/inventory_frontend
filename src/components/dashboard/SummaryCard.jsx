@@ -1,25 +1,27 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-export default function SummaryCard({ title, value, note, secondaryNote, icon: Icon, colorClass, bgColorClass, onClick }) {
+export default function SummaryCard({ title, value, note, secondaryNote, icon: Icon, colorClass, bgColorClass, onClick, clickable }) {
+  // Clickable either by its own handler or by the link it sits in.
+  const hoverable = Boolean(onClick || clickable);
   return (
     <motion.div 
       className="stat-card" 
       onClick={onClick}
       style={{ 
-        cursor: onClick ? 'pointer' : 'default',
+        cursor: hoverable ? 'pointer' : 'default',
         transition: 'background-color 0.2s',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
         padding: '24px'
       }}
-      whileHover={onClick ? { scale: 1.02 } : {}}
+      whileHover={hoverable ? { scale: 1.02 } : {}}
       onMouseEnter={(e) => {
-        if (onClick) e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
+        if (hoverable) e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
       }}
       onMouseLeave={(e) => {
-        if (onClick) e.currentTarget.style.backgroundColor = 'var(--bg-card)';
+        if (hoverable) e.currentTarget.style.backgroundColor = 'var(--bg-card)';
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>

@@ -53,8 +53,10 @@ const when = (iso) => {
 
 export default function WhatsAppSendButton({ kind, id, buildPdf, fileName, fallbackHref, permission, recipientLabel, style }) {
   const { can } = usePermission();
-  const { data: overview } = useWhatsAppOverview();
-  const { data: latest } = useWhatsAppMessage(kind, id);
+  // Only asked about by someone who may send this document: for anyone else the server refuses.
+  const allowed = !permission || can(permission);
+  const { data: overview } = useWhatsAppOverview({ enabled: allowed });
+  const { data: latest } = useWhatsAppMessage(kind, id, { enabled: allowed });
   const send = useSendWhatsAppDocument(kind, id);
   const [preparing, setPreparing] = useState(false);
   const busy = useRef(false);
@@ -70,7 +72,7 @@ export default function WhatsAppSendButton({ kind, id, buildPdf, fileName, fallb
     if (latest !== undefined) wasHandedOver.current = now;
   }, [latest?.status, kind, qc]);
 
-  if (permission && !can(permission)) return null;
+  if (!allowed) return null;
 
   const linked = overview?.configured && overview?.account?.status === 'CONNECTED';
 

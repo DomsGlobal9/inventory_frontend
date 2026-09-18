@@ -7,9 +7,10 @@ import { api } from '../lib/api';
  */
 
 /** Everything Settings > WhatsApp and the Send buttons need to know up front. */
-export const useWhatsAppOverview = ({ poll = false } = {}) =>
+export const useWhatsAppOverview = ({ poll = false, enabled = true } = {}) =>
   useQuery({
     queryKey: ['whatsapp', 'overview'],
+    enabled,
     queryFn: async () => (await api.get('/whatsapp')).data,
     // While a QR or code is on screen, watch for the phone finishing the link.
     refetchInterval: poll ? 3000 : false,
@@ -47,11 +48,11 @@ export const useSendDayBookNow = () =>
   useMutation({ mutationFn: async ({ nonce }) => (await api.post('/whatsapp/day-book/send-now', { nonce })).data });
 
 /** Where the latest WhatsApp of one document has got to. Watched while it is still on its way. */
-export const useWhatsAppMessage = (kind, id) =>
+export const useWhatsAppMessage = (kind, id, { enabled = true } = {}) =>
   useQuery({
     queryKey: ['whatsapp', 'message', kind, id],
     queryFn: async () => (await api.get('/whatsapp/messages', { params: { kind, id } })).data,
-    enabled: Boolean(kind && id),
+    enabled: enabled && Boolean(kind && id),
     refetchInterval: (query) => {
       const s = query.state.data?.status;
       return s && ['QUEUED', 'SENDING', 'SENT'].includes(s) ? 4000 : false;

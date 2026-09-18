@@ -249,7 +249,7 @@ export default function TransfersPage() {
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid var(--border-light)', paddingTop: '24px' }}>
-            <button type="submit" className="btn-primary" disabled={isSubmitting || items.length === 0}>
+            <button type="submit" className="btn-primary" disabled={isSubmitting || items.length === 0 || items.some(i => !i.variantId)}>
               {isSubmitting ? 'Transferring...' : 'Confirm Transfer'}
             </button>
           </div>

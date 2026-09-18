@@ -182,7 +182,7 @@ export default function BulkUpdateModal({ isOpen, onClose }) {
             <div style={{ padding: '24px', overflowY: 'auto' }}>
               <div style={{ marginBottom: '24px' }}>
                 <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
-                  Required CSV format (headers are case-insensitive):
+                  Required CSV format — type the column names exactly like this:
                 </p>
                 <div style={{ background: 'var(--bg-input)', padding: '12px', borderRadius: '4px', fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--text-primary)' }}>
                   sku,quantity,priceOverride,reorderLevel<br />

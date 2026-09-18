@@ -115,7 +115,10 @@ export default function StockMovementModal({ isOpen, onClose, productId }) {
                     value={formData.quantity}
                     onChange={e => setFormData({ ...formData, quantity: e.target.value })}
                     required
-                    min={formData.type === 'ADJUSTMENT' ? undefined : 1}
+                    // An adjustment may be 0 (nothing left on the shelf) but never less: a minus
+                    // count used to be sent and come back as "Insufficient stock", about something
+                    // else entirely.
+                    min={formData.type === 'ADJUSTMENT' ? 0 : 1}
                   />
                 </div>
               </div>

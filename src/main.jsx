@@ -81,7 +81,10 @@ createRoot(document.getElementById('root')).render(
         <ThemeProvider>
           <AuthProvider>
             <App />
-            <Toaster position="bottom-right" />
+            {/* Top right: the bottom-right corner is where the buttons people press after reading a refusal
+              live (Complete sale, Put away), and a toast sitting on one -- pausing its own timer while
+              the pointer is on it -- made the button unpressable. */}
+            <Toaster position="top-right" />
           </AuthProvider>
         </ThemeProvider>
       </QueryClientProvider>

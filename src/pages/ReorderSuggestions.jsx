@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useReorderSuggestions, useCreateReorderDrafts } from '../hooks/useReorder';
+import { usePermission } from '../hooks/usePermission';
 
 /**
  * What is running out, grouped by who we would buy it from, and one action to turn that into
@@ -14,6 +15,10 @@ import { useReorderSuggestions, useCreateReorderDrafts } from '../hooks/useReord
 const money = (v) => `₹${Number(v || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
 
 export default function ReorderSuggestions() {
+  const { can } = usePermission();
+  // The stock room may look at what is running low, but not order it, and must not be shown what
+  // the shop pays. The button used to be live for them and fail only at the server.
+  const canOrder = can('purchase_order:create');
   const { data, isLoading } = useReorderSuggestions();
   const createDrafts = useCreateReorderDrafts();
   const navigate = useNavigate();
@@ -180,7 +185,7 @@ export default function ReorderSuggestions() {
           </div>
           <button
             className="btn-primary"
-            disabled={createDrafts.isPending || selectedCount === 0}
+            disabled={createDrafts.isPending || selectedCount === 0 || !canOrder}
             onClick={handleCreate}
             style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', fontSize: '14px' }}
           >

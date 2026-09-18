@@ -247,10 +247,14 @@ export default function VariantSearchModal({ isOpen, onClose, onSelect, supplier
                       // whatever the most recent receipt cost from ANY supplier and is
                       // therefore the wrong number the moment you buy from two of them.
                       const link = supplierTerms.get(variant.id);
+                      // A variant nobody has bought yet comes back with lastPurchaseCost 0, which is
+                      // not "free" but "never bought". Taken as a price it put ₹0 on the order and a
+                      // receipt at ₹0 then drags the item's average cost to nothing.
+                      const known = (n) => (n != null && Number(n) > 0 ? Number(n) : null);
                       const defaultCost =
-                        (link?.costPrice != null ? Number(link.costPrice) : null)
-                        ?? variant.lastPurchaseCost
-                        ?? variant.costPrice
+                        known(link?.costPrice)
+                        ?? known(variant.lastPurchaseCost)
+                        ?? known(variant.costPrice)
                         ?? 0;
 
                       // A supplier's minimum order quantity is a hard floor -- ordering under

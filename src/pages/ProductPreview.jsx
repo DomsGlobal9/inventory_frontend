@@ -634,7 +634,7 @@ export default function ProductPreview() {
           )}
           
           <p style={{ textAlign: 'center', fontSize: '10px', color: 'var(--text-muted)', marginTop: '16px' }}>
-            LAST SAVED: JUST NOW
+            NOTHING IS SAVED UNTIL YOU PRESS A BUTTON ABOVE
           </p>
         </div>
       </div>

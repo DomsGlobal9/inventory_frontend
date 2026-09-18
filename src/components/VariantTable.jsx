@@ -35,7 +35,7 @@ const CellNote = ({ children, color }) => (
   </span>
 );
 
-export default function VariantTable({ productId, productName, productCode, productBasePrice, highlightVariantId }) {
+export default function VariantTable({ productId, productName, productCode, productCategory, productBasePrice, highlightVariantId }) {
   // Stamped into the barcode-label PDF metadata; must be the real tenant.
   const { clientId } = useAuth();
   const { data, isLoading, isError } = useVariants(productId);
@@ -91,7 +91,14 @@ export default function VariantTable({ productId, productName, productCode, prod
   const [suppliersOpenFor, setSuppliersOpenFor] = useState(null); // stores the variant object
   const [locationSettingsVariant, setLocationSettingsVariant] = useState(null); // stores the variant object
 
-  const { sizes: SIZES, colors: COLORS_PALETTE } = useCatalogData();
+  const { sizes: allSizes, sizesFor, colors: COLORS_PALETTE } = useCatalogData();
+  // The sizes this kind of garment actually comes in. The flat list is every category's sizes run
+  // together, so a women's kurti offered men's 3XL and a baby's 0-6M -- and "M" three times over,
+  // which React also complained about because the buttons shared a key.
+  const SIZES = React.useMemo(() => {
+    const forCategory = productCategory ? sizesFor(productCategory) : allSizes;
+    return [...new Set((forCategory ?? []).filter(Boolean))];
+  }, [productCategory, sizesFor, allSizes]);
 
   const [copiedId, setCopiedId] = useState(null);
 
@@ -143,6 +150,16 @@ export default function VariantTable({ productId, productName, productCode, prod
     setUnits(prev => ({ ...prev, [colorCode]: { ...(prev[colorCode] || {}), [size]: value } }));
   };
 
+  /** Size+colour pairs this product already has, so the generator cannot make them twice. */
+  const existingPairs = React.useMemo(
+    () => new Set((data?.data ?? []).map(v => `${(v.size ?? '').toLowerCase()}|${(v.colorName ?? '').toLowerCase()}`)),
+    [data]
+  );
+
+  /** How many of the ticked boxes are genuinely new. */
+  const newCombinations = selectedColors.reduce((n, color) => n + selectedSizes.filter(size =>
+    !existingPairs.has(`${String(size).toLowerCase()}|${String(color.name).toLowerCase()}`)).length, 0);
+
   const handleGenerate = () => {
     if (selectedSizes.length === 0 || selectedColors.length === 0) return;
 
@@ -156,8 +173,12 @@ export default function VariantTable({ productId, productName, productCode, prod
     const cost = Number(genCostPrice || 0);
 
     const payload = [];
+    let alreadyThere = 0;
     selectedColors.forEach(color => {
       selectedSizes.forEach(size => {
+        // This product already comes in that size and colour. Making it again left two rows with
+        // the same size and colour, different SKUs, and the stock split between them.
+        if (existingPairs.has(`${String(size).toLowerCase()}|${String(color.name).toLowerCase()}`)) { alreadyThere += 1; return; }
         const quantity = parseInt(units[color.code]?.[size] || '0', 10) || 0;
         const perVariant = genPerVariantPricing
           ? Number(genPrices[color.code]?.[size] || 0)
@@ -180,6 +201,14 @@ export default function VariantTable({ productId, productName, productCode, prod
         });
       });
     });
+
+    if (payload.length === 0) {
+      toast.error(alreadyThere === 1
+        ? 'That size and colour is already on this product.'
+        : 'Every one of those sizes and colours is already on this product.');
+      return;
+    }
+    if (alreadyThere > 0) toast(`${alreadyThere} of those are already on this product, so they are left alone.`, { icon: 'ℹ️' });
 
     bulkCreateMutation.mutate(
       { variants: payload, applyToAllLocations, supplierId: genSupplierId || undefined },
@@ -372,7 +401,13 @@ export default function VariantTable({ productId, productName, productCode, prod
 
     const parsed = Number(value);
     if (!Number.isFinite(parsed) || parsed <= 0) {
-      discardPriceDraft(variant.id); // invalid -- drop the edit, keep the saved price
+      toast.error('A selling price has to be more than zero. Leave it empty to use the product price.');
+      discardPriceDraft(variant.id);
+      return;
+    }
+    if (parsed > 99999999.99) {
+      toast.error('That price is too large. The most a piece can cost is ₹9,99,99,999.');
+      discardPriceDraft(variant.id);
       return;
     }
     updateVariantMutation.mutate({ id: variant.id, data: { sellingPrice: parsed } });
@@ -754,7 +789,7 @@ export default function VariantTable({ productId, productName, productCode, prod
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-light)', paddingTop: '16px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
-                Will generate <strong>{selectedSizes.length * selectedColors.length}</strong> new combinations.
+                Will generate <strong>{newCombinations}</strong> {newCombinations === 1 ? 'new combination' : 'new combinations'}.
               </span>
               <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '12px', color: 'var(--text-secondary)' }}>
                 <input type="checkbox" checked={applyToAllLocations} onChange={(e) => setApplyToAllLocations(e.target.checked)} />

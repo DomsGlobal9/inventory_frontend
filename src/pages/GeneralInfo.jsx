@@ -26,7 +26,8 @@ export default function GeneralInfo() {
               className="input-field" 
               placeholder="e.g. Emerald Satin Evening Gown"
               value={productData.title}
-              onChange={(e) => updateProductData('title', e.target.value)} 
+              maxLength={120}
+              onChange={(e) => updateProductData('title', e.target.value)}
             />
           </div>
 

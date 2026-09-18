@@ -290,7 +290,9 @@ export default function Products() {
                         <Package size={20} color="var(--text-secondary)" />
                       </div>
                       <div>
-                        <p style={{ margin: 0, fontWeight: '500', fontSize: '14px' }}>{product.title}</p>
+                        {/* A very long name used to stretch the table until CATEGORY, STOCK and
+                            STATUS were off the screen for every row. */}
+                        <p style={{ margin: 0, fontWeight: '500', fontSize: '14px', maxWidth: 360, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={product.title}>{product.title}</p>
                         <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{product.productCode}</span>
                       </div>
                     </div>

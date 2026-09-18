@@ -96,6 +96,7 @@ const STATUS_FILTERS = {
 };
 
 function PurchaseOrdersList() {
+  const { can } = usePermission();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { data: pos = [], isLoading } = usePurchaseOrders();
@@ -154,14 +155,18 @@ function PurchaseOrdersList() {
           <p style={{ color: 'var(--text-secondary)', fontSize: '14px', margin: '4px 0 0' }}>Manage inbound inventory from suppliers</p>
         </div>
 
-        <button
-          onClick={() => navigate('/inventory/purchase-orders/new')}
-          className="btn-primary"
-          style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-        >
-          <Plus size={16} />
-          Create PO
-        </button>
+        {can('purchase_order:create') && (
+          // Offered only to somebody who can actually save one: the stock room could open the whole
+          // form, fill it in, and be refused at the end.
+          <button
+            onClick={() => navigate('/inventory/purchase-orders/new')}
+            className="btn-primary"
+            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+          >
+            <Plus size={16} />
+            Create PO
+          </button>
+        )}
       </motion.div>
 
       {/* Toolbar */}

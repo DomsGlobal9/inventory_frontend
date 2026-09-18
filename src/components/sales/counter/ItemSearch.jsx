@@ -22,9 +22,12 @@ export default function ItemSearch({ locationId, onAdd, inBasket }) {
   const [adding, setAdding] = useState(false);
   const inputRef = useRef(null);
   const boxRef = useRef(null);
+  const lastScan = useRef({ text: '', at: 0 });
   const q = useDebounced(text.trim(), 250);
-  const { data, isFetching } = useSellableSearch(q, locationId);
-  const items = q ? (data?.items ?? []) : [];
+  const { data, isFetching, isPlaceholderData } = useSellableSearch(q, locationId);
+  // Only the answer to what is in the box counts. Anything else is last search's list, still drawn.
+  const answered = !!data && !isPlaceholderData && data.forQuery === q;
+  const items = q && answered ? (data.items ?? []) : [];
 
   useEffect(() => { setActive(0); }, [q]);
 
@@ -39,16 +42,18 @@ export default function ItemSearch({ locationId, onAdd, inBasket }) {
     : it.available === 0 ? 'None here'
     : (inBasket[it.variantId] ?? 0) >= it.available ? 'All in basket' : null;
 
+  /** Puts the item on the bill. Emptying the box is the caller's business -- see Enter below. */
   const add = (it) => {
     if (!canSell(it)) {
       toast.error(`${it.title}: ${why(it)}.`);
       return;
     }
     onAdd(it);
-    setText('');
-    setOpen(false);
     inputRef.current?.focus();
   };
+
+  /** Chosen with the mouse: nothing else is being typed, so the box is cleared here. */
+  const pick = (it) => { add(it); setText(''); setOpen(false); };
 
   const onKeyDown = async (e) => {
     if (e.key === 'ArrowDown') { e.preventDefault(); setOpen(true); setActive(a => Math.min(a + 1, Math.max(items.length - 1, 0))); }
@@ -57,16 +62,34 @@ export default function ItemSearch({ locationId, onAdd, inBasket }) {
     else if (e.key === 'Enter') {
       e.preventDefault();
       const typed = text.trim();
-      if (!typed || adding) return;
-      // The list on screen is for what was typed a moment ago; a scan is asked about directly.
-      if (open && q === typed && items[active]) { add(items[active]); return; }
+      if (!typed) return;
+      // A second scan must never be dropped because the first is still being looked up: the piece
+      // is in the customer's bag and not on the bill. Each lookup stands on its own (adding a line
+      // is a functional update, so two answers cannot overwrite each other). What is refused is the
+      // SAME code twice in the same breath -- a scanner sending Enter twice, or a double press.
+      const now = Date.now();
+      if (lastScan.current.text === typed && now - lastScan.current.at < 400) return;
+      lastScan.current = { text: typed, at: now };
+      // The box is emptied the instant the code is taken, not when the answer comes back a second
+      // later. A scanner starts the next tag immediately, and clearing late either swallowed its
+      // first digits or left both codes in the box as one long number.
+      setText('');
+      setOpen(false);
+      // The list may still be answering what was typed a moment ago, so it is trusted only when it
+      // is this text's own answer. Otherwise -- and for every scan -- the server is asked directly.
+      if (open && answered && q === typed && items[active]) { add(items[active]); return; }
       setAdding(true);
       try {
         const result = (await api.get('/counter-sales/items', { params: { q: typed, locationId } })).data;
         if (result?.exact && result.items[0]) add(result.items[0]);
         else if (result?.items?.length === 1) add(result.items[0]);
         else if (!result?.items?.length) toast.error(`Nothing here matches "${typed}".`);
-        else setOpen(true);
+        else {
+          // Several things match, so this was somebody typing, not a scan: put their words back so
+          // they can pick from the list -- unless another tag has been scanned into the box since.
+          setText(prev => (prev === '' ? typed : prev));
+          setOpen(true);
+        }
       } catch (err) {
         toast.error(err?.message || 'Could not search the items.');
       } finally {
@@ -114,7 +137,7 @@ export default function ItemSearch({ locationId, onAdd, inBasket }) {
                 role="option"
                 aria-selected={i === active}
                 onMouseEnter={() => setActive(i)}
-                onClick={() => add(it)}
+                onClick={() => pick(it)}
                 style={{
                   display: 'flex', gap: 12, alignItems: 'center', width: '100%', textAlign: 'left', padding: '10px 14px',
                   background: i === active ? 'var(--bg-hover)' : 'transparent', border: 'none', borderBottom: '1px solid var(--border-light)',

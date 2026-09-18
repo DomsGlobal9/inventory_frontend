@@ -502,7 +502,7 @@ export default function ProductDetails() {
             )}
             
             {activeTab === 'variants' && (
-              <VariantTable productId={product.id} productName={product.title} productCode={product.productCode} productBasePrice={product.basePrice} highlightVariantId={scannedVariantId} />
+              <VariantTable productId={product.id} productName={product.title} productCode={product.productCode} productCategory={product.category} productBasePrice={product.basePrice} highlightVariantId={scannedVariantId} />
             )}
 
             {activeTab === 'images' && (

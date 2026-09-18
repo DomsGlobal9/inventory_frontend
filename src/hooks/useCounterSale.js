@@ -22,7 +22,11 @@ export function useDebounced(value, ms = 300) {
 /** Items that can be sold at this store: this store's price and how many are free here. Never cost. */
 export const useSellableSearch = (q, locationId) => useQuery({
   queryKey: ['counter-items', locationId, q],
-  queryFn: async () => (await api.get('/counter-sales/items', { params: { q, locationId } })).data,
+  // Stamped with the text it answers. While a new search is in flight the previous rows are still
+  // on screen (placeholderData below), and without the stamp the till could not tell the two apart:
+  // pressing Enter on the new text added whatever the OLD search had found -- the wrong saree, at
+  // the wrong price, with nothing on screen to say so.
+  queryFn: async () => ({ ...(await api.get('/counter-sales/items', { params: { q, locationId } })).data, forQuery: q }),
   enabled: !!locationId && !!q && q.trim().length > 0,
   staleTime: 5_000,
   placeholderData: (previous) => previous

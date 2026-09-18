@@ -148,7 +148,11 @@ function CredentialsPanel({ recipientName, email, password, roleLabel, emailed, 
 function InviteForm({ roles, onDone }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [roleId, setRoleId] = useState(roles?.[0]?.id || '');
+  // ADMIN sorts first alphabetically, so "the first role" meant every new person arrived with
+  // almost every power in the shop. The quietest role is the safe default; the owner can raise it.
+  const leastPowerful = ['SALES', 'WAREHOUSE', 'INVENTORY_MANAGER', 'ADMIN']
+    .map(name => roles?.find(r => r.name === name)?.id).find(Boolean);
+  const [roleId, setRoleId] = useState(leastPowerful || roles?.[0]?.id || '');
   const [passwordMode, setPasswordMode] = useState('auto'); // auto | custom
   const [customPassword, setCustomPassword] = useState('');
   const inviteMutation = useInviteTeamMember();
@@ -161,7 +165,10 @@ function InviteForm({ roles, onDone }) {
     const missing = firstMissingField(e.currentTarget);
     if (missing) { toast.error(missingFieldMessage(missing)); return; }
     if (!name.trim() || !email.trim() || !roleId) return;
-    if (passwordMode === 'custom' && customPassword.length < 6) return;
+    if (passwordMode === 'custom' && customPassword.length < 6) {
+      toast.error('A password needs at least 6 characters.');
+      return;
+    }
     try {
       const result = await inviteMutation.mutateAsync({
         name, email, roleId, customPassword: passwordMode === 'custom' ? customPassword : undefined
@@ -195,12 +202,12 @@ function InviteForm({ roles, onDone }) {
         <button type="button" onClick={onDone} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}><X size={18} /></button>
       </div>
       <div>
-        <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Name</label>
-        <input type="text" className="input-field" value={name} onChange={e => setName(e.target.value)} required />
+        <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '4px' }} htmlFor="team-name">Name</label>
+        <input id="team-name" type="text" className="input-field" value={name} onChange={e => setName(e.target.value)} required />
       </div>
       <div>
-        <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Email</label>
-        <input type="email" className="input-field" value={email} onChange={e => setEmail(e.target.value)} required />
+        <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '4px' }} htmlFor="team-email">Email</label>
+        <input id="team-email" type="email" className="input-field" value={email} onChange={e => setEmail(e.target.value)} required />
       </div>
       <div>
         <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Role</label>
@@ -219,7 +226,7 @@ function InviteForm({ roles, onDone }) {
           </button>
         </div>
         {passwordMode === 'custom' && (
-          <input type="text" className="input-field" placeholder="At least 6 characters" value={customPassword} onChange={e => setCustomPassword(e.target.value)} required minLength={6} />
+          <input id="team-password" type="text" className="input-field" placeholder="At least 6 characters" aria-label="Password for this person" value={customPassword} onChange={e => setCustomPassword(e.target.value)} required minLength={6} />
         )}
       </div>
       <button type="submit" className="btn-primary" disabled={inviteMutation.isPending} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px' }}>

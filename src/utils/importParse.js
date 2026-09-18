@@ -51,7 +51,10 @@ function toRow(raw, index) {
     if (v === '' || v === null || v === undefined) continue;
     if (NUMERIC.has(field)) {
       const n = Number(String(v).replace(/[, ₹]/g, ''));
-      if (Number.isFinite(n)) row[field] = n;
+      // "twelve" used to be dropped here, and an absent number means "leave this alone" -- so
+      // twelve pieces simply never arrived, with nothing on screen to say so. It is kept as the
+      // text it is, and refused by name when the rows are checked.
+      row[field] = Number.isFinite(n) ? n : String(v);
     } else {
       row[field] = String(v);
     }

@@ -2,6 +2,10 @@ import React, { useEffect, useRef } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { Printer, ArrowLeft, Loader2 } from 'lucide-react';
 import { useReceipt } from '../../hooks/useCounterSale';
+import WhatsAppSendButton from '../../components/whatsapp/WhatsAppSendButton';
+import BillPDF from '../../components/BillPDF';
+import { makePdf } from '../../components/pdf/downloadPdf';
+import { logoAsPng } from '../../components/pdf/pdfLogo';
 
 /**
  * The 80 mm receipt.
@@ -75,7 +79,7 @@ export default function Receipt() {
     <div className="receipt-page">
       <style>{`
         .receipt-page { min-height: 100vh; background: var(--bg-dark); padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
-        .receipt-actions { display: flex; gap: 8px; }
+        .receipt-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: flex-start; }
         .receipt-paper { width: 80mm; max-width: 100%; box-sizing: border-box; background: #fff; color: #000; padding: 4mm; font-family: 'Courier New', ui-monospace, monospace; line-height: 1.35; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
         .receipt-paper hr { border: none; border-top: 1px dashed #000; margin: 6px 0; }
         @media print {
@@ -90,6 +94,15 @@ export default function Receipt() {
       <div className="receipt-actions">
         <button className="btn-secondary" onClick={() => navigate(`/orders/${sale.id}`)} style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}><ArrowLeft size={15} /> Order</button>
         <button className="btn-primary" onClick={() => window.print()} style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}><Printer size={15} /> Print</button>
+        {/* The bill as a PDF, straight to the customer from the shop's WhatsApp. */}
+        <WhatsAppSendButton
+          kind="BILL"
+          id={sale.id}
+          permission="sales_order:view"
+          fileName={`Bill-${sale.orderNumber}.pdf`}
+          recipientLabel={sale.customer?.name}
+          buildPdf={async () => makePdf(<BillPDF sale={sale} logo={await logoAsPng(sale.shop?.logoUrl)} />)}
+        />
       </div>
 
       <div className="receipt-paper">

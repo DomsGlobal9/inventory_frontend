@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Settings as SettingsIcon, Tag, Palette, Scissors, Layers, Hexagon, Grid, ShoppingBag, Store, Users, Key, Shield, MapPin, LifeBuoy, BookOpen, Globe } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { Settings as SettingsIcon, Tag, Palette, Scissors, Layers, Hexagon, Grid, ShoppingBag, Store, Users, Key, Shield, MapPin, LifeBuoy, BookOpen, Globe, MessageCircle } from 'lucide-react';
 import CatalogManager from '../components/CatalogManager';
 import StockLocationsPage from './settings/StockLocationsPage';
 import DayBook from './DayBook';
@@ -9,6 +10,7 @@ import ServicesPanel from '../components/ServicesPanel';
 import SupportPanel from '../components/SupportPanel';
 import TeamManager from '../components/TeamManager';
 import RoleManager from '../components/RoleManager';
+import WhatsAppSettings from '../components/whatsapp/WhatsAppSettings';
 import { holdsEverything } from '../lib/authority';
 import { useAuth } from '../context/AuthContext';
 import { usePermission } from '../hooks/usePermission';
@@ -19,6 +21,7 @@ const SETTINGS_DOMAINS = [
   { id: 'LOCATIONS', label: 'Stock Locations', icon: MapPin, permission: 'admin:locations' },
   { id: 'DAYBOOK', label: 'Day Book', icon: BookOpen, permission: 'report:financial' },
   { id: 'STOREFRONT', label: 'Storefront', icon: Globe, permission: 'admin:locations' },
+  { id: 'WHATSAPP', label: 'WhatsApp', icon: MessageCircle, permission: 'whatsapp:manage' },
   { id: 'SERVICES', label: 'APIs & Services', icon: Key, permission: 'admin:users' },
   { id: 'USERS', label: 'Team & Users', icon: Users, permission: 'admin:users' },
   { id: 'ROLES', label: 'Roles & Permissions', icon: Shield, permission: 'admin:users' },
@@ -38,7 +41,7 @@ const SETTINGS_DOMAINS = [
  * chain had to be extended by hand every time a domain gained content -- and when Day Book was
  * added it was not, so the page rendered the day book AND the placeholder underneath it.
  */
-const IMPLEMENTED_DOMAINS = new Set(['GENERAL', 'CATALOG', 'LOCATIONS', 'DAYBOOK', 'STOREFRONT', 'SERVICES', 'USERS', 'ROLES', 'SUPPORT']);
+const IMPLEMENTED_DOMAINS = new Set(['GENERAL', 'CATALOG', 'LOCATIONS', 'DAYBOOK', 'STOREFRONT', 'WHATSAPP', 'SERVICES', 'USERS', 'ROLES', 'SUPPORT']);
 
 const CATALOG_TABS = [
   { id: 'SIZE', label: 'Sizes', icon: Scissors, description: 'Manage available sizes across your products' },
@@ -52,8 +55,13 @@ const CATALOG_TABS = [
 
 export default function Settings() {
   const { user } = useAuth();
-  const [activeDomain, setActiveDomain] = useState('GENERAL');
   const { can } = usePermission();
+  // ?section=WHATSAPP opens straight onto a section -- the Send buttons link here to "link your
+  // shop's WhatsApp". Only a section this person can see; anything else falls back to General.
+  const [searchParams] = useSearchParams();
+  const asked = searchParams.get('section');
+  const [activeDomain, setActiveDomain] = useState(() =>
+    SETTINGS_DOMAINS.some(d => d.id === asked && can(d.permission)) ? asked : 'GENERAL');
 
   // Only the sections this person's role can actually use. Listing Day Book to somebody
   // without report:financial offers them a door that opens onto a refusal -- and they have no
@@ -224,6 +232,15 @@ export default function Settings() {
           {activeDomain === 'STOREFRONT' && (
             <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '32px' }}>
               <StorefrontManager />
+            </div>
+          )}
+
+          {activeDomain === 'WHATSAPP' && (
+            <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '32px' }}>
+              <div style={{ marginBottom: '20px' }}>
+                <h2 style={{ fontSize: '24px', marginBottom: '8px', color: 'var(--text-primary)' }}>WhatsApp</h2>
+              </div>
+              <WhatsAppSettings />
             </div>
           )}
 

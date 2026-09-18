@@ -129,7 +129,7 @@ export const SECTIONS = [
     },
     // In the order of the Settings tabs: General Info, Catalog Configuration, Stock Locations, Day Book,
     // Storefront, APIs & Services, Team & Users, Roles & Permissions, Help & Support.
-    pages: ['shop-details', 'your-password', 'catalog-settings', 'locations', 'day-book', 'connect-shopify', 'connect-website', 'apis-and-services', 'add-team-member', 'manage-team', 'roles', 'get-support'] },
+    pages: ['shop-details', 'your-password', 'catalog-settings', 'locations', 'day-book', 'whatsapp', 'connect-shopify', 'connect-website', 'apis-and-services', 'add-team-member', 'manage-team', 'roles', 'get-support'] },
   { id: 'help', title: 'Help', icon: 'LifeBuoy',
     blurb: 'Common problems, words we use, and what is new.',
     titles: { te: 'సహాయం', hi: 'सहायता', ta: 'உதவி', kn: 'ಸಹಾಯ' },

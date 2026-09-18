@@ -7,7 +7,8 @@ import { ArrowLeft, CheckCircle2, Box, Truck, Plus, Save, Download, Loader2, Mes
 import toast from 'react-hot-toast';
 import PurchaseOrderPDF from '../components/PurchaseOrderPDF';
 import GoodsReceiptPDF from '../components/GoodsReceiptPDF';
-import { downloadPdf } from '../components/pdf/downloadPdf';
+import { downloadPdf, makePdf } from '../components/pdf/downloadPdf';
+import WhatsAppSendButton from '../components/whatsapp/WhatsAppSendButton';
 import { logoAsPng } from '../components/pdf/pdfLogo';
 import { useBranding } from '../hooks/useBranding';
 import { useLocationContext } from '../contexts/LocationContext';
@@ -141,24 +142,29 @@ export default function PurchaseOrderDetails() {
     setFormData(prev => ({ ...prev, locationId: preferred.id }));
   }, [isNew, activeLocations.length, currentLocation?.id, location.state?.locationId]);
 
+  /**
+   * The order's or a delivery's document. One place, so Download and Send on WhatsApp are always
+   * the same PDF.
+   */
+  const documentFor = async (kind, receipt) => {
+    // Read fresh, not from the page's cache: a document goes to a supplier, and the owner may
+    // have changed the logo or address a minute ago from another screen or another person's
+    // login. The cached copy is kept for five minutes; this costs one small request.
+    const shop = await api.get('/branding').then(r => r.data).catch(() => branding) || {};
+    const logo = await logoAsPng(shop.logoUrl);
+    return kind === 'po'
+      ? { element: <PurchaseOrderPDF order={po} shop={shop} logo={logo} />, fileName: `${po.poNumber}.pdf` }
+      : { element: <GoodsReceiptPDF receipt={receipt} order={po} shop={shop} logo={logo} />, fileName: `${receipt.receiptNumber}-${po.poNumber}.pdf` };
+  };
+  const pdfFor = async (kind, receipt) => makePdf((await documentFor(kind, receipt)).element);
+
   const printDocument = async (kind, receipt) => {
     if (!po || printing) return;
     const busyKey = kind === 'po' ? 'po' : receipt.id;
     setPrinting(busyKey);
     try {
-      // Read fresh, not from the page's cache: a document goes to a supplier, and the owner may
-      // have changed the logo or address a minute ago from another screen or another person's
-      // login. The cached copy is kept for five minutes; this costs one small request.
-      const shop = await api.get('/branding').then(r => r.data).catch(() => branding) || {};
-      const logo = await logoAsPng(shop.logoUrl);
-      if (kind === 'po') {
-        await downloadPdf(<PurchaseOrderPDF order={po} shop={shop} logo={logo} />, `${po.poNumber}.pdf`);
-      } else {
-        await downloadPdf(
-          <GoodsReceiptPDF receipt={receipt} order={po} shop={shop} logo={logo} />,
-          `${receipt.receiptNumber}-${po.poNumber}.pdf`
-        );
-      }
+      const { element, fileName } = await documentFor(kind, receipt);
+      await downloadPdf(element, fileName);
     } catch (error) {
       console.error('PDF failed', error);
       toast.error('Could not make the PDF. Please try again.');
@@ -591,24 +597,22 @@ Change it to ${chosen.name}? The order will say ${chosen.name} from now on, but 
                 </button>
               )}
 
-              {/* Opens WhatsApp with the order pre-filled; the user presses Send. Placed
-                  before "Mark as Sent" because that is the real order of events -- send it,
-                  then record that you did. Disabled rather than hidden when the supplier has
-                  no usable number, so the reason is visible instead of the button just being
-                  missing. */}
-              {po.status === 'DRAFT' && (
+              {/* Send on WhatsApp: with the shop's WhatsApp linked, the order's PDF goes straight to the
+                  supplier and the order counts as sent once WhatsApp has it; otherwise it opens
+                  WhatsApp on this device with the order typed. Placed before "Mark as Sent" because
+                  that is the real order of events. Disabled rather than hidden when the supplier has
+                  no usable number, so the reason is visible instead of the button just missing. */}
+              {po.status !== 'CANCELLED' && (
                 whatsAppUrl ? (
-                  <a
-                    href={whatsAppUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn-secondary"
-                    style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: '#25D366', borderColor: 'rgba(37, 211, 102, 0.4)' }}
-                    title={`Open WhatsApp chat with ${po?.supplier?.name || 'the supplier'}`}
-                  >
-                    <MessageCircle size={16} />
-                    Send on WhatsApp
-                  </a>
+                  <WhatsAppSendButton
+                    kind="PURCHASE_ORDER"
+                    id={po.id}
+                    permission="purchase_order:update"
+                    buildPdf={() => pdfFor('po')}
+                    fileName={`${po.poNumber}.pdf`}
+                    fallbackHref={whatsAppUrl}
+                    recipientLabel={po.supplier?.name}
+                  />
                 ) : (
                   <button
                     className="btn-secondary"
@@ -954,6 +958,14 @@ Change it to ${chosen.name}? The order will say ${chosen.name} from now on, but 
                         {printing === receipt.id ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
                         Receipt PDF
                       </button>
+                      <WhatsAppSendButton
+                        kind="GOODS_RECEIPT"
+                        id={receipt.id}
+                        permission="purchase_order:receive"
+                        buildPdf={() => pdfFor('receipt', receipt)}
+                        fileName={`${receipt.receiptNumber}-${po.poNumber}.pdf`}
+                        recipientLabel={po.supplier?.name}
+                      />
                     </div>
                   );
                 })}

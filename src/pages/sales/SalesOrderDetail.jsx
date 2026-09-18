@@ -21,6 +21,11 @@ import toast from 'react-hot-toast';
 import { ShelvesUsed } from '../../components/shelves/ShelfLinks';
 import { ORDER_STATUS, StatusPill } from '../../components/sales/labels';
 import { useDialog } from '../../hooks/useDialog';
+import WhatsAppSendButton from '../../components/whatsapp/WhatsAppSendButton';
+import { api } from '../../lib/api';
+import BillPDF from '../../components/BillPDF';
+import { makePdf } from '../../components/pdf/downloadPdf';
+import { logoAsPng } from '../../components/pdf/pdfLogo';
 
 export default function SalesOrderDetail() {
   const { id } = useParams();
@@ -206,10 +211,25 @@ export default function SalesOrderDetail() {
           </p>
         </div>
         {order.atCounter && (
-          <button className="btn-secondary" onClick={() => window.open(`/orders/${order.id}/receipt`, '_blank', 'noopener')}
-            style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-            <Printer size={15} /> Print receipt
-          </button>
+          <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+            <button className="btn-secondary" onClick={() => window.open(`/orders/${order.id}/receipt`, '_blank', 'noopener')}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <Printer size={15} /> Print receipt
+            </button>
+            {/* The bill as a PDF, straight to the customer from the shop's WhatsApp -- built from
+                the same receipt the printed copy uses. */}
+            <WhatsAppSendButton
+              kind="BILL"
+              id={order.id}
+              permission="sales_order:view"
+              fileName={`Bill-${order.orderNumber}.pdf`}
+              recipientLabel={order.customer?.name}
+              buildPdf={async () => {
+                const sale = (await api.get(`/counter-sales/${order.id}/receipt`)).data;
+                return makePdf(<BillPDF sale={sale} logo={await logoAsPng(sale?.shop?.logoUrl)} />);
+              }}
+            />
+          </div>
         )}
       </div>
 

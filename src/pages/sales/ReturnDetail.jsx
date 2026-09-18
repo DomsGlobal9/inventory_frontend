@@ -15,6 +15,11 @@ import { formatINRExact } from '../../utils/formatUtils';
 import { PutAwayNotice } from '../../components/shelves/ShelfLinks';
 import { RETURN_STATUS, RETURN_DISPOSITION, StatusPill, describe, returnReasonLabel } from '../../components/sales/labels';
 import { useDialog } from '../../hooks/useDialog';
+import WhatsAppSendButton from '../../components/whatsapp/WhatsAppSendButton';
+import ReturnNotePDF from '../../components/ReturnNotePDF';
+import { makePdf } from '../../components/pdf/downloadPdf';
+import { logoAsPng } from '../../components/pdf/pdfLogo';
+import { buildWhatsAppUrl } from '../../utils/whatsappUtils';
 
 export default function ReturnDetail() {
   const { id } = useParams();
@@ -206,7 +211,24 @@ export default function ReturnDetail() {
           confirmText="Turn down"
           confirmStyle="danger"
         />
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+          {/* The finished return, for the customer: straight to them from the shop's WhatsApp. */}
+          {ret.status === 'COMPLETED' && (
+            <WhatsAppSendButton
+              kind="RETURN_NOTE"
+              id={ret.id}
+              permission="return:view"
+              fileName={`Return-${ret.returnNumber}.pdf`}
+              recipientLabel={ret.salesOrder?.customer?.name}
+              buildPdf={async () => {
+                const shop = await api.get('/branding').then(r => r.data).catch(() => ({})) || {};
+                const logo = await logoAsPng(shop.logoUrl);
+                return makePdf(<ReturnNotePDF ret={ret} shop={shop} logo={logo} />);
+              }}
+              fallbackHref={buildWhatsAppUrl(ret.salesOrder?.customer?.phone,
+                `Hello${ret.salesOrder?.customer?.name ? ` ${ret.salesOrder.customer.name}` : ''}, your return ${ret.returnNumber} against order ${ret.salesOrder?.orderNumber || ''} is complete.`)}
+            />
+          )}
           {ret.status === 'REQUESTED' && can('return:receive') && (
             <button
               className="btn-primary"

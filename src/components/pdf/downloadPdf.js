@@ -8,7 +8,7 @@ import { pdf } from '@react-pdf/renderer';
  * and converted before the first byte can be drawn.
  */
 export async function downloadPdf(document, fileName) {
-  const blob = await pdf(document).toBlob();
+  const blob = await makePdf(document);
   const url = URL.createObjectURL(blob);
   try {
     const link = window.document.createElement('a');
@@ -22,4 +22,9 @@ export async function downloadPdf(document, fileName) {
     setTimeout(() => URL.revokeObjectURL(url), 10_000);
   }
   return blob;
+}
+
+/** The same PDF, as a Blob, without downloading it: what Send on WhatsApp uploads. */
+export async function makePdf(document) {
+  return pdf(document).toBlob();
 }

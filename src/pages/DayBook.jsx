@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Loader2, TrendingUp, TrendingDown, ArrowLeftRight, AlertTriangle, CheckCircle2,
@@ -53,6 +53,10 @@ export default function DayBook() {
   // range that did stays on the page, rather than the page jumping to some single day.
   const typedRange = mode === 'range' && from && to && !rangeProblem ? { from, to } : null;
   const lastGoodRange = useRef(null);
+  // Opening a day from the Day by day table jumps back up to its header, so the day chosen is
+  // what the person sees, not the bottom of a page they were scrolling.
+  const topRef = useRef(null);
+  const jumpToTop = useRef(false);
   if (typedRange) lastGoodRange.current = typedRange;
   const range = mode === 'range' ? (typedRange || lastGoodRange.current) : null;
   const [locationId, setLocationId] = useState('');
@@ -66,6 +70,14 @@ export default function DayBook() {
   // fetching them again for a dropdown.
   const { locations = [] } = useLocationContext();
   const { user } = useAuth();
+  // After the day has loaded: the page changes height as it arrives, so jumping earlier lands
+  // part-way down.
+  useEffect(() => {
+    if (jumpToTop.current && !isFetching) {
+      jumpToTop.current = false;
+      topRef.current?.scrollIntoView({ block: 'start' });
+    }
+  }, [isFetching, date]);
 
   if (isLoading && !data) {
     return (
@@ -165,7 +177,7 @@ export default function DayBook() {
   return (
     <div className="page-scroll">
       {/* ── Header: date, location, share ───────────────────────────────── */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '20px', flexWrap: 'wrap', marginBottom: '24px' }}>
+      <div ref={topRef} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '20px', flexWrap: 'wrap', marginBottom: '24px', scrollMarginTop: '16px' }}>
         <div>
           <h1 style={{ fontSize: '26px', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--text-primary)', margin: '0 0 6px' }}>
             Day Book
@@ -367,8 +379,8 @@ export default function DayBook() {
           <SimpleTable
             head={['Day', 'In', 'Out', 'Closing', 'Dispatches', 'Revenue', 'Profit']}
             rows={d.days.map(r => [
-              <button key={r.date} type="button" onClick={() => { setDate(r.date); setMode('day'); }}
-                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--text-primary)', font: 'inherit', textDecoration: 'underline', textDecorationColor: 'var(--border-light)' }}>
+              <button key={r.date} type="button" onClick={() => { jumpToTop.current = true; setDate(r.date); setMode('day'); }}
+                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--text-primary)', font: 'inherit', textDecoration: 'underline', textDecorationColor: 'var(--border-light)', whiteSpace: 'nowrap' }}>
                 {weekDay(r.date)}
               </button>,
               r.unitsIn ? `+${num(r.unitsIn)}` : '—', r.unitsOut ? `-${num(r.unitsOut)}` : '—',

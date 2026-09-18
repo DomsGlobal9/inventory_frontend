@@ -18,7 +18,7 @@ ScaleEzy-இல் "எல்லாவற்றையும் எக்ஸ்�
 | ஒரு பொருள், **Inventory History** டேப் | **Export** | அந்தப் பொருளின் ஸ்டாக் மாற்றங்களின் ஸ்ப்ரெட்ஷீட் | [பொருளின் பக்கம்](/help/products/product-page) |
 | **Inventory Alerts** | **Export Report** | ஸ்டாக் இல்லாத அல்லது குறைவான ஸ்டாக் ஐட்டங்களின் ஸ்ப்ரெட்ஷீட் | [குறைவான ஸ்டாக் அலர்ட்கள்](/help/inventory/low-stock-alerts) |
 | **Settings → Day Book** | **PDF** | ஒரு நாளின் PDF | [Day Book](/help/settings/day-book) |
-| **Settings → Day Book** | **Share** | அந்த நாளின் சிறிய சுருக்கத்துடன் WhatsApp-ஐத் திறக்கும் | [Day Book](/help/settings/day-book) |
+| **Settings → Day Book** | **Send on WhatsApp** | அந்த நாளை, அல்லது பல நாட்களை, PDF-ஆக உரிமையாளரின் WhatsApp-க்கு அனுப்பும் | [Day Book](/help/settings/day-book) |
 | ஒரு பர்ச்சேஸ் ஆர்டர் | **Download PDF** | பிரிண்ட் செய்ய அல்லது அனுப்ப, பர்ச்சேஸ் ஆர்டர் PDF-ஆக | [பர்ச்சேஸ் ஆர்டர் போடுதல்](/help/purchase-orders/create-a-purchase-order) |
 | ஒரு பர்ச்சேஸ் ஆர்டர் | **Send on WhatsApp**, **Email to supplier** | ஆர்டரை சப்ளையருக்கு அனுப்பும் (டிராஃப்ட் ஆர்டர்கள் மட்டும்) | [பர்ச்சேஸ் ஆர்டர் போடுதல்](/help/purchase-orders/create-a-purchase-order) |
 | ஒரு பர்ச்சேஸ் ஆர்டர் | **Download receipt PDF**, **Receipt PDF** | ஒரு டெலிவரிக்கான சரக்கு ரசீது | [டெலிவரியைப் பெற்றுக்கொள்ளுதல்](/help/purchase-orders/receive-a-delivery) |
@@ -81,9 +81,9 @@ Products-இல் உள்ள **Import Updates**, **Quantity** காலத்
 
 ### Day Book
 
-**Settings → Day Book**-இல் முதலில் நாளையும் லொகேஷனையும் தேர்ந்தெடுங்கள். பிறகு அந்த நாளை டவுன்லோட் செய்ய [[1]] **PDF** அழுத்துங்கள், உதாரணமாக *day-book-2026-09-17.pdf*. அல்லது சிறிய சுருக்கத்துடன் WhatsApp-ஐத் திறக்க [[2]] **Share** அழுத்துங்கள். WhatsApp-இல் நீங்கள் send அழுத்தும் வரை எதுவும் அனுப்பப்படாது.
+**Settings → Day Book**-இல் முதலில் நாளையும் லொகேஷனையும் தேர்ந்தெடுங்கள். பிறகு அந்த நாளை டவுன்லோட் செய்ய [[1]] **PDF** அழுத்துங்கள், உதாரணமாக *day-book-2026-09-17.pdf*. அல்லது அதே PDF-ஐ உரிமையாளரின் WhatsApp நம்பருக்கு அனுப்ப [[2]] **Send on WhatsApp** அழுத்துங்கள். **From - to** மூலம் பல நாட்களை ஒரே ஃபைலாகப் பெறலாம்.
 
-![Day Book-இன் மேல் பகுதி. PDF 1 எனவும், Share 2 எனவும் குறிக்கப்பட்டுள்ளன.](4-day-book-pdf-share.webp "பண ரிப்போர்ட்களைப் பார்க்க அனுமதி உள்ளவர்களுக்கு மட்டுமே Day Book இருக்கும்.")
+![Day Book-இன் மேல் பகுதி. PDF 1 எனவும், Send on WhatsApp 2 எனவும் குறிக்கப்பட்டுள்ளன.](4-day-book-pdf-send.webp "பண ரிப்போர்ட்களைப் பார்க்க அனுமதி உள்ளவர்களுக்கு மட்டுமே Day Book இருக்கும்.")
 
 ### பர்ச்சேஸ் ஆர்டர்கள் மற்றும் டெலிவரிகள்
 

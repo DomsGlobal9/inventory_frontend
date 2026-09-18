@@ -18,7 +18,7 @@ ScaleEzy లో "అన్నీ ఎక్స్‌పోర్ట్ చేయ�
 | ఒక ప్రొడక్ట్, **Inventory History** ట్యాబ్ | **Export** | ఆ ప్రొడక్ట్ స్టాక్ మార్పుల స్ప్రెడ్‌షీట్ | [ప్రొడక్ట్ పేజీ](/help/products/product-page) |
 | **Inventory Alerts** | **Export Report** | స్టాక్ లేని లేదా తక్కువ స్టాక్ ఉన్న వస్తువుల స్ప్రెడ్‌షీట్ | [తక్కువ స్టాక్ అలర్ట్‌లు](/help/inventory/low-stock-alerts) |
 | **Settings → Day Book** | **PDF** | ఒక రోజు PDF | [డే బుక్](/help/settings/day-book) |
-| **Settings → Day Book** | **Share** | ఆ రోజు చిన్న సారాంశంతో WhatsApp తెరుస్తుంది | [డే బుక్](/help/settings/day-book) |
+| **Settings → Day Book** | **Send on WhatsApp** | ఆ రోజును, లేదా కొన్ని రోజులను, PDF గా యజమాని WhatsApp కు పంపుతుంది | [డే బుక్](/help/settings/day-book) |
 | ఒక పర్చేస్ ఆర్డర్ | **Download PDF** | ప్రింట్ చేయడానికి లేదా పంపడానికి పర్చేస్ ఆర్డర్ PDF | [పర్చేస్ ఆర్డర్ పెట్టి పంపండి](/help/purchase-orders/create-a-purchase-order) |
 | ఒక పర్చేస్ ఆర్డర్ | **Send on WhatsApp**, **Email to supplier** | ఆర్డర్‌ను సప్లయర్‌కు పంపుతుంది (డ్రాఫ్ట్ ఆర్డర్లు మాత్రమే) | [పర్చేస్ ఆర్డర్ పెట్టి పంపండి](/help/purchase-orders/create-a-purchase-order) |
 | ఒక పర్చేస్ ఆర్డర్ | **Download receipt PDF**, **Receipt PDF** | ఒక డెలివరీ గూడ్స్ రసీదు | [డెలివరీ రిసీవ్ చేసుకోండి](/help/purchase-orders/receive-a-delivery) |
@@ -81,9 +81,9 @@ Products లోని **Import Updates** **Quantity** కాలమ్‌ను *
 
 ### డే బుక్
 
-**Settings → Day Book** లో ముందు రోజు, లొకేషన్ ఎంచుకోండి. తర్వాత ఆ రోజును డౌన్‌లోడ్ చేయడానికి [[1]] **PDF** నొక్కండి, ఉదాహరణకు *day-book-2026-09-17.pdf*, లేదా చిన్న సారాంశంతో WhatsApp తెరవడానికి [[2]] **Share** నొక్కండి. WhatsApp లో మీరు send నొక్కే వరకు ఏమీ పంపబడదు.
+**Settings → Day Book** లో ముందు రోజు, లొకేషన్ ఎంచుకోండి. తర్వాత ఆ రోజును డౌన్‌లోడ్ చేయడానికి [[1]] **PDF** నొక్కండి, ఉదాహరణకు *day-book-2026-09-17.pdf*, లేదా అదే PDF ను యజమాని WhatsApp నంబర్‌కు పంపడానికి [[2]] **Send on WhatsApp** నొక్కండి. **From - to** తో కొన్ని రోజులు ఒకే ఫైల్‌లో వస్తాయి.
 
-![Day Book పైభాగం. PDF 1 గా, Share 2 గా గుర్తించబడ్డాయి.](4-day-book-pdf-share.webp "డబ్బు రిపోర్ట్‌లు చూడగలిగే వారికి మాత్రమే Day Book ఉంటుంది.")
+![Day Book పైభాగం. PDF 1 గా, Send on WhatsApp 2 గా గుర్తించబడ్డాయి.](4-day-book-pdf-send.webp "డబ్బు రిపోర్ట్‌లు చూడగలిగే వారికి మాత్రమే Day Book ఉంటుంది.")
 
 ### పర్చేస్ ఆర్డర్లు, డెలివరీలు
 

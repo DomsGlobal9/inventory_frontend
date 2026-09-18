@@ -67,3 +67,35 @@ export const useSendWhatsAppDocument = (kind, id) => {
     onSuccess: (message) => qc.setQueryData(['whatsapp', 'message', kind, id], message)
   });
 };
+
+// ── The Day Book page's own Send button ─────────────────────────────────────────────────────
+
+/** Can a Day Book be sent from the page, to which (masked) number, and how many are left today. */
+export const useDayBookSending = ({ enabled = true } = {}) =>
+  useQuery({
+    queryKey: ['whatsapp', 'day-book', 'sending'],
+    queryFn: async () => (await api.get('/whatsapp/day-book/sending')).data,
+    enabled,
+    staleTime: 30000
+  });
+
+/** Sends the day, or the range, on the screen. `what` is { date } or { from, to }, plus locationId. */
+export const useSendDayBook = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ what, nonce }) => (await api.post('/whatsapp/day-book/send', { ...what, nonce })).data,
+    onSettled: () => qc.invalidateQueries({ queryKey: ['whatsapp', 'day-book', 'sending'] })
+  });
+};
+
+/** Where a Day Book sent from the page has got to. Watched while it is still on its way. */
+export const useDayBookMessage = (id) =>
+  useQuery({
+    queryKey: ['whatsapp', 'day-book', 'message', id],
+    queryFn: async () => (await api.get('/whatsapp/day-book/message', { params: { id } })).data,
+    enabled: Boolean(id),
+    refetchInterval: (query) => {
+      const s = query.state.data?.status;
+      return !s || ['QUEUED', 'SENDING', 'SENT'].includes(s) ? 4000 : false;
+    }
+  });

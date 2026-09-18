@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Loader2, TrendingUp, TrendingDown, ArrowLeftRight, AlertTriangle, CheckCircle2,
-  Calendar, MapPin, MessageCircle, Coffee, Download, Info
+  Calendar, MapPin, Coffee, Download, Info
 } from 'lucide-react';
 import { useDayBook } from '../hooks/useDayBook';
 import { useLocationContext } from '../contexts/LocationContext';
@@ -10,6 +10,7 @@ import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import { pdf } from '@react-pdf/renderer';
 import DayBookPDF from '../components/DayBookPDF';
+import DayBookSendButton from '../components/whatsapp/DayBookSendButton';
 
 /**
  * One business day, closed off the way a shop owner closes a till.
@@ -31,15 +32,36 @@ const shiftKey = (key, days) => {
   return new Date(Date.UTC(y, m - 1, d + days)).toISOString().slice(0, 10);
 };
 
+/** The longest range one book covers; the server holds the same limit. */
+const MAX_RANGE_DAYS = 31;
+const daysBetween = (from, to) => Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86400000) + 1;
+const shortDay = (key) => new Date(`${key}T12:00:00Z`).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+const weekDay = (key) => new Date(`${key}T12:00:00Z`).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+
 export default function DayBook() {
   const [date, setDate] = useState('');       // '' means today, resolved server-side
+  // One day, or a run of days. The two ends are typed freely; only a range that makes sense is
+  // asked for, so a half-typed or backwards range never blanks the page.
+  const [mode, setMode] = useState('day');
+  const [from, setFrom] = useState('');
+  const [to, setTo] = useState('');
+  const rangeProblem = mode !== 'range' || !from || !to ? null
+    : from > to ? 'The first day is after the last day.'
+      : daysBetween(from, to) > MAX_RANGE_DAYS ? `Choose ${MAX_RANGE_DAYS} days or fewer.`
+        : null;
+  // While the ends on the screen do not make a range (backwards, too long, half typed), the last
+  // range that did stays on the page, rather than the page jumping to some single day.
+  const typedRange = mode === 'range' && from && to && !rangeProblem ? { from, to } : null;
+  const lastGoodRange = useRef(null);
+  if (typedRange) lastGoodRange.current = typedRange;
+  const range = mode === 'range' ? (typedRange || lastGoodRange.current) : null;
   const [locationId, setLocationId] = useState('');
   const [printing, setPrinting] = useState(false);
   // isFetching, not just isLoading: placeholderData keeps the previous day on screen while a
   // new one loads, so between clicking a date and the answer arriving the page shows one day's
   // figures. Exporting during that window produced a PDF of the day you had just navigated
   // away from, named after it too, with nothing on screen to suggest anything was wrong.
-  const { data, isLoading, isFetching, isError, error } = useDayBook(date || undefined, locationId || undefined);
+  const { data, isLoading, isFetching, isError, error } = useDayBook(date || undefined, locationId || undefined, range);
   // Reuses the locations the app already loaded for its header selector rather than
   // fetching them again for a dropdown.
   const { locations = [] } = useLocationContext();
@@ -66,9 +88,20 @@ export default function DayBook() {
 
   const d = data;
   const shownDate = d?.date || '';
-  const heading = new Date(`${shownDate}T12:00:00Z`).toLocaleDateString('en-IN', {
-    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
-  });
+  // A range that is one day comes back as that day, so the answer decides, not the mode.
+  const isRange = Boolean(d?.range);
+  const span = isRange ? 'these days' : 'this day';
+  // The same words the WhatsApp message and the PDF carry.
+  const heading = isRange
+    ? `${shortDay(d.range.from)} to ${shortDay(d.range.to)}`
+    : new Date(`${shownDate}T12:00:00Z`).toLocaleDateString('en-IN', {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    });
+
+  const showRange = (first, last) => { setFrom(first); setTo(last); setMode('range'); };
+  // The shop's own "today" when the page is showing it; otherwise this device's, for the
+  // shortcuts only. The server still decides what each day holds.
+  const todayKey = d?.inProgress && !isRange ? shownDate : new Date().toLocaleDateString('en-CA');
 
   // Plain-text summary for WhatsApp. Deliberately short -- it is a glance on a phone, not
   // the full page, and a long message gets truncated by the app anyway.
@@ -112,7 +145,7 @@ export default function DayBook() {
       url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `day-book-${shownDate}${locationId ? '-' + (locations.find(l => l.id === locationId)?.code || 'location') : ''}.pdf`;
+      a.download = `day-book-${isRange ? `${d.range.from}-to-${d.range.to}` : shownDate}${locationId ? '-' + (locations.find(l => l.id === locationId)?.code || 'location') : ''}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -148,21 +181,50 @@ export default function DayBook() {
         </div>
 
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Calendar size={15} color="var(--text-muted)" />
-            <input
-              type="date"
-              className="input-field"
-              value={shownDate}
-              max={d?.inProgress ? shownDate : undefined}
-              onChange={(e) => setDate(e.target.value)}
-              style={{ padding: '8px 10px', fontSize: '13px' }}
-            />
+          <div role="group" aria-label="One day or several" style={{ display: 'inline-flex', border: '1px solid var(--border-light)', borderRadius: '8px', overflow: 'hidden' }}>
+            {[['day', 'One day'], ['range', 'From - to']].map(([key, text]) => (
+              <button key={key} type="button" aria-pressed={mode === key}
+                onClick={() => (key === 'range' ? showRange(from || shiftKey(todayKey, -6), to || todayKey) : setMode('day'))}
+                style={{
+                  padding: '8px 12px', fontSize: '13px', border: 'none', cursor: 'pointer',
+                  background: mode === key ? 'var(--accent-gold)' : 'transparent',
+                  color: mode === key ? '#1b1f1a' : 'var(--text-secondary)', fontWeight: mode === key ? 600 : 400
+                }}>{text}</button>
+            ))}
           </div>
-          <button className="btn-secondary" style={{ fontSize: '13px' }}
-            onClick={() => setDate(shiftKey(shownDate, -1))}>
-            Previous day
-          </button>
+          {mode === 'day' ? (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Calendar size={15} color="var(--text-muted)" />
+                <input
+                  type="date"
+                  aria-label="Day"
+                  className="input-field"
+                  value={shownDate}
+                  max={d?.inProgress ? shownDate : undefined}
+                  onChange={(e) => setDate(e.target.value)}
+                  style={{ padding: '8px 10px', fontSize: '13px' }}
+                />
+              </div>
+              <button className="btn-secondary" style={{ fontSize: '13px' }}
+                onClick={() => setDate(shiftKey(shownDate, -1))}>
+                Previous day
+              </button>
+            </>
+          ) : (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Calendar size={15} color="var(--text-muted)" />
+                <input type="date" aria-label="From" className="input-field" value={from} max={to || todayKey}
+                  onChange={(e) => setFrom(e.target.value)} style={{ padding: '8px 10px', fontSize: '13px' }} />
+                <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>to</span>
+                <input type="date" aria-label="To" className="input-field" value={to} min={from || undefined} max={todayKey}
+                  onChange={(e) => setTo(e.target.value)} style={{ padding: '8px 10px', fontSize: '13px' }} />
+              </div>
+              <button className="btn-secondary" style={{ fontSize: '13px' }} onClick={() => showRange(shiftKey(todayKey, -6), todayKey)}>Last 7 days</button>
+              <button className="btn-secondary" style={{ fontSize: '13px' }} onClick={() => showRange(`${todayKey.slice(0, 8)}01`, todayKey)}>This month</button>
+            </>
+          )}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <MapPin size={15} color="var(--text-muted)" />
             <select className="input-field" value={locationId}
@@ -178,25 +240,32 @@ export default function DayBook() {
               opacity: (printing || isFetching) ? 0.55 : 1,
               cursor: (printing || isFetching) ? 'not-allowed' : 'pointer'
             }}
-            title={isFetching ? 'Waiting for this day to load' : 'Download this day as a PDF'}>
+            title={isFetching ? 'Waiting for it to load' : isRange ? 'Download these days as one PDF' : 'Download this day as a PDF'}>
             {(printing || isFetching) ? <Loader2 size={15} className="animate-spin" /> : <Download size={15} />}
             {printing ? 'Preparing...' : 'PDF'}
           </button>
-          {waUrl && (
-            <a href={waUrl} target="_blank" rel="noopener noreferrer" className="btn-secondary"
-              style={{ display: 'flex', alignItems: 'center', gap: '7px', textDecoration: 'none', color: '#25D366', borderColor: 'rgba(37,211,102,0.4)', fontSize: '13px' }}
-              title="Open WhatsApp with this summary ready to send">
-              <MessageCircle size={15} /> Share
-            </a>
+          {d && (
+            <DayBookSendButton
+              what={{ ...(isRange ? { from: d.range.from, to: d.range.to } : { date: shownDate }), ...(locationId ? { locationId } : {}) }}
+              whatLabel={heading}
+              disabled={isFetching || Boolean(rangeProblem)}
+              fallbackHref={waUrl}
+            />
           )}
         </div>
       </div>
+
+      {rangeProblem && (
+        <div role="alert" style={{ margin: '-10px 0 18px', fontSize: '13px', color: 'var(--accent-warning)' }}>
+          {rangeProblem} The page still shows the last days that were chosen.
+        </div>
+      )}
 
       {/* ── Nothing happened ────────────────────────────────────────────── */}
       {d?.quiet && (
         <div style={{ padding: '64px 24px', textAlign: 'center', color: 'var(--text-muted)', border: '1px dashed var(--border-light)', borderRadius: '12px', marginBottom: '24px' }}>
           <Coffee size={40} style={{ opacity: 0.25, marginBottom: '14px' }} />
-          <h3 style={{ fontSize: '17px', color: 'var(--text-primary)', margin: '0 0 8px' }}>Nothing moved this day</h3>
+          <h3 style={{ fontSize: '17px', color: 'var(--text-primary)', margin: '0 0 8px' }}>Nothing moved {span}</h3>
           <p style={{ fontSize: '14px', margin: 0 }}>
             No stock came in or went out{d.inProgress ? ' so far today' : ''}, and nothing was dispatched.
           </p>
@@ -230,7 +299,7 @@ export default function DayBook() {
               : 'var(--text-muted)'
           }}>
             {d.balanced === true && d.valueMatches !== false && (
-              <><CheckCircle2 size={15} /> The books balance for this day.</>
+              <><CheckCircle2 size={15} /> The books balance for {span}.</>
             )}
             {/* The count agreeing while the value does not is the NORMAL case for a shop that
                 values stock at a weighted average, and it is not a fault. When goods arrive at
@@ -250,7 +319,7 @@ export default function DayBook() {
                 is missing.</>
             )}
             {d.balanced === false && <><AlertTriangle size={15} /> These figures do not add up — treat them as unreliable and tell support.</>}
-            {d.balanced === null && <><Info size={15} /> There is no separate record for this day to check these totals against.</>}
+            {d.balanced === null && <><Info size={15} /> There is no separate record for {span} to check these totals against.</>}
           </div>
         </motion.div>
       )}
@@ -280,7 +349,8 @@ export default function DayBook() {
               Add a cost price to those items to see the true figure.
             </div>
           )}
-          {d.sales.orders.length > 0 && (
+          {/* A month of dispatches is a very long list; a range shows its days instead (below). */}
+          {!isRange && d.sales.orders.length > 0 && (
             <SimpleTable
               head={['Dispatch', 'Order', 'Customer', 'Units', 'Value']}
               rows={d.sales.orders.map(o => [
@@ -288,6 +358,24 @@ export default function DayBook() {
               ])}
             />
           )}
+        </Panel>
+      )}
+
+      {/* ── A range: one row per day ─────────────────────────────────────── */}
+      {isRange && d.days?.length > 0 && (
+        <Panel title="Day by day" subtitle="Closing is the stock count at the end of that day. Sales are counted on the day the goods left. Press a day to open it.">
+          <SimpleTable
+            head={['Day', 'In', 'Out', 'Closing', 'Dispatches', 'Revenue', 'Profit']}
+            rows={d.days.map(r => [
+              <button key={r.date} type="button" onClick={() => { setDate(r.date); setMode('day'); }}
+                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--text-primary)', font: 'inherit', textDecoration: 'underline', textDecorationColor: 'var(--border-light)' }}>
+                {weekDay(r.date)}
+              </button>,
+              r.unitsIn ? `+${num(r.unitsIn)}` : '—', r.unitsOut ? `-${num(r.unitsOut)}` : '—',
+              r.closingUnits === null ? '—' : num(r.closingUnits),
+              r.dispatchCount ? num(r.dispatchCount) : '—', r.dispatchCount ? money(r.revenue) : '—', r.dispatchCount ? money(r.grossProfit) : '—'
+            ])}
+          />
         </Panel>
       )}
 
@@ -355,7 +443,7 @@ export default function DayBook() {
 
       {/* ── Also today ──────────────────────────────────────────────────── */}
       {d?.alsoToday && (
-        <Panel title="Also on this day">
+        <Panel title={isRange ? 'Also in these days' : 'Also on this day'}>
           <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap', padding: '18px 20px' }}>
             <Stat label="Purchase orders raised" value={num(d.alsoToday.purchaseOrdersRaised)} />
             <Stat label="Purchase orders received" value={num(d.alsoToday.purchaseOrdersReceived)} />

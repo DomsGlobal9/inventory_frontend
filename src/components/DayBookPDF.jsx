@@ -115,13 +115,19 @@ function Section({ title, subtitle, children }) {
 
 export default function DayBookPDF({ day, heading, businessName, locationName, generatedBy }) {
   const d = day || {};
+  // A range reads the same way as one day, in its own words, with a row for each day.
+  // Kept in step with backend/src/services/whatsapp/daybook-pdf.ts: change one, change the other.
+  const isRange = Boolean(d.range);
+  const span = isRange ? 'these days' : 'this day';
+  const period = isRange ? `${d.range.from} to ${d.range.to}` : (d.date || '');
+  const shortDate = (key) => new Date(`${key}T12:00:00Z`).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
   const printedAt = new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
 
   return (
     <Document
-      title={`Day Book ${d.date || ''}`}
+      title={`Day Book ${period}`}
       author={businessName || 'Inventory'}
-      subject={`End of day report for ${d.date || ''}`}
+      subject={`${isRange ? 'Report' : 'End of day report'} for ${period}`}
     >
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
@@ -138,7 +144,7 @@ export default function DayBookPDF({ day, heading, businessName, locationName, g
           </View>
           {d.inProgress ? (
             <Text style={styles.running}>
-              STILL RUNNING - this day is not finished, figures will change
+              {isRange ? 'STILL RUNNING - the last day is not finished, figures will change' : 'STILL RUNNING - this day is not finished, figures will change'}
             </Text>
           ) : null}
         </View>
@@ -159,16 +165,16 @@ export default function DayBookPDF({ day, heading, businessName, locationName, g
               <Figure label="Closing stock" units={d.closing.units} value={d.closing.value} bold />
             </View>
             <Text style={[styles.verdict, d.balanced === false ? styles.bad : styles.ok]}>
-              {d.balanced === true && 'The books balance for this day.'}
+              {d.balanced === true && `The books balance for ${span}.`}
               {d.balanced === false && 'These figures do not add up - treat them as unreliable and tell support.'}
-              {d.balanced === null && 'No independent record exists for this day, so the totals are shown without a balance check.'}
+              {d.balanced === null && `No independent record exists for ${span}, so the totals are shown without a balance check.`}
             </Text>
           </View>
         ) : null}
 
         {d.quiet ? (
           <Text style={styles.empty}>
-            Nothing moved this day. No stock came in or went out{d.inProgress ? ' so far' : ''}, and nothing was dispatched.
+            Nothing moved {span}. No stock came in or went out{d.inProgress ? ' so far' : ''}, and nothing was dispatched.
           </Text>
         ) : null}
 
@@ -181,15 +187,35 @@ export default function DayBookPDF({ day, heading, businessName, locationName, g
               <View style={styles.stat}><Text style={styles.statLabel}>What it cost you</Text><Text style={styles.statValue}>{money(d.sales.costOfGoods)}</Text></View>
               <View style={styles.stat}><Text style={styles.statLabel}>Profit</Text><Text style={styles.statValue}>{money(d.sales.grossProfit)}</Text></View>
             </View>
+            {/* A month of dispatches is pages of rows; a range shows its days instead (below). */}
+            {isRange ? null : (
+              <Table
+                head={['Dispatch', 'Order', 'Customer', 'Units', 'Value']}
+                widths={['20%', '20%', '30%', '12%', '18%']}
+                align={['left', 'left', 'left', 'right', 'right']}
+                rows={(d.sales.orders || []).map(o => [
+                  o.dispatchNumber, o.orderNumber, o.customer || '-', num(o.units), money(o.value)
+                ])}
+              />
+            )}
+          </Section>
+        ) : null}
+
+        {isRange && d.days?.length > 0 ? (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Day by day</Text>
+            <Text style={styles.sectionSub}>Closing is the stock count at the end of that day. Sales are counted on the day the goods left.</Text>
             <Table
-              head={['Dispatch', 'Order', 'Customer', 'Units', 'Value']}
-              widths={['20%', '20%', '30%', '12%', '18%']}
-              align={['left', 'left', 'left', 'right', 'right']}
-              rows={(d.sales.orders || []).map(o => [
-                o.dispatchNumber, o.orderNumber, o.customer || '-', num(o.units), money(o.value)
+              head={['Day', 'In', 'Out', 'Closing', 'Dispatches', 'Revenue', 'Profit']}
+              widths={['22%', '10%', '10%', '13%', '13%', '16%', '16%']}
+              align={['left', 'right', 'right', 'right', 'right', 'right', 'right']}
+              rows={d.days.map(r => [
+                shortDate(r.date), r.unitsIn ? `+${num(r.unitsIn)}` : '-', r.unitsOut ? `-${num(r.unitsOut)}` : '-',
+                r.closingUnits === null ? '-' : num(r.closingUnits),
+                r.dispatchCount ? num(r.dispatchCount) : '-', r.dispatchCount ? money(r.revenue) : '-', r.dispatchCount ? money(r.grossProfit) : '-'
               ])}
             />
-          </Section>
+          </View>
         ) : null}
 
         <Section title="Stock that came in" subtitle={`${num(d.stockIn?.totalUnits)} units, ${money(d.stockIn?.totalValue)}`}>
@@ -253,18 +279,21 @@ export default function DayBookPDF({ day, heading, businessName, locationName, g
               head={['Item', 'Change', 'Reason', 'By']}
               widths={['38%', '14%', '26%', '22%']}
               align={['left', 'right', 'left', 'left']}
-              rows={d.adjustments.map(a => [
+              rows={d.adjustments.slice(0, 40).map(a => [
                 `${a.title || ''} ${a.sku || ''}`.trim() || '-',
                 signed(a.units),
                 a.reason,
                 a.by || '-'
               ])}
             />
+            {d.adjustments.length > 40 ? (
+              <Text style={styles.sectionSub}>{`and ${num(d.adjustments.length - 40)} more - see them in the app`}</Text>
+            ) : null}
           </Section>
         ) : null}
 
         {d.alsoToday ? (
-          <Section title="Also on this day">
+          <Section title={isRange ? 'Also in these days' : 'Also on this day'}>
             <View style={styles.statRow}>
               <View style={[styles.stat, { width: '33%' }]}><Text style={styles.statLabel}>Purchase orders raised</Text><Text style={styles.statValue}>{num(d.alsoToday.purchaseOrdersRaised)}</Text></View>
               <View style={[styles.stat, { width: '33%' }]}><Text style={styles.statLabel}>Purchase orders received</Text><Text style={styles.statValue}>{num(d.alsoToday.purchaseOrdersReceived)}</Text></View>

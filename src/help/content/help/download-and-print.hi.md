@@ -18,7 +18,7 @@ ScaleEzy में "सब कुछ एक्सपोर्ट करें" �
 | कोई प्रोडक्ट, **Inventory History** टैब | **Export** | उस प्रोडक्ट के स्टॉक आने-जाने की स्प्रेडशीट | [प्रोडक्ट पेज](/help/products/product-page) |
 | **Inventory Alerts** | **Export Report** | स्टॉक खत्म या कम स्टॉक वाले आइटम की स्प्रेडशीट | [कम स्टॉक के अलर्ट](/help/inventory/low-stock-alerts) |
 | **Settings → Day Book** | **PDF** | एक दिन की PDF | [Day Book](/help/settings/day-book) |
-| **Settings → Day Book** | **Share** | दिन के छोटे सारांश के साथ WhatsApp खोलता है | [Day Book](/help/settings/day-book) |
+| **Settings → Day Book** | **Send on WhatsApp** | एक दिन, या कई दिनों, को PDF के रूप में मालिक के WhatsApp पर भेजता है | [Day Book](/help/settings/day-book) |
 | कोई परचेज़ ऑर्डर | **Download PDF** | परचेज़ ऑर्डर की PDF, प्रिंट करने या भेजने के लिए | [परचेज़ ऑर्डर बनाएँ](/help/purchase-orders/create-a-purchase-order) |
 | कोई परचेज़ ऑर्डर | **Send on WhatsApp**, **Email to supplier** | ऑर्डर सप्लायर को भेजता है (सिर्फ़ ड्राफ़्ट ऑर्डर) | [परचेज़ ऑर्डर बनाएँ](/help/purchase-orders/create-a-purchase-order) |
 | कोई परचेज़ ऑर्डर | **Download receipt PDF**, **Receipt PDF** | एक डिलीवरी की माल रसीद (goods receipt) | [डिलीवरी लें](/help/purchase-orders/receive-a-delivery) |
@@ -81,9 +81,9 @@ Products पर **Import Updates** **Quantity** कॉलम को **ऊपर 
 
 ### Day Book
 
-**Settings → Day Book** में पहले दिन और लोकेशन चुनें। फिर दिन की PDF डाउनलोड करने के लिए [[1]] **PDF** दबाएँ, जैसे *day-book-2026-09-17.pdf*, या छोटे सारांश के साथ WhatsApp खोलने के लिए [[2]] **Share** दबाएँ। जब तक आप WhatsApp में भेजें नहीं दबाते, कुछ नहीं जाता।
+**Settings → Day Book** में पहले दिन और लोकेशन चुनें। फिर दिन की PDF डाउनलोड करने के लिए [[1]] **PDF** दबाएँ, जैसे *day-book-2026-09-17.pdf*, या वही PDF मालिक के WhatsApp नंबर पर भेजने के लिए [[2]] **Send on WhatsApp** दबाएँ। **From - to** से आपको कई दिन एक ही फ़ाइल में मिलते हैं।
 
-![Day Book का ऊपरी हिस्सा। PDF पर 1 और Share पर 2 का निशान है।](4-day-book-pdf-share.webp "Day Book सिर्फ़ उन्हें दिखता है जो पैसों की रिपोर्ट देख सकते हैं।")
+![Day Book का ऊपरी हिस्सा। PDF पर 1 और Send on WhatsApp पर 2 का निशान है।](4-day-book-pdf-send.webp "Day Book सिर्फ़ उन्हें दिखता है जो पैसों की रिपोर्ट देख सकते हैं।")
 
 ### परचेज़ ऑर्डर और डिलीवरी
 

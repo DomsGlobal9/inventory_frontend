@@ -2,7 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { MessageCircle, Loader2, Check, CheckCheck, AlertCircle, Clock } from 'lucide-react';
+import { Loader2, Check, CheckCheck, AlertCircle, Clock } from 'lucide-react';
+import WhatsAppIcon from './WhatsAppIcon';
 import { usePermission } from '../../hooks/usePermission';
 import { useWhatsAppOverview, useWhatsAppMessage, useSendWhatsAppDocument } from '../../hooks/useWhatsApp';
 
@@ -82,7 +83,7 @@ export default function WhatsAppSendButton({ kind, id, buildPdf, fileName, fallb
       <span style={{ display: 'inline-flex', flexDirection: 'column', gap: '4px', ...style }}>
         <a href={fallbackHref} target="_blank" rel="noopener noreferrer" className="btn-secondary"
           style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', textDecoration: 'none' }}>
-          <MessageCircle size={16} /> Share on WhatsApp
+          <WhatsAppIcon size={16} /> Share on WhatsApp
         </a>
         {overview?.canManage && overview?.configured ? (
           <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
@@ -121,7 +122,7 @@ export default function WhatsAppSendButton({ kind, id, buildPdf, fileName, fallb
       <button type="button" className="btn-secondary" onClick={press} disabled={working}
         title={recipientLabel ? `Sends the PDF to ${recipientLabel}, at the number saved for them` : undefined}
         style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-        {working ? <Loader2 size={16} className="animate-spin" /> : <MessageCircle size={16} />}
+        {working ? <Loader2 size={16} className="animate-spin" /> : <WhatsAppIcon size={16} />}
         {working ? 'Sending…' : again ? 'Send on WhatsApp again' : 'Send on WhatsApp'}
       </button>
       {state ? (

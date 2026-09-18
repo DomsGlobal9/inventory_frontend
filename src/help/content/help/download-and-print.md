@@ -18,7 +18,7 @@ ScaleEzy doesn't have one big "export everything" button. Each screen that can g
 | A product, **Inventory History** tab | **Export** | A spreadsheet of that product's stock movements | [The product page](/help/products/product-page) |
 | **Inventory Alerts** | **Export Report** | A spreadsheet of out of stock or low stock items | [Low stock alerts](/help/inventory/low-stock-alerts) |
 | **Settings → Day Book** | **PDF** | A PDF of one day | [Day Book](/help/settings/day-book) |
-| **Settings → Day Book** | **Share** | Opens WhatsApp with a short summary of the day | [Day Book](/help/settings/day-book) |
+| **Settings → Day Book** | **Send on WhatsApp** | Sends the day, or several days, as a PDF to the owner's WhatsApp | [Day Book](/help/settings/day-book) |
 | A purchase order | **Download PDF** | The purchase order as a PDF, to print or send | [Raise a purchase order](/help/purchase-orders/create-a-purchase-order) |
 | A purchase order | **Send on WhatsApp**, **Email to supplier** | Sends the order to the supplier (draft orders only) | [Raise a purchase order](/help/purchase-orders/create-a-purchase-order) |
 | A purchase order | **Download receipt PDF**, **Receipt PDF** | The goods receipt for one delivery | [Receive a delivery](/help/purchase-orders/receive-a-delivery) |
@@ -81,9 +81,9 @@ On **Inventory Alerts**, choose the **Out of Stock** or **Low Stock** tab, then 
 
 ### Day Book
 
-In **Settings → Day Book**, choose the day and the location first. Then click [[1]] **PDF** to download the day, for example *day-book-2026-09-17.pdf*, or [[2]] **Share** to open WhatsApp with a short summary. Nothing is sent until you press send in WhatsApp.
+In **Settings → Day Book**, choose the day and the location first. Then click [[1]] **PDF** to download the day, for example *day-book-2026-09-17.pdf*, or [[2]] **Send on WhatsApp** to send the same PDF to the owner's WhatsApp number. With **From - to** you get several days in one file.
 
-![The Day Book header. PDF is marked 1 and Share is marked 2.](4-day-book-pdf-share.webp "Only people who can see money reports have Day Book.")
+![The Day Book header. PDF is marked 1 and Send on WhatsApp is marked 2.](4-day-book-pdf-send.webp "Only people who can see money reports have Day Book.")
 
 ### Purchase orders and deliveries
 

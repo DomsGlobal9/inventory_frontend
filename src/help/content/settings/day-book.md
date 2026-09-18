@@ -1,11 +1,11 @@
 ---
 title: Day Book (close the day)
-summary: One page for one business day. What stock you started with, what came in, what went out, what is left, and whether the numbers add up.
+summary: One page for one business day, or for several days together. What stock you started with, what came in, what went out, what is left, and whether the numbers add up. Send it to your WhatsApp as a PDF.
 for: Owners, admins and inventory managers
 minutes: 3
 app: /reports/daybook
 appLabel: Day Book
-keywords: day book daybook close day end of day report daily summary opening closing stock came in went out balance pdf share whatsapp sales profit
+keywords: day book daybook close day end of day report daily summary opening closing stock came in went out balance pdf send whatsapp sales profit week month several days from to range last 7 days this month previous day accountant
 ---
 
 At the end of the day, open the **Day Book**. It works like closing a cash book, but for stock:
@@ -31,9 +31,9 @@ The Day Book opens on **today**. While the day is not over, it says **STILL RUNN
 2. click [[2]] **Previous day** to go back one day at a time.
 3. [[3]] Choose **All locations**, or one store or godown.
 4. [[4]] **PDF** downloads the day as a PDF file.
-5. [[5]] **Share** opens WhatsApp with a short summary of the day. Choose the chat or group to send it to. Nothing is sent until you press send in WhatsApp.
+5. [[5]] **Send on WhatsApp** sends the day as a PDF to the owner's WhatsApp. See step 8 below.
 
-![The Day Book header. The date is marked 1, Previous day 2, All locations 3, PDF 4 and Share 5.](2-choose-the-day.webp "Today is marked STILL RUNNING until the day is over.")
+![The Day Book header. The date is marked 1, Previous day 2, All locations 3, PDF 4 and Send on WhatsApp 5.](2-choose-the-day.webp "Today is marked STILL RUNNING until the day is over.")
 
 ## 3. Read the four numbers
 
@@ -85,6 +85,30 @@ Click **PDF** to download the day, for example *day-book-2026-09-17.pdf*. Print 
 
 ![The top of the Day Book PDF: Day Book, Thursday 17 September 2026, STILL RUNNING, the four numbers and the sales dispatched.](6-the-pdf.webp "A PDF of a running day says the figures will change.")
 
+## 7. Several days in one book
+
+For a week, a month, or any days you choose (up to **31 days**):
+
+1. Click [[1]] **From - to**.
+2. Choose the first day [[2]] and the last day [[3]]. Or click [[4]] **Last 7 days** or **This month**.
+3. The page now adds those days together: the **Opening stock** of the first day, everything that came in and went out, and the **Closing stock** of the last day.
+4. [[5]] **Day by day** has one line for each day. Click a day to open that day alone.
+
+![The Day Book in From - to mode for 13 to 19 September. From - to is marked 1, the first day 2, the last day 3, Last 7 days 4 and the Day by day table 5.](7-several-days.webp "The list of single dispatches is left out here. Open a day to see them.")
+
+**PDF** and **Send on WhatsApp** then give you these days as one file, for example *day-book-2026-09-13-to-2026-09-19.pdf*. Click **One day** to go back.
+
+## 8. Send it on WhatsApp
+
+**Send on WhatsApp** sends what is on the page, one day or several days, for the location you chose, as a PDF.
+
+- It always goes to the WhatsApp number the owner saved for the Day Book, in **Settings → WhatsApp**. Hold the mouse over the button to see the last four digits. You cannot type another number, because the Day Book shows your profit.
+- It comes from **ScaleEzy's WhatsApp number**, like the Day Book every night. Your shop's own WhatsApp does not need to be linked.
+- Under the button you see **Waiting to send**, **Sent**, **Delivered** or **Read**.
+- A shop can send **10 Day Books a day** this way. The Day Book that comes by itself every night is not counted.
+
+To give it to your accountant or partner, forward the message in WhatsApp, or download the **PDF** and send the file.
+
 ## Common problems
 
 :::faq The numbers are different from yesterday's PDF
@@ -99,8 +123,20 @@ The Day Book shows money figures. Only the owner, admins and inventory managers 
 Check the location box next to **Previous day**. **All locations** adds up every store and godown.
 :::
 
-:::faq Share opens WhatsApp, but no chat is open
-That is how Share works: WhatsApp asks who to send the summary to. Pick a chat or a group, then press send. If this computer has no WhatsApp, it opens WhatsApp Web; sign in there, or download the **PDF** and send the file from your phone.
+:::faq Send on WhatsApp says no number is saved
+The owner saves it once: **Settings → WhatsApp → The Day Book, every night → Your WhatsApp number → Save**. The box **Send me the Day Book every night** can stay off. See [WhatsApp](/help/settings/whatsapp).
+:::
+
+:::faq Send on WhatsApp is grey
+Hold the mouse over it to see why. Either the page is still loading, or the days you chose are not right (the first day is after the last day, or more than 31 days), or this shop has already sent 10 Day Books today. Download the **PDF** instead, or send it tomorrow.
+:::
+
+:::faq It says ScaleEzy's WhatsApp number is not connected
+That is on ScaleEzy's side, not yours. Try again after some time, or download the **PDF**. If it stays like this, see [Get support](/help/settings/get-support).
+:::
+
+:::faq I see Share, not Send on WhatsApp
+WhatsApp sending is not switched on for your ScaleEzy yet. **Share** opens WhatsApp with a short summary; choose the chat, then press send.
 :::
 
 :::faq PDF says "Preparing..." for a long time

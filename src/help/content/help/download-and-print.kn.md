@@ -18,7 +18,7 @@ ScaleEzy ಯಲ್ಲಿ "ಎಲ್ಲವನ್ನೂ ಎಕ್ಸ್‌ಪೋ�
 | ಒಂದು ಪ್ರಾಡಕ್ಟ್, **Inventory History** ಟ್ಯಾಬ್ | **Export** | ಆ ಪ್ರಾಡಕ್ಟ್‌ನ ಸ್ಟಾಕ್ ಬದಲಾವಣೆಗಳ ಸ್ಪ್ರೆಡ್‌ಶೀಟ್ | [ಪ್ರಾಡಕ್ಟ್ ಪುಟ](/help/products/product-page) |
 | **Inventory Alerts** | **Export Report** | ಸ್ಟಾಕ್ ಇಲ್ಲದ ಅಥವಾ ಕಡಿಮೆ ಸ್ಟಾಕ್ ಇರುವ ಐಟಂಗಳ ಸ್ಪ್ರೆಡ್‌ಶೀಟ್ | [ಕಡಿಮೆ ಸ್ಟಾಕ್ ಅಲರ್ಟ್‌ಗಳು](/help/inventory/low-stock-alerts) |
 | **Settings → Day Book** | **PDF** | ಒಂದು ದಿನದ PDF | [ಡೇ ಬುಕ್](/help/settings/day-book) |
-| **Settings → Day Book** | **Share** | ದಿನದ ಚಿಕ್ಕ ಸಾರಾಂಶದ ಜೊತೆ WhatsApp ತೆರೆಯುತ್ತದೆ | [ಡೇ ಬುಕ್](/help/settings/day-book) |
+| **Settings → Day Book** | **Send on WhatsApp** | ಒಂದು ದಿನವನ್ನು, ಅಥವಾ ಹಲವು ದಿನಗಳನ್ನು, PDF ಆಗಿ ಮಾಲೀಕರ WhatsApp ಗೆ ಕಳುಹಿಸುತ್ತದೆ | [ಡೇ ಬುಕ್](/help/settings/day-book) |
 | ಒಂದು ಖರೀದಿ ಆರ್ಡರ್ | **Download PDF** | ಪ್ರಿಂಟ್ ಮಾಡಲು ಅಥವಾ ಕಳುಹಿಸಲು ಖರೀದಿ ಆರ್ಡರ್‌ನ PDF | [ಖರೀದಿ ಆರ್ಡರ್ ಮಾಡಿ](/help/purchase-orders/create-a-purchase-order) |
 | ಒಂದು ಖರೀದಿ ಆರ್ಡರ್ | **Send on WhatsApp**, **Email to supplier** | ಆರ್ಡರ್ ಅನ್ನು ಸಪ್ಲೈಯರ್‌ಗೆ ಕಳುಹಿಸುತ್ತದೆ (ಡ್ರಾಫ್ಟ್ ಆರ್ಡರ್‌ಗಳು ಮಾತ್ರ) | [ಖರೀದಿ ಆರ್ಡರ್ ಮಾಡಿ](/help/purchase-orders/create-a-purchase-order) |
 | ಒಂದು ಖರೀದಿ ಆರ್ಡರ್ | **Download receipt PDF**, **Receipt PDF** | ಒಂದು ಡೆಲಿವರಿಯ ಗೂಡ್ಸ್ ರಸೀದಿ (goods receipt) | [ಡೆಲಿವರಿ ಸ್ವೀಕರಿಸಿ](/help/purchase-orders/receive-a-delivery) |
@@ -81,9 +81,9 @@ Products ನಲ್ಲಿರುವ **Import Updates** **Quantity** ಕಾಲಮ�
 
 ### ಡೇ ಬುಕ್
 
-**Settings → Day Book** ನಲ್ಲಿ ಮೊದಲು ದಿನ ಮತ್ತು ಲೊಕೇಶನ್ ಆರಿಸಿ. ನಂತರ ದಿನವನ್ನು ಡೌನ್‌ಲೋಡ್ ಮಾಡಲು [[1]] **PDF** ಕ್ಲಿಕ್ ಮಾಡಿ, ಉದಾಹರಣೆಗೆ *day-book-2026-09-17.pdf*, ಅಥವಾ ಚಿಕ್ಕ ಸಾರಾಂಶದ ಜೊತೆ WhatsApp ತೆರೆಯಲು [[2]] **Share** ಕ್ಲಿಕ್ ಮಾಡಿ. WhatsApp ನಲ್ಲಿ ನೀವು ಸೆಂಡ್ ಒತ್ತುವವರೆಗೆ ಏನೂ ಹೋಗುವುದಿಲ್ಲ.
+**Settings → Day Book** ನಲ್ಲಿ ಮೊದಲು ದಿನ ಮತ್ತು ಲೊಕೇಶನ್ ಆರಿಸಿ. ನಂತರ ದಿನವನ್ನು ಡೌನ್‌ಲೋಡ್ ಮಾಡಲು [[1]] **PDF** ಕ್ಲಿಕ್ ಮಾಡಿ, ಉದಾಹರಣೆಗೆ *day-book-2026-09-17.pdf*, ಅಥವಾ ಅದೇ PDF ಅನ್ನು ಮಾಲೀಕರ WhatsApp ನಂಬರ್‌ಗೆ ಕಳುಹಿಸಲು [[2]] **Send on WhatsApp** ಕ್ಲಿಕ್ ಮಾಡಿ. **From - to** ಬಳಸಿದರೆ ಹಲವು ದಿನಗಳು ಒಂದೇ ಫೈಲ್‌ನಲ್ಲಿ ಸಿಗುತ್ತವೆ.
 
-![ಡೇ ಬುಕ್‌ನ ಮೇಲ್ಭಾಗ. PDF 1 ಮತ್ತು Share 2 ಎಂದು ಗುರುತಿಸಲಾಗಿದೆ.](4-day-book-pdf-share.webp "ಹಣದ ರಿಪೋರ್ಟ್ ನೋಡಲು ಅನುಮತಿ ಇರುವವರಿಗೆ ಮಾತ್ರ ಡೇ ಬುಕ್ ಇರುತ್ತದೆ.")
+![ಡೇ ಬುಕ್‌ನ ಮೇಲ್ಭಾಗ. PDF 1 ಮತ್ತು Send on WhatsApp 2 ಎಂದು ಗುರುತಿಸಲಾಗಿದೆ.](4-day-book-pdf-send.webp "ಹಣದ ರಿಪೋರ್ಟ್ ನೋಡಲು ಅನುಮತಿ ಇರುವವರಿಗೆ ಮಾತ್ರ ಡೇ ಬುಕ್ ಇರುತ್ತದೆ.")
 
 ### ಖರೀದಿ ಆರ್ಡರ್‌ಗಳು ಮತ್ತು ಡೆಲಿವರಿಗಳು
 

@@ -1,16 +1,30 @@
-# React + Vite
+# ScaleEzy Inventory — frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+The shop's app: products, stock, shelves, purchase orders, orders and the counter (New sale),
+returns, offers, the Day Book, WhatsApp, and the Help Center guide (`/help`, in English, Telugu,
+Hindi, Tamil and Kannada).
 
-Currently, two official plugins are available:
+React + Vite, TanStack Query, react-hot-toast; PDFs with `@react-pdf/renderer`.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Run it
 
-## React Compiler
+```bash
+npm install
+npm run dev        # http://localhost:5173, talks to the backend on http://localhost:4006
+npm run build      # production build into dist/
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Settings come from `.env` (see `.env.example`). Deployed on Vercel (`vercel.json`); `Dockerfile`
+and `nginx.conf` are for running it in a container.
 
-## Expanding the Oxlint configuration
+## Where things are
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+| Folder | What |
+|---|---|
+| `src/pages` | One file per screen (`sales/`, `shelves/`, `settings/` group related screens) |
+| `src/components` | Shared pieces; `common/Select.jsx`, `ConfirmModal.jsx`, `pdf/` letterhead, `whatsapp/` |
+| `src/hooks` | Data for each area (one hook file per area, e.g. `useWhatsApp.js`) |
+| `src/help` | The Help Center: `content/<section>/<page>.md` (+ `.te/.hi/.ta/.kn.md`), `images/`, `sections.js` for the menu |
+| `scripts/verify-css-vars.mjs` | Checks every CSS variable used is defined |
+
+The screen tests (Playwright robot) live outside this repo, in `PLAN-help/robot`.

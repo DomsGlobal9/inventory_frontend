@@ -169,6 +169,23 @@ export default function QuickCreate({ locationId, parent, onClose, onCreated }) 
                 {result.more > 0 && <span className="sh-muted">and {result.more} more</span>}
               </div>
             )}
+            {/* Something in the way stops that rack alone; the rest is still created. */}
+            {result.conflictCount > 0 && (
+              <div style={{ display: 'grid', gap: 4, borderTop: '1px solid var(--border-light)', paddingTop: 8 }}>
+                <span style={{ color: 'var(--accent-warning)', fontWeight: 600 }}>
+                  {result.conflictCount} left out{result.skipped ? `, and ${result.skipped} inside ${result.conflictCount === 1 ? 'it' : 'them'}` : ''}
+                </span>
+                {result.conflicts?.map(c => (
+                  <span key={c.address} className="sh-muted" style={{ fontSize: 13 }}><span className="sh-addr">{c.address}</span> — {c.reason}</span>
+                ))}
+                {result.conflictCount > (result.conflicts?.length ?? 0) && (
+                  <span className="sh-muted" style={{ fontSize: 13 }}>and {result.conflictCount - result.conflicts.length} more</span>
+                )}
+              </div>
+            )}
+            {result.notes?.length > 0 && result.notes.map(n => (
+              <span key={n.address} className="sh-muted" style={{ fontSize: 13 }}><span className="sh-addr">{n.address}</span> — {n.note}</span>
+            ))}
           </>) : null}
       </div>
 

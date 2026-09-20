@@ -149,6 +149,14 @@ export default function FillShelves() {
                 counted stays right.
               </span>
             )}
+            {finished && (data.shelves.notStarted > 0 || data.shelves.skipped > 0) && (
+              // Finished, yet shelves are still waiting: skipped ones, or racks added since. Saying so
+              // stops "finished" and "next shelf" from looking like a contradiction.
+              <span className="sh-muted" style={{ fontSize: 13 }}>
+                {data.shelves.notStarted + data.shelves.skipped} {data.shelves.notStarted + data.shelves.skipped === 1 ? 'shelf has' : 'shelves have'} not been filled.
+                You can still do them here; till sales are back to taking from shop-floor shelves first.
+              </span>
+            )}
             {finished && (
               <div className="sh-row" style={{ gap: 10, flexWrap: 'wrap' }}>
                 <span style={{ display: 'flex', gap: 6, alignItems: 'center' }}><PartyPopper size={16} /> The first fill is finished.</span>

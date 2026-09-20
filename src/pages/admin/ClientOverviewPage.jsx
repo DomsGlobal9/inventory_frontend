@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Loader2, ArrowLeft, LogIn, Users, Package, AlertTriangle, IndianRupee, Clock, ShieldCheck, Mail, Shield, KeyRound } from 'lucide-react';
+import { Loader2, ArrowLeft, LogIn, Users, Package, AlertTriangle, IndianRupee, Clock, ShieldCheck, Mail, Shield, KeyRound, Boxes } from 'lucide-react';
 import { useAdminClient, useAssumeClient } from '../../hooks/admin/useAdminConsole';
 import ClientDangerZone from '../../components/admin/ClientDangerZone';
 import ClientServiceKeys from '../../components/admin/ClientServiceKeys';
@@ -143,9 +143,32 @@ export default function ClientOverviewPage() {
           </div>
         </div>
         
+        {/* Racks and shelves: how far this shop has got, so a shop that went quiet halfway can be
+            helped. "Shelves done" is how far round the shop somebody has been; "% shelved" is how
+            much stock is on a shelf right now, and it drops again whenever new stock arrives. */}
+        {data.shelves && (
+          <div style={STAT_CARD}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: 500 }}>
+              <div style={{ background: 'var(--bg-input)', padding: '6px', borderRadius: '6px', color: 'var(--text-primary)' }}><Boxes size={16} /></div>
+              Racks &amp; shelves
+            </div>
+            <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+              {data.shelves.spots === 0 ? 'Not started' : `${data.shelves.spots} spots`}
+            </div>
+            {data.shelves.spots > 0 && (
+              <div style={{ fontSize: '11.5px', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                {data.shelves.shelvesDone} {data.shelves.shelvesDone === 1 ? 'shelf' : 'shelves'} filled
+                {data.shelves.shelvesSkipped > 0 ? `, ${data.shelves.shelvesSkipped} skipped` : ''} ·
+                {' '}{data.shelves.percentShelved}% of stock on a shelf
+                {data.shelves.state === 'DONE' ? ' · first fill finished' : data.shelves.state === 'FILLING' ? ' · still filling' : ' · racks only, nothing filled yet'}
+              </div>
+            )}
+          </div>
+        )}
+
         <div style={STAT_CARD}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: 500 }}>
-            <div style={{ background: 'var(--bg-input)', padding: '6px', borderRadius: '6px', color: 'var(--accent-gold)' }}><IndianRupee size={16} /></div> 
+            <div style={{ background: 'var(--bg-input)', padding: '6px', borderRadius: '6px', color: 'var(--accent-gold)' }}><IndianRupee size={16} /></div>
             Total Inventory Value
           </div>
           <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>{formatINR(data.inventoryValue)}</div>

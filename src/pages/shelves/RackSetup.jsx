@@ -12,6 +12,7 @@ import {
 } from '../../hooks/useShelves';
 import { ShelvesLayout, SpotChip, EmptyState, ItemThumb, itemDetail, pieces } from '../../components/shelves/ShelfBits';
 import QuickCreate from '../../components/shelves/QuickCreate';
+import DescribeShop from '../../components/shelves/DescribeShop';
 import Select from '../../components/common/Select';
 import ConfirmModal from '../../components/ConfirmModal';
 
@@ -35,11 +36,12 @@ export default function RackSetup() {
   const [selectedId, setSelectedId] = useState(null);
   const [expanded, setExpanded] = useState(() => new Set());
   const [quick, setQuick] = useState(null); // null | { parent }
+  const [describe, setDescribe] = useState(false);
   const [importing, setImporting] = useState(false);
   const byId = useMemo(() => flatten(tree.data?.spots), [tree.data]);
   const selected = selectedId ? byId.get(selectedId) : null;
 
-  useEffect(() => { setSelectedId(null); setQuick(null); }, [locationId]);
+  useEffect(() => { setSelectedId(null); setQuick(null); setDescribe(false); }, [locationId]);
   useEffect(() => {
     // First visit: open the areas so the shape of the shop is visible.
     if (tree.data && expanded.size === 0) setExpanded(new Set((tree.data.spots ?? []).map(s => s.id)));
@@ -74,13 +76,17 @@ export default function RackSetup() {
         </div>
       ) : importing ? (
         <ImportAddresses locationId={locationId} onClose={() => setImporting(false)} />
+      ) : describe ? (
+        <DescribeShop locationId={locationId} locationName={currentLocation?.name}
+          onClose={() => setDescribe(false)} onCreated={() => setDescribe(false)} />
       ) : tree.data.count === 0 && !quick ? (
         <div className="sh-card">
           <EmptyState icon={FolderTree} title={`No racks or shelves at ${currentLocation?.name} yet`}
-            text="Start from a layout like yours — a saree boutique, readymade rails, a godown — and adjust it. You can change everything later."
+            text="Answer three questions — where you keep stock, what holds it, and how many shelves — and ScaleEzy draws it for you. You can change everything later."
             action={
               <div className="sh-row" style={{ gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
-                <button type="button" className="btn-primary" onClick={() => setQuick({ parent: null })} style={{ display: 'flex', gap: 8, alignItems: 'center' }}><Wand2 size={16} /> Set up this location</button>
+                <button type="button" className="btn-primary" onClick={() => setDescribe(true)} style={{ display: 'flex', gap: 8, alignItems: 'center' }}><Wand2 size={16} /> Describe this place</button>
+                <button type="button" className="btn-secondary" onClick={() => setQuick({ parent: null })} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>Set it up myself</button>
                 <button type="button" className="btn-secondary" onClick={() => setImporting(true)} style={{ display: 'flex', gap: 8, alignItems: 'center' }}><Upload size={16} /> Import from a spreadsheet</button>
               </div>
             } />
@@ -92,7 +98,8 @@ export default function RackSetup() {
               <span className="sh-muted">{tree.data.count} spots · {pieces(totals?.onShelves ?? 0)} on shelves · {totals?.notShelved ?? 0} not shelved</span>
             </div>
             <div className="sh-row" style={{ gap: 6, flexWrap: 'wrap' }}>
-              <button type="button" className="btn-primary" onClick={() => { setQuick({ parent: null }); setSelectedId(null); }} style={{ display: 'flex', gap: 6, alignItems: 'center', padding: '6px 12px' }}><Wand2 size={14} /> Quick create</button>
+              <button type="button" className="btn-primary" onClick={() => { setDescribe(true); setQuick(null); setSelectedId(null); }} style={{ display: 'flex', gap: 6, alignItems: 'center', padding: '6px 12px' }}><Wand2 size={14} /> Describe</button>
+              <button type="button" className="btn-secondary" onClick={() => { setQuick({ parent: null }); setSelectedId(null); }} style={{ display: 'flex', gap: 6, alignItems: 'center', padding: '6px 12px' }}>Quick create</button>
               <AddArea locationId={locationId} onAdded={(s) => { setSelectedId(s.id); setQuick(null); }} />
               <button type="button" className="btn-secondary" onClick={() => { setImporting(true); setQuick(null); }} style={{ display: 'flex', gap: 6, alignItems: 'center', padding: '6px 12px' }}><Upload size={14} /> CSV</button>
             </div>

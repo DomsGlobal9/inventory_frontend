@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useDashboardSummary } from '../hooks/useDashboardSummary';
 import PageLoader from '../components/PageLoader';
 import SummaryCards from '../components/dashboard/SummaryCards';
+import SetUpShelvesCard from '../components/shelves/SetUpShelvesCard';
 import RecentTransactions from '../components/dashboard/RecentTransactions';
 import LowStockWidget from '../components/dashboard/LowStockWidget';
 import DeadStockWidget from '../components/dashboard/DeadStockWidget';
@@ -84,6 +85,10 @@ export default function Dashboard() {
           <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>Overview of your operations and analytics.</p>
         </div>
       </div>
+
+      {/* A shop that has not set up its shelves would never find the feature otherwise. It hides
+          itself once the work is done, and for good if they say they do not use shelves. */}
+      <SetUpShelvesCard />
 
       {/* Global Section: KPIs & Quick Actions */}
       <motion.div variants={item}>

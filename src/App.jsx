@@ -63,6 +63,7 @@ import RackSetup from './pages/shelves/RackSetup';
 import ShelfLabels from './pages/shelves/ShelfLabels';
 import PickList from './pages/shelves/PickList';
 import ShelfCount from './pages/shelves/ShelfCount';
+import FillShelves from './pages/shelves/FillShelves';
 import RackMap from './pages/shelves/RackMap';
 
 // The Help Center is public and loads on its own, so the app never downloads the guide.
@@ -179,6 +180,7 @@ function App() {
           <Route path="/shelves/issues" element={<Guard permission="shelf:view" what="see shelf issues"><ShelfIssues /></Guard>} />
           <Route path="/shelves/pick" element={<Guard permission="shelf:putaway" what="pick orders"><PickList /></Guard>} />
           <Route path="/shelves/count" element={<Guard permission="shelf:putaway" what="count shelves"><ShelfCount /></Guard>} />
+          <Route path="/shelves/fill" element={<Guard permission="shelf:putaway" what="fill shelves"><FillShelves /></Guard>} />
           <Route path="/shelves/map" element={<Guard permission="shelf:view" what="see the shelf map"><RackMap /></Guard>} />
           <Route path="/shelves/setup" element={<Guard permission="shelf:manage" what="set up racks and shelves"><RackSetup /></Guard>} />
           {/* The day book now lives inside Settings. This route is kept so links and

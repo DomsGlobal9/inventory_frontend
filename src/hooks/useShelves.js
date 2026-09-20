@@ -20,7 +20,8 @@ export const SHELF_KEYS = {
   spotHistory: (spotId) => ['shelves', 'spot-history', spotId],
   notShelved: (locationId, page) => ['shelves', 'not-shelved', locationId, page],
   issues: (status, locationId, page) => ['shelves', 'issues', status, locationId ?? 'all', page],
-  labels: (locationId, ids) => ['shelves', 'labels', locationId, ids ?? 'all']
+  labels: (locationId, ids) => ['shelves', 'labels', locationId, ids ?? 'all'],
+  fill: (locationId) => ['shelves', 'fill', locationId]
 };
 
 const refresh = (queryClient) => {
@@ -128,6 +129,69 @@ export const useBulkSpots = ({ silent = false } = {}) => {
     onError: (error) => { if (!silent) toast.error(error?.message || 'Could not create those.'); }
   });
 };
+
+/**
+ * The first fill: walking the shelves once and recording what is on each.
+ *
+ * Saving a shelf is all of it or none of it, so a save that comes back `saved: false` is not an
+ * error: it is the same screen with the lines that need a change marked. Only a real failure (no
+ * network, no permission) shows a red message.
+ */
+export const useFillStatus = (locationId, { enabled = true } = {}) => useQuery({
+  queryKey: SHELF_KEYS.fill(locationId),
+  queryFn: async () => (await api.get(`/shelves/locations/${locationId}/fill`)).data,
+  enabled: !!locationId && enabled,
+  staleTime: 5_000
+});
+
+export const useOpenShelfForFill = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ spotId }) => (await api.post(`/shelves/spots/${spotId}/fill/open`, {})).data,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: SHELF_KEYS.all }),
+    onError: (error) => toast.error(error?.message || 'Could not open that shelf.')
+  });
+};
+
+export const useSaveShelfFill = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ spotId, lines, saveKey }) => (await api.post(`/shelves/spots/${spotId}/fill`, { lines, saveKey })).data,
+    onSuccess: (data) => {
+      if (data?.saved === false) return; // The screen marks the lines; no red message.
+      refresh(queryClient);
+      if (data?.repeat) return;
+      toast.success(`${data.address} done: ${pieces(data.pieces)}.`);
+      if (data?.capacityWarning) toast(data.capacityWarning, { icon: '⚠️' });
+      if (data?.firstFillFinished) toast.success('Every shelf is done. The first fill is finished.');
+    },
+    onError: (error) => toast.error(error?.message || 'Could not save that shelf.')
+  });
+};
+
+export const useSkipShelf = mutation(
+  async ({ spotId }) => (await api.post(`/shelves/spots/${spotId}/fill/skip`, {})).data,
+  { success: (d) => `${d.address} skipped. You can come back to it.`, fail: 'Could not skip that shelf.' }
+);
+
+export const useFinishFirstFill = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ locationId, force }) => (await api.post('/shelves/fill/finish', { locationId, force })).data,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: SHELF_KEYS.all });
+      if (data?.finished) toast.success('The first fill is finished.');
+    },
+    onError: (error) => toast.error(error?.message || 'Could not finish the first fill.')
+  });
+};
+
+export const useReopenFirstFill = mutation(
+  async ({ locationId }) => (await api.post('/shelves/fill/reopen', { locationId })).data,
+  { success: 'Filling again. Till sales will take from pieces that are on no shelf first.', fail: 'Could not open it again.' }
+);
+
+const pieces = (n) => `${n} ${n === 1 ? 'piece' : 'pieces'}`;
 
 export const useUpdateSpot = mutation(
   async ({ spotId, ...body }) => (await api.patch(`/shelves/spots/${spotId}`, body)).data,

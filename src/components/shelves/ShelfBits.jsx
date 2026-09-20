@@ -1,6 +1,6 @@
 import React, { forwardRef, useEffect, useRef, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { ScanLine, Loader2, X, Minus, Plus, MapPin, Search, PackagePlus, ArrowRightLeft, TriangleAlert, Settings2, ClipboardList, ClipboardCheck, Map as MapIcon } from 'lucide-react';
+import { ScanLine, Loader2, X, Minus, Plus, MapPin, Search, PackagePlus, ArrowRightLeft, TriangleAlert, Settings2, ClipboardList, ClipboardCheck, Boxes, Map as MapIcon } from 'lucide-react';
 import { usePermission } from '../../hooks/usePermission';
 import { useLocationContext } from '../../contexts/LocationContext';
 import { useShelfIssues } from '../../hooks/useShelves';
@@ -70,6 +70,7 @@ export function ShelfStyles() {
 
 const TABS = [
   { to: '/shelves', label: 'Where is it?', icon: Search, permission: 'shelf:view', end: true },
+  { to: '/shelves/fill', label: 'Fill shelves', icon: Boxes, permission: 'shelf:putaway' },
   { to: '/shelves/put-away', label: 'Put away', icon: PackagePlus, permission: 'shelf:putaway' },
   { to: '/shelves/move', label: 'Move', icon: ArrowRightLeft, permission: 'shelf:putaway' },
   { to: '/shelves/pick', label: 'Pick', icon: ClipboardList, permission: 'shelf:putaway' },

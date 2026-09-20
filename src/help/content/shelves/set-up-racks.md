@@ -17,13 +17,13 @@ Each store or godown has its own racks. Check the store at the top of the screen
 1. In the menu on the left, click [[1]] **Shelves**.
 2. Click the [[2]] **Racks & shelves** tab.
 
-A store with nothing set up yet shows two ways to start: [[3]] **Set up this location** (a ready layout) or [[4]] **Import from a spreadsheet**.
+A store with nothing set up yet shows three ways to start: [[3]] **Describe this place** (three plain questions, and ScaleEzy draws your racks), **Set it up myself** (a ready layout you adjust) or [[4]] **Import from a spreadsheet**. **Describe this place** is the easiest, and it is the only one that lets each rack have its own number of shelves.
 
-![Racks and shelves for Anna Nagar Branch with no racks yet. Shelves in the menu is marked 1, the Racks and shelves tab 2, Set up this location 3 and Import from a spreadsheet 4.](1-open.webp "The store name at the top right shows which store you are setting up.")
+![Racks and shelves for Anna Nagar Branch with no racks yet. Shelves in the menu is marked 1, the Racks and shelves tab 2, Describe this place 3 and Import from a spreadsheet 4.](1-open.webp "The store name at the top right shows which store you are setting up.")
 
 ## 2. Choose a ready layout
 
-Click **Set up this location**. Under **Start from**, click [[1]] the layout most like your shop:
+Click **Set it up myself**. Under **Start from**, click [[1]] the layout most like your shop:
 
 - **Saree boutique**: wall cupboards with shelves on the shop floor
 - **Readymade**: hanging rails split by size

@@ -16,13 +16,13 @@ keywords: सेटअप रैक शेल्फ़ अलमारी रे
 1. बाईं तरफ़ के मेन्यू में [[1]] **Shelves** दबाएँ।
 2. [[2]] **Racks & shelves** टैब दबाएँ।
 
-जिस स्टोर में अभी कुछ सेट नहीं है, वहाँ शुरू करने के दो तरीके दिखते हैं: [[3]] **Set up this location** (तैयार लेआउट) या [[4]] **Import from a spreadsheet**।
+जिस स्टोर में अभी कुछ सेट नहीं है, वहाँ शुरू करने के तीन तरीके दिखते हैं: [[3]] **Describe this place** (तीन आसान सवाल, और ScaleEzy आपके रैक बना देता है), **Set it up myself** (तैयार लेआउट जिसे आप बदल सकते हैं) या [[4]] **Import from a spreadsheet**। **Describe this place** सबसे आसान है, और हर रैक पर अलग-अलग संख्या में शेल्फ़ रखने की सुविधा सिर्फ़ उसी में है।
 
-![Anna Nagar Branch के Racks and shelves, अभी कोई रैक नहीं। मेन्यू में Shelves पर 1, Racks and shelves टैब पर 2, Set up this location पर 3 और Import from a spreadsheet पर 4 का निशान है।](1-open.webp "ऊपर दाईं तरफ़ स्टोर का नाम बताता है कि आप किस स्टोर को सेट कर रहे हैं।")
+![Anna Nagar Branch के Racks and shelves, अभी कोई रैक नहीं। मेन्यू में Shelves पर 1, Racks and shelves टैब पर 2, Describe this place पर 3 और Import from a spreadsheet पर 4 का निशान है।](1-open.webp "ऊपर दाईं तरफ़ स्टोर का नाम बताता है कि आप किस स्टोर को सेट कर रहे हैं।")
 
 ## 2. तैयार लेआउट चुनें
 
-**Set up this location** दबाएँ। **Start from** के नीचे [[1]] वह लेआउट दबाएँ जो आपकी दुकान जैसा हो:
+**Set it up myself** दबाएँ। **Start from** के नीचे [[1]] वह लेआउट दबाएँ जो आपकी दुकान जैसा हो:
 
 - **Saree boutique**: दुकान के फ़्लोर पर दीवार की अलमारियाँ, शेल्फ़ के साथ
 - **Readymade**: साइज़ के हिसाब से बँटी लटकाने वाली रेल

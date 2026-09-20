@@ -77,7 +77,7 @@ export const SECTIONS = [
       ta: 'ஒவ்வொரு பொருளும் எந்த அலமாரியில் உள்ளது என்று சரியாகத் தெரிந்துகொள்ளுங்கள்.',
       kn: 'ಪ್ರತಿ ಪೀಸ್ ಯಾವ ಶೆಲ್ಫ್‌ನಲ್ಲಿದೆ ಎಂದು ನಿಖರವಾಗಿ ತಿಳಿಯಿರಿ.'
     },
-    pages: ['how-shelves-work', 'set-up-racks', 'put-away', 'where-is-it', 'move', 'pick', 'count', 'shelf-issues', 'map'] },
+    pages: ['how-shelves-work', 'set-up-racks', 'fill-shelves', 'put-away', 'where-is-it', 'move', 'pick', 'count', 'shelf-issues', 'map'] },
   { id: 'transfers', title: 'Transfers', icon: 'ArrowLeftRight',
     blurb: 'Move stock between your stores and godowns.',
     titles: { te: 'Transfers (ట్రాన్స్‌ఫర్‌లు)', hi: 'Transfers (ट्रांसफ़र)', ta: 'Transfers (டிரான்ஸ்ஃபர்கள்)', kn: 'Transfers (ಟ್ರಾನ್ಸ್‌ಫರ್‌ಗಳು)' },

@@ -17,9 +17,11 @@ Do it on a phone. Two or three people can work at the same time on different rac
 ## 1. Open Fill shelves
 
 1. In the menu on the left, tap **Shelves**.
-2. Tap the **Fill shelves** tab.
+2. Tap the [[1]] **Fill shelves** tab.
 
-At the top you see two things: how many shelves are done, and how many pieces are still on no shelf.
+At the top you see [[2]] how many shelves are done, and how many pieces are still on no shelf. Under it is [[3]] the shelf to go to next.
+
+![Fill your shelves before anything is recorded. The Fill shelves tab is marked 1, the line saying how many shelves are done 2, and the button for the next shelf 3.](1-open.webp "Every piece starts as not on a shelf. Your stock numbers do not change.")
 
 ## 2. Stand at a shelf
 
@@ -32,17 +34,21 @@ ScaleEzy shows the next shelf in walking order, so you move round the shop in a 
 
 For each item on the shelf:
 
-1. **Scan its price tag**, or type part of the name, the SKU or the number under the barcode.
+1. [[1]] **Scan its price tag**, or type part of the name, the SKU or the number under the barcode.
 2. If one item matches, it is added for you. If the same code matches a few sizes or colours, ScaleEzy asks which one: choose the right one, so the wrong size does not end up on the shelf.
-3. Type **how many** of that item are on this shelf.
+3. [[2]] Type **how many** of that item are on this shelf.
 
-Add as many items as the shelf holds. The same item added twice becomes one line.
+Add as many items as the shelf holds. The same item added twice becomes one line. Then tap [[3]] **Done with this shelf**.
+
+![Shelf FLOOR-R1-1 with one saree added. The search box is marked 1, how many 2 and Done with this shelf 3.](2-add-what-is-there.webp "Scan every item on the shelf, then tap Done once.")
 
 ## 4. Done with this shelf
 
 Tap **Done with this shelf**. Everything on that shelf is saved together, and ScaleEzy moves you to the next shelf.
 
-If one line asks for more pieces than ScaleEzy has, **nothing on that shelf is saved yet**. The line that needs a change says so, with a shortcut such as **Use 6**. Everything else you typed stays on the screen. Fix that one line and tap **Done** again.
+If one line asks for more pieces than ScaleEzy has, **nothing on that shelf is saved yet**. [[1]] The line that needs a change says so, with [[2]] a shortcut such as **Use 6**. Everything else you typed stays on the screen. Fix that one line and tap **Done** again.
+
+![A line asking for 99 when only 6 are not on a shelf yet. The message is marked 1 and the Use 6 shortcut 2.](3-a-line-needs-a-change.webp "Nothing on this shelf is saved until every line is right.")
 
 ## 5. Nothing on the shelf, or not now
 
@@ -63,7 +69,9 @@ Your shop keeps working. Until the walk is finished:
 
 When every shelf is done, the first fill finishes by itself.
 
-If you stop half way, the owner or a manager can tap **Finished** at any time. If shelves were skipped, ScaleEzy names them first and asks once more, because "skipped" is not the same as "done".
+If you stop half way, the owner or a manager can tap **Finished** at any time. If shelves were skipped, ScaleEzy names them first and asks once more, because "skipped" is not the same as "done". Tap [[1]] **Finish** to end it anyway.
+
+![The question after Finished, with one shelf skipped and 6 pieces still not on a shelf. Finish is marked 1.](4-finished.webp "Cancel keeps the first fill going.")
 
 After it is finished, a till sale goes back to taking from shop-floor shelves first, and you use **Put away** for new stock from then on.
 

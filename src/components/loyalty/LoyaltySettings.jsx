@@ -16,9 +16,9 @@ import PageLoader from '../PageLoader';
 const DEFAULT_BIRTHDAY = 'Happy birthday, {name}! Wishing you a wonderful year from all of us at {shop}.';
 const DEFAULT_ANNIVERSARY = 'Happy anniversary, {name}! Warm wishes from all of us at {shop}.';
 
-const Toggle = ({ id, checked, onChange, children, hint }) => (
+const Toggle = ({ id, checked, onChange, children, hint, name }) => (
   <label htmlFor={id} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', cursor: 'pointer' }}>
-    <input id={id} type="checkbox" aria-describedby={hint ? `${id}-hint` : undefined} checked={checked} onChange={(e) => onChange(e.target.checked)} style={{ marginTop: '3px', width: '18px', height: '18px' }} />
+    <input id={id} type="checkbox" aria-label={name} aria-describedby={hint ? `${id}-hint` : undefined} checked={checked} onChange={(e) => onChange(e.target.checked)} style={{ marginTop: '3px', width: '18px', height: '18px' }} />
     <span>
       <span style={{ fontWeight: 500 }}>{children}</span>
       {hint && <span id={`${id}-hint`} style={{ display: 'block', fontSize: '13px', color: 'var(--text-secondary)', marginTop: '2px' }}>{hint}</span>}
@@ -96,7 +96,7 @@ export default function LoyaltySettings() {
       </div>
 
       <div style={section}>
-        <Toggle id="l-enabled" checked={f.enabled} onChange={set('enabled')}
+        <Toggle id="l-enabled" name="Loyalty points" checked={f.enabled} onChange={set('enabled')}
           hint="Customers earn points on every counter sale, and can use them to pay part of a later bill.">
           <Gift size={16} style={{ verticalAlign: '-3px', marginRight: '6px' }} />Loyalty points
         </Toggle>
@@ -125,7 +125,7 @@ export default function LoyaltySettings() {
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div>
-            <Toggle id="l-bday" checked={f.birthdayWish} onChange={set('birthdayWish')} hint="On the customer's birthday. Add birthdays on the customer's page.">
+            <Toggle id="l-bday" name="Birthday wishes" checked={f.birthdayWish} onChange={set('birthdayWish')} hint="On the customer's birthday. Add birthdays on the customer's page.">
               <Cake size={16} style={{ verticalAlign: '-3px', marginRight: '6px' }} />Birthday wishes
             </Toggle>
             {f.birthdayWish && <div style={{ margin: '10px 0 0 30px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -134,18 +134,18 @@ export default function LoyaltySettings() {
             </div>}
           </div>
           <div>
-            <Toggle id="l-anniv" checked={f.anniversaryWish} onChange={set('anniversaryWish')} hint="On the customer's wedding anniversary.">
+            <Toggle id="l-anniv" name="Anniversary wishes" checked={f.anniversaryWish} onChange={set('anniversaryWish')} hint="On the customer's wedding anniversary.">
               <Heart size={16} style={{ verticalAlign: '-3px', marginRight: '6px' }} />Anniversary wishes
             </Toggle>
             {f.anniversaryWish && <textarea aria-label="Anniversary message" className="input-field" rows={3} maxLength={700} value={f.anniversaryText} onChange={(e) => set('anniversaryText')(e.target.value)} style={{ width: 'calc(100% - 30px)', margin: '10px 0 0 30px', fontFamily: 'inherit' }} />}
           </div>
           {f.enabled && Number(f.expiryMonths) > 0 && (
-            <Toggle id="l-expiry-r" checked={f.expiryReminder} onChange={set('expiryReminder')} hint="A week before, so they come back and use them.">
+            <Toggle id="l-expiry-r" name="Remind customers before their points lapse" checked={f.expiryReminder} onChange={set('expiryReminder')} hint="A week before, so they come back and use them.">
               <Hourglass size={16} style={{ verticalAlign: '-3px', marginRight: '6px' }} />Remind customers before their points lapse
             </Toggle>
           )}
           {f.enabled && (
-            <Toggle id="l-after" checked={f.notifyAfterSale} onChange={set('notifyAfterSale')} hint={'"Thank you! You earned 30 points. You now have 250." Goes to any customer who has not replied STOP.'}>
+            <Toggle id="l-after" name="Tell the customer their points after each sale" checked={f.notifyAfterSale} onChange={set('notifyAfterSale')} hint={'"Thank you! You earned 30 points. You now have 250." Goes to any customer who has not replied STOP.'}>
               Tell the customer their points after each sale
             </Toggle>
           )}

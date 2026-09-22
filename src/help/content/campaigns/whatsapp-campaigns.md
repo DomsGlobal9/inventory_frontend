@@ -24,7 +24,7 @@ A campaign reaches only customers who said yes to offers on WhatsApp. Ask them f
 
 Who recorded the yes, and when, is kept. The law on personal data (the DPDP Act) asks you to be able to show that a customer agreed.
 
-Every message ends with *Reply STOP to stop these messages.* You cannot remove this line. A customer who replies STOP never gets another campaign from your number, and their page says so. Only they can change that, by messaging your shop.
+Every message ends with *Reply STOP to stop these messages.* You cannot remove this line. A customer who replies STOP never gets another message from your number through ScaleEzy, not even a bill, and their page says so. This cannot be switched back on.
 
 ## 2. Write a campaign
 

@@ -63,7 +63,7 @@ export function CustomerOffersCard({ customer }) {
       {data.stoppedAt ? (
         <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-secondary)', display: 'flex', gap: '8px' }}>
           <Ban size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
-          <span>Replied STOP on {dateOf(data.stoppedAt)}. The shop never messages them offers again unless they message the shop first.</span>
+          <span>Replied STOP on {dateOf(data.stoppedAt)}. ScaleEzy sends them nothing more from your WhatsApp number, not even a bill. Use Share on WhatsApp from your own phone if they ask for one.</span>
         </p>
       ) : (
         <label style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', cursor: edit ? 'pointer' : 'default' }}>

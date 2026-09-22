@@ -11,7 +11,7 @@ import { Letterhead, LetterheadFooter, pdfStyles as s, rupees, printDate } from 
  * Money is written "Rs." -- Helvetica has no rupee sign.
  */
 
-const METHOD = { CASH: 'Cash', UPI: 'UPI', CARD: 'Card' };
+const METHOD = { CASH: 'Cash', UPI: 'UPI', CARD: 'Card', POINTS: 'Loyalty points' };
 const COLS = { n: '5%', item: '47%', qty: '10%', price: '19%', value: '19%' };
 
 const BillPDF = ({ sale, logo = null }) => {

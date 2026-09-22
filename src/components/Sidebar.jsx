@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, ShoppingBag, Box, Users, Settings, Package, Truck, FileText, ArrowLeftRight, LogOut, User, Tag, MapPinned } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Box, Users, Settings, Package, Truck, FileText, ArrowLeftRight, LogOut, User, Tag, MapPinned, Megaphone } from 'lucide-react';
 import { usePermission } from '../hooks/usePermission';
 import { useAuth } from '../context/AuthContext';
 import BrandLockup from './BrandLockup';
@@ -22,6 +22,7 @@ const NAV_ITEMS = [
   { name: 'Purchase Orders', path: '/inventory/purchase-orders', icon: FileText, permission: 'purchase_order:view' },
   { name: 'Offers', path: '/offers', icon: Tag, permission: 'offer:view' },
   { name: 'Customers', path: '/customers', icon: Users, permission: 'customer:view' },
+  { name: 'Campaigns', path: '/campaigns', icon: Megaphone, permission: 'campaign:view' },
   // The day book lives inside Settings rather than in this list. It is something you open to
   // close off a day, not a place you work from, and the list was already overflowing on a
   // short window -- which is how it and Reports ended up below the fold and undiscoverable.

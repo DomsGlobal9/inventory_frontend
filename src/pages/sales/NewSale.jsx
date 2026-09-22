@@ -2,12 +2,13 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { ArrowLeft, Minus, Plus, Trash2, Tag, Percent, CheckCircle2, Printer, Loader2, UserRound, X, ShoppingBag, MonitorSmartphone } from 'lucide-react';
+import { ArrowLeft, Minus, Plus, Trash2, Tag, Percent, CheckCircle2, Printer, Loader2, UserRound, X, ShoppingBag, MonitorSmartphone, Gift } from 'lucide-react';
 import { useLocationContext } from '../../contexts/LocationContext';
 import { usePermission } from '../../hooks/usePermission';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { useCustomerDetails } from '../../hooks/useCustomers';
 import { useCustomerByPhone, usePricingQuote, useCompleteSale, COUNTER_PHONE_QUERY } from '../../hooks/useCounterSale';
+import { useCounterPoints } from '../../hooks/useCampaigns';
 import { normalisePhone, formatPhone, typedPhone } from '../../utils/phone';
 import { formatINRExact } from '../../utils/formatUtils';
 import ItemSearch from '../../components/sales/counter/ItemSearch';
@@ -25,7 +26,9 @@ const newSale = (customerId = null) => ({
   phone: '', name: '', email: '',
   linkedCustomerId: customerId,
   items: [], codes: [], billManual: null,
-  payment: EMPTY_PAYMENT
+  payment: EMPTY_PAYMENT,
+  // Loyalty points to use on this bill, and whether the customer said yes to offers on WhatsApp.
+  points: '', offersOk: false
 });
 
 function readSaved(locationId) {
@@ -184,7 +187,29 @@ export default function NewSale() {
   const billBase = q ? paise(q.total) - lineManualPaise : 0;
   const bill = manualOf(sale?.billManual, billBase, 'the bill');
   const totalPaise = q ? billBase - bill.paise : 0;
-  const payPlan = buildPayments(totalPaise, sale?.payment ?? EMPTY_PAYMENT);
+  // Loyalty points: an existing customer may pay part of the bill with them. What the rest comes to
+  // is what the payment panel takes; the server checks the points again inside the sale.
+  // Points typed for one customer never carry over to another.
+  const pointsFor = useRef(null);
+  useEffect(() => {
+    const who = found?.id ?? null;
+    if (pointsFor.current !== null && pointsFor.current !== who && sale?.points) update({ points: '' });
+    pointsFor.current = who;
+  }, [found?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  const counterPoints = useCounterPoints(found?.id ?? null, totalPaise > 0 ? totalPaise / 100 : 0);
+  const pts = counterPoints.data?.enabled && found ? counterPoints.data : null;
+  const pointsTyped = String(sale?.points ?? '').trim();
+  const pointsWanted = pts && pointsTyped ? Number(pointsTyped) : 0;
+  const pointsPaise = pts && Number.isInteger(pointsWanted) && pointsWanted > 0 ? Math.round(pointsWanted * pts.pointValue * 100) : 0;
+  const pointsProblem = !pts || !pointsTyped ? null
+    : !(Number.isInteger(pointsWanted) && pointsWanted > 0) ? 'Enter whole points.'
+    : pointsWanted > pts.points ? `${found.name} has ${pts.points.toLocaleString('en-IN')} points.`
+    : pointsWanted > pts.usablePoints ? (pts.usablePoints === 0
+      ? `Points can be used from ${pts.minRedeemPoints.toLocaleString('en-IN')}.`
+      : `Up to ${pts.usablePoints.toLocaleString('en-IN')} points (${pts.maxRedeemPercent}% of the bill) can be used here.`)
+    : null;
+  const payPlan = buildPayments(totalPaise - (pointsProblem ? 0 : pointsPaise), sale?.payment ?? EMPTY_PAYMENT);
+  const paymentRows = [...(pointsPaise > 0 && !pointsProblem ? [{ method: 'POINTS', amount: pointsPaise / 100 }] : []), ...payPlan.rows];
 
   const addCode = () => {
     const code = codeInput.trim().toUpperCase();
@@ -203,6 +228,7 @@ export default function NewSale() {
     || lineManuals.map(m => m.problem).find(Boolean)
     || bill.problem
     || (totalPaise < 0 ? 'The discounts come to more than the bill.' : null)
+    || pointsProblem
     || payPlan.problem;
 
   const submit = () => {
@@ -212,11 +238,11 @@ export default function NewSale() {
       saleId: sale.saleId,
       locationId,
       quoteId: q.quoteId,
-      customer,
+      customer: customer && sale.offersOk && !(found?.whatsappOffers) ? { ...customer, offersOk: true } : customer,
       couponCodes: sale.codes,
       manualDiscount: bill.send || undefined,
       items: items.map((i, idx) => ({ variantId: i.variantId, quantity: i.quantity, ...(lineManuals[idx].send ? { manualDiscount: lineManuals[idx].send } : {}) })),
-      payments: payPlan.rows
+      payments: paymentRows
     };
     complete.mutate(body, {
       onSettled: () => { sending.current = false; },
@@ -369,6 +395,16 @@ export default function NewSale() {
                   onChange={(e) => update({ email: e.target.value })} style={{ width: '100%' }} />
               </div>
             )}
+            {phoneCheck.ok && !byPhone.isLoading && !numberBelongsToSomeoneElse && !found?.whatsappStoppedAt && (
+              found?.whatsappOffers
+                ? <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Gets your offers on WhatsApp.</div>
+                : (
+                  <label style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 13, cursor: 'pointer' }}>
+                    <input type="checkbox" aria-label="Agrees to offers on WhatsApp" checked={!!sale.offersOk} disabled={busy} onChange={(e) => update({ offersOk: e.target.checked })} style={{ width: 16, height: 16 }} />
+                    Agrees to offers on WhatsApp <span style={{ color: 'var(--text-secondary)' }}>(ask them first)</span>
+                  </label>
+                )
+            )}
           </section>
 
           <section style={card} aria-label="Items">
@@ -480,10 +516,41 @@ export default function NewSale() {
 
           <section style={card} aria-label="Payment">
             <div style={{ fontWeight: 600 }}>Payment</div>
-            <PaymentPanel totalPaise={items.length && q ? totalPaise : 0} payment={sale.payment} disabled={busy} onChange={(payment) => update({ payment })} />
+            {pts && items.length > 0 && q && (
+              <div style={{ display: 'grid', gap: 6, padding: '10px 12px', borderRadius: 10, background: 'var(--bg-hover)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14 }}>
+                  <Gift size={16} />
+                  <span>
+                    {found.name.split(' ')[0]} has <strong>{pts.points.toLocaleString('en-IN')} points</strong> (worth {formatINRExact(pts.value)})
+                    {/* The same rule the server uses: per full ₹100 of what is paid in money. */}
+                    {pts.earnsPer100 > 0 && Math.floor((totalPaise - (pointsProblem ? 0 : pointsPaise)) / 10000) > 0 && (
+                      <span style={{ color: 'var(--text-secondary)' }}> · this bill earns {(Math.floor((totalPaise - (pointsProblem ? 0 : pointsPaise)) / 10000) * pts.earnsPer100).toLocaleString('en-IN')}</span>
+                    )}
+                  </span>
+                </div>
+                {pts.usablePoints > 0 ? (
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <input className="input-field" inputMode="numeric" aria-label="Points to use" placeholder="Points to use" value={sale.points ?? ''} disabled={busy}
+                      onChange={(e) => { if (/^\d*$/.test(e.target.value)) update({ points: e.target.value }); }} style={{ width: 130 }} />
+                    <button type="button" className="btn-secondary" disabled={busy} onClick={() => update({ points: String(pts.usablePoints) })} style={{ fontSize: 12, padding: '4px 10px' }}>
+                      Use {pts.usablePoints.toLocaleString('en-IN')} ({formatINRExact(pts.usableValue)})
+                    </button>
+                    {pointsPaise > 0 && !pointsProblem && <span style={{ fontSize: 13, color: 'var(--accent-success)' }}>−{rupees(pointsPaise)} · {rupees(totalPaise - pointsPaise)} left to pay</span>}
+                  </div>
+                ) : (
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
+                    {pts.points < pts.minRedeemPoints ? `Points can be used from ${pts.minRedeemPoints.toLocaleString('en-IN')}.` : 'No points can be used on this bill.'}
+                  </div>
+                )}
+                {pointsProblem && <div role="alert" style={{ fontSize: 13, color: 'var(--accent-warning)' }}>{pointsProblem}</div>}
+              </div>
+            )}
+            <PaymentPanel totalPaise={items.length && q ? totalPaise - (pointsProblem ? 0 : pointsPaise) : 0} payment={sale.payment} disabled={busy} onChange={(payment) => update({ payment })} />
             <button type="button" className="btn-primary" onClick={submit} disabled={!!problem || busy}
               style={{ padding: '14px 16px', fontSize: 16, fontWeight: 700, display: 'inline-flex', justifyContent: 'center', alignItems: 'center', gap: 8 }}>
-              {busy ? <><Loader2 size={18} className="animate-spin" /> Completing…</> : `Complete sale${q && items.length ? ` · ${rupees(totalPaise)}` : ''}`}
+              {busy ? <><Loader2 size={18} className="animate-spin" /> Completing…</> : `Complete sale${q && items.length
+                ? (pointsPaise > 0 && !pointsProblem ? ` · ${rupees(totalPaise - pointsPaise)} + ${pointsWanted.toLocaleString('en-IN')} points` : ` · ${rupees(totalPaise)}`)
+                : ''}`}
             </button>
             {problem && !busy && <div style={{ fontSize: 13, color: 'var(--text-secondary)', textAlign: 'center' }}>{problem}</div>}
           </section>

@@ -482,7 +482,7 @@ export default function SalesOrderDetail() {
                 <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '8px 0', borderTop: '1px solid var(--border-light)', fontSize: '14px' }}>
                   <div style={{ minWidth: 0 }}>
                     <div style={{ fontWeight: 500 }}>
-                      {p.kind === 'REFUND' ? 'Refund · ' : ''}{({ CASH: 'Cash', UPI: 'UPI', CARD: 'Card' })[p.method]}
+                      {p.kind === 'REFUND' ? 'Refund · ' : ''}{({ CASH: 'Cash', UPI: 'UPI', CARD: 'Card', POINTS: 'Loyalty points' })[p.method]}
                       {p.reference ? <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}> · {p.reference}</span> : null}
                     </div>
                     <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>

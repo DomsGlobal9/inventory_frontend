@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Settings as SettingsIcon, Tag, Palette, Scissors, Layers, Hexagon, Grid, ShoppingBag, Store, Users, Key, Shield, MapPin, LifeBuoy, BookOpen, Globe, MessageCircle } from 'lucide-react';
+import { Settings as SettingsIcon, Tag, Palette, Scissors, Layers, Hexagon, Grid, ShoppingBag, Store, Users, Key, Shield, MapPin, LifeBuoy, BookOpen, Globe, MessageCircle, Gift } from 'lucide-react';
 import CatalogManager from '../components/CatalogManager';
 import StockLocationsPage from './settings/StockLocationsPage';
 import DayBook from './DayBook';
@@ -11,6 +11,7 @@ import SupportPanel from '../components/SupportPanel';
 import TeamManager from '../components/TeamManager';
 import RoleManager from '../components/RoleManager';
 import WhatsAppSettings from '../components/whatsapp/WhatsAppSettings';
+import LoyaltySettings from '../components/loyalty/LoyaltySettings';
 import { holdsEverything } from '../lib/authority';
 import { useAuth } from '../context/AuthContext';
 import { usePermission } from '../hooks/usePermission';
@@ -22,6 +23,7 @@ const SETTINGS_DOMAINS = [
   { id: 'DAYBOOK', label: 'Day Book', icon: BookOpen, permission: 'report:financial' },
   { id: 'STOREFRONT', label: 'Storefront', icon: Globe, permission: 'admin:locations' },
   { id: 'WHATSAPP', label: 'WhatsApp', icon: MessageCircle, permission: 'whatsapp:manage' },
+  { id: 'LOYALTY', label: 'Loyalty & wishes', icon: Gift, permission: 'loyalty:manage' },
   { id: 'SERVICES', label: 'APIs & Services', icon: Key, permission: 'admin:users' },
   { id: 'USERS', label: 'Team & Users', icon: Users, permission: 'admin:users' },
   { id: 'ROLES', label: 'Roles & Permissions', icon: Shield, permission: 'admin:users' },
@@ -41,7 +43,7 @@ const SETTINGS_DOMAINS = [
  * chain had to be extended by hand every time a domain gained content -- and when Day Book was
  * added it was not, so the page rendered the day book AND the placeholder underneath it.
  */
-const IMPLEMENTED_DOMAINS = new Set(['GENERAL', 'CATALOG', 'LOCATIONS', 'DAYBOOK', 'STOREFRONT', 'WHATSAPP', 'SERVICES', 'USERS', 'ROLES', 'SUPPORT']);
+const IMPLEMENTED_DOMAINS = new Set(['GENERAL', 'CATALOG', 'LOCATIONS', 'DAYBOOK', 'STOREFRONT', 'WHATSAPP', 'LOYALTY', 'SERVICES', 'USERS', 'ROLES', 'SUPPORT']);
 
 const CATALOG_TABS = [
   { id: 'SIZE', label: 'Sizes', icon: Scissors, description: 'Manage available sizes across your products' },
@@ -241,6 +243,12 @@ export default function Settings() {
                 <h2 style={{ fontSize: '24px', marginBottom: '8px', color: 'var(--text-primary)' }}>WhatsApp</h2>
               </div>
               <WhatsAppSettings />
+            </div>
+          )}
+
+          {activeDomain === 'LOYALTY' && (
+            <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '32px' }}>
+              <LoyaltySettings />
             </div>
           )}
 

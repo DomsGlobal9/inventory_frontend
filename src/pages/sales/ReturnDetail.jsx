@@ -343,10 +343,27 @@ export default function ReturnDetail() {
                   <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>
                     {ret.refundStatus === 'REFUNDED' ? 'Refunded through Shopify' : 'Refund owed to the customer'}
                   </div>
-                  <div style={{ fontWeight: 600, fontSize: '20px' }}>{formatINRExact(Number(ret.refundTotal))}</div>
+                  {/* While open, the money part only: what went on points goes back as points, so the
+                      person at the counter must never hand it over in cash as well. */}
+                  <div style={{ fontWeight: 600, fontSize: '20px' }}>{formatINRExact(ret.pointsPreview ? ret.pointsPreview.money : Number(ret.refundTotal))}</div>
                   <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                    What they paid for these items, after discounts.
+                    {ret.pointsBack > 0 || ret.pointsPreview?.pointsBack > 0 ? 'What they paid in money for these items, after discounts.' : 'What they paid for these items, after discounts.'}
                   </div>
+                </div>
+              )}
+              {ret.pointsPreview && !['COMPLETED', 'REJECTED'].includes(ret.status) && (
+                <div role="note" style={{ fontSize: '13px', padding: '10px 12px', borderRadius: '8px', background: 'var(--bg-hover)' }}>
+                  {ret.pointsPreview.pointsBack > 0 && <>Part of this bill was paid with loyalty points: <strong>{ret.pointsPreview.pointsBack.toLocaleString('en-IN')} points ({formatINRExact(ret.pointsPreview.pointsBackValue)})</strong> go back to the customer's points when this return is completed. Do not pay that part in money. </>}
+                  {ret.pointsPreview.pointsTakenBack > 0 ? `${ret.pointsPreview.pointsTakenBack.toLocaleString('en-IN')} points earned on these items are taken back.` : ''}
+                </div>
+              )}
+              {/* Loyalty points on the bill: the part paid with points went back as points, and points
+                  earned on these goods were taken back. Set when the return was completed. */}
+              {ret.status === 'COMPLETED' && (ret.pointsBack > 0 || ret.pointsTakenBack > 0) && (
+                <div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Loyalty points</div>
+                  {ret.pointsBack > 0 && <div style={{ fontWeight: 500 }}>{ret.pointsBack.toLocaleString('en-IN')} points ({formatINRExact(Number(ret.pointsBackValue))}) given back, for the part paid with points</div>}
+                  {ret.pointsTakenBack > 0 && <div style={{ fontWeight: 500, marginTop: '2px' }}>{ret.pointsTakenBack.toLocaleString('en-IN')} points earned on these items taken back</div>}
                 </div>
               )}
               <div>

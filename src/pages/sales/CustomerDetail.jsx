@@ -9,6 +9,7 @@ import { formatINR } from '../../utils/formatUtils';
 import toast from 'react-hot-toast';
 import Select from '../../components/common/Select';
 import CustomerGroupsCard from '../../components/CustomerGroupsCard';
+import { CustomerOffersCard, CustomerPointsCard } from '../../components/loyalty/CustomerLoyaltyCards';
 import CustomerModal from '../../components/sales/CustomerModal';
 import { formatPhone } from '../../utils/phone';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
@@ -169,6 +170,9 @@ export default function CustomerDetail() {
           </div>
 
           <CustomerGroupsCard customer={customer} canEdit={can('customer:update')} />
+
+          <CustomerPointsCard customerId={customer.id} />
+          <CustomerOffersCard customer={customer} />
 
           <div className="card" style={{ padding: '24px' }}>
             <h3 style={{ margin: '0 0 16px', fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)' }}>Company Details</h3>

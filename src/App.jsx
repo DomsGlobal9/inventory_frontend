@@ -14,6 +14,8 @@ import OnboardingPage from './pages/admin/OnboardingPage';
 import LeadsPage from './pages/admin/LeadsPage';
 import DayBook from './pages/DayBook';
 import Offers from './pages/Offers';
+import Campaigns from './pages/campaigns/Campaigns';
+import CampaignDetail from './pages/campaigns/CampaignDetail';
 import OfferDetail from './pages/OfferDetail';
 import Signup from './pages/Signup';
 import InventoryHealthPage from './pages/admin/InventoryHealthPage';
@@ -187,6 +189,8 @@ function App() {
               bookmarks that already point at it still land on the day book itself. */}
           <Route path="/offers" element={<Guard permission="offer:view"><Offers /></Guard>} />
           <Route path="/offers/:id" element={<Guard permission="offer:view"><OfferDetail /></Guard>} />
+          <Route path="/campaigns" element={<Guard permission="campaign:view"><Campaigns /></Guard>} />
+          <Route path="/campaigns/:id" element={<Guard permission="campaign:view"><CampaignDetail /></Guard>} />
           <Route path="/reports/daybook" element={<Guard permission="report:financial"><DayBook /></Guard>} />
           <Route path="/customers" element={<Guard permission="customer:view"><Customers /></Guard>} />
           <Route path="/customers/:id" element={<Guard permission="customer:view"><CustomerDetail /></Guard>} />

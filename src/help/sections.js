@@ -117,7 +117,17 @@ export const SECTIONS = [
       ta: 'உங்கள் வாடிக்கையாளர்கள், அவர்களின் ஆர்டர்கள், குழுக்கள்.',
       kn: 'ನಿಮ್ಮ ಗ್ರಾಹಕರು, ಅವರ ಆರ್ಡರ್‌ಗಳು ಮತ್ತು ಗುಂಪುಗಳು.'
     },
-    pages: ['customers'] },
+    pages: ['customers', 'loyalty-points'] },
+  { id: 'campaigns', title: 'Campaigns', icon: 'Megaphone',
+    blurb: 'Offers and wishes to your customers on WhatsApp.',
+    titles: { te: 'Campaigns (క్యాంపెయిన్‌లు)', hi: 'Campaigns (कैंपेन)', ta: 'Campaigns (கேம்பெயின்கள்)', kn: 'Campaigns (ಕ್ಯಾಂಪೇನ್‌ಗಳು)' },
+    blurbs: {
+      te: 'WhatsApp లో మీ కస్టమర్‌లకు ఆఫర్‌లు, శుభాకాంక్షలు.',
+      hi: 'WhatsApp पर आपके ग्राहकों को ऑफ़र और शुभकामनाएँ।',
+      ta: 'WhatsApp இல் உங்கள் வாடிக்கையாளர்களுக்கு ஆஃபர்களும் வாழ்த்துகளும்.',
+      kn: 'WhatsApp ನಲ್ಲಿ ನಿಮ್ಮ ಗ್ರಾಹಕರಿಗೆ ಆಫರ್‌ಗಳು ಮತ್ತು ಶುಭಾಶಯಗಳು.'
+    },
+    pages: ['whatsapp-campaigns'] },
   { id: 'settings', title: 'Settings', icon: 'Settings',
     blurb: 'Shop details, stores, catalog, Day Book, team, roles and connections.',
     titles: { te: 'Settings (సెట్టింగ్‌లు)', hi: 'Settings (सेटिंग्स)', ta: 'Settings (அமைப்புகள்)', kn: 'Settings (ಸೆಟ್ಟಿಂಗ್‌ಗಳು)' },

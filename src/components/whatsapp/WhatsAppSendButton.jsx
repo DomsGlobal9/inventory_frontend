@@ -77,6 +77,29 @@ export default function WhatsAppSendButton({ kind, id, buildPdf, fileName, fallb
 
   const linked = overview?.configured && overview?.account?.status === 'CONNECTED';
 
+  /**
+   * The customer replied STOP. ScaleEzy will not send them anything from the shop's number, bills
+   * included -- so offering "Send on WhatsApp" here would be offering a button whose only possible
+   * outcome is a refusal. Offer the way round it instead: share it from the shopkeeper's own phone,
+   * which is a message from a person rather than sending from the shop's system.
+   */
+  if (latest?.recipientStopped) {
+    const who = latest.recipientName || recipientLabel || 'This customer';
+    return (
+      <span style={{ display: 'inline-flex', flexDirection: 'column', gap: '4px', ...style }}>
+        {fallbackHref ? (
+          <a href={fallbackHref} target="_blank" rel="noopener noreferrer" className="btn-secondary"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', textDecoration: 'none' }}>
+            <WhatsAppIcon size={16} /> Share on WhatsApp
+          </a>
+        ) : null}
+        <span style={{ fontSize: '11px', color: 'var(--text-muted)', maxWidth: 320 }}>
+          {who} replied STOP, so ScaleEzy cannot send it{fallbackHref ? '. Share it from your own phone, or print it.' : '. Print it instead.'}
+        </span>
+      </span>
+    );
+  }
+
   if (!linked) {
     if (!fallbackHref) return null;
     return (

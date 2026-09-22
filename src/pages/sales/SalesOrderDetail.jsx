@@ -22,6 +22,7 @@ import { ShelvesUsed } from '../../components/shelves/ShelfLinks';
 import { ORDER_STATUS, StatusPill } from '../../components/sales/labels';
 import { useDialog } from '../../hooks/useDialog';
 import WhatsAppSendButton from '../../components/whatsapp/WhatsAppSendButton';
+import { buildWhatsAppUrl } from '../../utils/whatsappUtils';
 import { api } from '../../lib/api';
 import BillPDF from '../../components/BillPDF';
 import { makePdf } from '../../components/pdf/downloadPdf';
@@ -235,6 +236,11 @@ export default function SalesOrderDetail() {
                 const sale = (await api.get(`/counter-sales/${order.id}/receipt`)).data;
                 return makePdf(<BillPDF sale={sale} logo={await logoAsPng(sale?.shop?.logoUrl)} />);
               }}
+              // The way round it when the shop's number cannot be used -- not linked, or the
+              // customer replied STOP: open the shopkeeper's own WhatsApp with the bill's number
+              // already typed, the same as the return note page offers.
+              fallbackHref={buildWhatsAppUrl(order.customer?.phone,
+                `Hello${order.customer?.name ? ` ${order.customer.name}` : ''}, your bill ${order.orderNumber} is ready.`)}
             />
           </div>
         )}

@@ -243,7 +243,11 @@ export default function DayBook() {
               onChange={(e) => setLocationId(e.target.value)}
               style={{ padding: '8px 10px', fontSize: '13px' }}>
               <option value="">All locations</option>
-              {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
+              {/* Name and code, as every other location box in the app shows it (TopNav,
+                  Transfers, bulk update). Name alone made two branches a shop had called the
+                  same thing impossible to tell apart here -- and this is the screen where
+                  picking the wrong one quietly gives you another shop's day. */}
+              {locations.map(l => <option key={l.id} value={l.id}>{l.code ? `${l.name} (${l.code})` : l.name}</option>)}
             </select>
           </div>
           <button className="btn-secondary" onClick={downloadPdf} disabled={printing || !d || isFetching}

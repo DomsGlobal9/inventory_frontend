@@ -9,7 +9,7 @@ import { formatINRExact } from '../../utils/formatUtils';
  * the Day Book's cash all agree. Once recorded, it says how and when instead.
  */
 const METHODS = [['CASH', 'Cash'], ['UPI', 'UPI'], ['CARD', 'Card'], ['CREDIT', 'Store credit']];
-const WORD = { CASH: 'cash', UPI: 'UPI', CARD: 'card', CREDIT: 'store credit' };
+const WORD = { CASH: 'in cash', UPI: 'by UPI', CARD: 'by card', CREDIT: 'as store credit' };
 
 export default function RecordRefund({ ret, canRecord }) {
   const { currentLocation } = useLocationContext();
@@ -20,7 +20,7 @@ export default function RecordRefund({ ret, canRecord }) {
   if (ret.refundStatus === 'REFUNDED' && ret.refundMethod) {
     return (
       <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-        Paid back in {WORD[ret.refundMethod] ?? ret.refundMethod}{ret.refundedAt ? ` on ${new Date(ret.refundedAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}` : ''}{ret.atCounter ? ', at the counter' : ''}.
+        Paid back {WORD[ret.refundMethod] ?? ret.refundMethod}{ret.refundedAt ? ` on ${new Date(ret.refundedAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}` : ''}{ret.atCounter ? ', at the counter' : ''}.
       </div>
     );
   }
@@ -29,7 +29,7 @@ export default function RecordRefund({ ret, canRecord }) {
   const save = async () => {
     try {
       await record.mutateAsync({ method, reference: reference.trim() || undefined, locationId: currentLocation?.id });
-      toast.success(`Recorded: ${formatINRExact(Number(ret.refundTotal))} paid back in ${WORD[method]}.`);
+      toast.success(`Recorded: ${formatINRExact(Number(ret.refundTotal))} paid back ${WORD[method]}.`);
     } catch (e) { toast.error(e?.message || 'Could not record the refund.'); }
   };
 

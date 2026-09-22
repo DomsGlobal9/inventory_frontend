@@ -98,7 +98,7 @@ const BillPDF = ({ sale, logo = null }) => {
           </View>
           {payments.map(p => (
             <View style={s.totalRow} key={p.id}>
-              <Text style={{ color: '#6b7280' }}>{p.kind === 'REFUND' ? 'Paid back in' : 'Paid by'} {METHOD[p.method] || p.method}</Text>
+              <Text style={{ color: '#6b7280' }}>{p.kind === 'REFUND' ? 'Paid back by' : 'Paid by'} {METHOD[p.method] || p.method}</Text>
               <Text>{p.kind === 'REFUND' ? `-${rupees(p.amount)}` : rupees(p.amount)}</Text>
             </View>
           ))}
@@ -107,7 +107,7 @@ const BillPDF = ({ sale, logo = null }) => {
           ) : null}
           {refunds.map(p => (
             <View style={s.totalRow} key={p.id}>
-              <Text style={{ color: '#6b7280' }}>Paid back on a return, in {METHOD[p.method] || p.method}</Text>
+              <Text style={{ color: '#6b7280' }}>Paid back on a return, by {METHOD[p.method] || p.method}</Text>
               <Text>-{rupees(p.amount)}</Text>
             </View>
           ))}

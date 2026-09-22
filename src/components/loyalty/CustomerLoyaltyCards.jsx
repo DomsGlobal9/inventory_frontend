@@ -19,17 +19,17 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 const dayWords = (md) => (md ? `${Number(md.slice(3))} ${MONTHS[Number(md.slice(0, 2)) - 1]}` : null);
 
 /** A month-and-day picker: a year would mean asking a customer their age. */
-function DayPicker({ id, value, onChange, disabled }) {
+function DayPicker({ id, label, value, onChange, disabled }) {
   const [m, d] = value ? [Number(value.slice(0, 2)), Number(value.slice(3))] : ['', ''];
   const days = m ? [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1] : 31;
   const emit = (mm, dd) => onChange(mm && dd ? `${String(mm).padStart(2, '0')}-${String(Math.min(dd, [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][mm - 1])).padStart(2, '0')}` : null);
   return (
     <div style={{ display: 'flex', gap: '6px' }}>
-      <select id={id} className="input-field" aria-label="Day" value={d} disabled={disabled} onChange={(e) => emit(m || 1, Number(e.target.value))} style={{ width: '72px' }}>
+      <select id={id} className="input-field" aria-label={`${label} day`} value={d} disabled={disabled} onChange={(e) => emit(m || 1, Number(e.target.value))} style={{ width: '72px' }}>
         <option value="">Day</option>
         {Array.from({ length: days }, (_, i) => <option key={i + 1} value={i + 1}>{i + 1}</option>)}
       </select>
-      <select className="input-field" aria-label="Month" value={m} disabled={disabled} onChange={(e) => emit(Number(e.target.value), d || 1)} style={{ width: '90px' }}>
+      <select className="input-field" aria-label={`${label} month`} value={m} disabled={disabled} onChange={(e) => emit(Number(e.target.value), d || 1)} style={{ width: '90px' }}>
         <option value="">Month</option>
         {MONTHS.map((name, i) => <option key={name} value={i + 1}>{name}</option>)}
       </select>
@@ -75,7 +75,7 @@ export function CustomerOffersCard({ customer }) {
             Agrees to offers on WhatsApp
             <span style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>
               {!customer.phone ? 'Add a phone number first.'
-                : data.changedAt ? `${data.agreed ? 'Agreed' : 'Changed'} ${dateOf(data.changedAt)}${data.changedBy ? `, recorded by ${data.changedBy}` : ''}.`
+                : data.changedAt ? `${data.agreed ? 'Agreed' : 'Said no'} on ${dateOf(data.changedAt)}${data.changedBy ? `, recorded by ${data.changedBy}` : ''}.`
                 : 'Tick only if the customer said yes.'}
             </span>
           </span>
@@ -86,9 +86,9 @@ export function CustomerOffersCard({ customer }) {
         {days ? (
           <>
             <div><div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}><Cake size={13} style={{ verticalAlign: '-2px' }} /> Birthday</div>
-              <DayPicker id="c-bday" value={days.birthday} onChange={(v) => setDays(p => ({ ...p, birthday: v }))} /></div>
+              <DayPicker id="c-bday" label="Birthday" value={days.birthday} onChange={(v) => setDays(p => ({ ...p, birthday: v }))} /></div>
             <div><div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}><Heart size={13} style={{ verticalAlign: '-2px' }} /> Anniversary</div>
-              <DayPicker id="c-anniv" value={days.anniversary} onChange={(v) => setDays(p => ({ ...p, anniversary: v }))} /></div>
+              <DayPicker id="c-anniv" label="Anniversary" value={days.anniversary} onChange={(v) => setDays(p => ({ ...p, anniversary: v }))} /></div>
             <div style={{ display: 'flex', gap: '8px' }}>
               <button className="btn-primary" onClick={saveDays} disabled={update.isPending} style={{ padding: '6px 14px' }}>Save</button>
               <button className="btn-secondary" onClick={() => setDays(null)} style={{ padding: '6px 14px' }}>Cancel</button>

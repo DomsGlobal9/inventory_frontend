@@ -255,8 +255,9 @@ export default function CounterReturn() {
               <div style={{ display: 'grid', gap: 4, fontSize: 14, borderTop: '1px solid var(--border-light)', paddingTop: 10 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span>{mode === 'EXCHANGE' ? 'Credit for the exchange' : 'Money back'}</span>
-                  <strong style={{ fontSize: 22 }}>{formatINRExact(p.money)}</strong>
+                  <strong style={{ fontSize: 22 }}>{formatINRExact(mode === 'EXCHANGE' ? p.money + (p.creditBack || 0) : p.money)}</strong>
                 </div>
+                {mode === 'REFUND' && p.creditBack > 0 && <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Part of this bill was paid with store credit: {formatINRExact(p.creditBack)} goes back as store credit, not money.</div>}
                 {p.pointsBack > 0 && <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Part of this bill was paid with loyalty points: {p.pointsBack.toLocaleString('en-IN')} points ({formatINRExact(p.pointsBackValue)}) go back as points, not money.</div>}
                 {p.pointsTakenBack > 0 && <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{p.pointsTakenBack.toLocaleString('en-IN')} points earned on these pieces are taken back.</div>}
                 {p.needsManager && <div role="alert" style={{ fontSize: 13, color: 'var(--accent-warning)', display: 'flex', gap: 6 }}><AlertTriangle size={15} style={{ flexShrink: 0 }} /> {p.needsManager}</div>}
@@ -265,8 +266,8 @@ export default function CounterReturn() {
             <button type="button" className="btn-primary" onClick={submit} disabled={!!problem || complete.isPending}
               style={{ padding: '14px 16px', fontSize: 16, fontWeight: 700, display: 'inline-flex', justifyContent: 'center', alignItems: 'center', gap: 8 }}>
               {complete.isPending ? <><Loader2 size={18} className="animate-spin" /> Taking it back…</>
-                : mode === 'EXCHANGE' ? `Take back and exchange${p ? ` · ${formatINRExact(p.money)} credit` : ''}`
-                : `Take back${p ? ` · give ${formatINRExact(p.money)} in ${IN_WORDS[method]}` : ''}`}
+                : mode === 'EXCHANGE' ? `Take back and exchange${p ? ` · ${formatINRExact(p.money + (p.creditBack || 0))} credit` : ''}`
+                : `Take back${p ? (p.money > 0 ? ` · give ${formatINRExact(p.money)} in ${IN_WORDS[method]}` : p.creditBack > 0 ? ` · ${formatINRExact(p.creditBack)} back as credit` : '') : ''}`}
             </button>
             {problem && !complete.isPending && <div style={{ fontSize: 13, color: 'var(--text-secondary)', textAlign: 'center' }}>{problem}</div>}
           </section>

@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Gift, Cake, Heart, Hourglass, MessageCircle } from 'lucide-react';
-import { useLoyaltySettings, useSaveLoyaltySettings } from '../../hooks/useCampaigns';
+import { useLoyaltySettings, useSaveLoyaltySettings, useCampaignOverview } from '../../hooks/useCampaigns';
+import { usePermission } from '../../hooks/usePermission';
 import PageLoader from '../PageLoader';
+import PicturePicker from '../campaigns/PicturePicker';
 
 /**
  * Settings → Loyalty & wishes: how customers earn and spend points, and the automatic WhatsApp
@@ -41,6 +43,11 @@ const Num = ({ id, label, value, onChange, prefix, suffix, min = 0, max, step = 
 export default function LoyaltySettings() {
   const { data, isLoading } = useLoyaltySettings();
   const save = useSaveLoyaltySettings();
+  const { can } = usePermission();
+  // A picture on the wishes: only for those who may send campaigns, and only once WhatsApp can send pictures.
+  const mayPicture = can('campaign:send');
+  const overview = useCampaignOverview({ enabled: mayPicture });
+  const pictures = mayPicture && !!overview.data?.features?.picture;
   const [f, setF] = useState(null);
 
   useEffect(() => {
@@ -79,7 +86,9 @@ export default function LoyaltySettings() {
         birthdayText: f.birthdayText,
         anniversaryWish: f.anniversaryWish,
         anniversaryText: f.anniversaryText,
-        expiryReminder: f.expiryReminder
+        expiryReminder: f.expiryReminder,
+        // Sent only by those who could change them, so nobody else clears a picture by saving.
+        ...(pictures ? { birthdayMediaId: f.birthdayMedia?.id ?? null, anniversaryMediaId: f.anniversaryMedia?.id ?? null } : {})
       });
       setF({ ...saved, pointValue: String(saved.pointValuePaise / 100), birthdayText: saved.birthdayText ?? DEFAULT_BIRTHDAY, anniversaryText: saved.anniversaryText ?? DEFAULT_ANNIVERSARY });
       toast.success('Saved.');
@@ -130,6 +139,7 @@ export default function LoyaltySettings() {
             </Toggle>
             {f.birthdayWish && <div style={{ margin: '10px 0 0 30px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <textarea aria-label="Birthday message" className="input-field" rows={3} maxLength={700} value={f.birthdayText} onChange={(e) => set('birthdayText')(e.target.value)} style={{ width: '100%', fontFamily: 'inherit' }} />
+              {pictures && <PicturePicker label="Picture above the wish (optional)" value={f.birthdayMedia} onChange={set('birthdayMedia')} disabled={save.isPending} />}
               {f.enabled && <Num id="l-bpoints" label="Birthday gift" value={f.birthdayPoints} onChange={set('birthdayPoints')} suffix="points (0 = no gift)" />}
             </div>}
           </div>
@@ -137,7 +147,10 @@ export default function LoyaltySettings() {
             <Toggle id="l-anniv" name="Anniversary wishes" checked={f.anniversaryWish} onChange={set('anniversaryWish')} hint="On the customer's wedding anniversary.">
               <Heart size={16} style={{ verticalAlign: '-3px', marginRight: '6px' }} />Anniversary wishes
             </Toggle>
-            {f.anniversaryWish && <textarea aria-label="Anniversary message" className="input-field" rows={3} maxLength={700} value={f.anniversaryText} onChange={(e) => set('anniversaryText')(e.target.value)} style={{ width: 'calc(100% - 30px)', margin: '10px 0 0 30px', fontFamily: 'inherit' }} />}
+            {f.anniversaryWish && <div style={{ margin: '10px 0 0 30px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <textarea aria-label="Anniversary message" className="input-field" rows={3} maxLength={700} value={f.anniversaryText} onChange={(e) => set('anniversaryText')(e.target.value)} style={{ width: '100%', fontFamily: 'inherit' }} />
+              {pictures && <PicturePicker label="Picture above the wish (optional)" value={f.anniversaryMedia} onChange={set('anniversaryMedia')} disabled={save.isPending} />}
+            </div>}
           </div>
           {f.enabled && Number(f.expiryMonths) > 0 && (
             <Toggle id="l-expiry-r" name="Remind customers before their points lapse" checked={f.expiryReminder} onChange={set('expiryReminder')} hint="A week before, so they come back and use them.">

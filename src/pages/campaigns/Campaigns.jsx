@@ -7,6 +7,7 @@ import { useBranding } from '../../hooks/useBranding';
 import { usePermission } from '../../hooks/usePermission';
 import PageLoader from '../../components/PageLoader';
 import CampaignEditor from '../../components/campaigns/CampaignEditor';
+import TemplatePicker from '../../components/campaigns/TemplatePicker';
 import { STATUS_TONE, SOURCE_LABEL } from '../../utils/campaignText';
 
 /**
@@ -52,6 +53,7 @@ export default function Campaigns() {
   const { can } = usePermission();
   const navigate = useNavigate();
   const [tab, setTab] = useState('MANUAL');
+  // false: nothing open; 'pick': choosing a template; otherwise the editor, started from { template }.
   const [editing, setEditing] = useState(false);
   const overview = useCampaignOverview();
   const list = useCampaigns(tab);
@@ -73,7 +75,7 @@ export default function Campaigns() {
           </p>
         </div>
         {can('campaign:send') && (
-          <button className="btn-primary" onClick={() => setEditing(true)}
+          <button className="btn-primary" onClick={() => setEditing('pick')}
             style={{ display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}>
             <Plus size={18} /> New campaign
           </button>
@@ -145,15 +147,23 @@ export default function Campaigns() {
                 </div>
                 <StatusPill status={c.status} />
               </div>
-              <div style={{ marginTop: '8px', fontSize: '13px', color: 'var(--text-secondary)', whiteSpace: 'pre-wrap', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{c.text}</div>
+              <div style={{ marginTop: '8px', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                {(c.sent?.media ?? c.media) && <img src={(c.sent?.media ?? c.media).url} alt="" style={{ width: '44px', height: '44px', objectFit: 'cover', borderRadius: '6px', flexShrink: 0 }} />}
+                <div style={{ fontSize: '13px', color: 'var(--text-secondary)', whiteSpace: 'pre-wrap', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', minWidth: 0 }}>{c.sent?.text ?? c.text}</div>
+              </div>
               {c.status !== 'DRAFT' && <div style={{ marginTop: '10px' }}><Progress p={c.progress} /></div>}
             </li>
           ))}
         </ul>
       )}
 
-      {editing && (
-        <CampaignEditor shopName={branding?.businessName} saving={create.isPending} onClose={() => setEditing(false)}
+      {editing === 'pick' && (
+        <TemplatePicker canDelete={can('campaign:send')} onClose={() => setEditing(false)}
+          // A starter's name is ScaleEzy's, not the shop's campaign: the name box starts empty for those.
+          onPick={(t) => setEditing({ template: t ? { name: t.starter ? '' : t.name, text: t.text, media: t.media, link: t.link } : null })} />
+      )}
+      {editing && editing !== 'pick' && (
+        <CampaignEditor campaign={editing.template} shopName={branding?.businessName} saving={create.isPending} onClose={() => setEditing(false)}
           onSave={async (body) => {
             try {
               const made = await create.mutateAsync(body);

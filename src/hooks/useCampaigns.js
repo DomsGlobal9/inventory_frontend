@@ -9,9 +9,10 @@ import { api } from '../lib/api';
 const CAMPAIGNS = ['campaigns'];
 const LOYALTY = ['loyalty'];
 
-export const useCampaignOverview = () => useQuery({
+export const useCampaignOverview = ({ enabled = true } = {}) => useQuery({
   queryKey: ['campaigns', 'overview'],
   queryFn: async () => (await api.get('/campaigns/overview')).data,
+  enabled,
   staleTime: 30_000
 });
 
@@ -55,6 +56,38 @@ export const useCampaignAction = campaignMutation(async ({ id, action }) => (awa
 export const useSendCampaignTest = () => useMutation({
   mutationFn: async (body) => (await api.post('/campaigns/test', body)).data
 });
+
+/** Every link of a started campaign off (a wrong page, a wrong price) or on again. */
+export const useCampaignLinks = campaignMutation(async ({ id, on }) => (await api.post(`/campaigns/${id}/links/${on ? 'on' : 'off'}`)).data);
+
+// ── Pictures ────────────────────────────────────────────────────────────────────────────────
+
+/** A photo from this device. The server makes the WhatsApp-ready copy and answers with it. */
+export const useUploadCampaignPicture = () => useMutation({
+  mutationFn: async (dataUrl) => (await api.post('/campaigns/media', { base64: dataUrl }, { timeout: 120_000 })).data
+});
+
+export const usePictureFromProduct = () => useMutation({
+  mutationFn: async (productImageId) => (await api.post('/campaigns/media/from-product', { productImageId }, { timeout: 60_000 })).data
+});
+
+export const useProductPhotos = (q, { enabled = true } = {}) => useQuery({
+  queryKey: ['campaigns', 'product-photos', q ?? ''],
+  queryFn: async () => (await api.get('/campaigns/product-photos', { params: q ? { q } : {} })).data,
+  enabled,
+  staleTime: 30_000
+});
+
+// ── Templates ───────────────────────────────────────────────────────────────────────────────
+
+export const useCampaignTemplates = ({ enabled = true } = {}) => useQuery({
+  queryKey: ['campaigns', 'templates'],
+  queryFn: async () => (await api.get('/campaigns/templates')).data,
+  enabled,
+  staleTime: 30_000
+});
+export const useSaveTemplate = campaignMutation(async (body) => (await api.post('/campaigns/templates', body)).data);
+export const useDeleteTemplate = campaignMutation(async (id) => (await api.delete(`/campaigns/templates/${encodeURIComponent(id)}`)).data);
 
 // ── A customer's yes to offers ──────────────────────────────────────────────────────────────
 

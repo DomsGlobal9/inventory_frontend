@@ -4,20 +4,24 @@ import { Send, Loader2 } from 'lucide-react';
 import { useSendCampaignTest } from '../../hooks/useCampaigns';
 
 /**
- * "Send me a test": the message, from the shop's WhatsApp, to a number the person types (usually
- * their own). Remembered on this browser so it is typed once.
+ * "Send me a test": exactly what customers get -- the picture, the words, a real short link -- from
+ * the shop's WhatsApp, to a number the person types (usually their own). The test's link is marked
+ * as a test, so it is not counted in the campaign and never uses up a customer's one offer in three
+ * days. The number is remembered on this browser so it is typed once.
+ *
+ * Either `campaignId` (a saved campaign) or the editor's unsaved `draft` ({ text, mediaId, link, name }).
  */
 const KEY = 'scaleezy:campaign-test-to';
 const read = () => { try { return localStorage.getItem(KEY) || ''; } catch { return ''; } };
 
-export default function TestSend({ campaignId, text, disabled }) {
+export default function TestSend({ campaignId, draft, disabled }) {
   const [to, setTo] = useState(read);
   const test = useSendCampaignTest();
   const send = async () => {
     try {
-      const r = await test.mutateAsync(campaignId ? { campaignId, to } : { text, to });
+      const r = await test.mutateAsync(campaignId ? { campaignId, to } : { ...draft, to });
       try { localStorage.setItem(KEY, to); } catch { /* not kept */ }
-      toast.success(`Test sent to ${r.to} from your shop's WhatsApp.`);
+      toast.success(`Test sent to ${r.to} from your shop's WhatsApp.${r.link ? ' Its link is a test link: taps on it are not counted.' : ''}`);
     } catch (e) { toast.error(e?.message || 'The test could not be sent.'); }
   };
   return (

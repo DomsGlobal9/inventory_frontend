@@ -8,18 +8,34 @@ export const PLACEHOLDERS = [
   { token: '{points}', label: 'Their points' },
   { token: '{points_value}', label: 'Points worth ₹' }
 ];
+/** Offered only when the campaign has a link; the server refuses {link} without one. */
+export const LINK_PLACEHOLDER = { token: '{link}', label: 'Link' };
 
 export const MAX_TEXT = 1000;
+/** WhatsApp's limit for the words under a picture. */
+export const MAX_CAPTION = 1024;
+/** What a short link looks like in the preview (each customer really gets their own). */
+export const SAMPLE_LINK = 'go.scaleezy.com/x7Kq9Pm';
 
 const firstName = (full) => (full ?? '').trim().split(/\s+/)[0] || 'there';
 
-export function renderCampaign(text, { name, shop, points = 0, pointsValue = '₹0' }) {
+export function renderCampaign(text, { name, shop, points = 0, pointsValue = '₹0', link = SAMPLE_LINK }) {
   const body = (text ?? '')
     .replace(/\{name\}/g, firstName(name))
     .replace(/\{shop\}/g, shop || 'your shop')
     .replace(/\{points\}/g, Math.max(0, points).toLocaleString('en-IN'))
-    .replace(/\{points_value\}/g, pointsValue);
+    .replace(/\{points_value\}/g, pointsValue)
+    .replace(/\{link\}/g, link ?? '');
   return `${body}\n\n_${shop || 'your shop'}. Reply STOP to stop these messages._`;
+}
+
+/**
+ * The longest the words can come out, counted the way the server counts it for the 1,024-letter
+ * limit under a picture: a 20-letter first name, a big points balance, the full short address and
+ * the STOP line.
+ */
+export function longestCaption(text, shop) {
+  return renderCampaign(text, { name: 'x'.repeat(20), shop: shop || 'our shop', points: 9_999_999, pointsValue: '₹99,99,999', link: `https://${SAMPLE_LINK}` }).length;
 }
 
 /** Words for "who this reaches", the same as the server's describeAudience. */
@@ -60,6 +76,7 @@ export function whatsappMarks(text) {
 
 export const STATUS_TONE = {
   DRAFT:     { bg: 'rgba(107,114,128,0.12)', fg: 'rgb(75,85,99)',   label: 'Draft' },
+  PREPARING: { bg: 'rgba(59,130,246,0.10)',  fg: 'rgb(29,78,216)',  label: 'Getting links ready' },
   SENDING:   { bg: 'rgba(34,197,94,0.12)',   fg: 'rgb(21,128,61)',  label: 'Sending' },
   PAUSED:    { bg: 'rgba(234,179,8,0.15)',   fg: 'rgb(161,98,7)',   label: 'Paused' },
   DONE:      { bg: 'rgba(59,130,246,0.12)',  fg: 'rgb(29,78,216)',  label: 'Finished' },
@@ -77,6 +94,26 @@ export const RECIPIENT_LABEL = {
   FAILED: 'Not sent',
   EXPIRED: 'Not sent',
   SKIPPED: 'Skipped'
+};
+
+/** Why customers were not sent it, as the campaign page counts it. */
+export const NOT_SENT_LABEL = {
+  RECENT_OFFER: 'Had an offer from you in the last 3 days',
+  OPTED_OUT: 'Replied STOP',
+  NO_CONSENT: 'No longer agree to offers',
+  NO_PHONE: 'No phone number',
+  INACTIVE: 'Customer not active',
+  DELETED: 'Customer deleted',
+  CAMPAIGN_STOPPED: 'The campaign was stopped',
+  NOT_ON_WHATSAPP: 'Number not on WhatsApp',
+  MEDIA_FETCH_FAILED: 'The picture could not load',
+  MEDIA_UNREADABLE: 'WhatsApp could not read the picture',
+  ENGINE_GAVE_UP: 'WhatsApp failed three times',
+  ENGINE_REJECTED: 'WhatsApp refused it',
+  DELIVERY_FAILED: 'WhatsApp could not deliver it',
+  EXPIRED: 'Not sent within a day',
+  REFUSED: 'Refused',
+  OTHER: 'Not sent'
 };
 
 export const SOURCE_LABEL = {

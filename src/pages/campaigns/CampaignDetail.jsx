@@ -13,6 +13,7 @@ import LoadFailed from '../../components/LoadFailed';
 import ConfirmModal from '../../components/ConfirmModal';
 import CampaignEditor from '../../components/campaigns/CampaignEditor';
 import MessageBubble from '../../components/campaigns/MessageBubble';
+import TestSend from '../../components/campaigns/TestSend';
 import { StatusPill, Progress } from './Campaigns';
 import { renderCampaign, howLong, RECIPIENT_LABEL, SOURCE_LABEL } from '../../utils/campaignText';
 
@@ -99,12 +100,7 @@ export default function CampaignDetail() {
             points: reach.data?.sample?.[0]?.loyaltyPoints ?? 250,
             pointsValue: `₹${(reach.data?.sample?.[0]?.loyaltyPoints ?? 250).toLocaleString('en-IN')}`
           })} />
-          {draft && mayAct && (
-            <button className="btn-secondary" disabled={test.isPending} style={{ marginTop: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}
-              onClick={() => run(async () => { const r = await test.mutateAsync({ campaignId: id }); toast.success(`Test sent to your shop's WhatsApp (${r.to}).`); })}>
-              {test.isPending ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />} Send me a test
-            </button>
-          )}
+          {draft && mayAct && <div style={{ marginTop: '12px', maxWidth: '320px' }}><TestSend campaignId={id} /></div>}
         </div>
         <div className="card" style={{ width: '320px', maxWidth: '100%', padding: '16px' }}>
           {draft ? (

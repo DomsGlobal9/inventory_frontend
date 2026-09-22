@@ -1,6 +1,8 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { Undo2 } from 'lucide-react';
+import { usePermission } from '../../hooks/usePermission';
 import { api } from '../../lib/api';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { RETURN_STATUS, StatusPill, returnReasonLabel } from '../../components/sales/labels';
@@ -8,6 +10,7 @@ import { RETURN_STATUS, StatusPill, returnReasonLabel } from '../../components/s
 import PageLoader from '../../components/PageLoader';
 
 export default function ReturnsList() {
+  const { can } = usePermission();
   const navigate = useNavigate();
   // A card per return on a phone, like Orders. The six-column table was 681px wide in a 390px
   // screen, so STATUS -- the thing the guide says to look for -- was off the edge.
@@ -34,8 +37,13 @@ export default function ReturnsList() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
         <div>
           <h1 style={{ fontSize: '32px', marginBottom: '8px', color: 'var(--text-primary)' }}>Customer Returns</h1>
-          <p style={{ color: 'var(--text-secondary)' }}>Manage return requests and warehouse inspections.</p>
+          <p style={{ color: 'var(--text-secondary)' }}>Take back what customers bring to the counter, and check returned parcels.</p>
         </div>
+        {(can('return:counter') || (can('return:create') && can('return:complete'))) && (
+          <button className="btn-primary" onClick={() => navigate('/returns/new')} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap' }}>
+            <Undo2 size={17} /> Take a return
+          </button>
+        )}
       </div>
 
       {narrow ? (

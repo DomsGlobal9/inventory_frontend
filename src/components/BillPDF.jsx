@@ -11,7 +11,7 @@ import { Letterhead, LetterheadFooter, pdfStyles as s, rupees, printDate } from 
  * Money is written "Rs." -- Helvetica has no rupee sign.
  */
 
-const METHOD = { CASH: 'Cash', UPI: 'UPI', CARD: 'Card', POINTS: 'Loyalty points' };
+const METHOD = { CASH: 'Cash', UPI: 'UPI', CARD: 'Card', POINTS: 'Loyalty points', CREDIT: 'Store credit' };
 const COLS = { n: '5%', item: '47%', qty: '10%', price: '19%', value: '19%' };
 
 const BillPDF = ({ sale, logo = null }) => {
@@ -23,6 +23,7 @@ const BillPDF = ({ sale, logo = null }) => {
     gstNumber: sale.shop?.gstNumber
   };
   const payments = (sale.payments || []).filter(p => p.kind === 'PAYMENT');
+  const refunds = (sale.payments || []).filter(p => p.kind === 'REFUND');
   const change = payments.reduce((sum, p) => sum + (Number(p.changeGiven) || 0), 0);
 
   return (
@@ -97,13 +98,19 @@ const BillPDF = ({ sale, logo = null }) => {
           </View>
           {payments.map(p => (
             <View style={s.totalRow} key={p.id}>
-              <Text style={{ color: '#6b7280' }}>Paid by {METHOD[p.method] || p.method}</Text>
-              <Text>{rupees(p.amount)}</Text>
+              <Text style={{ color: '#6b7280' }}>{p.kind === 'REFUND' ? 'Paid back in' : 'Paid by'} {METHOD[p.method] || p.method}</Text>
+              <Text>{p.kind === 'REFUND' ? `-${rupees(p.amount)}` : rupees(p.amount)}</Text>
             </View>
           ))}
           {change > 0 ? (
             <View style={s.totalRow}><Text style={{ color: '#6b7280' }}>Change given</Text><Text>{rupees(change)}</Text></View>
           ) : null}
+          {refunds.map(p => (
+            <View style={s.totalRow} key={p.id}>
+              <Text style={{ color: '#6b7280' }}>Paid back on a return, in {METHOD[p.method] || p.method}</Text>
+              <Text>-{rupees(p.amount)}</Text>
+            </View>
+          ))}
           {sale.payment?.due > 0 ? (
             <View style={s.totalRow}><Text style={{ fontFamily: 'Helvetica-Bold' }}>Still to pay</Text><Text style={{ fontFamily: 'Helvetica-Bold' }}>{rupees(sale.payment.due)}</Text></View>
           ) : null}

@@ -15,6 +15,7 @@ import LeadsPage from './pages/admin/LeadsPage';
 import DayBook from './pages/DayBook';
 import Offers from './pages/Offers';
 import Campaigns from './pages/campaigns/Campaigns';
+import CounterReturn from './pages/sales/CounterReturn';
 import CampaignDetail from './pages/campaigns/CampaignDetail';
 import OfferDetail from './pages/OfferDetail';
 import Signup from './pages/Signup';
@@ -162,6 +163,7 @@ function App() {
           <Route path="/orders/new-sale" element={<Guard permission="sales_order:counter_sale" what="sell at the counter"><NewSale /></Guard>} />
           <Route path="/orders/:id" element={<Guard permission="sales_order:view"><SalesOrderDetail /></Guard>} />
           <Route path="/returns" element={<Guard permission="return:view"><ReturnsList /></Guard>} />
+          <Route path="/returns/new" element={<Guard permission="return:view"><CounterReturn /></Guard>} />
           <Route path="/returns/:id" element={<Guard permission="return:view"><ReturnDetail /></Guard>} />
           <Route path="/inventory/alerts" element={<Guard permission="inventory:view"><AlertCenter /></Guard>} />
           <Route path="/inventory/audits" element={<Guard permission="stock_count:view" what="work with stock counts"><AuditList /></Guard>} />

@@ -373,6 +373,23 @@ export default function DayBook() {
         </Panel>
       )}
 
+      {/* ── Money at the counter: taken, paid back, and what the cash drawer should hold ── */}
+      {d?.money && (Object.keys(d.money.taken).length > 0 || Object.keys(d.money.paidBack).length > 0) && (
+        <Panel title="Money at the counter" subtitle="Taken on sales and paid back on returns, by how. Points and store credit are not cash in the drawer.">
+          <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap', padding: '18px 20px' }}>
+            <Stat label="Cash in the drawer from these" value={money(d.money.cashInDrawer)} tone={d.money.cashInDrawer >= 0 ? 'good' : 'bad'} />
+          </div>
+          <SimpleTable
+            head={['How', 'Taken', 'Paid back']}
+            rows={['CASH', 'UPI', 'CARD', 'POINTS', 'CREDIT'].filter(m => d.money.taken[m] || d.money.paidBack[m]).map(m => [
+              { CASH: 'Cash', UPI: 'UPI', CARD: 'Card', POINTS: 'Loyalty points', CREDIT: 'Store credit' }[m],
+              d.money.taken[m] ? money(d.money.taken[m].amount) : '—',
+              d.money.paidBack[m] ? money(d.money.paidBack[m].amount) : '—'
+            ])}
+          />
+        </Panel>
+      )}
+
       {/* ── A range: one row per day ─────────────────────────────────────── */}
       {isRange && d.days?.length > 0 && (
         <Panel title="Day by day" subtitle="Closing is the stock count at the end of that day. Sales are counted on the day the goods left. Press a day to open it.">

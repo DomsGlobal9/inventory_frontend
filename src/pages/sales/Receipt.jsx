@@ -20,7 +20,7 @@ import { logoAsPng } from '../../components/pdf/pdfLogo';
  */
 
 const money = (v) => Number(v ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const METHOD = { CASH: 'Cash', UPI: 'UPI', CARD: 'Card', POINTS: 'Loyalty points' };
+const METHOD = { CASH: 'Cash', UPI: 'UPI', CARD: 'Card', POINTS: 'Loyalty points', CREDIT: 'Store credit' };
 const ORIGINAL_WINDOW_MS = 10 * 60_000;
 
 export default function Receipt() {
@@ -68,6 +68,8 @@ export default function Receipt() {
 
   const when = new Date(sale.createdAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' });
   const payments = sale.payments.filter(p => p.kind === 'PAYMENT');
+  // Returns paid back afterwards, so a reprinted bill says what came back and how the money went.
+  const refunds = sale.payments.filter(p => p.kind === 'REFUND');
   const change = payments.reduce((s, p) => s + (p.changeGiven || 0), 0);
   const Row = ({ left, right, bold, small }) => (
     <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, fontWeight: bold ? 700 : 400, fontSize: small ? 11 : 12 }}>
@@ -93,6 +95,7 @@ export default function Receipt() {
 
       <div className="receipt-actions">
         <button className="btn-secondary" onClick={() => navigate(`/orders/${sale.id}`)} style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}><ArrowLeft size={15} /> Order</button>
+        <button className="btn-secondary" onClick={() => navigate(`/returns/new?order=${sale.id}`)} style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}>Take a return</button>
         <button className="btn-primary" onClick={() => window.print()} style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}><Printer size={15} /> Print</button>
         {/* The bill as a PDF, straight to the customer from the shop's WhatsApp. */}
         <WhatsAppSendButton
@@ -142,9 +145,12 @@ export default function Receipt() {
         )}
         <Row left="Total" right={`₹${money(sale.total)}`} bold />
         {payments.map(p => (
-          <Row key={p.id} left={`Paid ${METHOD[p.method]}${p.cashReceived ? ` (got ${money(p.cashReceived)})` : ''}${p.reference && p.method !== 'CASH' ? ` ${p.method === 'CARD' ? '••' : ''}${p.reference}` : ''}`} right={money(p.amount)} small />
+          <Row key={p.id} left={`${p.kind === 'REFUND' ? 'Paid back' : 'Paid'} ${METHOD[p.method]}${p.cashReceived ? ` (got ${money(p.cashReceived)})` : ''}${p.reference && p.method !== 'CASH' ? ` ${p.method === 'CARD' ? '••' : ''}${p.reference}` : ''}`} right={p.kind === 'REFUND' ? `-${money(p.amount)}` : money(p.amount)} small />
         ))}
         {change > 0 && <Row left="Change" right={money(change)} small />}
+        {refunds.map(p => (
+          <Row key={p.id} left={`Paid back (return) ${METHOD[p.method]}`} right={`-${money(p.amount)}`} small />
+        ))}
         {sale.payment.due > 0 && <Row left="Due" right={money(sale.payment.due)} bold />}
         <hr />
         <div style={{ textAlign: 'center', fontSize: 11, display: 'grid', gap: 2 }}>

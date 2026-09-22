@@ -1,10 +1,11 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { X, Users, Send, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { useAudiencePreview, useSendCampaignTest } from '../../hooks/useCampaigns';
+import { useAudiencePreview } from '../../hooks/useCampaigns';
 import { useAuth } from '../../context/AuthContext';
 import { PLACEHOLDERS, MAX_TEXT, renderCampaign } from '../../utils/campaignText';
 import MessageBubble from './MessageBubble';
+import TestSend from './TestSend';
 
 /**
  * Write or change a draft campaign: its name, its words, and who it is for.
@@ -57,7 +58,6 @@ export default function CampaignEditor({ campaign, shopName, onClose, onSave, sa
   const [asked, setAsked] = useState(audience);
   useEffect(() => { const t = setTimeout(() => setAsked(audience), 400); return () => clearTimeout(t); }, [audience]);
   const preview = useAudiencePreview(asked);
-  const test = useSendCampaignTest();
 
   const daysNeeded = f.who !== 'ALL';
   const daysBad = daysNeeded && !(Number(f.days) >= 1 && Number.isInteger(Number(f.days)));
@@ -189,16 +189,7 @@ export default function CampaignEditor({ campaign, shopName, onClose, onSave, sa
               <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '8px 0 12px' }}>
                 The last line is always added, so customers can stop these messages.
               </p>
-              <button type="button" className="btn-secondary" disabled={!f.text.trim() || tooLong || test.isPending}
-                style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', justifyContent: 'center' }}
-                onClick={async () => {
-                  try {
-                    const r = await test.mutateAsync({ text: f.text });
-                    toast.success(`Test sent to your shop's WhatsApp (${r.to}).`);
-                  } catch (e) { toast.error(e?.message || 'The test could not be sent.'); }
-                }}>
-                {test.isPending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />} Send me a test
-              </button>
+              <TestSend text={f.text} disabled={!f.text.trim() || tooLong} />
             </div>
           </div>
 

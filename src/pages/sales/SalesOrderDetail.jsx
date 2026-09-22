@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSalesOrderDetails, useConfirmOrder, useCancelOrder } from '../../hooks/useSalesOrders';
 import { useCreateDispatch } from '../../hooks/useDispatches';
-import { ArrowLeft, Loader2, CheckCircle, XCircle, Truck, Printer } from 'lucide-react';
+import { ArrowLeft, Loader2, CheckCircle, XCircle, Truck, Printer, Undo2 } from 'lucide-react';
 import { usePermission } from '../../hooks/usePermission';
 /*
  * Exact throughout this page, not rounded.
@@ -210,6 +210,13 @@ export default function SalesOrderDetail() {
             {order.createdBy?.name && ` | By ${order.createdBy.name}`}
           </p>
         </div>
+        {/* A customer bringing something from this bill back: straight to Take a return, bill chosen. */}
+        {['DISPATCHED', 'PARTIALLY_DISPATCHED'].includes(order.status) && (can('return:counter') || (can('return:create') && can('return:complete'))) && (
+          <button className="btn-secondary" onClick={() => navigate(`/returns/new?order=${order.id}`)}
+            style={{ marginLeft: order.atCounter ? 0 : 'auto', display: 'inline-flex', alignItems: 'center', gap: '6px', alignSelf: 'flex-start', order: order.atCounter ? 1 : 0 }}>
+            <Undo2 size={15} /> Take a return
+          </button>
+        )}
         {order.atCounter && (
           <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
             <button className="btn-secondary" onClick={() => window.open(`/orders/${order.id}/receipt`, '_blank', 'noopener')}
@@ -482,7 +489,7 @@ export default function SalesOrderDetail() {
                 <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '8px 0', borderTop: '1px solid var(--border-light)', fontSize: '14px' }}>
                   <div style={{ minWidth: 0 }}>
                     <div style={{ fontWeight: 500 }}>
-                      {p.kind === 'REFUND' ? 'Refund · ' : ''}{({ CASH: 'Cash', UPI: 'UPI', CARD: 'Card', POINTS: 'Loyalty points' })[p.method]}
+                      {p.kind === 'REFUND' ? 'Refund · ' : ''}{({ CASH: 'Cash', UPI: 'UPI', CARD: 'Card', POINTS: 'Loyalty points', CREDIT: 'Store credit' })[p.method]}
                       {p.reference ? <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}> · {p.reference}</span> : null}
                     </div>
                     <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>

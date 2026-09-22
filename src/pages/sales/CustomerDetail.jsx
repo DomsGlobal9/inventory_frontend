@@ -10,6 +10,7 @@ import toast from 'react-hot-toast';
 import Select from '../../components/common/Select';
 import CustomerGroupsCard from '../../components/CustomerGroupsCard';
 import { CustomerOffersCard, CustomerPointsCard } from '../../components/loyalty/CustomerLoyaltyCards';
+import StoreCreditCard from '../../components/loyalty/StoreCreditCard';
 import CustomerModal from '../../components/sales/CustomerModal';
 import { formatPhone } from '../../utils/phone';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
@@ -172,6 +173,7 @@ export default function CustomerDetail() {
           <CustomerGroupsCard customer={customer} canEdit={can('customer:update')} />
 
           <CustomerPointsCard customerId={customer.id} />
+          <StoreCreditCard customerId={customer.id} />
           <CustomerOffersCard customer={customer} />
 
           <div className="card" style={{ padding: '24px' }}>

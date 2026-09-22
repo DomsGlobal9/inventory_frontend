@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, CheckCircle, AlertTriangle, Box, Truck, Edit3, XCircle } from 'lucide-react';
 import ConfirmModal from '../../components/ConfirmModal';
+import RecordRefund from '../../components/sales/RecordRefund';
 import toast from 'react-hot-toast';
 import { api } from '../../lib/api';
 import { usePermission } from '../../hooks/usePermission';
@@ -341,7 +342,7 @@ export default function ReturnDetail() {
               {ret.status !== 'REJECTED' && Number(ret.refundTotal || 0) > 0 && (
                 <div>
                   <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                    {ret.refundStatus === 'REFUNDED' ? 'Refunded through Shopify' : 'Refund owed to the customer'}
+                    {ret.refundStatus === 'REFUNDED' ? (ret.refundMethod ? 'Paid back to the customer' : 'Refunded through Shopify') : 'Refund owed to the customer'}
                   </div>
                   {/* While open, the money part only: what went on points goes back as points, so the
                       person at the counter must never hand it over in cash as well. */}
@@ -351,6 +352,7 @@ export default function ReturnDetail() {
                   </div>
                 </div>
               )}
+              <RecordRefund ret={ret} canRecord={can('return:counter') || can('return:complete')} />
               {ret.pointsPreview && !['COMPLETED', 'REJECTED'].includes(ret.status) && (
                 <div role="note" style={{ fontSize: '13px', padding: '10px 12px', borderRadius: '8px', background: 'var(--bg-hover)' }}>
                   {ret.pointsPreview.pointsBack > 0 && <>Part of this bill was paid with loyalty points: <strong>{ret.pointsPreview.pointsBack.toLocaleString('en-IN')} points ({formatINRExact(ret.pointsPreview.pointsBackValue)})</strong> go back to the customer's points when this return is completed. Do not pay that part in money. </>}

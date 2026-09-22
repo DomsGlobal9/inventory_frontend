@@ -2,13 +2,14 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { ArrowLeft, Minus, Plus, Trash2, Tag, Percent, CheckCircle2, Printer, Loader2, UserRound, X, ShoppingBag, MonitorSmartphone, Gift } from 'lucide-react';
+import { ArrowLeft, Minus, Plus, Trash2, Tag, Percent, CheckCircle2, Printer, Loader2, UserRound, X, ShoppingBag, MonitorSmartphone, Gift, Wallet, Repeat } from 'lucide-react';
 import { useLocationContext } from '../../contexts/LocationContext';
 import { usePermission } from '../../hooks/usePermission';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { useCustomerDetails } from '../../hooks/useCustomers';
 import { useCustomerByPhone, usePricingQuote, useCompleteSale, COUNTER_PHONE_QUERY } from '../../hooks/useCounterSale';
 import { useCounterPoints } from '../../hooks/useCampaigns';
+import { useCounterCredit } from '../../hooks/useCounterReturn';
 import { normalisePhone, formatPhone, typedPhone } from '../../utils/phone';
 import { formatINRExact } from '../../utils/formatUtils';
 import ItemSearch from '../../components/sales/counter/ItemSearch';
@@ -28,7 +29,9 @@ const newSale = (customerId = null) => ({
   items: [], codes: [], billManual: null,
   payment: EMPTY_PAYMENT,
   // Loyalty points to use on this bill, and whether the customer said yes to offers on WhatsApp.
-  points: '', offersOk: false
+  points: '', offersOk: false,
+  // Store credit to use, and whether it fills itself in (an exchange arrives with it ready).
+  credit: '', creditAuto: false
 });
 
 function readSaved(locationId) {
@@ -193,7 +196,7 @@ export default function NewSale() {
   const pointsFor = useRef(null);
   useEffect(() => {
     const who = found?.id ?? null;
-    if (pointsFor.current !== null && pointsFor.current !== who && sale?.points) update({ points: '' });
+    if (pointsFor.current !== null && pointsFor.current !== who && (sale?.points || sale?.credit)) update({ points: '', credit: '' });
     pointsFor.current = who;
   }, [found?.id]); // eslint-disable-line react-hooks/exhaustive-deps
   const counterPoints = useCounterPoints(found?.id ?? null, totalPaise > 0 ? totalPaise / 100 : 0);
@@ -208,8 +211,40 @@ export default function NewSale() {
       ? `Points can be used from ${pts.minRedeemPoints.toLocaleString('en-IN')}.`
       : `Up to ${pts.usablePoints.toLocaleString('en-IN')} points (${pts.maxRedeemPercent}% of the bill) can be used here.`)
     : null;
-  const payPlan = buildPayments(totalPaise - (pointsProblem ? 0 : pointsPaise), sale?.payment ?? EMPTY_PAYMENT);
-  const paymentRows = [...(pointsPaise > 0 && !pointsProblem ? [{ method: 'POINTS', amount: pointsPaise / 100 }] : []), ...payPlan.rows];
+  const pointsPart = pointsProblem ? 0 : pointsPaise;
+
+  // Store credit: from a return, or the value of pieces brought back for an exchange. It pays part or
+  // all of what is left after points; the server takes it inside the sale and refuses more than held.
+  const counterCredit = useCounterCredit(found?.id ?? null);
+  const heldCreditPaise = found && counterCredit.data ? Math.round(counterCredit.data.credit * 100) : 0;
+  const creditTyped = String(sale?.credit ?? '').trim();
+  const creditWanted = creditTyped ? paise(creditTyped) : 0;
+  const creditProblem = !found || !creditTyped ? null
+    : !(creditWanted > 0) ? 'Enter the store credit to use as an amount.'
+    : creditWanted > heldCreditPaise ? `${found.name} has ${rupees(heldCreditPaise)} of store credit.`
+    : creditWanted > totalPaise - pointsPart ? `Only ${rupees(Math.max(0, totalPaise - pointsPart))} is left to pay on this bill.`
+    : null;
+  const creditPaise = creditProblem || !found ? 0 : creditWanted;
+  // An exchange comes here with the credit ready: it fills in by itself (up to what the bill needs)
+  // until the cashier types their own amount.
+  const exchange = params.get('exchange') === '1';
+  useEffect(() => {
+    if (!sale || !found || !sale.creditAuto) return;
+    const fill = Math.min(heldCreditPaise, Math.max(0, totalPaise - pointsPart));
+    const text = fill > 0 ? (fill / 100).toFixed(2) : '';
+    if (text !== sale.credit) update({ credit: text });
+  }, [sale?.creditAuto, found?.id, heldCreditPaise, totalPaise, pointsPart]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (exchange && sale && !sale.creditAuto && !sale.credit) update({ creditAuto: true });
+  }, [exchange, !!sale]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const restPaise = totalPaise - pointsPart - creditPaise;
+  const payPlan = buildPayments(restPaise, sale?.payment ?? EMPTY_PAYMENT);
+  const paymentRows = [
+    ...(pointsPart > 0 ? [{ method: 'POINTS', amount: pointsPart / 100 }] : []),
+    ...(creditPaise > 0 ? [{ method: 'CREDIT', amount: creditPaise / 100 }] : []),
+    ...payPlan.rows
+  ];
 
   const addCode = () => {
     const code = codeInput.trim().toUpperCase();
@@ -229,6 +264,7 @@ export default function NewSale() {
     || bill.problem
     || (totalPaise < 0 ? 'The discounts come to more than the bill.' : null)
     || pointsProblem
+    || creditProblem
     || payPlan.problem;
 
   const submit = () => {
@@ -340,6 +376,11 @@ export default function NewSale() {
         <div style={{ flex: 1, minWidth: 0 }}>
           <h1 style={{ fontSize: 26, margin: 0 }}>New sale</h1>
           <div style={{ color: 'var(--text-secondary)', fontSize: 14 }}>Selling from {currentLocation.name}</div>
+          {exchange && (
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 4, fontSize: 13, color: 'var(--accent-success)' }}>
+              <Repeat size={14} /> Exchange: add the new pieces. Their store credit pays first; they pay only the difference.
+            </div>
+          )}
         </div>
         {(items.length > 0 || sale.phone || sale.codes.length > 0) && (
           <button className="btn-secondary" disabled={busy} onClick={askToClear} style={{ fontSize: 13 }}>Clear</button>
@@ -545,11 +586,33 @@ export default function NewSale() {
                 {pointsProblem && <div role="alert" style={{ fontSize: 13, color: 'var(--accent-warning)' }}>{pointsProblem}</div>}
               </div>
             )}
-            <PaymentPanel totalPaise={items.length && q ? totalPaise - (pointsProblem ? 0 : pointsPaise) : 0} payment={sale.payment} disabled={busy} onChange={(payment) => update({ payment })} />
+            {found && heldCreditPaise > 0 && items.length > 0 && q && (
+              <div style={{ display: 'grid', gap: 6, padding: '10px 12px', borderRadius: 10, background: 'var(--bg-hover)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14 }}>
+                  <Wallet size={16} />
+                  <span>{found.name.split(' ')[0]} has <strong>{rupees(heldCreditPaise)}</strong> of store credit</span>
+                </div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <input className="input-field" inputMode="decimal" aria-label="Store credit to use" placeholder="Store credit to use" value={sale.credit ?? ''} disabled={busy}
+                    onChange={(e) => { if (/^\d*(\.\d{0,2})?$/.test(e.target.value)) update({ credit: e.target.value, creditAuto: false }); }} style={{ width: 150 }} />
+                  <button type="button" className="btn-secondary" disabled={busy} style={{ fontSize: 12, padding: '4px 10px' }}
+                    onClick={() => update({ credit: (Math.min(heldCreditPaise, Math.max(0, totalPaise - pointsPart)) / 100).toFixed(2), creditAuto: false })}>
+                    Use {rupees(Math.min(heldCreditPaise, Math.max(0, totalPaise - pointsPart)))}
+                  </button>
+                  {creditPaise > 0 && <span style={{ fontSize: 13, color: 'var(--accent-success)' }}>−{rupees(creditPaise)} · {rupees(restPaise)} left to pay</span>}
+                </div>
+                {creditProblem && <div role="alert" style={{ fontSize: 13, color: 'var(--accent-warning)' }}>{creditProblem}</div>}
+              </div>
+            )}
+            <PaymentPanel totalPaise={items.length && q ? restPaise : 0} payment={sale.payment} disabled={busy} onChange={(payment) => update({ payment })} />
             <button type="button" className="btn-primary" onClick={submit} disabled={!!problem || busy}
               style={{ padding: '14px 16px', fontSize: 16, fontWeight: 700, display: 'inline-flex', justifyContent: 'center', alignItems: 'center', gap: 8 }}>
               {busy ? <><Loader2 size={18} className="animate-spin" /> Completing…</> : `Complete sale${q && items.length
-                ? (pointsPaise > 0 && !pointsProblem ? ` · ${rupees(totalPaise - pointsPaise)} + ${pointsWanted.toLocaleString('en-IN')} points` : ` · ${rupees(totalPaise)}`)
+                ? ` · ${[
+                  restPaise > 0 || (pointsPart === 0 && creditPaise === 0) ? rupees(restPaise) : null,
+                  pointsPart > 0 ? `${pointsWanted.toLocaleString('en-IN')} points` : null,
+                  creditPaise > 0 ? `${rupees(creditPaise)} credit` : null
+                ].filter(Boolean).join(' + ')}`
                 : ''}`}
             </button>
             {problem && !busy && <div style={{ fontSize: 13, color: 'var(--text-secondary)', textAlign: 'center' }}>{problem}</div>}

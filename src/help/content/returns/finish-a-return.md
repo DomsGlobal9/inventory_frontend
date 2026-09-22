@@ -66,14 +66,18 @@ The status changes to **Completed**. Pieces marked Restock are added back to the
 
 ![The completed return. The yellow box with 1 piece of this return is not on a shelf yet at Main Store and a Put away button is marked 1. Refund owed to the customer, 980 rupees, is marked 2.](5-put-away.webp "The refund is what the customer paid, not the price on the tag.")
 
-:::warning ScaleEzy does not pay the refund
-It only shows the amount. Give the money back the way your shop always does, for example cash or UPI. For a Shopify order refunded in Shopify, it says **Refunded through Shopify**.
+:::warning ScaleEzy does not move the money itself
+Give it back the way your shop always does, then press the button for how you did it: **Cash**, **UPI**, **Card** or **Store credit**, and **Paid back**. That records it on the bill and in the Day Book, so the cash drawer adds up. For a Shopify order refunded in Shopify, it says **Refunded through Shopify**.
 :::
 
 ## Common problems
 
 :::faq I don't see Returns in the menu
-Your role cannot see returns. With the standard roles, sales staff and inventory managers do not have it. Ask your shop owner.
+Your role cannot see returns. Ask your shop owner.
+:::
+
+:::faq The customer is standing at the counter with the piece
+Use [Take a return at the counter](/help/returns/take-a-return) instead. It does all four steps and the money in one go.
 :::
 
 :::faq Save Dispositions is grey

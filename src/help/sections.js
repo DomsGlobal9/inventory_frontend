@@ -57,7 +57,7 @@ export const SECTIONS = [
       ta: 'வாடிக்கையாளர் திருப்பிக் கொண்டுவருவதைப் பதிவு செய்து, சரிபார்த்து, முடிக்கவும்.',
       kn: 'ಗ್ರಾಹಕರು ಹಿಂದಿರುಗಿಸಿದ್ದನ್ನು ದಾಖಲಿಸಿ, ಪರಿಶೀಲಿಸಿ ಮತ್ತು ಮುಗಿಸಿ.'
     },
-    pages: ['book-a-return', 'finish-a-return'] },
+    pages: ['take-a-return', 'book-a-return', 'finish-a-return'] },
   { id: 'inventory', title: 'Inventory', icon: 'Boxes',
     blurb: 'See, add, remove, correct and count your stock.',
     titles: { te: 'Inventory (స్టాక్)', hi: 'Inventory (स्टॉक)', ta: 'Inventory (ஸ்டாக்)', kn: 'Inventory (ಸ್ಟಾಕ್)' },

@@ -50,7 +50,10 @@ export const useCompleteCounterReturn = () => {
   return useMutation({
     mutationFn: async (body) => (await api.post('/counter-returns', body)).data,
     onSettled: () => {
-      qc.invalidateQueries({ queryKey: ['counter-returns'] });
+      // Not the preview: asked again for pieces that have just come back, it answers "already come
+      // back" and the app shows that as an error over the finished return.
+      qc.invalidateQueries({ predicate: (q) => q.queryKey[0] === 'counter-returns' && q.queryKey[1] !== 'preview' });
+      qc.removeQueries({ queryKey: ['counter-returns', 'preview'] });
       qc.invalidateQueries({ queryKey: ['returns'] });
       qc.invalidateQueries({ queryKey: ['store-credit'] });
       qc.invalidateQueries({ queryKey: ['loyalty'] });

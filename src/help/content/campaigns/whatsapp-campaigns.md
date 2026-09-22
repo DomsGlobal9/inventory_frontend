@@ -20,7 +20,9 @@ Before your first campaign:
 A campaign reaches only customers who said yes to offers on WhatsApp. Ask them first, then record it:
 
 - at the counter, in **New sale**: tick **Agrees to offers on WhatsApp**;
-- on the customer's page: tick **Agrees to offers on WhatsApp** in the **Offers on WhatsApp** card.
+- on the customer's page: tick [[1]] **Agrees to offers on WhatsApp** in the **Offers on WhatsApp** card.
+
+![The Offers on WhatsApp card on a customer's page, with Agrees to offers on WhatsApp ticked and marked 1.](1-agrees.webp "Tick it only when the customer said yes.")
 
 Who recorded the yes, and when, is kept. The law on personal data (the DPDP Act) asks you to be able to show that a customer agreed.
 
@@ -30,7 +32,7 @@ Every message ends with *Reply STOP to stop these messages.* You cannot remove t
 
 1. In the menu on the left, click **Campaigns**, then **New campaign**.
 2. Give it a name that only you see, for example *Dasara silk week*.
-3. Write the message. The buttons under it add words that are filled in for each customer:
+3. [[1]] Write the message. [[2]] The buttons under it add words that are filled in for each customer:
 
 | Button | Becomes |
 |---|---|
@@ -39,14 +41,18 @@ Every message ends with *Reply STOP to stop these messages.* You cannot remove t
 | Their points | Their loyalty points |
 | Points worth ₹ | What those points are worth |
 
-4. Choose who gets it: **Everyone who agreed**, **Bought recently** or **Haven't bought for a while**. You can narrow it further by customer group (for example VIP), by how much they have spent, or by points.
-5. The count under the choices shows how many it reaches right now, with a few names.
+4. [[3]] Choose who gets it: **Everyone who agreed**, **Bought recently** or **Haven't bought for a while**. You can narrow it further by customer group (for example VIP), by how much they have spent, or by points.
+5. [[4]] The count under the choices shows how many it reaches right now, with a few names.
 6. On the right is exactly what the customer will see. Click **Send me a test** to get it on your own shop's WhatsApp first.
 7. Click **Save draft**.
 
+![New campaign. The message is marked 1, the First name button 2, Everyone who agreed 3 and Reaches 4 customers 4. On the right is the message as a customer sees it.](2-write.webp "The STOP line is always added at the end.")
+
 ## 3. Start it
 
-Open the draft and check the message and the count, then click **Start**, and **Start sending** in the box that asks.
+Open the draft and check the message and the count, then click **Start**, and [[1]] **Start sending** in the box that asks.
+
+![The box that asks before a campaign starts, saying how many customers, how fast, and that the words cannot change after. Start sending is marked 1.](3-start.webp "You can pause or stop it at any time.")
 
 Once started, the message and the list of customers are fixed. To change the words, click **Copy** to make a new draft.
 
@@ -62,12 +68,14 @@ A campaign to 300 customers therefore takes a few days. The page says how long b
 
 ## 4. Follow it
 
-The campaign page shows how many were sent, delivered and read, and each customer's own line: **Waiting its turn**, **Sent**, **Delivered**, **Read**, **Not sent** or **Skipped**, with the reason.
+The campaign page shows [[2]] how many were sent, delivered and read, and [[3]] each customer's own line: **Waiting its turn**, **Sent**, **Delivered**, **Read**, **Not sent** or **Skipped**, with the reason.
 
 A customer is skipped if, before their turn came, they replied STOP, were deleted, or no longer agree to offers.
 
-- **Pause** stops sending for now; **Carry on** starts again.
+- [[1]] **Pause** stops sending for now; **Carry on** starts again.
 - **Stop** ends it for good. Messages already with WhatsApp still arrive; nobody else gets it.
+
+![A campaign that is sending. Pause is marked 1, How it is going 2, and a customer's Waiting its turn 3.](4-follow-it.webp "Each customer's line changes as WhatsApp sends, delivers and reads it.")
 
 ## 5. Automatic messages
 

@@ -14,9 +14,11 @@ Points work only at the counter, in [New sale](/help/orders/new-sale).
 
 ## 1. Switch points on
 
-1. In the menu on the left, click **Settings**, then **Loyalty & wishes**.
-2. Tick **Loyalty points**.
-3. Choose the rules, then click **Save**.
+1. In the menu on the left, click **Settings**, then [[1]] **Loyalty & wishes**.
+2. Tick [[2]] **Loyalty points**.
+3. Choose the rules, starting with [[3]] how many points every ₹100 earns, then click **Save** at the bottom.
+
+![Settings, Loyalty & wishes. The Loyalty & wishes tab is marked 1, the Loyalty points tick 2 and Points for every ₹100 3.](1-switch-on.webp "The line under the numbers shows what the rules give a customer.")
 
 | Rule | What it means | Usual choice |
 |---|---|---|
@@ -34,11 +36,13 @@ Only owners, and roles with the loyalty permission, can change these rules. Ever
 
 ## 2. At the counter
 
-Type the customer's phone number in **New sale** as usual. For a customer who already has points, the payment box shows how many they have and what they are worth, and how many this bill earns.
+Type the customer's phone number in **New sale** as usual. For a customer who already has points, [[1]] the payment box shows how many they have and what they are worth, and how many this bill earns.
 
 - To use points, type them in **Points to use**, or click the button that uses the most allowed on this bill.
 - The rest of the bill is paid as usual: cash, UPI, card or split.
-- The **Complete sale** button shows both, for example *₹2,250 + 250 points*.
+- [[2]] The **Complete sale** button shows both, for example *₹2,250 + 250 points*.
+
+![New sale for Lakshmi Narayanan. The box with her 300 points and 300 typed in is marked 1, and Complete sale showing ₹7,350 + 300 points is marked 2.](2-at-the-counter.webp "The rest of the bill is paid the usual way.")
 
 The receipt shows the points as a payment, **Loyalty points**, next to the cash or UPI.
 
@@ -48,11 +52,13 @@ Points are earned only on what was paid in money. A bill of ₹2,500 with 250 po
 
 Open the customer from **Customers**. The **Loyalty points** card shows:
 
-- how many points they have and what they are worth;
+- [[1]] how many points they have and what they are worth;
 - the day they lapse if the customer does not come back;
 - every change: earned on a bill, used on a bill, given or taken back by a return, a birthday gift, lapsed, or changed by hand.
 
-To add or take away points by hand (a goodwill gesture, or a mistake), click **Change points**, type how many and why, and save. The reason is kept with the change. Points can never go below zero this way.
+To add or take away points by hand (a goodwill gesture, or a mistake), click [[2]] **Change points**, type how many and why, and save. The reason is kept with the change. Points can never go below zero this way.
+
+![The Loyalty points card on a customer's page. The 300 points are marked 1 and Change points 2.](3-customer-points.webp "Every change is listed, newest first.")
 
 ## 4. Returns
 

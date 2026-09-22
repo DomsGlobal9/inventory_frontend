@@ -12,23 +12,33 @@ When the customer is standing at the counter with the piece, you do not need the
 
 ## 1. Find the bill
 
-1. In the menu on the left, click **Returns**, then **Take a return**. Or, on the order or its receipt, click **Take a return**.
-2. Type the bill number from the receipt (for example *SO-000123*, or just *123*), or the customer's phone number or name.
-3. Click the right bill. It says how many pieces can still come back.
+1. In the menu on the left, click [[1]] **Returns**, then [[2]] **Take a return**. Or, on the order or its receipt, click **Take a return**.
+
+![The Returns page. Returns is marked 1 in the menu and Take a return 2.](1-open.webp "Sales staff can take returns at the counter too.")
+
+2. [[3]] Type the bill number from the receipt (for example *SO-000123*, or just *123*), or the customer's phone number or name.
+3. [[4]] Click the right bill. It says how many pieces can still come back.
+
+![Find the bill. The search box with the bill number is marked 3 and the bill found, with 2 pieces that can come back, 4.](2-find-the-bill.webp "Bills with nothing left to return are grey.")
 
 ## 2. Choose what is coming back
 
-1. Use **+** and **−** on each item to say how many are coming back.
-2. For each one, choose **Back on sale** or **Damaged**. Damaged pieces are not added back to stock.
-3. Choose why it is coming back, and add a note if it helps.
+1. [[1]] Use **+** and **−** on each item to say how many are coming back.
+2. [[2]] For each one, choose **Back on sale** or **Damaged**. Damaged pieces are not added back to stock.
+3. [[3]] Choose why it is coming back, and add a note if it helps.
+
+![One Cotton Kurti of two coming back. The plus button is marked 1, Back on sale 2 and the reason Size did not fit 3.](3-what-is-coming-back.webp "The price paid shows on each line.")
 
 The money is what the customer paid for those pieces after discounts, not the price on the tag.
 
 ## 3. Give the money back
 
-1. Choose **Give the money back**.
-2. Choose how: **Cash**, **UPI**, **Card** or **Store credit**. For UPI or card you can type the reference.
-3. Click the button, for example *Take back · give ₹900 in cash*.
+1. Choose [[1]] **Give the money back**.
+2. Choose how: [[2]] **Cash**, **UPI**, **Card** or **Store credit**. For UPI or card you can type the reference.
+3. Click [[3]] the button, for example *Take back · give ₹900 in cash*.
+
+![Money back. Give the money back is marked 1, Cash 2 and Take back · give ₹1,450 in cash 3.](4-give-the-money-back.webp "Points earned on these pieces are taken back, and the screen says so.")
+
 4. Give the money back as the screen says.
 
 **Store credit** keeps the money for the customer to spend in the shop later. It shows at **New sale** as soon as their phone number is typed.
@@ -40,18 +50,23 @@ If part of the bill was paid with loyalty points, that part goes back as points,
 For "the same kurti in L instead of M":
 
 1. Choose **Exchange for something else**, and click the button.
-2. Click **Choose the new pieces**. **New sale** opens for the same customer, with the returned value ready as store credit.
-3. Add the new pieces. The credit pays first; the customer pays only the difference.
+2. Click **Choose the new pieces**. **New sale** opens for the same customer, with [[1]] a line saying it is an exchange and [[2]] the returned value ready as store credit.
+3. Add the new pieces. The credit pays first; the customer pays only the difference. Then click [[3]] **Complete sale**.
+
+![New sale for an exchange. The exchange line is marked 1, the store credit to use 2 and Complete sale 3.](5-exchange.webp "If the new pieces cost more, the difference is paid the usual way.")
+
 4. If the new pieces cost less, what is left stays as their store credit.
 
 ## 5. When a manager is needed
 
-The owner can set two limits in **Settings** → **Returns & exchanges**:
+The owner can set two limits in **Settings** → [[1]] **Returns & exchanges**, [[2]] the days and [[3]] the money:
 
 | Setting | What it does |
 |---|---|
 | Take returns within | Days after the sale in which a salesperson can take a return |
 | A salesperson may pay back up to | The most a salesperson can pay back on one return |
+
+![Settings, Returns & exchanges. The tab is marked 1, Take returns within 2 and A salesperson may pay back up to 3.](6-rules.webp "Leave a box empty for no limit.")
 
 Past either limit, the screen says a manager is needed, and why. A manager (anyone who can finish returns) can still take it.
 

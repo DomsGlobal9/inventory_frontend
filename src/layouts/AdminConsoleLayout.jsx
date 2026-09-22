@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { Building2, Users, Rocket, HeartPulse, ScrollText, Bug, LifeBuoy, LogOut, ShieldCheck, Sun, Moon, Inbox, Menu, X, BadgePercent } from 'lucide-react';
+import { Building2, Users, Rocket, HeartPulse, ScrollText, Bug, LifeBuoy, LogOut, ShieldCheck, Sun, Moon, Inbox, Menu, X, BadgePercent, Link2 } from 'lucide-react';
 import { usePlatformAdmin } from '../context/PlatformAdminContext';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { name: 'Offers & Shopify', path: '/platformconsole/offers-health', icon: BadgePercent },
   { name: 'Errors', path: '/platformconsole/errors', icon: Bug },
   { name: 'Support', path: '/platformconsole/support', icon: LifeBuoy },
+  { name: 'Short Links', path: '/platformconsole/short-links', icon: Link2 },
   { name: 'Audit Log', path: '/platformconsole/audit-log', icon: ScrollText },
   // Last, and on its own: this is the only screen that changes who can reach the console.
   { name: 'Platform Admins', path: '/platformconsole/platform-admins', icon: ShieldCheck },

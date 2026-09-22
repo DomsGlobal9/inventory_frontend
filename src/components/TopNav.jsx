@@ -232,6 +232,12 @@ export default function TopNav({ onMenuClick }) {
             color: 'var(--text-primary)',
             width: '100%',
             fontSize: '14px',
+            // The box looks about 38px tall, but the input itself is only as tall as one line of
+            // text -- so on a tablet a tap near the top or bottom edge of the box landed on the
+            // wrapper's padding and did nothing. Padding out and pulling the same amount back in
+            // makes the input cover the whole box without moving anything.
+            padding: '10px 0',
+            margin: '-10px 0',
           }}
         />
         </div>

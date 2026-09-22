@@ -110,7 +110,7 @@ The campaign page shows [[2]] how many were sent, delivered and read, and [[3]] 
 
 ![A campaign that is sending. Pause is marked 1, How it is going 2, and a customer's Waiting its turn 3.](4-follow-it.webp "Each customer's line changes as WhatsApp sends, delivers and reads it.")
 
-With a link, the page also shows [[1]] how many customers **tapped the link**, and each one who did is marked **Tapped**. A customer who taps three times counts once; the total taps are shown beside it. WhatsApp itself opens every link to draw its preview, and those opens are not counted.
+With a link, the page also shows [[1]] how many customers **tapped the link**, and each one who did is marked **Tapped**. A customer who taps three times counts once; the total taps are shown beside it. WhatsApp itself opens every link to draw its preview, and those opens are not counted. The **Campaigns** list shows the same count on each campaign's line, so you can see at a glance which offer worked.
 
 If the link was wrong (a wrong price, a wrong page), click [[2]] **Switch links off**. Customers who tap then see *This promotion is no longer available*. **Switch links on** turns them back on.
 

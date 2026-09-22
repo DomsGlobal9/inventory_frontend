@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus, Megaphone, AlertTriangle, ShieldCheck, Gift, Clock } from 'lucide-react';
+import { Plus, Megaphone, AlertTriangle, ShieldCheck, Gift, Clock, Link2 as LinkIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useCampaigns, useCampaignOverview, useCreateCampaign } from '../../hooks/useCampaigns';
 import { useBranding } from '../../hooks/useBranding';
@@ -151,7 +151,21 @@ export default function Campaigns() {
                 {(c.sent?.media ?? c.media) && <img src={(c.sent?.media ?? c.media).url} alt="" style={{ width: '44px', height: '44px', objectFit: 'cover', borderRadius: '6px', flexShrink: 0 }} />}
                 <div style={{ fontSize: '13px', color: 'var(--text-secondary)', whiteSpace: 'pre-wrap', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', minWidth: 0 }}>{c.sent?.text ?? c.text}</div>
               </div>
-              {c.status !== 'DRAFT' && <div style={{ marginTop: '10px' }}><Progress p={c.progress} /></div>}
+              {c.status !== 'DRAFT' && (
+                <div style={{ marginTop: '10px' }}>
+                  <Progress p={c.progress} />
+                  {/* Taps go on the row, not inside Progress: the detail page already gives them a
+                      line of their own right under the same bar, and saying it twice there reads
+                      like two different numbers. */}
+                  {c.progress?.tapped != null && (
+                    <div style={{ fontSize: '12px', color: 'var(--primary-color)', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                      <LinkIcon size={12} />
+                      {c.progress.tapped.toLocaleString('en-IN')} tapped the link
+                      {c.progress.taps > c.progress.tapped ? ` (${c.progress.taps.toLocaleString('en-IN')} taps in all)` : ''}
+                    </div>
+                  )}
+                </div>
+              )}
             </li>
           ))}
         </ul>

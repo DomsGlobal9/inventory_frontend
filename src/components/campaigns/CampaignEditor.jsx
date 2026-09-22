@@ -98,6 +98,10 @@ export default function CampaignEditor({ campaign, shopName, onClose, onSave, sa
   const captionTooLong = captionLength !== null && captionLength > MAX_CAPTION;
   const hasLinkWord = /\{link\}/.test(f.text);
   const linkMismatch = !!f.link !== hasLinkWord;
+  // A real price: a rupee sign before a number, or a number followed by "rs"/"rupees". Deliberately
+  // not every number -- "20% off", "10 am" and "2 for 1" are not prices, and a note that cries wolf
+  // on every message is a note nobody reads. {points_value} is our own word, already a live figure.
+  const hasPrice = /(?:₹|\bRs\.?\s?)\s?\d|\d\s?(?:rupees|rs\b)/i.test(f.text.replace(/\{points_value\}/g, ''));
   const laterBad = f.later && !(f.startAt && new Date(f.startAt).getTime() > Date.now());
   const canSave = f.name.trim() && f.text.trim() && !tooLong && !captionTooLong && !daysBad && !linkMismatch && !laterBad && !saving;
 
@@ -191,6 +195,13 @@ export default function CampaignEditor({ campaign, shopName, onClose, onSave, sa
                 </p>}
                 {linkMismatch && <p role="alert" style={{ margin: '6px 0 0', fontSize: '12px', color: 'var(--danger, #dc2626)' }}>
                   {f.link ? 'Put {link} in the message where the link should go — the "Link" button adds it.' : 'Choose where the link goes below, or take {link} out of the message.'}
+                </p>}
+                {/* A price typed into the words is frozen the moment the campaign starts, while the
+                    link keeps showing today's price. Worth saying once, quietly: a sale that ends
+                    on Sunday and a message that still promises the sale price is a real argument at
+                    the counter. Not an error -- plenty of shops mean to name the price. */}
+                {hasPrice && <p style={{ margin: '6px 0 0', fontSize: '12px', color: 'var(--text-secondary)' }}>
+                  Prices in the message are fixed when you send; the link shows today's price.
                 </p>}
               </div>
 

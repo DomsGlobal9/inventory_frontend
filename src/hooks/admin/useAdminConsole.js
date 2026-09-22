@@ -407,3 +407,31 @@ export const useSetClientTryOnLimit = () => {
     onError: (error) => toast.error(error?.message || 'Could not set that limit')
   });
 };
+
+// ── Short links ───────────────────────────────────────────────────────────────────────────
+// A lookup, not a list. There is no "all links" screen on purpose: they are a shop's private
+// business, and an admin should have a reason (a report, a complaint) and a code in hand before
+// looking. `enabled` keeps the query idle until one is typed, and retry is off so a wrong code
+// answers once instead of four times.
+export const useAdminShortLink = (code) => {
+  return useQuery({
+    queryKey: ['admin', 'links', code],
+    queryFn: async () => (await api.get(`/admin/links/${code}`)).data,
+    enabled: !!code,
+    retry: false
+  });
+};
+
+export const useSetShortLinkBlocked = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ code, block, note }) =>
+      (await api.post(`/admin/links/${code}/${block ? 'disable' : 'enable'}`, block ? { note } : {})).data,
+    onSuccess: (_result, { code, block }) => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'links', code] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'audit-log'] });
+      toast.success(block ? 'Link switched off. Anyone who taps it now sees a plain notice.' : 'Link switched back on.');
+    },
+    onError: (error) => toast.error(error?.message || 'Could not change that link')
+  });
+};

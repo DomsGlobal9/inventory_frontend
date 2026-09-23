@@ -86,7 +86,7 @@ export default function WhatsAppSendButton({ kind, id, buildPdf, fileName, fallb
   if (latest?.recipientStopped) {
     const who = latest.recipientName || recipientLabel || 'This customer';
     return (
-      <span style={{ display: 'inline-flex', flexDirection: 'column', gap: '4px', ...style }}>
+      <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px', ...style }}>
         {fallbackHref ? (
           <a href={fallbackHref} target="_blank" rel="noopener noreferrer" className="btn-secondary"
             style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', textDecoration: 'none' }}>
@@ -103,7 +103,7 @@ export default function WhatsAppSendButton({ kind, id, buildPdf, fileName, fallb
   if (!linked) {
     if (!fallbackHref) return null;
     return (
-      <span style={{ display: 'inline-flex', flexDirection: 'column', gap: '4px', ...style }}>
+      <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px', ...style }}>
         <a href={fallbackHref} target="_blank" rel="noopener noreferrer" className="btn-secondary"
           style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', textDecoration: 'none' }}>
           <WhatsAppIcon size={16} /> Share on WhatsApp
@@ -141,7 +141,7 @@ export default function WhatsAppSendButton({ kind, id, buildPdf, fileName, fallb
   const again = latest && ['SENT', 'DELIVERED', 'READ', 'FAILED', 'EXPIRED'].includes(latest.status);
 
   return (
-    <span style={{ display: 'inline-flex', flexDirection: 'column', gap: '4px', ...style }}>
+    <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px', ...style }}>
       <button type="button" className="btn-secondary" onClick={press} disabled={working}
         title={recipientLabel ? `Sends the PDF to ${recipientLabel}, at the number saved for them` : undefined}
         style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Globe, Check, Loader2, AlertTriangle, ExternalLink, Copy, Share2, Printer } from 'lucide-react';
+import { Globe, Check, Loader2, AlertTriangle, ExternalLink, Copy, Share2, Printer, ShoppingBag } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import toast from 'react-hot-toast';
 import { useOnlineShop, useChooseShopAddress, useSaveOnlineShop, useSetShopOpen } from '../../hooks/useOnlineShop';
@@ -38,6 +38,12 @@ export default function OnlineShopSettings() {
       displayName: shop.displayName ?? '',
       locationIds: shop.locationIds ?? [],
       hideOutOfStock: !!shop.hideOutOfStock,
+      acceptsOrders: !!shop.acceptsOrders,
+      payOnDelivery: shop.payOnDelivery !== false,
+      payOnline: !!shop.payOnline,
+      deliveryFee: shop.deliveryFee ?? 0,
+      freeDeliveryAbove: shop.freeDeliveryAbove ?? '',
+      minOrderValue: shop.minOrderValue ?? '',
       returnPolicy: shop.returnPolicy ?? '',
       grievanceName: shop.grievanceName ?? '',
       grievancePhone: shop.grievancePhone ?? '',
@@ -189,6 +195,75 @@ export default function OnlineShopSettings() {
             </span>
           </span>
         </label>
+      </div>
+
+      {/* ── Taking orders ───────────────────────────────────────────────────────────
+          Off until the shop says otherwise. Turning it on holds real stock and promises a real
+          delivery, so it is a decision rather than a default. */}
+      <div className="card" style={card}>
+        <h3 style={h3}><ShoppingBag size={16} /> Taking orders</h3>
+        <p style={hint}>
+          With this off, customers can look at your shop and ask you on WhatsApp — which is how
+          many shops prefer to sell. With it on, they can put pieces in a bag and order them
+          outright, and the order lands in Orders with the stock already held for it.
+        </p>
+
+        <label style={{ display: 'flex', gap: '9px', alignItems: 'flex-start', cursor: 'pointer' }}>
+          <input type="checkbox" checked={form.acceptsOrders} onChange={(e) => set('acceptsOrders', e.target.checked)}
+            style={{ width: '16px', height: '16px', marginTop: '2px' }} />
+          <span style={{ fontSize: '13px' }}>
+            Let customers order from my shop
+            <span style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)' }}>
+              Your prices and your offers apply automatically — the same ones your till uses.
+            </span>
+          </span>
+        </label>
+
+        {form.acceptsOrders && (
+          <div style={{ marginTop: '18px', paddingTop: '16px', borderTop: '1px solid var(--border-light)' }}>
+            <span style={label}>How customers may pay</span>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '6px' }}>
+              <label style={{
+                display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '8px 12px', cursor: 'pointer',
+                border: '1px solid var(--border-light)', borderRadius: '8px',
+                background: form.payOnDelivery ? 'var(--bg-hover)' : 'transparent'
+              }}>
+                <input type="checkbox" checked={form.payOnDelivery} onChange={(e) => set('payOnDelivery', e.target.checked)} />
+                <span style={{ fontSize: '13px' }}>When it arrives <span style={{ color: 'var(--text-muted)' }}>(cash or UPI)</span></span>
+              </label>
+              {/* Paying online needs a payment gateway set up for this shop; until that exists it
+                  cannot be offered, and saying so is better than a switch that does nothing. */}
+              <label style={{
+                display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '8px 12px',
+                border: '1px solid var(--border-light)', borderRadius: '8px', opacity: 0.55, cursor: 'not-allowed'
+              }} title="Paying online needs your payment gateway set up first.">
+                <input type="checkbox" checked={false} disabled readOnly />
+                <span style={{ fontSize: '13px' }}>Online <span style={{ color: 'var(--text-muted)' }}>(coming with payments)</span></span>
+              </label>
+            </div>
+
+            <div style={{ display: 'grid', gap: '14px', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', marginTop: '16px' }}>
+              <div>
+                <label style={label} htmlFor="os-fee">Delivery charge</label>
+                <input id="os-fee" className="input-field" type="number" min="0" step="1" value={form.deliveryFee}
+                  onChange={(e) => set('deliveryFee', e.target.value)} placeholder="0" style={{ width: '100%' }} />
+                <span style={{ ...hint, marginBottom: 0 }}>0 means delivery is always free.</span>
+              </div>
+              <div>
+                <label style={label} htmlFor="os-free">Free delivery above</label>
+                <input id="os-free" className="input-field" type="number" min="0" step="1" value={form.freeDeliveryAbove}
+                  onChange={(e) => set('freeDeliveryAbove', e.target.value)} placeholder="Leave empty for none" style={{ width: '100%' }} />
+                <span style={{ ...hint, marginBottom: 0 }}>Customers are told how much more to add.</span>
+              </div>
+              <div>
+                <label style={label} htmlFor="os-min">Smallest order you will send</label>
+                <input id="os-min" className="input-field" type="number" min="0" step="1" value={form.minOrderValue}
+                  onChange={(e) => set('minOrderValue', e.target.value)} placeholder="Leave empty for none" style={{ width: '100%' }} />
+                <span style={{ ...hint, marginBottom: 0 }}>Counted on the pieces, not the delivery.</span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ── Banners ─────────────────────────────────────────────────────────────────

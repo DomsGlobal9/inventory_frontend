@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Globe, Check, Loader2, AlertTriangle, ExternalLink, Copy } from 'lucide-react';
+import { Globe, Check, Loader2, AlertTriangle, ExternalLink, Copy, Share2, Printer } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import toast from 'react-hot-toast';
 import { useOnlineShop, useChooseShopAddress, useSaveOnlineShop, useSetShopOpen } from '../../hooks/useOnlineShop';
 import { useLocationContext } from '../../contexts/LocationContext';
@@ -52,6 +53,48 @@ export default function OnlineShopSettings() {
   const toggleLocation = (id) =>
     set('locationIds', form.locationIds.includes(id) ? form.locationIds.filter(x => x !== id) : [...form.locationIds, id]);
 
+  /**
+   * The part of the address before the shop's own name.
+   *
+   * Taken from the address the server gave rather than written in here: on a test setup shops live
+   * somewhere else entirely, and a box that says shop.scaleezy.com while the link underneath says
+   * something different is a screen telling the owner something untrue.
+   */
+  const addressPrefix = shop.url
+    ? shop.url.replace(/^https?:\/\//, '').replace(new RegExp(`${shop.slug}$`), '')
+    : 'shop.scaleezy.com/';
+
+  /**
+   * A message an owner would actually send: their shop's name and the link, nothing salesy. They
+   * can edit it in WhatsApp before sending, which is why it is short.
+   */
+  const shareHref = shop.url
+    ? `https://wa.me/?text=${encodeURIComponent(`${shop.displayName || 'Our shop'} is online. Have a look: ${shop.url}`)}`
+    : null;
+
+  /**
+   * Printing just the code, not the whole settings page. A new window rather than a print
+   * stylesheet on this screen: the owner wants a card to stick by the till, and everything else
+   * on this page -- their grievance email, their return policy -- has no business on it.
+   */
+  const printQr = () => {
+    const svg = document.getElementById('shop-qr')?.innerHTML;
+    if (!svg) return;
+    const w = window.open('', '_blank', 'width=480,height=620');
+    if (!w) { toast.error('Your browser stopped the print window. Allow pop-ups for this page.'); return; }
+    w.document.write(
+      `<title>${shop.displayName || 'Our shop'}</title>` +
+      '<style>body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;text-align:center;padding:36px 24px}' +
+      'h1{font-size:20px;margin:0 0 4px}p{color:#555;margin:0 0 20px;font-size:13px}' +
+      '.u{font-family:ui-monospace,monospace;font-size:13px;margin-top:16px;word-break:break-all}</style>' +
+      `<h1>${shop.displayName || 'Our shop'}</h1><p>Point your phone here to see what we have</p>` +
+      `${svg}<div class="u">${shop.url}</div>`
+    );
+    w.document.close();
+    w.focus();
+    w.print();
+  };
+
   const copy = async () => {
     try { await navigator.clipboard.writeText(shop.url); toast.success('Address copied.'); }
     catch { toast.error('Could not copy it. Select the address and copy it by hand.'); }
@@ -70,7 +113,7 @@ export default function OnlineShopSettings() {
 
         <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '2px', flex: '1 1 320px', minWidth: 0 }}>
-            <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>shop.scaleezy.com/</span>
+            <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>{addressPrefix}</span>
             <input className="input-field" value={slug} disabled={shop.isLive}
               onChange={(e) => setSlug(e.target.value)} placeholder="lakshmi-silks" aria-label="Your shop's web address"
               style={{ flex: 1, minWidth: 0, fontFamily: 'var(--font-mono)' }} />
@@ -186,6 +229,34 @@ export default function OnlineShopSettings() {
           {save.isPending ? 'Saving…' : 'Save'}
         </button>
       </div>
+
+      {/* ── Sharing it ──────────────────────────────────────────────────────────────── */}
+      {shop.isLive && shop.url && (
+        <div className="card no-print" style={card}>
+          <h3 style={h3}><Share2 size={16} /> Share your shop</h3>
+          <p style={hint}>
+            Send the link on WhatsApp, or print the code and put it by the till. A customer points
+            their phone at it and your shop opens.
+          </p>
+          <div style={{ display: 'flex', gap: '22px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+            <div id="shop-qr" style={{ padding: '12px', background: '#fff', borderRadius: '10px', border: '1px solid var(--border-light)' }}>
+              <QRCodeSVG value={shop.url} size={132} level="M" marginSize={0} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-start' }}>
+              <a className="btn-primary" href={shareHref} target="_blank" rel="noopener noreferrer"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', textDecoration: 'none' }}>
+                <Share2 size={15} /> Share on WhatsApp
+              </a>
+              <button className="btn-secondary" onClick={copy} style={{ display: 'inline-flex', alignItems: 'center', gap: '7px' }}>
+                <Copy size={15} /> Copy the link
+              </button>
+              <button className="btn-secondary" onClick={printQr} style={{ display: 'inline-flex', alignItems: 'center', gap: '7px' }}>
+                <Printer size={15} /> Print the code
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Opening it ──────────────────────────────────────────────────────────────── */}
       <div className="card" style={card}>

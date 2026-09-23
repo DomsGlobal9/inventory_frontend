@@ -125,6 +125,22 @@ export default function ImageGallery({ productId }) {
     show: { opacity: 1, scale: 1 }
   };
 
+  /*
+   * A flat-lay reference is not a photograph of the product.
+   *
+   * When Try-On generates a product's views, the picture the merchant uploaded to generate them
+   * from is kept as RAW_UPLOAD -- a garment laid flat on a table. The shop deliberately shows only
+   * COVER and GALLERY, so a product with four generated views and one reference has five photos
+   * here and four online. That is right, and it looked like a bug: nothing on this screen said
+   * which was which, so the only way to find out was to count them in two places.
+   */
+  const isReference = (image) => image.imageType === 'RAW_UPLOAD';
+
+  /** Promote a reference to a real photo, for a merchant who wants it in the shop after all. */
+  const showInShop = (imageId) => updateMutation.mutate({ imageId, data: { imageType: 'GALLERY' } });
+
+  const referenceCount = images.filter(i => i.imageType === 'RAW_UPLOAD').length;
+
   const renderImage = (image) => (
     <motion.div
       variants={itemVariants}
@@ -144,8 +160,36 @@ export default function ImageGallery({ productId }) {
       <img
         src={image.url}
         alt={image.altText || 'Product image'}
-        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        style={{
+          width: '100%', height: '100%', objectFit: 'cover',
+          // Dimmed, so which ones a customer actually sees is obvious at a glance.
+          opacity: isReference(image) ? 0.55 : 1
+        }}
       />
+
+      {isReference(image) && (
+        <div style={{
+          position: 'absolute', left: 0, right: 0, bottom: 0, padding: '7px 8px',
+          background: 'linear-gradient(to top, rgba(0,0,0,.78), transparent)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px'
+        }}>
+          <span style={{ color: '#fff', fontSize: '10px', fontWeight: 600, letterSpacing: '.03em' }}
+            title="This is the photo Try-On generated the others from. Customers do not see it.">
+            NOT IN YOUR SHOP
+          </span>
+          <button
+            onClick={() => showInShop(image.id)}
+            disabled={updateMutation.isPending}
+            style={{
+              color: '#fff', background: 'rgba(255,255,255,.18)', border: 0, cursor: 'pointer',
+              padding: '3px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 600
+            }}
+            title="Show this photo in your online shop too"
+          >
+            Show it
+          </button>
+        </div>
+      )}
       <div style={{
         position: 'absolute', top: 0, left: 0, right: 0,
         padding: '8px', display: 'flex', justifyContent: 'space-between', gap: '8px',
@@ -198,6 +242,14 @@ export default function ImageGallery({ productId }) {
                 // has"; only splitting them reads like English.
                 ? `${missingCount} of ${variants.length} ${variants.length === 1 ? 'variant' : 'variants'} ${missingCount === 1 ? 'has' : 'have'} no photo yet.`
                 : 'Every size and colour has at least one photo.'}
+            {/* Both numbers, in one line, so "five here and four online" is never a mystery. */}
+            {referenceCount > 0 && (
+              <span style={{ display: 'block', marginTop: '4px' }}>
+                {images.length - referenceCount} of these {images.length - referenceCount === 1 ? 'is' : 'are'} shown
+                in your online shop. {referenceCount === 1 ? 'The other is a' : `The other ${referenceCount} are`} flat-lay
+                {referenceCount === 1 ? ' reference' : ' references'} Try-On generated from.
+              </span>
+            )}
           </p>
         </div>
         <input

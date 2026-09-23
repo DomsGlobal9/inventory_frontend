@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { formatRupees } from '../utils/money';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Package, Box, History, Image as ImageIcon, ImageOff, Copy, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Package, Box, History, Image as ImageIcon, ImageOff, Copy, CheckCircle2, Shirt } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { QRCodeSVG } from 'qrcode.react';
 import {
@@ -19,6 +19,7 @@ import TransactionHistory from '../components/TransactionHistory';
 import StockMovementModal from '../components/StockMovementModal';
 import PageLoader from '../components/PageLoader';
 import ConfirmModal from '../components/ConfirmModal';
+import CounterTryOn from '../components/CounterTryOn';
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -29,6 +30,7 @@ export default function ProductDetails() {
   const scannedVariantId = searchParams.get('variant');
   const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') || 'overview');
   const [isStockModalOpen, setIsStockModalOpen] = useState(false);
+  const [tryingOn, setTryingOn] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
   
   const [confirmState, setConfirmState] = useState({ isOpen: false });
@@ -483,6 +485,15 @@ export default function ProductDetails() {
 
                         {product.tryOnScanUrl ? (
                           <>
+                            {/* The customer is often standing right here. The QR below is for the
+                                one browsing alone; this is for the one at the counter. */}
+                            <button className="btn-secondary" onClick={() => setTryingOn(true)}
+                              disabled={!(product.imageCount > 0)}
+                              title={product.imageCount > 0 ? '' : 'This product has no photograph yet, so there is nothing to try on.'}
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', marginBottom: '12px', width: '100%', justifyContent: 'center' }}>
+                              <Shirt size={15} /> See it on the customer
+                            </button>
+
                             <div style={{ background: '#fff', padding: '8px', borderRadius: '8px', display: 'inline-flex' }}>
                               <QRCodeSVG value={product.tryOnScanUrl} size={120} />
                             </div>
@@ -522,6 +533,8 @@ export default function ProductDetails() {
           </motion.div>
       </motion.div>
       
+      {tryingOn && <CounterTryOn product={product} onClose={() => setTryingOn(false)} />}
+
       <StockMovementModal 
         isOpen={isStockModalOpen} 
         onClose={() => setIsStockModalOpen(false)} 

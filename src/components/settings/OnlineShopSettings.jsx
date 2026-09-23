@@ -46,6 +46,7 @@ export default function OnlineShopSettings() {
       minOrderValue: shop.minOrderValue ?? '',
       deliverPincodes: (shop.deliverPincodes ?? []).join(', '),
       tryOn: !!shop.tryOn,
+      showAllPhotos: shop.showAllPhotos !== false,
       returnPolicy: shop.returnPolicy ?? '',
       grievanceName: shop.grievanceName ?? '',
       grievancePhone: shop.grievancePhone ?? '',
@@ -186,6 +187,20 @@ export default function OnlineShopSettings() {
             {sellable.length === 0 && <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Add a store in Stock Locations first.</span>}
           </div>
         </div>
+
+        {/* One switch for the whole catalogue. Nobody is going to set this on four hundred
+            products one at a time, which is what made it worth a shop-level setting. */}
+        <label style={{ display: 'flex', gap: '9px', alignItems: 'flex-start', marginTop: '16px', cursor: 'pointer' }}>
+          <input type="checkbox" checked={form.showAllPhotos} onChange={(e) => set('showAllPhotos', e.target.checked)}
+            style={{ width: '16px', height: '16px', marginTop: '2px' }} />
+          <span style={{ fontSize: '13px' }}>
+            Show every photo of a product
+            <span style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)' }}>
+              On: customers see all of them, including the flat-lay photos Try-On made the others
+              from. Off: only the finished ones. Applies to every product at once.
+            </span>
+          </span>
+        </label>
 
         {/* Try-on, the same one a customer gets by scanning a tag in the shop -- on the page, for
             somebody at home. Every try-on spends a generation from this shop's own allowance, so

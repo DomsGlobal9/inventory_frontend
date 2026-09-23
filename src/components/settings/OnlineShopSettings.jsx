@@ -3,6 +3,7 @@ import { Globe, Check, Loader2, AlertTriangle, ExternalLink, Copy, Share2, Print
 import { QRCodeSVG } from 'qrcode.react';
 import toast from 'react-hot-toast';
 import { useOnlineShop, useChooseShopAddress, useSaveOnlineShop, useSetShopOpen } from '../../hooks/useOnlineShop';
+import ShopBanners from './ShopBanners';
 import { useLocationContext } from '../../contexts/LocationContext';
 
 /**
@@ -189,6 +190,11 @@ export default function OnlineShopSettings() {
           </span>
         </label>
       </div>
+
+      {/* ── Banners ─────────────────────────────────────────────────────────────────
+          Only once there is an address. Before that there is no shop for a banner to sit on,
+          and a picture uploaded to nothing is work the owner would have to do again. */}
+      {shop.slug ? <ShopBanners /> : null}
 
       {/* ── The shop is the seller ──────────────────────────────────────────────────── */}
       <div className="card" style={card}>

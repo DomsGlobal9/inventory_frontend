@@ -44,6 +44,8 @@ export default function OnlineShopSettings() {
       deliveryFee: shop.deliveryFee ?? 0,
       freeDeliveryAbove: shop.freeDeliveryAbove ?? '',
       minOrderValue: shop.minOrderValue ?? '',
+      deliverPincodes: (shop.deliverPincodes ?? []).join(', '),
+      tryOn: !!shop.tryOn,
       returnPolicy: shop.returnPolicy ?? '',
       grievanceName: shop.grievanceName ?? '',
       grievancePhone: shop.grievancePhone ?? '',
@@ -185,6 +187,27 @@ export default function OnlineShopSettings() {
           </div>
         </div>
 
+        {/* Try-on, the same one a customer gets by scanning a tag in the shop -- on the page, for
+            somebody at home. Every try-on spends a generation from this shop's own allowance, so
+            it is the shop's decision, and it cannot be switched on where the platform has no
+            try-on at all. */}
+        <label style={{
+          display: 'flex', gap: '9px', alignItems: 'flex-start', marginTop: '16px',
+          cursor: shop.tryOnAvailable ? 'pointer' : 'not-allowed', opacity: shop.tryOnAvailable ? 1 : 0.55
+        }}>
+          <input type="checkbox" checked={form.tryOn} disabled={!shop.tryOnAvailable}
+            onChange={(e) => set('tryOn', e.target.checked)}
+            style={{ width: '16px', height: '16px', marginTop: '2px' }} />
+          <span style={{ fontSize: '13px' }}>
+            Let customers see it on themselves
+            <span style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)' }}>
+              {shop.tryOnAvailable
+                ? 'A "See it on you" button on every piece with a photo. Each one uses a try-on from your allowance, and the customer’s photograph is deleted straight after.'
+                : 'Try-on is not switched on for this deployment yet.'}
+            </span>
+          </span>
+        </label>
+
         <label style={{ display: 'flex', gap: '9px', alignItems: 'flex-start', marginTop: '16px', cursor: 'pointer' }}>
           <input type="checkbox" checked={form.hideOutOfStock} onChange={(e) => set('hideOutOfStock', e.target.checked)}
             style={{ width: '16px', height: '16px', marginTop: '2px' }} />
@@ -240,6 +263,18 @@ export default function OnlineShopSettings() {
                 <input type="checkbox" checked={false} disabled readOnly />
                 <span style={{ fontSize: '13px' }}>Online <span style={{ color: 'var(--text-muted)' }}>(coming with payments)</span></span>
               </label>
+            </div>
+
+            <div style={{ marginTop: '16px' }}>
+              <label style={label} htmlFor="os-pins">Where you deliver</label>
+              <input id="os-pins" className="input-field" value={form.deliverPincodes}
+                onChange={(e) => set('deliverPincodes', e.target.value)}
+                placeholder="Leave empty to deliver everywhere" style={{ width: '100%' }} />
+              <span style={{ ...hint, marginBottom: 0 }}>
+                PIN codes, separated by commas — for example 500029, 500034. Leave it empty and you
+                deliver everywhere. A customer outside your list is told at the checkout, before
+                they have typed out an address, and pointed at your WhatsApp.
+              </span>
             </div>
 
             <div style={{ display: 'grid', gap: '14px', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', marginTop: '16px' }}>
@@ -306,7 +341,11 @@ export default function OnlineShopSettings() {
       </div>
 
       <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '20px' }}>
-        <button className="btn-primary" disabled={!shop.slug || save.isPending} onClick={() => save.mutate(form, { onSuccess: () => toast.success('Saved.') })}>
+        <button className="btn-primary" disabled={!shop.slug || save.isPending} onClick={() => save.mutate({
+          ...form,
+          // Typed as "500029, 500034" and saved as a list; the server keeps only real PIN codes.
+          deliverPincodes: String(form.deliverPincodes ?? '').split(/[^0-9]+/).filter(Boolean)
+        }, { onSuccess: () => toast.success('Saved.') })}>
           {save.isPending ? 'Saving…' : 'Save'}
         </button>
       </div>

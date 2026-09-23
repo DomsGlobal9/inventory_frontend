@@ -12,6 +12,7 @@ import TeamManager from '../components/TeamManager';
 import RoleManager from '../components/RoleManager';
 import WhatsAppSettings from '../components/whatsapp/WhatsAppSettings';
 import LoyaltySettings from '../components/loyalty/LoyaltySettings';
+import OnlineShopSettings from '../components/settings/OnlineShopSettings';
 import ReturnRulesPanel from '../components/sales/ReturnRulesPanel';
 import { holdsEverything } from '../lib/authority';
 import { useAuth } from '../context/AuthContext';
@@ -23,6 +24,7 @@ const SETTINGS_DOMAINS = [
   { id: 'LOCATIONS', label: 'Stock Locations', icon: MapPin, permission: 'admin:locations' },
   { id: 'DAYBOOK', label: 'Day Book', icon: BookOpen, permission: 'report:financial' },
   { id: 'STOREFRONT', label: 'Storefront', icon: Globe, permission: 'admin:locations' },
+  { id: 'ONLINE_SHOP', label: 'Online shop', icon: Globe, permission: 'admin:online_shop' },
   { id: 'WHATSAPP', label: 'WhatsApp', icon: MessageCircle, permission: 'whatsapp:manage' },
   { id: 'LOYALTY', label: 'Loyalty & wishes', icon: Gift, permission: 'loyalty:manage' },
   { id: 'RETURNS', label: 'Returns & exchanges', icon: Undo2, permission: 'return:complete' },
@@ -45,7 +47,7 @@ const SETTINGS_DOMAINS = [
  * chain had to be extended by hand every time a domain gained content -- and when Day Book was
  * added it was not, so the page rendered the day book AND the placeholder underneath it.
  */
-const IMPLEMENTED_DOMAINS = new Set(['GENERAL', 'CATALOG', 'LOCATIONS', 'DAYBOOK', 'STOREFRONT', 'WHATSAPP', 'LOYALTY', 'RETURNS', 'SERVICES', 'USERS', 'ROLES', 'SUPPORT']);
+const IMPLEMENTED_DOMAINS = new Set(['GENERAL', 'CATALOG', 'LOCATIONS', 'DAYBOOK', 'STOREFRONT', 'ONLINE_SHOP', 'WHATSAPP', 'LOYALTY', 'RETURNS', 'SERVICES', 'USERS', 'ROLES', 'SUPPORT']);
 
 const CATALOG_TABS = [
   { id: 'SIZE', label: 'Sizes', icon: Scissors, description: 'Manage available sizes across your products' },
@@ -251,6 +253,12 @@ export default function Settings() {
           {activeDomain === 'RETURNS' && (
             <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '32px' }}>
               <ReturnRulesPanel />
+            </div>
+          )}
+
+          {activeDomain === 'ONLINE_SHOP' && (
+            <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '32px' }}>
+              <OnlineShopSettings />
             </div>
           )}
 

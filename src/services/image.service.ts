@@ -32,6 +32,8 @@ export interface ImageOpts {
   generated?: boolean;
   /** The flat-lay a generated view was made from, so "where did this come from" has an answer. */
   generatedFromId?: string;
+  /** Which of the four generated views this is. Try-on asks for the front one by name. */
+  view?: 'front' | 'left' | 'right' | 'back';
 }
 
 /**
@@ -88,6 +90,7 @@ export async function registerImage(
     // Both omitted rather than sent as null: the schema treats a key's absence as "not set",
     // and a null would have to be allowed through validation to mean the same thing.
     ...(opts.generatedFromId ? { generatedFromId: opts.generatedFromId } : {}),
+    ...(opts.view ? { view: opts.view } : {}),
     ...(opts.variantId ? { variantId: opts.variantId } : {})
   });
 }

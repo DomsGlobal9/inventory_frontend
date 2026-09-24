@@ -38,6 +38,9 @@ export default function OnlineShopSettings() {
       displayName: shop.displayName ?? '',
       locationIds: shop.locationIds ?? [],
       hideOutOfStock: !!shop.hideOutOfStock,
+      // Defaults to on for a shop that has never been asked, matching the column's own default --
+      // otherwise opening Settings and pressing Save would quietly switch it off.
+      showFewLeft: shop.showFewLeft !== false,
       acceptsOrders: !!shop.acceptsOrders,
       payOnDelivery: shop.payOnDelivery !== false,
       payOnline: !!shop.payOnline,
@@ -230,6 +233,24 @@ export default function OnlineShopSettings() {
             Hide pieces that are sold out
             <span style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)' }}>
               Off: they still show, greyed, so customers see the range and can ask.
+            </span>
+          </span>
+        </label>
+
+        {/*
+          Saying how few are left is the shop's call, not ours -- which is why it is a switch
+          rather than something we simply started printing on everybody's pages. The wording says
+          what a customer will actually see and where the line is, so nobody has to turn it on and
+          go and look to find out how much of their stock it gives away.
+        */}
+        <label style={{ display: 'flex', gap: '9px', alignItems: 'flex-start', marginTop: '16px', cursor: 'pointer' }}>
+          <input type="checkbox" checked={form.showFewLeft} onChange={(e) => set('showFewLeft', e.target.checked)}
+            style={{ width: '16px', height: '16px', marginTop: '2px' }} />
+          <span style={{ fontSize: '13px' }}>
+            Say when a piece is nearly gone
+            <span style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)' }}>
+              Customers see &ldquo;Only 3 left&rdquo; once five or fewer remain, and nothing at all above
+              that &mdash; so your stock numbers stay yours.
             </span>
           </span>
         </label>

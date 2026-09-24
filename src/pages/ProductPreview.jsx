@@ -285,6 +285,19 @@ export default function ProductPreview() {
 
         if (colour.uploads.length === 0 && generated.length === 0) continue;
 
+        /*
+         * The front view leads, when there is one.
+         *
+         * It is the photograph a shopper should meet first and the one try-on puts on them, so
+         * it is the main photograph by default. The shop can still change that with the star on
+         * the Images tab -- "by default" is the whole point, not "for ever".
+         *
+         * When nothing was generated, the first photograph the shop took leads instead. A colour
+         * must never end up with no main photograph at all: half this app reads "the primary
+         * one", and a colour without one falls back to another colour's.
+         */
+        const frontLeads = generated.some(g => g.view === 'front');
+
         const variantIds = variantsByHex.get(colour.hex) || [];
         // No variant to hang it on -- a colour whose variants all failed to save, or a
         // product with no colours at all. The photograph goes on the product so it is not
@@ -306,7 +319,7 @@ export default function ProductPreview() {
             for (const variantId of targets) {
               const saved = await registerImage(productId, stored, {
                 variantId,
-                isPrimary: orderIndex === 0,
+                isPrimary: !frontLeads && orderIndex === 0,
                 altText: `${photoPayload.title} - ${colour.name}`,
                 imageType: 'GALLERY',
                 generated: false,
@@ -328,10 +341,13 @@ export default function ProductPreview() {
             for (const variantId of targets) {
               await registerImage(productId, stored, {
                 variantId,
-                isPrimary: orderIndex === 0,
+                isPrimary: view === 'front',
                 altText: `${photoPayload.title} - ${colour.name}, ${view} view`,
                 imageType: 'GALLERY',
                 generated: true,
+                // Recorded as a column, not left to be read back out of the alt text. Try-on asks
+                // for this colour's FRONT view, and that has to be a fact it can look up.
+                view,
                 ...(cameFromId ? { generatedFromId: cameFromId } : {}),
                 orderIndex
               });

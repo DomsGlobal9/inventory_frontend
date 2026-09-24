@@ -22,6 +22,24 @@ import { makePdf } from '../../components/pdf/downloadPdf';
 import { logoAsPng } from '../../components/pdf/pdfLogo';
 import { buildWhatsAppUrl } from '../../utils/whatsappUtils';
 
+/**
+ * A moment, written the way this app writes every other one: "22 Sep 2026, 11:21 am".
+ *
+ * This page used a bare `toLocaleString()`, which takes the BROWSER's idea of a date -- so an
+ * Indian shop was reading "9/22/2026, 11:21:36 AM": month before day, and seconds nobody has ever
+ * needed on a returns screen. Every other page in the app already says en-IN with a short month,
+ * and now so does this one.
+ */
+function whenExactly(value) {
+  if (!value) return '';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return '';
+  const day = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  const time = d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true })
+    .toLowerCase();
+  return `${day}, ${time}`;
+}
+
 export default function ReturnDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -372,22 +390,36 @@ export default function ReturnDetail() {
                 <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Reason</div>
                 <div style={{ fontWeight: 500 }}>{returnReasonLabel(ret.reason)}</div>
               </div>
-              <div>
-                <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Created Date</div>
-                <div style={{ fontWeight: 500 }}>{new Date(ret.createdAt).toLocaleString()}</div>
-              </div>
-              {ret.completedAt && (
-                <div>
-                  <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Completed Date</div>
-                  <div style={{ fontWeight: 500 }}>{new Date(ret.completedAt).toLocaleString()}</div>
-                </div>
-              )}
+
               {ret.notes && (
                 <div>
                   <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Notes</div>
                   <div style={{ fontSize: '14px', lineHeight: '1.5' }}>{ret.notes}</div>
                 </div>
               )}
+
+              {/*
+                When it happened, set apart at the bottom.
+                These two sat in the same stack as the refund, in the same weight, so a timestamp
+                had the same presence as the money owed to somebody standing at the counter. They
+                are reference -- worth having, worth reading last -- so they are a quiet footer
+                under a hairline rather than two more headings.
+              */}
+              <div style={{
+                display: 'flex', gap: '24px', flexWrap: 'wrap',
+                paddingTop: '14px', borderTop: '1px solid var(--border-light)'
+              }}>
+                <div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '2px' }}>Raised</div>
+                  <div style={{ fontSize: '13.5px' }}>{whenExactly(ret.createdAt)}</div>
+                </div>
+                {ret.completedAt && (
+                  <div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '2px' }}>Completed</div>
+                    <div style={{ fontSize: '13.5px' }}>{whenExactly(ret.completedAt)}</div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

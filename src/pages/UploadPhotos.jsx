@@ -26,10 +26,15 @@ import GarmentPhotoshootUploader from '../components/GarmentPhotoshootUploader';
 /** How many photographs one colour is holding, counting what was uploaded and what was made. */
 function countPhotos(photos) {
   const source = photos?.sourceFiles;
-  const uploaded = Array.isArray(source)
+  const slots = Array.isArray(source)
     ? source.filter(Boolean).length
     : Object.values(source || {}).filter(Boolean).length;
+  // The shop's own extra photographs count too -- a colour photographed six times by hand and
+  // never run through the generator is a colour WITH photos, and saying "No photos yet" next
+  // to six of them is the screen calling the shopkeeper a liar.
+  const extras = (photos?.extraFiles || []).filter(Boolean).length;
   const generated = Object.values(photos?.generatedViews || {}).filter(v => typeof v === 'string' && v.startsWith('data:')).length;
+  const uploaded = slots + extras;
   return { uploaded, generated, total: uploaded + generated };
 }
 

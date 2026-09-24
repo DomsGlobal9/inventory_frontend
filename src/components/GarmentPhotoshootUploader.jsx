@@ -114,6 +114,101 @@ function fileToBase64(file) {
 }
 
 /**
+ * A grid of photographs with one box on the end that adds more.
+ *
+ * Written once and used twice -- by the plain upload path and by the extra photographs on
+ * the AI path -- because the two were drifting: one took several files at a time and offered
+ * a camera, the other took one file and did not.
+ *
+ * What the box has to get right:
+ *   - SEVERAL at once. Somebody photographing a saree takes six pictures, not one six times.
+ *   - The camera, on a phone. `capture` is ignored by desktop browsers, so offering it on a
+ *     laptop would be a second button that silently behaves like the first one.
+ *   - Tapping anywhere on the box opens the gallery, while the two buttons inside still do
+ *     their own thing -- which is why this is a div with labels inside rather than one big
+ *     <label>, whose picker would swallow any tap nested in it.
+ */
+function PhotoGrid({ photos, previews, onAdd, onRemove, onView, isTouch, disabled, addLabel, hint }) {
+  const galleryRef = useRef(null);
+  const [dragOver, setDragOver] = useState(false);
+
+  const inputStyle = { display: 'none' };
+  const button = {
+    cursor: disabled ? 'not-allowed' : 'pointer', padding: '9px 14px', fontSize: '12px',
+    display: 'inline-flex', alignItems: 'center', gap: '6px', opacity: disabled ? 0.5 : 1
+  };
+
+  return (
+    <div
+      className="mobile-2-col-grid"
+      style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(150px, 100%), 1fr))', gap: '16px' }}
+      onDragOver={(e) => { e.preventDefault(); if (!disabled) setDragOver(true); }}
+      onDragLeave={() => setDragOver(false)}
+      onDrop={(e) => { e.preventDefault(); setDragOver(false); if (!disabled && e.dataTransfer.files?.length) onAdd(e.dataTransfer.files); }}
+    >
+      {photos.map((file, i) => (
+        <div key={i} className="glass-panel" style={{ position: 'relative', height: '160px', overflow: 'hidden', borderRadius: '12px' }}>
+          <img src={previews[i]} alt={`Photo ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          {/* A flex row, not two right offsets: the tap-target rule in index.css grows an icon
+              button to 44px on a touch device, and two circles placed 32px apart then overlap
+              -- on phones only, which is exactly where they are tapped with a thumb. */}
+          <div style={{ position: 'absolute', top: '8px', right: '8px', display: 'flex', gap: '6px' }}>
+            <button type="button" onClick={() => onView?.(previews[i])} title="View full size"
+              style={{ width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.6)', border: 'none', color: '#fff', cursor: 'pointer' }}>
+              <Eye size={14} />
+            </button>
+            <button type="button" onClick={() => onRemove(i)} title="Remove this photo"
+              style={{ width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(239,68,68,0.9)', border: 'none', color: '#fff', cursor: 'pointer' }}>
+              <X size={14} />
+            </button>
+          </div>
+        </div>
+      ))}
+
+      <div
+        className="glass-panel"
+        onClick={() => { if (!disabled) galleryRef.current?.click(); }}
+        style={{
+          height: '160px', borderRadius: '12px',
+          border: dragOver ? '2px solid var(--accent-gold)' : '1px dashed var(--border-focus)',
+          backgroundColor: dragOver ? 'rgba(212, 175, 55, 0.08)' : undefined,
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          cursor: disabled ? 'not-allowed' : 'pointer', textAlign: 'center', padding: '14px', gap: '8px',
+          transition: 'border-color 0.15s, background-color 0.15s'
+        }}
+      >
+        <ImageIcon size={24} color="var(--text-secondary)" />
+        <span style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+          {photos.length === 0 ? addLabel : 'Add more'}
+          {hint && photos.length === 0 && (
+            <span style={{ display: 'block', color: 'var(--text-muted)', fontSize: '11px', marginTop: '2px' }}>{hint}</span>
+          )}
+        </span>
+
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
+          <label className="btn-secondary" onClick={(e) => e.stopPropagation()} style={button}>
+            CHOOSE
+            <input ref={galleryRef} type="file" accept="image/*" multiple style={inputStyle} disabled={disabled}
+              onChange={(e) => { if (e.target.files?.length) onAdd(e.target.files); e.target.value = ''; }} />
+          </label>
+
+          {isTouch && (
+            /* "environment" is the rear camera: somebody photographing a garment points the
+               phone at it, not at themselves. No `multiple` -- a camera takes one picture at
+               a time, and asking for several only confuses the phone's picker. */
+            <label className="btn-secondary" onClick={(e) => e.stopPropagation()} style={button}>
+              <Camera size={14} /> CAMERA
+              <input type="file" accept="image/*" capture="environment" style={inputStyle} disabled={disabled}
+                onChange={(e) => { if (e.target.files?.length) onAdd(e.target.files); e.target.value = ''; }} />
+            </label>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
  * Photographs for ONE colour.
  *
  * This used to hold the photographs for the whole product: one flat-lay, one set of
@@ -171,9 +266,6 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete, colorC
   const [plainPhotos, setPlainPhotos] = useState(() =>
     Array.isArray(mine.sourceFiles) ? mine.sourceFiles.filter(f => f instanceof File) : []);
   const [plainPreviews, setPlainPreviews] = useState([]);
-  const [plainDragOver, setPlainDragOver] = useState(false);
-  // Lets a tap on the box open the gallery without the box being a <label>.
-  const plainGalleryInputRef = useRef(null);
 
   const fields = useMemo(() => {
     if (isSaree) {
@@ -271,6 +363,36 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete, colorC
     setPlainPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
+  /*
+   * The shop's OWN photographs of this colour, on top of the flat-lay.
+   *
+   * The AI path had two fixed slots and nothing else, so a shop with a good photograph of
+   * the drape, the border or the pallu had nowhere to put it -- the only way in was the
+   * flat-lay slot, which is the picture the model shots get generated FROM. These are
+   * ordinary photographs: as many as they like, in one go, from the gallery or the camera,
+   * and they are shown in the shop alongside the generated views rather than instead of them.
+   */
+  const [extraPhotos, setExtraPhotos] = useState(() =>
+    Array.isArray(mine.extraFiles) ? mine.extraFiles.filter(f => f instanceof File) : []);
+  const [extraPreviews, setExtraPreviews] = useState([]);
+
+  useEffect(() => {
+    const urls = extraPhotos.map(f => URL.createObjectURL(f));
+    setExtraPreviews(urls);
+    if (tryOnEligible) setPhotosFor(colorCode, { extraFiles: extraPhotos });
+    return () => { urls.forEach(u => { try { URL.revokeObjectURL(u); } catch { /* ignore */ } }); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [extraPhotos, tryOnEligible]);
+
+  const addExtraPhotos = (fileList) => {
+    // imageFilesFrom, not type.startsWith('image/'): an iOS camera capture arrives as
+    // application/octet-stream or with no type at all and would be dropped silently.
+    const imagesOnly = imageFilesFrom(fileList);
+    if (imagesOnly.length === 0) return;
+    setExtraPhotos(prev => [...prev, ...imagesOnly]);
+  };
+  const removeExtraPhoto = (index) => setExtraPhotos(prev => prev.filter((_, i) => i !== index));
+
   // Paste an image (Ctrl/Cmd+V) anywhere on this step. In AI-eligible mode it lands in
   // the first still-empty named slot; in plain mode it's just appended to the list.
   // Re-registered whenever the relevant state changes so the handler never sees a
@@ -291,13 +413,17 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete, colorC
         return;
       }
 
-      const firstEmpty = fields.find((f) => !files[f.key]);
-      if (!firstEmpty) return;
       e.preventDefault();
-      handleFileChange(firstEmpty.key, file);
+      const firstEmpty = fields.find((f) => !files[f.key]);
+      // Slots first, then the shop's own photographs. Pasting used to do nothing once both
+      // slots were filled, which reads as the paste having failed rather than as there being
+      // nowhere left to put it.
+      if (firstEmpty) handleFileChange(firstEmpty.key, file);
+      else addExtraPhotos([file]);
     };
     window.addEventListener('paste', onPaste);
     return () => window.removeEventListener('paste', onPaste);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [files, fields, generating, tryOnEligible]);
 
   // The real milestones only move 4 times across a 30-90s generation (once per view),
@@ -476,130 +602,16 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete, colorC
           </p>
         </div>
 
-        <div
-          className="mobile-2-col-grid"
-          style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}
-          onDragOver={(e) => { e.preventDefault(); setPlainDragOver(true); }}
-          onDragLeave={() => setPlainDragOver(false)}
-          onDrop={(e) => {
-            e.preventDefault();
-            setPlainDragOver(false);
-            if (e.dataTransfer.files?.length) addPlainPhotos(e.dataTransfer.files);
-          }}
-        >
-          {plainPhotos.map((file, i) => (
-            <div key={i} className="glass-panel" style={{ position: 'relative', height: '160px', overflow: 'hidden' }}>
-              <img src={plainPreviews[i]} alt={`Product ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              {/*
-                Laid out by a flex row rather than by two right offsets.
-                These were positioned at right: 8px and right: 40px, a 32px step that assumed
-                the buttons stay 28px wide. On a touch device they do not: the tap-target rule
-                in index.css grows an icon button to 44px square, so the two circles grew into
-                each other and overlapped by 12px -- on phones only, which is exactly where
-                they are tapped with a thumb. A gap cannot be outgrown.
-              */}
-              <div style={{ position: 'absolute', top: '8px', right: '8px', display: 'flex', gap: '6px' }}>
-                <button
-                  onClick={() => setLightboxSrc(plainPreviews[i])}
-                  title="View full size"
-                  style={{
-                    width: '28px', height: '28px', borderRadius: '50%',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: 'rgba(0,0,0,0.6)', border: 'none', color: '#fff', cursor: 'pointer'
-                  }}
-                >
-                  <Eye size={14} />
-                </button>
-                <button
-                  onClick={() => removePlainPhoto(i)}
-                  title="Remove this photo"
-                  style={{
-                    width: '28px', height: '28px', borderRadius: '50%',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: 'rgba(255,0,0,0.8)', border: 'none', color: '#fff', cursor: 'pointer'
-                  }}
-                >
-                  <X size={14} />
-                </button>
-              </div>
-            </div>
-          ))}
-
-          {/*
-            One box, both ways in -- the same shape as the fixed slots further down, so the
-            two upload screens behave alike.
-
-            It was a <label> wrapped around the whole dashed box, which is why the camera
-            had to live outside as a second tile: anything nested inside a label opens that
-            label's own picker on tap, so a camera button placed in there would have opened
-            the gallery instead. A plain <div> with two labelled buttons inside removes that
-            constraint, and the box as a whole still opens the gallery when tapped so the
-            "tap anywhere" affordance is not lost.
-          */}
-          <div
-            className="glass-panel"
-            onClick={() => plainGalleryInputRef.current?.click()}
-            style={{
-              height: '160px',
-              border: plainDragOver ? '2px solid var(--accent-gold)' : '1px dashed var(--border-focus)',
-              backgroundColor: plainDragOver ? 'rgba(212, 175, 55, 0.08)' : undefined,
-              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', textAlign: 'center', padding: '16px', gap: '10px'
-            }}
-          >
-            <ImageIcon size={26} color="var(--text-secondary)" />
-            <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-              {plainPhotos.length === 0 ? 'Add Photos' : 'Add More'}
-            </span>
-
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
-              <label
-                className="btn-secondary"
-                onClick={(e) => e.stopPropagation()}
-                style={{ cursor: 'pointer', padding: '8px 14px', fontSize: '12px' }}
-              >
-                UPLOAD
-                {/* `multiple`: choosing several photographs in one go is the whole point of
-                    this screen, as opposed to the fixed slots below. */}
-                <input
-                  ref={plainGalleryInputRef}
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  style={{ display: 'none' }}
-                  onChange={(e) => { if (e.target.files?.length) addPlainPhotos(e.target.files); e.target.value = ''; }}
-                />
-              </label>
-
-              {/*
-                Phones and tablets only -- `capture` does nothing on a desktop browser, and
-                a camera button that opens a file dialog is worse than no camera button.
-
-                No `multiple` here: a capture is one photograph, and some browsers ignore
-                `capture` entirely when `multiple` is present, which would quietly turn this
-                back into a second file picker. Tapping it again adds the next shot, so
-                several photos still arrive one at a time.
-              */}
-              {isTouch && (
-                <label
-                  className="btn-secondary"
-                  onClick={(e) => e.stopPropagation()}
-                  style={{ cursor: 'pointer', padding: '8px 14px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}
-                >
-                  <Camera size={14} />
-                  CAMERA
-                  <input
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    style={{ display: 'none' }}
-                    onChange={(e) => { if (e.target.files?.length) addPlainPhotos(e.target.files); e.target.value = ''; }}
-                  />
-                </label>
-              )}
-            </div>
-          </div>
-        </div>
+        <PhotoGrid
+          photos={plainPhotos}
+          previews={plainPreviews}
+          onAdd={addPlainPhotos}
+          onRemove={removePlainPhoto}
+          onView={setLightboxSrc}
+          isTouch={isTouch}
+          addLabel="Add photos"
+          hint="Several at once is fine"
+        />
 
         <ImageLightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} />
       </div>
@@ -784,6 +796,38 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete, colorC
             </div>
           );
         })}
+      </div>
+
+      {/*
+        Their own photographs of this colour, as many as they like.
+
+        Deliberately BELOW the flat-lay slots and above Generate, because that is the order
+        the work happens in: photograph the garment flat, add whatever else you took, then
+        generate. Nothing here is required and nothing here is sent to the generator -- these
+        are simply shown in the shop next to the model shots.
+      */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div>
+          <h4 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
+            {colorLabel ? `Your own photos of the ${colorLabel} one` : 'Your own photos'}
+            {' '}<span style={{ fontSize: '12px', fontWeight: 400, color: 'var(--text-muted)' }}>Optional</span>
+          </h4>
+          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '4px 0 0' }}>
+            The drape, the border, the pallu, a close-up of the weave — anything you want shoppers to see.
+            These are shown in your shop alongside the generated views.
+          </p>
+        </div>
+        <PhotoGrid
+          photos={extraPhotos}
+          previews={extraPreviews}
+          onAdd={addExtraPhotos}
+          onRemove={removeExtraPhoto}
+          onView={setLightboxSrc}
+          isTouch={isTouch}
+          disabled={generating}
+          addLabel="Add photos"
+          hint="Several at once is fine"
+        />
       </div>
 
       {/* Generate Button */}

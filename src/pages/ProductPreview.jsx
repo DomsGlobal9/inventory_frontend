@@ -103,7 +103,7 @@ export default function ProductPreview() {
     const generated = [];
     for (const set of Object.values(productData.variantPhotos || {})) {
       const source = set?.sourceFiles;
-      for (const f of (Array.isArray(source) ? source : Object.values(source || {}))) {
+      for (const f of [...(Array.isArray(source) ? source : Object.values(source || {})), ...(set?.extraFiles || [])]) {
         if (f instanceof File) uploads.push(f);
       }
       for (const view of VIEW_ORDER) {
@@ -235,7 +235,10 @@ export default function ProductPreview() {
           code,
           name: code ? getColorInfo(code).name : productData.title,
           hex: code ? String(getColorInfo(code).value || '').toLowerCase() : null,
-          uploads: (Array.isArray(source) ? source : Object.values(source || {})).filter(f => f instanceof File),
+          uploads: [
+            ...(Array.isArray(source) ? source : Object.values(source || {})),
+            ...(set.extraFiles || [])
+          ].filter(f => f instanceof File),
           generatedViews: set.generatedViews || {}
         };
       })

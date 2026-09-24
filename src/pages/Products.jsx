@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { useProducts, useBulkSetProductStatus } from '../hooks/useProducts';
 import { useProduct } from '../context/ProductContext';
+import { rowLink } from '../components/common/rowLink';
 import BulkUpdateModal from '../components/BulkUpdateModal';
 import ProductImportModal from '../components/ProductImportModal';
 import PageLoader from '../components/PageLoader';
@@ -265,11 +266,13 @@ export default function Products() {
             </thead>
             <tbody>
               {products.map(product => (
-                <motion.tr 
+                /* The selected background is inline and so beats the shared hover rule, which is
+                   right: a ticked row should stay marked while the pointer moves over it. */
+                <motion.tr
                   variants={item}
-                  key={product.id} 
-                  onClick={() => navigate(`/products/${product.id}`)}
-                  style={{ cursor: 'pointer', background: selected.has(product.id) ? 'var(--bg-input)' : undefined }}
+                  key={product.id}
+                  {...rowLink(() => navigate(`/products/${product.id}`), { label: `Open ${product.title}` })}
+                  style={{ background: selected.has(product.id) ? 'var(--bg-input)' : undefined }}
                 >
                   {/* stopPropagation: the whole row opens the product, and a tick that also
                       navigated away would make selecting more than one impossible. */}

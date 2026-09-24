@@ -119,7 +119,19 @@ api.interceptors.response.use(
     if (body && typeof body === 'object' && !Array.isArray(body)) {
       return Promise.reject(Object.assign(body, { statusCode: (body as any).statusCode ?? error.response?.status }));
     }
-    return Promise.reject(body || error);
+    // Last resort: there was a response, but nothing usable in it -- a gateway's HTML page,
+    // an empty 502, a body that is not JSON. Rejecting the axios error itself put ITS wording
+    // on the screen, because every caller reads `err.message` and axios writes that message
+    // for developers: "Request failed with status code 500". Our own backend never gets here
+    // (its error middleware always answers with a gated { message }), so what remains is
+    // exactly the traffic whose text we do not control and must not repeat.
+    if (typeof body === 'string' && body.trim() && !/[<{]/.test(body.slice(0, 40))) {
+      return Promise.reject({ message: body.trim(), statusCode: error.response?.status });
+    }
+    return Promise.reject({
+      message: 'Something went wrong at our end. Please try again.',
+      statusCode: error.response?.status
+    });
   }
 );
 

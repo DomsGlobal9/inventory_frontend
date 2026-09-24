@@ -6,6 +6,7 @@ import { useProduct } from "../context/ProductContext";
 import { api } from "../lib/api";
 import ImageLightbox from "./ImageLightbox";
 import { API_BASE_URL } from '../lib/config';
+import { plainGenerationError } from '../utils/friendlyError';
 
 const VIEW_ORDER = ["front", "left", "right", "back"];
 const VIEW_LABELS = {
@@ -577,8 +578,14 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete, colorC
       }
     } catch (err) {
       if (err.name === 'AbortError') return; // user hit Stop -- already handled there
+      // The real error goes here, where we can read it, and nowhere else. What the shop
+      // owner sees is a sentence they can act on -- never the upstream's own words.
       console.error('Catalog generation failed:', err);
-      setError(err.message || 'Generation failed. Please try again.');
+      setError(plainGenerationError(err));
+      // The progress line still said "Starting AI Generation Pipeline..." underneath the
+      // failure, so the screen contradicted itself. Nothing is starting any more.
+      setStatus(null);
+      setStep(null);
       setGenerating(false);
     } finally {
       abortControllerRef.current = null;

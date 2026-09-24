@@ -19,6 +19,7 @@ import VariantSuppliersPanel from './VariantSuppliersPanel';
 import { buildVariantSku } from '../utils/skuUtils';
 import { useSuppliers } from '../hooks/useSuppliers';
 import PageLoader from './PageLoader';
+import Select from './common/Select';
 
 /**
  * Sub-text under a money box, holding its line whether or not there is anything to say.
@@ -729,7 +730,7 @@ export default function VariantTable({ productId, productName, productCode, prod
                   <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-muted)', marginBottom: '6px' }}>
                     Bought from (optional)
                   </label>
-                  <select
+                  <Select
                     className="input-field"
                     value={genSupplierId}
                     onChange={(e) => setGenSupplierId(e.target.value)}
@@ -739,7 +740,7 @@ export default function VariantTable({ productId, productName, productCode, prod
                     {suppliers.map(sup => (
                       <option key={sup.id} value={sup.id}>{sup.name}</option>
                     ))}
-                  </select>
+                  </Select>
                   <CellNote>Links every variant below to this supplier.</CellNote>
                 </div>
               </div>

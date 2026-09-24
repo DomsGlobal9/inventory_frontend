@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { MapPin, Loader2, RefreshCw, AlertTriangle } from 'lucide-react';
 import { useShopifyLocations, usePairShopifyLocation } from '../hooks/useShopify';
+import Select from './common/Select';
 
 /**
  * Which Shopify location is which of ours.
@@ -79,7 +80,7 @@ export default function ShopifyLocationPairing({ open, onToggle }) {
                       </div>
                       <label style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: '1 1 220px' }}>
                         <span className="sr-only">Pair {loc.name} with</span>
-                        <select
+                        <Select
                           className="input-field"
                           value={loc.pairedWith?.id ?? ''}
                           disabled={busy}
@@ -92,7 +93,7 @@ export default function ShopifyLocationPairing({ open, onToggle }) {
                               {ours.name}{ours.code ? ` (${ours.code})` : ''}{takenElsewhere.has(ours.id) ? ' — already paired' : ''}
                             </option>
                           ))}
-                        </select>
+                        </Select>
                         {busy && <Loader2 size={14} className="animate-spin" />}
                       </label>
                     </div>

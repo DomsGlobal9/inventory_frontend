@@ -11,6 +11,7 @@ import toast from 'react-hot-toast';
 import { pdf } from '@react-pdf/renderer';
 import DayBookPDF from '../components/DayBookPDF';
 import DayBookSendButton from '../components/whatsapp/DayBookSendButton';
+import Select from '../components/common/Select';
 
 /**
  * One business day, closed off the way a shop owner closes a till.
@@ -239,7 +240,7 @@ export default function DayBook() {
           )}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <MapPin size={15} color="var(--text-muted)" />
-            <select className="input-field" value={locationId}
+            <Select className="input-field" value={locationId}
               onChange={(e) => setLocationId(e.target.value)}
               style={{ padding: '8px 10px', fontSize: '13px' }}>
               <option value="">All locations</option>
@@ -248,7 +249,7 @@ export default function DayBook() {
                   same thing impossible to tell apart here -- and this is the screen where
                   picking the wrong one quietly gives you another shop's day. */}
               {locations.map(l => <option key={l.id} value={l.id}>{l.code ? `${l.name} (${l.code})` : l.name}</option>)}
-            </select>
+            </Select>
           </div>
           <button className="btn-secondary" onClick={downloadPdf} disabled={printing || !d || isFetching}
             style={{

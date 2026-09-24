@@ -6,6 +6,7 @@ import { Gift, MessageCircle, Cake, Heart, Plus, Minus, Ban } from 'lucide-react
 import { useCustomerPoints, useAdjustPoints, useOffersConsent, useSetOffersConsent } from '../../hooks/useCampaigns';
 import { useUpdateCustomer } from '../../hooks/useCustomers';
 import { usePermission } from '../../hooks/usePermission';
+import Select from '../common/Select';
 
 /**
  * Two cards on a customer's page: whether they hear about offers on WhatsApp (and their birthday
@@ -25,14 +26,14 @@ function DayPicker({ id, label, value, onChange, disabled }) {
   const emit = (mm, dd) => onChange(mm && dd ? `${String(mm).padStart(2, '0')}-${String(Math.min(dd, [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][mm - 1])).padStart(2, '0')}` : null);
   return (
     <div style={{ display: 'flex', gap: '6px' }}>
-      <select id={id} className="input-field" aria-label={`${label} day`} value={d} disabled={disabled} onChange={(e) => emit(m || 1, Number(e.target.value))} style={{ width: '72px' }}>
+      <Select id={id} className="input-field" aria-label={`${label} day`} value={d} disabled={disabled} onChange={(e) => emit(m || 1, Number(e.target.value))} style={{ width: '72px' }}>
         <option value="">Day</option>
         {Array.from({ length: days }, (_, i) => <option key={i + 1} value={i + 1}>{i + 1}</option>)}
-      </select>
-      <select className="input-field" aria-label={`${label} month`} value={m} disabled={disabled} onChange={(e) => emit(Number(e.target.value), d || 1)} style={{ width: '90px' }}>
+      </Select>
+      <Select className="input-field" aria-label={`${label} month`} value={m} disabled={disabled} onChange={(e) => emit(Number(e.target.value), d || 1)} style={{ width: '90px' }}>
         <option value="">Month</option>
         {MONTHS.map((name, i) => <option key={name} value={i + 1}>{name}</option>)}
-      </select>
+      </Select>
     </div>
   );
 }

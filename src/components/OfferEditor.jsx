@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { X, Loader2, Search, Check, ChevronDown, ChevronRight, Plus } from 'lucide-react';
 import { useOffer, useOfferOptions, useOfferTargetSearch } from '../hooks/useOffers';
 import { describeOffer, SCOPE_OPTIONS, DEPARTMENT_LABEL } from '../utils/offerSummary';
+import Select from './common/Select';
 
 /**
  * Writing one offer.
@@ -323,10 +324,10 @@ function ExclusionPicker({ outs, setOuts, labels, setLabels, options, open, setO
           ))}
         </div>
       )}
-      <select className="input-field" aria-label="Leave out" style={{ width: '100%', marginBottom: '10px' }}
+      <Select className="input-field" aria-label="Leave out" style={{ width: '100%', marginBottom: '10px' }}
         value={outScope} onChange={e => setOutScope(e.target.value)}>
         {OUT_SCOPES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-      </select>
+      </Select>
       {outScope === 'DRESS_TYPE' && <TypePicker options={options?.dressTypes} picked={outs.DRESS_TYPE} onToggle={toggleOut} />}
       {outScope === 'CATEGORY' && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
@@ -613,10 +614,10 @@ export default function OfferEditor({ offer, onClose, onSave }) {
 
             <div className="mobile-stack-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 16px' }}>
               <Field label="How" htmlFor="offer-type">
-                <select id="offer-type" className="input-field" style={{ width: '100%' }} value={form.valueType} onChange={set('valueType')}>
+                <Select id="offer-type" className="input-field" style={{ width: '100%' }} value={form.valueType} onChange={set('valueType')}>
                   {VALUE_TYPES.filter(v => !(wholeBill && v.key === 'FIXED_PRICE')).map(v =>
                     <option key={v.key} value={v.key}>{v.label}</option>)}
-                </select>
+                </Select>
               </Field>
               <Field label={form.valueType === 'PERCENTAGE' ? 'Percent' : 'Amount (₹)'} hint={valueHint} htmlFor="offer-value">
                 <input id="offer-value" className="input-field" type="number" min="0" step="0.01" inputMode="decimal"
@@ -649,9 +650,9 @@ export default function OfferEditor({ offer, onClose, onSave }) {
             )}
             {!wholeBill && (<>
               <Field htmlFor="offer-scope">
-                <select id="offer-scope" aria-label="Applies to" className="input-field" style={{ width: '100%' }} value={form.scope} onChange={set('scope')}>
+                <Select id="offer-scope" aria-label="Applies to" className="input-field" style={{ width: '100%' }} value={form.scope} onChange={set('scope')}>
                   {SCOPE_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-                </select>
+                </Select>
               </Field>
 
               {scope === 'DRESS_TYPE' && (

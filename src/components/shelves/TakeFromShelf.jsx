@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { usePermission } from '../../hooks/usePermission';
 import { useWhereIs } from '../../hooks/useShelves';
+import Select from '../common/Select';
 
 /**
  * "Which shelf are these coming off?" for stock going out by hand -- a write-off, a transfer. Optional:
@@ -29,14 +30,14 @@ export default function TakeFromShelf({ variantId, locationId, quantity, value, 
   return (
     <div className="form-group" style={{ display: 'grid', gap: 6 }}>
       <label className="form-label">Taken from which shelf?</label>
-      <select className="input-field" value={value ?? ''} onChange={(e) => onChange(e.target.value || null)} aria-label="Taken from which shelf">
+      <Select className="input-field" value={value ?? ''} onChange={(e) => onChange(e.target.value || null)} aria-label="Taken from which shelf">
         <option value="">Let the app decide{place?.notShelved ? ` (${place.notShelved} not shelved first)` : ''}</option>
         {shelves.map(s => (
           <option key={s.spotId} value={s.spotId} disabled={qty > s.quantity}>
             {s.address}{s.name ? ` — ${s.name}` : ''} · {s.quantity} there{qty > s.quantity ? ' (not enough)' : ''}
           </option>
         ))}
-      </select>
+      </Select>
       {!compact && <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Choosing the shelf keeps "Where is it?" exact.</span>}
     </div>
   );

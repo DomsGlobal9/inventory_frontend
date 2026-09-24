@@ -8,6 +8,7 @@ import { usePermission } from '../../hooks/usePermission';
 import { formatPhone } from '../../utils/phone';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { CUSTOMER_STATUS, StatusPill } from '../../components/sales/labels';
+import { rowLink } from '../../components/common/rowLink';
 
 
 export default function Customers() {
@@ -116,7 +117,11 @@ export default function Customers() {
                 <tr><td colSpan="6" style={{ padding: '48px', textAlign: 'center', color: 'var(--text-secondary)' }}>No customers found.</td></tr>
               ) : (
                 customers?.map(customer => (
-                  <tr key={customer.id} style={{ borderBottom: '1px solid var(--border-light)', transition: 'background-color 0.2s' }}>
+                  <tr
+                    key={customer.id}
+                    style={{ borderBottom: '1px solid var(--border-light)' }}
+                    {...rowLink(() => navigate(`/customers/${customer.id}`), { label: `Open ${customer.name}` })}
+                  >
                     <td style={{ padding: '16px 24px', fontWeight: '500' }}>{customer.customerCode}</td>
                     <td style={{ padding: '16px 24px' }}>
                       <div style={{ fontWeight: '500' }}>{customer.name}</div>

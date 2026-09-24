@@ -1,6 +1,7 @@
 import React from 'react';
 import { Banknote, Smartphone, CreditCard, Split, Plus, X } from 'lucide-react';
 import { formatINRExact } from '../../../utils/formatUtils';
+import Select from '../../common/Select';
 
 export const paise = (v) => {
   const n = Number(String(v ?? '').replace(/,/g, ''));
@@ -157,12 +158,12 @@ export default function PaymentPanel({ totalPaise, payment, onChange, disabled }
         <div style={{ display: 'grid', gap: 8 }}>
           {payment.rows.map((row, i) => (
             <div key={i} style={{ display: 'grid', gridTemplateColumns: 'minmax(80px, 100px) 1fr 1fr auto', gap: 6, alignItems: 'center' }}>
-              <select className="input-field" value={row.method} disabled={disabled} aria-label="Method"
+              <Select className="input-field" value={row.method} disabled={disabled} aria-label="Method"
                 onChange={(e) => setRow(i, { method: e.target.value, cashReceived: '', reference: '' })}>
                 <option value="CASH">Cash</option>
                 <option value="UPI">UPI</option>
                 <option value="CARD">Card</option>
-              </select>
+              </Select>
               {moneyInput(row.amount, (v) => setRow(i, { amount: v }), 'Amount')}
               {row.method === 'CASH'
                 ? moneyInput(row.cashReceived, (v) => setRow(i, { cashReceived: v }), 'Received')

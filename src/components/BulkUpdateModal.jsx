@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { parseCSV } from '../utils/csvUtils';
 import { useBulkUpdateVariants } from '../hooks/useVariants';
 import { useLocationContext } from '../contexts/LocationContext';
+import Select from './common/Select';
 
 export default function BulkUpdateModal({ isOpen, onClose }) {
   const [file, setFile] = useState(null);
@@ -248,7 +249,7 @@ export default function BulkUpdateModal({ isOpen, onClose }) {
                   <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>
                     <MapPin size={14} /> Apply these quantities to
                   </label>
-                  <select
+                  <Select
                     className="input-field"
                     value={locationId}
                     onChange={(e) => setLocationId(e.target.value)}
@@ -258,7 +259,7 @@ export default function BulkUpdateModal({ isOpen, onClose }) {
                     {locations.map(l => (
                       <option key={l.id} value={l.id}>{l.name} ({l.code})</option>
                     ))}
-                  </select>
+                  </Select>
                   <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px', marginBottom: 0 }}>
                     The <code>quantity</code> column sets the stock level <strong>at this location</strong>,
                     not the total across all of them. Prices and reorder levels apply everywhere.

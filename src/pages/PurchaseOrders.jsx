@@ -8,6 +8,7 @@ import PageLoader from '../components/PageLoader';
 import Suppliers from './Suppliers';
 import ReorderSuggestions from './ReorderSuggestions';
 import { usePermission } from '../hooks/usePermission';
+import { rowLink } from '../components/common/rowLink';
 
 export default function PurchaseOrders() {
   const location = useLocation();
@@ -217,7 +218,12 @@ function PurchaseOrdersList() {
                 </td>
               </tr>
             ) : filteredPOs.map((po) => (
-              <tr key={po.id} onClick={() => navigate(`/inventory/purchase-orders/${po.id}`)} style={{ cursor: 'pointer' }}>
+              // Was already clickable, but by mouse only and with no sign it could be: no hover,
+              // no keyboard, and a click on a button inside it fired this as well.
+              <tr
+                key={po.id}
+                {...rowLink(() => navigate(`/inventory/purchase-orders/${po.id}`), { label: `Open ${po.poNumber || 'purchase order'}` })}
+              >
                 <td>
                   <div style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{po.poNumber}</div>
                 </td>

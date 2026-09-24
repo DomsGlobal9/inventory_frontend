@@ -9,6 +9,7 @@ import { usePermission } from '../../hooks/usePermission';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { COUNTER_PHONE_QUERY } from '../../hooks/useCounterSale';
 import { ORDER_STATUS as STATUS } from '../../components/sales/labels';
+import { rowLink } from '../../components/common/rowLink';
 
 const PAYMENT = {
   PAID: { label: 'Paid', color: '16, 185, 129' },
@@ -140,7 +141,11 @@ export default function SalesOrders() {
                 <tr><td colSpan="7" style={{ padding: 48, textAlign: 'center', color: 'var(--text-secondary)' }}>No orders found.</td></tr>
               ) : (
                 orders?.map(order => (
-                  <tr key={order.id} style={{ borderBottom: '1px solid var(--border-light)' }}>
+                  <tr
+                    key={order.id}
+                    style={{ borderBottom: '1px solid var(--border-light)' }}
+                    {...rowLink(() => navigate(`/orders/${order.id}`), { label: `Open ${order.orderNumber}` })}
+                  >
                     <td style={{ ...td, fontWeight: 500 }}>{order.orderNumber}</td>
                     <td style={td}>
                       <div style={{ fontWeight: 500 }}>{order.customer?.name}</div>

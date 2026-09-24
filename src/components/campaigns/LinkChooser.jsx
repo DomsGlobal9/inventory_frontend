@@ -1,5 +1,6 @@
 import React from 'react';
 import { AlertTriangle } from 'lucide-react';
+import Select from '../common/Select';
 
 /**
  * Where a campaign's {link} goes: nowhere, a chat with the shop on WhatsApp, or a web page.
@@ -61,9 +62,9 @@ export default function LinkChooser({ value, onChange, shopPhone, campaignName, 
       {type !== 'NONE' && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
           <label htmlFor="l-days" style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>The link works for</label>
-          <select id="l-days" className="input-field" value={value.days ?? 90} onChange={(e) => set({ days: Number(e.target.value) })} style={{ width: 'auto' }}>
+          <Select id="l-days" className="input-field" value={value.days ?? 90} onChange={(e) => set({ days: Number(e.target.value) })} style={{ width: 'auto' }}>
             {DAYS.map(d => <option key={d} value={d}>{d} days</option>)}
-          </select>
+          </Select>
           <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>After that it says the offer has ended.</span>
         </div>
       )}

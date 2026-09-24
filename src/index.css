@@ -768,3 +768,29 @@ tr:hover td {
   white-space: nowrap;
   border: 0;
 }
+
+/* ──────────────────────────────────────────────────────────────────────────────
+ * A row that opens the thing it is about.
+ *
+ * Every list hid the way in behind one small "View" button at the right-hand edge, so opening an
+ * order meant reading across the row and then hitting a 60px target. The row already looks like
+ * the thing; this makes it behave like it -- see components/common/rowLink.js, which also keeps
+ * the buttons inside a row working and gives it a keyboard.
+ *
+ * The hover has to be visible enough to say "this is clickable" and quiet enough to sit behind
+ * fifty rows of a saree catalogue.
+ * ────────────────────────────────────────────────────────────────────────────── */
+.row-link {
+  cursor: pointer;
+  transition: background-color .14s ease;
+}
+.row-link:hover {
+  background-color: var(--bg-hover);
+}
+.row-link:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: -2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .row-link { transition: none; }
+}

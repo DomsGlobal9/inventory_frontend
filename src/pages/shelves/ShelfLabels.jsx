@@ -3,6 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { Printer, ArrowLeft, Loader2 } from 'lucide-react';
 import { useSpotTree, useSpotLabels, kindLabel } from '../../hooks/useShelves';
+import Select from '../../components/common/Select';
 
 /**
  * Shelf labels to print and stick on: a QR code a scanner reads (it holds the label's permanent code,
@@ -69,9 +70,9 @@ export default function ShelfLabels() {
       <div className="lbl-bar">
         <Link to="/shelves/setup" className="btn-secondary" style={{ textDecoration: 'none', display: 'flex', gap: 6, alignItems: 'center' }}><ArrowLeft size={15} /> Back</Link>
         <strong>{rows.length} {rows.length === 1 ? 'label' : 'labels'}</strong>
-        <select className="input-field" value={size} onChange={(e) => setSize(e.target.value)} aria-label="Label size" style={{ width: 'auto', minWidth: 220 }}>
+        <Select className="input-field" value={size} onChange={(e) => setSize(e.target.value)} aria-label="Label size" style={{ width: 'auto', minWidth: 220 }}>
           {Object.entries(SIZES).map(([k, v]) => <option key={k} value={k}>{v.name}</option>)}
-        </select>
+        </Select>
         <label style={{ display: 'flex', gap: 6, alignItems: 'center', cursor: 'pointer' }}>
           <input type="checkbox" checked={endsOnly} onChange={(e) => setEndsOnly(e.target.checked)} /> Only shelves that hold stock
         </label>

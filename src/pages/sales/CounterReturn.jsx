@@ -6,6 +6,7 @@ import { useLocationContext } from '../../contexts/LocationContext';
 import { useFindSales, useSaleForReturn, useReturnPreview, useCompleteCounterReturn } from '../../hooks/useCounterReturn';
 import { RETURN_REASONS } from '../../components/sales/labels';
 import { formatINRExact } from '../../utils/formatUtils';
+import Select from '../../components/common/Select';
 
 /**
  * Take a return at the counter: find the bill, choose what came back, and give the money back --
@@ -210,10 +211,10 @@ export default function CounterReturn() {
               })}
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 8 }}>
-              <select className="input-field" aria-label="Why is it coming back?" value={reason} onChange={(e) => setReason(e.target.value)}>
+              <Select className="input-field" aria-label="Why is it coming back?" value={reason} onChange={(e) => setReason(e.target.value)}>
                 <option value="">Why is it coming back?</option>
                 {RETURN_REASONS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
-              </select>
+              </Select>
               <input className="input-field" aria-label="Note" placeholder="Note (optional), e.g. zari loose near the pallu" maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} />
             </div>
           </section>

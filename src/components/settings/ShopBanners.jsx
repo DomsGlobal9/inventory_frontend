@@ -5,6 +5,7 @@ import {
   useShopBanners, useAddBanner, useEditBanner, useReorderBanners, useRemoveBanner
 } from '../../hooks/useOnlineShop';
 import ConfirmModal from '../ConfirmModal';
+import Select from '../common/Select';
 
 /**
  * Settings -> Online shop -> Banners: the pictures across the top of the shop, the way every shop
@@ -42,11 +43,11 @@ function LinkFields({ kind, value, onKind, onValue, idPrefix }) {
     <div style={{ display: 'grid', gap: '10px', gridTemplateColumns: 'minmax(150px, 200px) 1fr' }}>
       <div>
         <label style={label} htmlFor={`${idPrefix}-kind`}>When tapped</label>
-        <select id={`${idPrefix}-kind`} className="input-field" value={kind} onChange={(e) => onKind(e.target.value)} style={{ width: '100%' }}>
+        <Select id={`${idPrefix}-kind`} className="input-field" value={kind} onChange={(e) => onKind(e.target.value)} style={{ width: '100%' }}>
           <option value="NONE">Nothing happens</option>
           <option value="SEARCH">Search for something</option>
           <option value="PRODUCT">Open one product</option>
-        </select>
+        </Select>
       </div>
       {kind === 'NONE' ? <div /> : (
         <div>

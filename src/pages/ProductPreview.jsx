@@ -292,6 +292,10 @@ export default function ProductPreview() {
         const targets = variantIds.length > 0 ? variantIds : [undefined];
 
         let orderIndex = 0;
+        // The id of this colour's FIRST photograph -- the flat-lay the generated views were
+        // made from. Recorded on each generated view so the shop can always answer "where did
+        // this picture come from", and so deleting the flat-lay does not orphan the answer.
+        let cameFromId = null;
 
         // The shop's own photographs first: a real picture of the real garment leads, and
         // the generated model shots follow it.
@@ -300,7 +304,7 @@ export default function ProductPreview() {
           try {
             const stored = await putImageBytes(productId, file);
             for (const variantId of targets) {
-              await registerImage(productId, stored, {
+              const saved = await registerImage(productId, stored, {
                 variantId,
                 isPrimary: orderIndex === 0,
                 altText: `${photoPayload.title} - ${colour.name}`,
@@ -308,6 +312,7 @@ export default function ProductPreview() {
                 generated: false,
                 orderIndex
               });
+              if (!cameFromId) cameFromId = (saved?.data ?? saved)?.id ?? null;
             }
             orderIndex++;
             done++;
@@ -327,6 +332,7 @@ export default function ProductPreview() {
                 altText: `${photoPayload.title} - ${colour.name}, ${view} view`,
                 imageType: 'GALLERY',
                 generated: true,
+                ...(cameFromId ? { generatedFromId: cameFromId } : {}),
                 orderIndex
               });
             }

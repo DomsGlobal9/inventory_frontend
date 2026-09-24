@@ -30,6 +30,8 @@ export interface ImageOpts {
   variantId?: string;
   /** True when Try-On made this picture rather than the shop photographing it. */
   generated?: boolean;
+  /** The flat-lay a generated view was made from, so "where did this come from" has an answer. */
+  generatedFromId?: string;
 }
 
 /**
@@ -83,6 +85,9 @@ export async function registerImage(
     imageType: opts.imageType || 'GALLERY',
     orderIndex: opts.orderIndex ?? 0,
     generated: opts.generated ?? false,
+    // Both omitted rather than sent as null: the schema treats a key's absence as "not set",
+    // and a null would have to be allowed through validation to mean the same thing.
+    ...(opts.generatedFromId ? { generatedFromId: opts.generatedFromId } : {}),
     ...(opts.variantId ? { variantId: opts.variantId } : {})
   });
 }

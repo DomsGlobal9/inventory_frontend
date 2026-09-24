@@ -16,6 +16,7 @@ import { formatPhone } from '../../utils/phone';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { COUNTER_PHONE_QUERY } from '../../hooks/useCounterSale';
 import { ORDER_STATUS, DISPATCH_STATUS, CUSTOMER_STATUS, RETURN_REASONS, StatusPill } from '../../components/sales/labels';
+import { rowLink } from '../../components/common/rowLink';
 
 export default function CustomerDetail() {
   const { id } = useParams();
@@ -239,7 +240,11 @@ export default function CustomerDetail() {
                   </thead>
                   <tbody>
                     {customer.salesOrders.map(order => (
-                      <tr key={order.id} style={{ borderBottom: '1px solid var(--border-light)' }}>
+                      <tr
+                        key={order.id}
+                        style={{ borderBottom: '1px solid var(--border-light)' }}
+                        {...rowLink(() => navigate(`/orders/${order.id}`), { label: `Open ${order.orderNumber}` })}
+                      >
                         <td style={{ padding: '16px 24px', fontWeight: '500' }}>{order.orderNumber}</td>
                         <td style={{ padding: '16px 24px', color: 'var(--text-secondary)' }}>{new Date(order.createdAt).toLocaleDateString()}</td>
                         <td style={{ padding: '16px 24px' }}>

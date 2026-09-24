@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Loader2, Bug, Building2, ChevronDown, ChevronRight } from 'lucide-react';
 import { useAdminClientErrors } from '../../hooks/admin/useAdminConsole';
 import PageGuide from '../../components/admin/PageGuide';
+import { rowToggle } from '../../components/common/rowLink';
 
 const SOURCE_STYLE = {
   BACKEND: { color: 'var(--accent-danger)', bg: 'rgba(239, 68, 68, 0.1)' },
@@ -45,11 +46,13 @@ export default function ClientErrorsPage() {
                 const isExpanded = expandedId === err.id;
                 return (
                   <React.Fragment key={err.id}>
+                    {/* Only a row that has a stack to show unfolds -- the rest were clickable and did
+                        nothing, which reads as a broken row rather than an empty one. */}
                     <tr
-                      onClick={() => setExpandedId(isExpanded ? null : err.id)}
-                      style={{ borderTop: '1px solid var(--border-light)', cursor: err.stack ? 'pointer' : 'default' }}
-                      onMouseOver={e => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
-                      onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                      {...(err.stack
+                        ? rowToggle(() => setExpandedId(isExpanded ? null : err.id), { expanded: isExpanded, label: `${isExpanded ? 'Hide' : 'Show'} details for ${err.message || 'this error'}` })
+                        : {})}
+                      style={{ borderTop: '1px solid var(--border-light)' }}
                     >
                       <td style={{ padding: '10px 16px', color: 'var(--text-muted)', width: '20px' }}>
                         {err.stack && (isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />)}

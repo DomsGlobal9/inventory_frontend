@@ -4,6 +4,7 @@ import { Loader2, AlertTriangle } from 'lucide-react';
 import { useAdminClients } from '../../hooks/admin/useAdminConsole';
 import PageGuide from '../../components/admin/PageGuide';
 import { formatINR } from '../../utils/formatUtils';
+import { rowLink } from '../../components/common/rowLink';
 
 export default function InventoryHealthPage() {
   const { data, isLoading } = useAdminClients();
@@ -35,10 +36,8 @@ export default function InventoryHealthPage() {
               {sorted.map(c => (
                 <tr
                   key={c.clientId}
-                  onClick={() => navigate(`/platformconsole/clients/${c.clientId}`)}
-                  style={{ borderTop: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer' }}
-                  onMouseOver={(e) => { e.currentTarget.style.background = 'var(--bg-hover)'; }}
-                  onMouseOut={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                  {...rowLink(() => navigate(`/platformconsole/clients/${c.clientId}`), { label: `Open ${c.clientId}` })}
+                  style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
                 >
                   <td style={{ padding: '10px 16px', fontFamily: 'monospace', color: 'var(--accent-gold)' }}>{c.clientId}</td>
                   <td style={{ padding: '10px 16px', color: 'var(--text-secondary)' }}>{c.activeProductCount}</td>

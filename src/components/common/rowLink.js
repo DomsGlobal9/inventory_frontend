@@ -44,3 +44,17 @@ export function rowLink(open, { label } = {}) {
     }
   };
 }
+
+/**
+ * The same row behaviour for a row that opens underneath itself instead of going anywhere --
+ * the error log's stack traces, for example.
+ *
+ * Kept apart from rowLink rather than given a flag, because the two say different things to a
+ * screen reader: a link goes somewhere, a button with aria-expanded opens what is already here.
+ * Reading "link" on a row that only unfolds is a promise the row does not keep.
+ */
+export function rowToggle(toggle, { expanded, label } = {}) {
+  if (typeof toggle !== 'function') return {};
+  const it = rowLink(toggle, { label });
+  return { ...it, role: 'button', 'aria-expanded': !!expanded };
+}

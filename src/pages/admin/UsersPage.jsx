@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAdminUsers } from '../../hooks/admin/useAdminConsole';
 import { Loader2, Search, Users as UsersIcon, Mail, Shield, Clock, Building2 } from 'lucide-react';
 import PageGuide from '../../components/admin/PageGuide';
+import { rowLink } from '../../components/common/rowLink';
 
 export default function UsersPage() {
   const { data, isLoading, isError, error, refetch } = useAdminUsers();
@@ -66,7 +67,11 @@ export default function UsersPage() {
             </thead>
             <tbody>
               {filtered.map(u => (
-                <tr key={u.id} style={{ borderBottom: '1px solid var(--border-light)', transition: 'background-color 0.2s' }}>
+                <tr
+                  key={u.id}
+                  style={{ borderBottom: '1px solid var(--border-light)' }}
+                  {...rowLink(() => navigate(`/platformconsole/clients/${u.clientId}`), { label: `Open ${u.clientId}` })}
+                >
                   <td style={{ padding: '16px' }}>
                     <div style={{ fontWeight: 500, color: 'var(--text-primary)', marginBottom: '4px', fontSize: '15px' }}>{u.name}</div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-muted)', fontSize: '13px' }}>

@@ -8,6 +8,7 @@ import { useStockCounts, useCreateStockCount } from '../hooks/useStockCounts';
 import PageLoader from '../components/PageLoader';
 import { useAuth } from '../context/AuthContext';
 import StatusPill from '../components/StockCountStatus';
+import { rowLink } from '../components/common/rowLink';
 
 export default function AuditList() {
   const navigate = useNavigate();
@@ -90,11 +91,10 @@ export default function AuditList() {
             </thead>
             <tbody>
               {data?.map(audit => (
-                <tr 
-                  key={audit.id} 
-                  style={{ borderBottom: '1px solid var(--border-light)', cursor: 'pointer' }}
-                  onClick={() => navigate(`/inventory/audits/${audit.id}`)}
-                  className="table-row-hover"
+                <tr
+                  key={audit.id}
+                  style={{ borderBottom: '1px solid var(--border-light)' }}
+                  {...rowLink(() => navigate(`/inventory/audits/${audit.id}`), { label: `Open stock count ${audit.countNumber || ''}` })}
                 >
                   <td>
                     <div style={{ fontWeight: '500', color: 'var(--text-primary)' }}>{audit.name}</div>

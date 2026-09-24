@@ -6,6 +6,7 @@ import {
 } from '../../hooks/admin/useAdminConsole';
 import PageGuide from '../../components/admin/PageGuide';
 import Select from '../../components/common/Select';
+import { rowLink } from '../../components/common/rowLink';
 
 
 const STATUS_STYLE = {
@@ -266,10 +267,8 @@ export default function SupportTicketsPage() {
               {tickets?.map(t => (
                 <tr
                   key={t.id}
-                  onClick={() => setSelectedId(t.id)}
-                  style={{ borderTop: '1px solid var(--border-light)', cursor: 'pointer' }}
-                  onMouseOver={e => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
-                  onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                  {...rowLink(() => setSelectedId(t.id), { label: `Open ticket ${t.subject || ''}` })}
+                  style={{ borderTop: '1px solid var(--border-light)' }}
                 >
                   <td style={{ padding: '10px 16px', color: 'var(--text-primary)', fontWeight: 500 }}>{t.subject}</td>
                   <td style={{ padding: '10px 16px', fontFamily: 'var(--font-mono)', color: 'var(--accent-gold)', fontSize: '12px' }}>{t.clientId}</td>

@@ -10,6 +10,7 @@ import { useUpdateSupplier } from '../hooks/useSuppliers';
 import SupplierProductsPanel from '../components/SupplierProductsPanel';
 import { api } from '../lib/api';
 import PageLoader from '../components/PageLoader';
+import { rowLink } from '../components/common/rowLink';
 
 export default function SupplierDetails() {
   const { id } = useParams();
@@ -210,11 +211,10 @@ export default function SupplierDetails() {
               </thead>
               <tbody>
                 {purchaseOrders.map(po => (
-                  <tr 
-                    key={po.id} 
-                    style={{ borderBottom: '1px solid var(--border-light)', cursor: 'pointer' }}
-                    onClick={() => navigate(`/inventory/purchase-orders/${po.id}`)}
-                    className="table-row-hover"
+                  <tr
+                    key={po.id}
+                    style={{ borderBottom: '1px solid var(--border-light)' }}
+                    {...rowLink(() => navigate(`/inventory/purchase-orders/${po.id}`), { label: `Open ${po.poNumber || 'purchase order'}` })}
                   >
                     <td><span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{po.poNumber}</span></td>
                     <td>

@@ -5,6 +5,7 @@ import LoadFailed from '../../components/LoadFailed';
 import { useAdminOffersHealth } from '../../hooks/admin/useAdminConsole';
 import PageGuide from '../../components/admin/PageGuide';
 import { formatINR } from '../../utils/formatUtils';
+import { rowLink } from '../../components/common/rowLink';
 
 /**
  * Offers and Shopify across every shop, worst first.
@@ -90,10 +91,8 @@ export default function OffersHealthPage() {
                   const copies = Object.entries(c.shopify.copies);
                   return (
                     <tr key={c.clientId}
-                      onClick={() => navigate(`/platformconsole/clients/${c.clientId}`)}
-                      style={{ borderTop: '1px solid var(--border-light)', cursor: 'pointer', verticalAlign: 'top' }}
-                      onMouseOver={(e) => { e.currentTarget.style.background = 'var(--bg-hover)'; }}
-                      onMouseOut={(e) => { e.currentTarget.style.background = 'transparent'; }}>
+                      {...rowLink(() => navigate(`/platformconsole/clients/${c.clientId}`), { label: `Open ${c.clientId}` })}
+                      style={{ borderTop: '1px solid var(--border-light)', verticalAlign: 'top' }}>
                       <td style={{ padding: '10px 16px', fontFamily: 'monospace', color: 'var(--accent-gold)' }}>{c.clientId}</td>
                       <td style={{ padding: '10px 16px', minWidth: '220px' }}>
                         {c.attention.length === 0 ? (

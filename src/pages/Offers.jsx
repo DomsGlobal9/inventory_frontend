@@ -11,6 +11,7 @@ import OfferEditor from '../components/OfferEditor';
 import OfferShopifyPanel, { ShopifyChip } from '../components/OfferShopifyPanel';
 import OfferStatusPill, { OFFER_TONE } from '../components/OfferStatusPill';
 import { describeOffer, offerSummaryInput } from '../utils/offerSummary';
+import { rowLink } from '../components/common/rowLink';
 
 /**
  * Every discount this shop runs, in one place.
@@ -245,7 +246,11 @@ export default function Offers() {
               </thead>
               <tbody>
                 {rows.map(offer => (
-                  <tr key={offer.id} style={{ borderBottom: '1px solid var(--border-light)' }}>
+                  <tr
+                    key={offer.id}
+                    style={{ borderBottom: '1px solid var(--border-light)' }}
+                    {...rowLink(() => navigate(`/offers/${offer.id}`), { label: `Open ${offer.title || 'offer'}` })}
+                  >
                     <td style={{ padding: '16px 20px' }}>
                       <Link to={`/offers/${offer.id}`} style={{ fontWeight: 500, color: 'var(--text-primary)', textDecoration: 'none' }}
                         onMouseEnter={e => { e.currentTarget.style.textDecoration = 'underline'; }}

@@ -10,6 +10,7 @@ import ConfirmModal from './ConfirmModal';
 import { isLowStock } from '../utils/lowStock';
 import { usePermission } from '../hooks/usePermission';
 import { useLocationContext } from '../contexts/LocationContext';
+import { rowLink } from './common/rowLink';
 
 /**
  * What we buy from one supplier.
@@ -121,12 +122,17 @@ export default function SupplierProductsPanel({ supplierId, supplierName, suppli
                 const low = isLow(variant);
 
                 return (
-                  <tr key={link.id} style={{ borderBottom: '1px solid var(--border-light)' }}>
+                  // Only the product name used to open the product, with nothing to say so and no way
+                  // in from the keyboard. The whole row opens it now, like every other list.
+                  <tr
+                    key={link.id}
+                    style={{ borderBottom: '1px solid var(--border-light)' }}
+                    {...(variant.product?.id
+                      ? rowLink(() => navigate(`/products/${variant.product.id}?tab=variants`), { label: `Open ${variant.product.title || 'product'}` })
+                      : {})}
+                  >
                     <td>
-                      <div
-                        onClick={() => variant.product?.id && navigate(`/products/${variant.product.id}?tab=variants`)}
-                        style={{ cursor: variant.product?.id ? 'pointer' : 'default' }}
-                      >
+                      <div>
                         <div style={{ fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                           {variant.product?.title || 'Unknown product'}
                           {link.isPreferred && (

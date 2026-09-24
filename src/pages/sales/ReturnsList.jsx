@@ -8,6 +8,7 @@ import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { RETURN_STATUS, StatusPill, returnReasonLabel } from '../../components/sales/labels';
 
 import PageLoader from '../../components/PageLoader';
+import { rowLink } from '../../components/common/rowLink';
 
 export default function ReturnsList() {
   const { can } = usePermission();
@@ -89,9 +90,8 @@ export default function ReturnsList() {
               returns.map(ret => (
                 <tr
                   key={ret.id}
-                  style={{ borderBottom: '1px solid var(--border-light)', cursor: 'pointer' }}
-                  onClick={() => navigate(`/returns/${ret.id}`)}
-                  className="table-row-hover"
+                  style={{ borderBottom: '1px solid var(--border-light)' }}
+                  {...rowLink(() => navigate(`/returns/${ret.id}`), { label: `Open return ${ret.returnNumber || ''}` })}
                 >
                   <td style={{ padding: '16px 24px', fontWeight: 500 }}>{ret.returnNumber}</td>
                   <td style={{ padding: '16px 24px', color: 'var(--text-secondary)' }}>{ret.salesOrder?.orderNumber}</td>

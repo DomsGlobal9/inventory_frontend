@@ -5,7 +5,8 @@ import ConfirmModal from '../ConfirmModal';
 import { typedPhone } from '../../utils/phone';
 import {
   useWhatsAppOverview, useLinkWhatsApp, useDisconnectWhatsApp, useSendWhatsAppTest,
-  useSaveDayBookWhatsApp, useSendDayBookNow
+  useSaveDayBookWhatsApp, useSendDayBookNow,
+  useStartShopNumberChange, useFinishShopNumberChange
 } from '../../hooks/useWhatsApp';
 
 /**
@@ -34,6 +35,118 @@ function Steps({ method }) {
     <ol style={{ margin: '8px 0 0', paddingLeft: '20px', fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
       {items.map(s => <li key={s}>{s}</li>)}
     </ol>
+  );
+}
+
+const mismatchBox = {
+  padding: '12px 14px',
+  borderRadius: '12px',
+  border: '1px solid color-mix(in srgb, var(--accent-warning) 40%, transparent)',
+  background: 'color-mix(in srgb, var(--accent-warning) 8%, transparent)'
+};
+
+/**
+ * The shop's own number, and changing it.
+ *
+ * Shut by default: a screen that greets everybody with an open form invites a number to be typed
+ * over by accident. Opened on purpose, it asks for the new number, sends a code to THAT number,
+ * and takes the code back.
+ *
+ * The code goes to the NEW phone, never the old one -- a shop whose old phone is lost is exactly
+ * the shop that needs this to work.
+ */
+function ShopNumberPanel({ data, onChanged }) {
+  const [open, setOpen] = useState(false);
+  const [phone, setPhone] = useState('');
+  const [code, setCode] = useState('');
+  const [stage, setStage] = useState('ask');
+  const [said, setSaid] = useState('');
+
+  /* Through the hooks like everything else on this screen; the raw client is not imported here. */
+  const startCall = useStartShopNumberChange();
+  const finishCall = useFinishShopNumberChange();
+  const busy = startCall.isPending || finishCall.isPending;
+
+  const close = () => { setOpen(false); setStage('ask'); setPhone(''); setCode(''); setSaid(''); };
+
+  const start = async () => {
+    setSaid('');
+    try {
+      const r = await startCall.mutateAsync({ phone: phone.trim() });
+      const out = r?.data ?? r;
+      if (out?.alreadyYours) { setSaid('That is already your shop\'s number.'); return; }
+      setStage('code');
+      setSaid(`We have sent a code to ${out?.phone ?? 'that number'} on WhatsApp.`);
+    } catch (e) {
+      setSaid(e?.message || 'That could not be sent. Try again in a few minutes.');
+    }
+  };
+
+  const finish = async () => {
+    setSaid('');
+    try {
+      await finishCall.mutateAsync({ phone: phone.trim(), code });
+      toast.success('Your shop\'s number has been changed.');
+      close();
+      onChanged?.();
+    } catch (e) {
+      setSaid(e?.message || 'That code was not right.');
+    }
+  };
+
+  if (!open) {
+    return (
+      <p style={{ margin: 0, fontSize: '13.5px', color: 'var(--text-secondary)' }}>
+        Your shop's number: <strong>{data.shopPhone || 'not set yet'}</strong>
+        {' · '}
+        <button type="button" onClick={() => setOpen(true)}
+          style={{ background: 'none', border: 0, padding: 0, color: 'var(--brand-solid)', fontFamily: 'inherit', fontSize: '13.5px', textDecoration: 'underline', cursor: 'pointer' }}>
+          Change it
+        </button>
+      </p>
+    );
+  }
+
+  return (
+    <div style={{ padding: '14px', borderRadius: '12px', border: '1px solid var(--border-light)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <p style={{ margin: 0, fontSize: '13.5px', color: 'var(--text-secondary)' }}>
+        {stage === 'ask'
+          ? 'We will send a code to the new number on WhatsApp, to be sure it is yours.'
+          : 'Type the code we sent to the new number.'}
+      </p>
+      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+        {stage === 'ask' ? (
+          <>
+            <div style={{ flex: '1 1 200px', minWidth: 0 }}>
+              <label htmlFor="wa-new-number" className="input-label">New number</label>
+              <input id="wa-new-number" className="input-field" inputMode="tel" placeholder="+91 98765 43210"
+                value={phone} onChange={e => setPhone(typedPhone(e.target.value))} />
+            </div>
+            <button type="button" className="btn-secondary" disabled={busy || phone.replace(/\D/g, '').length < 10} onClick={start}>
+              {busy ? 'Sending…' : 'Send code'}
+            </button>
+          </>
+        ) : (
+          <>
+            <div style={{ flex: '0 0 150px' }}>
+              <label htmlFor="wa-new-code" className="input-label">Code</label>
+              <input id="wa-new-code" className="input-field" inputMode="numeric" maxLength={6} placeholder="123456"
+                value={code} onChange={e => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                onKeyDown={e => { if (e.key === 'Enter' && code.length === 6 && !busy) { e.preventDefault(); finish(); } }} />
+            </div>
+            <button type="button" className="btn-secondary" disabled={busy || code.length !== 6} onClick={finish}>
+              {busy ? 'Checking…' : 'Confirm'}
+            </button>
+            <button type="button" className="btn-secondary" disabled={busy} onClick={start}>Send again</button>
+          </>
+        )}
+        <button type="button" onClick={close} disabled={busy}
+          style={{ background: 'none', border: 0, color: 'var(--text-muted)', fontFamily: 'inherit', fontSize: '13px', textDecoration: 'underline', cursor: 'pointer', padding: '10px 2px' }}>
+          Cancel
+        </button>
+      </div>
+      {said ? <p style={{ margin: 0, fontSize: '12.5px', color: 'var(--text-muted)' }}>{said}</p> : null}
+    </div>
   );
 }
 
@@ -280,6 +393,37 @@ export default function WhatsAppSettings() {
               <strong>Linked</strong>: {data.account.phone}
               {data.account.linkedAt ? ` · since ${new Date(data.account.linkedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}` : ''}
             </p>
+
+            {/*
+              Is this the shop's OWN phone?
+              Until now the number above sat on its own with nothing to compare it to, so a shop
+              could link a salesperson's handset by accident and only find out when a customer
+              replied to a bill and reached somebody who had left.
+
+              It only TELLS. Nothing is blocked and nothing is unlinked -- and both ways out are
+              on this same screen, so nobody is ever stuck: link the right phone, or change the
+              number the shop says is its own.
+            */}
+            {data.linkedIsShopNumber === false && (
+              <div style={mismatchBox}>
+                <p style={{ margin: '0 0 6px', fontWeight: 600, fontSize: '14px' }}>
+                  This is not your shop's number
+                </p>
+                <p style={{ margin: '0 0 10px', fontSize: '13.5px', lineHeight: 1.5 }}>
+                  Bills and purchase orders are going out from <strong>{data.account.phone}</strong>,
+                  but your shop's number is <strong>{data.shopPhone}</strong>. Customers who reply
+                  will reach whoever owns that phone.
+                </p>
+                <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-muted)' }}>
+                  Either link the shop's phone instead, or change your shop's number below.
+                </p>
+              </div>
+            )}
+            {data.linkedIsShopNumber === true && (
+              <p style={{ margin: 0, fontSize: '13px', color: 'var(--accent-success)' }}>
+                ✓ This is your shop's number.
+              </p>
+            )}
             <form onSubmit={onTest} noValidate style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
               <div style={{ flex: '1 1 220px', minWidth: 0 }}>
                 <label htmlFor="wa-test-to" className="input-label">Send a test message to</label>
@@ -307,6 +451,21 @@ export default function WhatsAppSettings() {
             <LinkPanel onLinked={() => refetch()} />
           </div>
         )}
+
+        {/*
+          OUTSIDE the linked / not-linked choice above, on purpose.
+
+          The shop's own number has nothing to do with whether WhatsApp happens to be connected --
+          it is printed on purchase orders and published on the online shop either way. Tucked
+          inside the "linked" branch, as it was at first, a shop that had not connected anything
+          yet could not see its own number, let alone correct it. That is the exact shape of
+          getting somebody stuck.
+        */}
+        {data.canManage && !data.problem ? (
+          <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border-light)' }}>
+            <ShopNumberPanel data={data} onChanged={() => refetch()} />
+          </div>
+        ) : null}
       </section>
 
       {data.isOwner && data.dayBook ? <DayBookCard dayBook={data.dayBook} /> : null}

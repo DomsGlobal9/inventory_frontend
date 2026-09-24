@@ -36,6 +36,23 @@ export const useDisconnectWhatsApp = () => {
 export const useSendWhatsAppTest = () =>
   useMutation({ mutationFn: async ({ to, nonce }) => (await api.post('/whatsapp/test', { to, nonce })).data });
 
+/*
+ * Changing the number the shop says is its own. Two steps, because the new number has to prove
+ * itself: a code goes to it on WhatsApp, and only the code back changes anything.
+ */
+export const useStartShopNumberChange = () =>
+  useMutation({ mutationFn: async ({ phone }) => (await api.post('/whatsapp/shop-number/start', { phone })).data });
+
+export const useFinishShopNumberChange = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ phone, code }) => (await api.post('/whatsapp/shop-number/finish', { phone, code })).data,
+    // The overview carries the shop number and the "is this your phone?" answer, so both are stale
+    // the moment this succeeds.
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['whatsapp', 'overview'] })
+  });
+};
+
 export const useSaveDayBookWhatsApp = () => {
   const qc = useQueryClient();
   return useMutation({

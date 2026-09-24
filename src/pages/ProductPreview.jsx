@@ -7,8 +7,8 @@ import { useProduct } from '../context/ProductContext';
 import { useCreateProduct, useUpdateProduct, useSameNameProducts } from '../hooks/useProducts';
 import { mapProductFormToApiPayload } from '../mappers/product.mapper';
 import { buildVariantSku } from '../utils/skuUtils';
-import { bulkCreateVariants } from '../services/variant.service';
-import { uploadImageFile, dataUrlToFile } from '../services/image.service';
+import { bulkCreateVariants, getVariants } from '../services/variant.service';
+import { putImageBytes, registerImage, dataUrlToFile } from '../services/image.service';
 import { useCatalogData } from '../hooks/useCatalogConfig';
 import { colorInfoFor } from '../utils/colorOptions';
 import { useLocationContext } from '../contexts/LocationContext';
@@ -91,27 +91,43 @@ export default function ProductPreview() {
   const openingCost = Number(productData.costPrice || 0);
   const estimatedCostValue = openingCost > 0 ? totalUnits * openingCost : 0;
 
-  const hasPhotos = (productData.imageUrls?.length > 0) ||
-    Object.values(productData.sourceUploadFiles || {}).some(Boolean);
+  /*
+   * Every photograph the wizard is holding, across every colour, flattened for this screen.
+   *
+   * Photographs are kept per colour now (see ProductContext.variantPhotos), so the checklist
+   * and the picture both have to look across all of them. A shop that photographed only the
+   * blue one has photos; the preview should show blue rather than an empty grey box.
+   */
+  const allPhotos = useMemo(() => {
+    const uploads = [];
+    const generated = [];
+    for (const set of Object.values(productData.variantPhotos || {})) {
+      const source = set?.sourceFiles;
+      for (const f of (Array.isArray(source) ? source : Object.values(source || {}))) {
+        if (f instanceof File) uploads.push(f);
+      }
+      for (const view of VIEW_ORDER) {
+        const dataUrl = set?.generatedViews?.[view];
+        if (typeof dataUrl === 'string' && dataUrl.startsWith('data:')) generated.push(dataUrl);
+      }
+    }
+    return { uploads, generated };
+  }, [productData.variantPhotos]);
+
+  const hasPhotos = allPhotos.uploads.length > 0 || allPhotos.generated.length > 0;
 
   /*
    * What this page can actually show you.
    *
-   * imageUrls is written by one path only -- the AI garment generation -- so for every
-   * ordinary upload it is empty, and this page rendered a grey placeholder icon while its
-   * own checklist ticked "At Least 1 Photo" off the list two columns away. hasPhotos above
-   * already knew to look in sourceUploadFiles; the picture did not. So a shopkeeper who had
-   * just chosen four photographs was shown a preview with no photographs in it, immediately
-   * before being asked to publish.
-   *
-   * sourceUploadFiles is a plain array on the ordinary path and a map keyed by view on the
-   * AI one, which is why Object.values covers both.
+   * The picture and the checklist read the same thing, deliberately. They used to read two
+   * different places -- the checklist looked at the uploads, the picture at a field only the
+   * AI path ever wrote -- so a shopkeeper who had just chosen four photographs was shown a
+   * preview with no photographs in it, immediately before being asked to publish.
    */
-  const uploadedFileUrls = useMemo(() => {
-    if (productData.imageUrls?.length > 0) return [];
-    const files = Object.values(productData.sourceUploadFiles || {}).filter(f => f instanceof File);
-    return files.map(f => URL.createObjectURL(f));
-  }, [productData.imageUrls, productData.sourceUploadFiles]);
+  const uploadedFileUrls = useMemo(
+    () => allPhotos.uploads.map(f => URL.createObjectURL(f)),
+    [allPhotos]
+  );
 
   // Object URLs hold their file in memory until revoked, and this page is reached repeatedly
   // via Back to Edit.
@@ -119,7 +135,9 @@ export default function ProductPreview() {
     uploadedFileUrls.forEach(u => { try { URL.revokeObjectURL(u); } catch { /* ignore */ } });
   }, [uploadedFileUrls]);
 
-  const previewImages = productData.imageUrls?.length > 0 ? productData.imageUrls : uploadedFileUrls;
+  // The shop's own photographs lead, the generated model shots follow -- the same order the
+  // product itself will be saved in, so this screen is a preview rather than a different view.
+  const previewImages = [...uploadedFileUrls, ...allPhotos.generated];
 
   // Single source of truth for both the checklist display and whether Publish is
   // actually clickable -- these used to drift apart (checklist showed complete while
@@ -201,55 +219,124 @@ export default function ProductPreview() {
     // under its productId in storage.
     // Snapshotted before anything resets the form, because uploads now continue after the
     // user has left this screen and productData will have been cleared by then.
-    const imagePayload = {
+    /*
+     * Photographs, snapshotted per colour.
+     *
+     * One entry per colour the shop chose, holding what they photographed and what Try-On
+     * made from it. Taken now because the uploads carry on after this screen is gone and
+     * the wizard's state will have been cleared by then.
+     */
+    const photoPayload = {
       title: productData.title,
-      generatedViews: productData.generatedGarmentViews || {},
-      sourceFiles: Object.values(productData.sourceUploadFiles || {}).filter(Boolean)
+      colours: (productData.selectedColors?.length ? productData.selectedColors : ['']).map(code => {
+        const set = productData.variantPhotos?.[code] || {};
+        const source = set.sourceFiles;
+        return {
+          code,
+          name: code ? getColorInfo(code).name : productData.title,
+          hex: code ? String(getColorInfo(code).value || '').toLowerCase() : null,
+          uploads: (Array.isArray(source) ? source : Object.values(source || {})).filter(f => f instanceof File),
+          generatedViews: set.generatedViews || {}
+        };
+      })
     };
 
+    /**
+     * Puts every colour's photographs where they belong.
+     *
+     * Three things this has to get right, none of which the old product-wide version had to:
+     *
+     *  - A photograph belongs to a COLOUR, and a colour is several variants (red/S, red/M,
+     *    red/L). The bytes go up once and each of that colour's variants is pointed at them,
+     *    so a shop on a slow connection does not send the same saree three times.
+     *  - The shop's OWN photograph is kept and shown, listed before the generated ones. It
+     *    used to be filed as RAW_UPLOAD, which the storefront hides -- so the one real
+     *    photograph of the garment was the one nobody could see.
+     *  - A colour with nothing is simply skipped. It is not an error and nothing is said
+     *    about it here; the shop was already told on the photos step and can add it later.
+     */
     const persistImages = async (productId) => {
-      // No tenant here either -- the server owns the storage path.
-      let orderIndex = 0;
+      // Which variant is which colour. Read back from the server rather than assumed,
+      // because bulkCreateVariants renames a clashing SKU and skips what it cannot save --
+      // so the variants that exist are not always the variants that were asked for.
+      let variantsByHex = new Map();
+      try {
+        const res = await getVariants(productId);
+        for (const v of (res?.data ?? res ?? [])) {
+          const key = String(v.hexCode || '').toLowerCase();
+          if (!variantsByHex.has(key)) variantsByHex.set(key, []);
+          variantsByHex.get(key).push(v.id);
+        }
+      } catch (err) {
+        // Not fatal. Without the variant list the photographs still go on the product, which
+        // is where they used to live -- worse than intended, far better than lost.
+        console.error('Could not read the new variants back; photos will not be split by colour:', err);
+      }
 
-      const generatedViews = imagePayload.generatedViews;
-      for (const viewKey of VIEW_ORDER) {
-        const dataUrl = generatedViews[viewKey];
-        if (!dataUrl || !dataUrl.startsWith('data:')) continue;
-        try {
-          const file = dataUrlToFile(dataUrl, `${viewKey}.jpg`);
-          await uploadImageFile(productId, file, {
-            isPrimary: orderIndex === 0,
-            altText: `${imagePayload.title} - ${viewKey} view`,
-            imageType: 'GALLERY',
-            orderIndex: orderIndex++
-          });
-        } catch (err) {
-          console.error(`Failed to upload generated ${viewKey} view:`, err);
+      let wanted = 0, done = 0;
+
+      for (const colour of photoPayload.colours) {
+        const generated = VIEW_ORDER
+          .map(view => ({ view, dataUrl: colour.generatedViews[view] }))
+          .filter(g => typeof g.dataUrl === 'string' && g.dataUrl.startsWith('data:'));
+
+        if (colour.uploads.length === 0 && generated.length === 0) continue;
+
+        const variantIds = variantsByHex.get(colour.hex) || [];
+        // No variant to hang it on -- a colour whose variants all failed to save, or a
+        // product with no colours at all. The photograph goes on the product so it is not
+        // thrown away; [undefined] runs the loop below exactly once with no variantId.
+        const targets = variantIds.length > 0 ? variantIds : [undefined];
+
+        let orderIndex = 0;
+
+        // The shop's own photographs first: a real picture of the real garment leads, and
+        // the generated model shots follow it.
+        for (const file of colour.uploads) {
+          wanted++;
+          try {
+            const stored = await putImageBytes(productId, file);
+            for (const variantId of targets) {
+              await registerImage(productId, stored, {
+                variantId,
+                isPrimary: orderIndex === 0,
+                altText: `${photoPayload.title} - ${colour.name}`,
+                imageType: 'GALLERY',
+                generated: false,
+                orderIndex
+              });
+            }
+            orderIndex++;
+            done++;
+          } catch (err) {
+            console.error(`Failed to upload the ${colour.name} photo:`, err);
+          }
+        }
+
+        for (const { view, dataUrl } of generated) {
+          wanted++;
+          try {
+            const stored = await putImageBytes(productId, dataUrlToFile(dataUrl, `${view}.jpg`));
+            for (const variantId of targets) {
+              await registerImage(productId, stored, {
+                variantId,
+                isPrimary: orderIndex === 0,
+                altText: `${photoPayload.title} - ${colour.name}, ${view} view`,
+                imageType: 'GALLERY',
+                generated: true,
+                orderIndex
+              });
+            }
+            orderIndex++;
+            done++;
+          } catch (err) {
+            console.error(`Failed to upload the generated ${colour.name} ${view} view:`, err);
+          }
         }
       }
 
-      // When there are generated views, these uploads were the flat-lay references used
-      // to produce them (RAW_UPLOAD). When there are none -- dress types the Try-On API
-      // doesn't support -- these uploads *are* the product's photos (GALLERY).
-      const hadGeneratedViews = orderIndex > 0;
-      const sourceFiles = imagePayload.sourceFiles;
-      for (const file of sourceFiles) {
-        try {
-          await uploadImageFile(productId, file, {
-            isPrimary: orderIndex === 0,
-            altText: hadGeneratedViews ? `${imagePayload.title} - flat lay reference` : imagePayload.title,
-            imageType: hadGeneratedViews ? 'RAW_UPLOAD' : 'GALLERY',
-            orderIndex: orderIndex++
-          });
-        } catch (err) {
-          console.error('Failed to upload product photo:', err);
-        }
-      }
-
-      if (orderIndex === 0) return; // nothing to report
-      const total = VIEW_ORDER.filter(v => generatedViews[v]?.startsWith('data:')).length + sourceFiles.length;
-      if (orderIndex < total) {
-        toast.error(`${total - orderIndex} of ${total} images failed to upload — you can add them manually from the product's Images tab.`);
+      if (wanted > 0 && done < wanted) {
+        toast.error(`${wanted - done} of ${wanted} photos did not upload \u2014 you can add them from the product's Photos tab.`);
       }
     };
 

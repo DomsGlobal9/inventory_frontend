@@ -36,11 +36,27 @@ export const ProductProvider = ({ children }) => {
     perVariantPricing: false,
     variantPrices: {}, // same shape as units: { "red_#FF0000": { "S": 1250 } }
     
-    // Images
-    images: {
-      cover: null,
-      additional: []
-    }
+    /*
+     * Photographs, one set PER COLOUR.
+     *
+     * They used to be one pile for the whole product: a single cover and a single list of
+     * extras, shown for every colour the shop sold. For a saree in five colours that is a
+     * lie -- four of those colours were being sold with a photograph of a different one,
+     * and nothing on the screen said which colour still had no picture of its own.
+     *
+     * Keyed by the same colour code selectedColors uses ("red_#FF0000"), so the photographs
+     * and the stock numbers in `units` are keyed the same way and cannot drift apart.
+     *
+     *   variantPhotos["red_#FF0000"] = {
+     *     sourceFiles:    { saree: File } | [File]   what the shop photographed
+     *     generatedViews: { front: dataUrl, ... }    what Try-On made from it
+     *   }
+     *
+     * Nothing here is required. A colour with no photographs publishes perfectly well and
+     * can be given one later from the product's Photos tab -- an empty slot must never be
+     * a locked door.
+     */
+    variantPhotos: {}
   };
 
   const [productData, setProductData] = useState(initialData);
@@ -52,6 +68,28 @@ export const ProductProvider = ({ children }) => {
     }));
   };
 
+  /**
+   * What one colour has been photographed with so far. Never null, so a caller can read
+   * `.sourceFiles` off it without checking first.
+   */
+  const photosFor = (colorCode) =>
+    productData.variantPhotos?.[colorCode] ?? { sourceFiles: {}, generatedViews: {} };
+
+  /**
+   * Change one colour's photographs, leaving every other colour alone.
+   *
+   * Written as a functional update rather than reading photosFor() and spreading it: the
+   * uploader saves a file and starts a generation in the same tick, and reading the old
+   * object first meant whichever finished second overwrote the other.
+   */
+  const setPhotosFor = (colorCode, patch) => {
+    setProductData(prev => {
+      const all = prev.variantPhotos || {};
+      const mine = all[colorCode] ?? { sourceFiles: {}, generatedViews: {} };
+      return { ...prev, variantPhotos: { ...all, [colorCode]: { ...mine, ...patch } } };
+    });
+  };
+
   const loadProductForEdit = (product) => {
     setProductData(product);
   };
@@ -61,7 +99,7 @@ export const ProductProvider = ({ children }) => {
   }
 
   return (
-    <ProductContext.Provider value={{ productData, updateProductData, setProductData, loadProductForEdit, resetProductData }}>
+    <ProductContext.Provider value={{ productData, updateProductData, setProductData, loadProductForEdit, resetProductData, photosFor, setPhotosFor }}>
       {children}
     </ProductContext.Provider>
   );

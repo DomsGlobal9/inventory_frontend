@@ -113,9 +113,23 @@ function fileToBase64(file) {
   });
 }
 
-export default function GarmentPhotoshootUploader({ onGenerationComplete }) {
-  const { productData, updateProductData } = useProduct();
-  
+/**
+ * Photographs for ONE colour.
+ *
+ * This used to hold the photographs for the whole product: one flat-lay, one set of
+ * generated views, shown for every colour the shop sold. `colorCode` is now the colour
+ * being photographed ("red_#FF0000"), and everything this component saves is saved under
+ * it. The parent gives it a `key={colorCode}` so switching colour starts this component
+ * again cleanly rather than carrying the previous colour's slots across.
+ *
+ * `colorCode` is optional. A product with no colours at all (a one-off, an alteration
+ * service) still gets one plain set of photographs, saved under the empty key -- there is
+ * no version of this screen that refuses to take a photograph.
+ */
+export default function GarmentPhotoshootUploader({ onGenerationComplete, colorCode = '', colorLabel }) {
+  const { productData, photosFor, setPhotosFor } = useProduct();
+  const mine = photosFor(colorCode);
+
   /*
    * Restored from the wizard rather than started empty.
    *
@@ -130,7 +144,7 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete }) {
    */
   const [files, setFiles] = useState(() => {
     const empty = { "full-dress": null, "top-front": null, "top-back": null, bottom: null };
-    const stored = productData.sourceUploadFiles;
+    const stored = mine.sourceFiles;
     // The plain path stores an array; only the slot map belongs here.
     if (!stored || Array.isArray(stored) || typeof stored !== 'object') return empty;
     const restored = { ...empty };
@@ -150,7 +164,12 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete }) {
 
   // Plain multi-photo upload for dress types the Try-On API doesn't support at all --
   // no fixed slots, no generation, these just become the product's gallery photos.
-  const [plainPhotos, setPlainPhotos] = useState([]);
+  //
+  // Read back from the colour's saved set, like the slot map above. Switching colour and
+  // switching back remounts this component, and starting at [] meant the effect below
+  // immediately wrote that empty list over photographs the shop had already chosen.
+  const [plainPhotos, setPlainPhotos] = useState(() =>
+    Array.isArray(mine.sourceFiles) ? mine.sourceFiles.filter(f => f instanceof File) : []);
   const [plainPreviews, setPlainPreviews] = useState([]);
   const [plainDragOver, setPlainDragOver] = useState(false);
   // Lets a tap on the box open the gallery without the box being a <label>.
@@ -176,7 +195,7 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete }) {
   const [generating, setGenerating] = useState(false);
   const [step, setStep] = useState(null);
   const [status, setStatus] = useState(null);
-  const [views, setViews] = useState(productData.generatedGarmentViews || {});
+  const [views, setViews] = useState(mine.generatedViews || {});
   const [error, setError] = useState(null);
   const [lightboxSrc, setLightboxSrc] = useState(null);
   const abortControllerRef = useRef(null);
@@ -210,10 +229,10 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete }) {
     setPlainPreviews(urls);
     // This effect runs on every mount regardless of which branch below actually
     // renders (hooks can't be conditional) -- without the eligibility guard it wiped
-    // out the AI-eligible path's sourceUploadFiles (real flat-lay uploads, set by
+    // out the AI-eligible path's slot uploads (real flat-lay photographs, set by
     // startGeneration's COMPLETE handler) back to [] the moment the component
     // remounted, e.g. after "Back to Edit" and returning without regenerating.
-    if (!tryOnEligible) updateProductData('sourceUploadFiles', plainPhotos);
+    if (!tryOnEligible) setPhotosFor(colorCode, { sourceFiles: plainPhotos });
     return () => { urls.forEach((u) => { try { URL.revokeObjectURL(u); } catch { /* ignore */ } }); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [plainPhotos, tryOnEligible]);
@@ -230,13 +249,13 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete }) {
    * each other, which is why it read as the app being broken rather than as a step being
    * missed.
    *
-   * Publishing already handles this correctly: persistImages uploads these as the
-   * product's GALLERY photos when no generated views exist, and as RAW_UPLOAD references
-   * when they do. Only the handing-over was missing.
+   * Publishing already handles this correctly: persistImages uploads these as this
+   * COLOUR's photographs whether or not anything was generated from them -- the shop's own
+   * photograph is kept and shown alongside the generated views, never replaced by them.
    */
   useEffect(() => {
     if (!tryOnEligible) return;
-    updateProductData('sourceUploadFiles', files);
+    setPhotosFor(colorCode, { sourceFiles: files });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [files, tryOnEligible]);
 
@@ -414,13 +433,15 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete }) {
             setStatus('Generation complete.');
             setGenerating(false);
 
-            updateProductData('generatedGarmentViews', collected);
-            updateProductData('hasGeneratedGarment', true);
-            updateProductData('imageUrls', VIEW_ORDER.map(v => collected[v]).filter(Boolean));
-            // The original flat-lay uploads (files state, local to this component) --
-            // ProductPreview needs these too, to persist them as RAW_UPLOAD images
-            // alongside the generated views on publish.
-            updateProductData('sourceUploadFiles', files);
+            // Saved together in one write. The generated views and the photographs they were
+            // made from are one colour's set; saving them in two calls let a second colour's
+            // generation land between the halves.
+            //
+            // `hasGeneratedGarment` and `imageUrls` used to be written here as well. Both were
+            // product-wide -- with photographs now kept per colour, whichever colour finished
+            // last would have overwritten the others -- and neither was ever read back by
+            // anything, so they are gone rather than made per-colour.
+            setPhotosFor(colorCode, { generatedViews: collected, sourceFiles: files });
 
             if (onGenerationComplete) onGenerationComplete();
           } else if (data.type === 'ERROR') {
@@ -446,7 +467,7 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete }) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', width: '100%' }}>
         <div>
           <h3 style={{ fontSize: '20px', fontWeight: 500, color: 'var(--text-primary)', marginBottom: '8px' }}>
-            Product Photos
+            {colorLabel ? `Photos of the ${colorLabel} one` : 'Product Photos'}
           </h3>
           <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
             {productData.dressType
@@ -590,10 +611,11 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete }) {
       {/* Header */}
       <div>
         <h3 style={{ fontSize: '20px', fontWeight: 500, color: 'var(--text-primary)', marginBottom: '8px' }}>
-          Catalog Draping AI
+          {colorLabel ? `Photos of the ${colorLabel} one` : 'Catalog Draping AI'}
         </h3>
         <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
-          Upload your flat-lay garment images. The full-dress image is required for 4-pose model generation.
+          Lay the garment out flat and photograph it. We make four model shots from that one photo, and
+          keep your own photo alongside them.
         </p>
       </div>
 
@@ -603,7 +625,15 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete }) {
           const file = files[key];
           const preview = previews[key];
           const isUploading = uploading[key];
-          const uploaded = uploadedStates[key];
+          /*
+           * "Ready" follows the FILE, not the little flag the upload animation sets.
+           *
+           * uploadedStates is local to this component and starts empty on every mount, so
+           * after switching colour and switching back the slot showed its preview picture
+           * with no Ready on it -- the colour card next to it said "1 photo" at the same
+           * time. The file being there IS ready; the flag only drives the brief spinner.
+           */
+          const uploaded = !!file || uploadedStates[key];
           const isDragTarget = dragOverKey === key;
 
           const borderStyle = isDragTarget

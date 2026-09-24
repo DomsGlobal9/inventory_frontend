@@ -56,13 +56,24 @@ export default function ImageGallery({ productId }) {
       byVariant.get(key).push(image);
     }
 
-    const sections = [{
+    /*
+     * Photographs that belong to no colour.
+     *
+     * Shown only when there ARE some, and with no way to add more. Every photograph now
+     * belongs to a colour -- a shot filed against the product as a whole is shown for every
+     * colour the shop sells, which is the lie this whole screen exists to stop. Older
+     * products still carry some, so they are displayed and can be removed, but the section
+     * disappears the moment the last one is gone rather than sitting there inviting more.
+     */
+    const loose = byVariant.get(null) || [];
+    const sections = loose.length > 0 ? [{
       key: 'product',
       variantId: null,
-      title: 'The product as a whole',
-      hint: 'The fabric, the border, the drape — anything not specific to one colour.',
-      images: byVariant.get(null) || []
-    }];
+      readOnly: true,
+      title: 'Not tied to a colour',
+      hint: 'Taken before photos were kept per colour. These show for every colour — move them by adding them to the colour they are of, then removing them here.',
+      images: loose
+    }] : [];
 
     for (const variant of variants) {
       sections.push({
@@ -281,16 +292,20 @@ export default function ImageGallery({ productId }) {
                   <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{group.hint}</div>
                 </div>
               </div>
-              <button
-                className="btn-secondary"
-                onClick={() => openPicker(group.variantId)}
-                disabled={uploadMutation.isPending}
-                style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}
-              >
-                {uploadMutation.isPending && uploadTarget === group.variantId
-                  ? <><Loader2 size={15} className="animate-spin" /> Uploading…</>
-                  : <><Upload size={15} /> Add photo</>}
-              </button>
+              {/* No Add on the loose section: there is nothing left that a photograph of the
+                  product as a whole is the right answer to. */}
+              {!group.readOnly && (
+                <button
+                  className="btn-secondary"
+                  onClick={() => openPicker(group.variantId)}
+                  disabled={uploadMutation.isPending}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}
+                >
+                  {uploadMutation.isPending && uploadTarget === group.variantId
+                    ? <><Loader2 size={15} className="animate-spin" /> Uploading…</>
+                    : <><Upload size={15} /> Add photo</>}
+                </button>
+              )}
             </div>
 
             {group.images.length === 0 ? (
@@ -301,9 +316,7 @@ export default function ImageGallery({ productId }) {
                 display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text-muted)', fontSize: '13px'
               }}>
                 <ImageOff size={16} />
-                {group.variantId
-                  ? `No photo of ${group.title} yet. A customer choosing it would see another colour.`
-                  : 'No general photos of this product yet.'}
+                No photo of {group.title} yet. A customer choosing it would see another colour.
               </div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(160px, 100%), 1fr))', gap: '16px' }}>

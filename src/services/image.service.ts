@@ -21,57 +21,82 @@ import { api } from '../lib/api';
  * all: VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are no longer needed, so the anon key
  * is no longer published in the JavaScript bundle.
  */
-export async function uploadImageFile(productId: string, file: File, opts: {
+export interface ImageOpts {
   isPrimary?: boolean;
   altText?: string;
   imageType?: 'COVER' | 'GALLERY' | 'RAW_UPLOAD';
   orderIndex?: number;
   /** Which size/colour this photograph is of. Omitted for a shot of the product as a whole. */
   variantId?: string;
-} = {}) {
-  // 1. Server computes the path and signs a one-time upload for it.
-  const prepared: any = await api.post(`/products/${productId}/images/upload-url`, {
-    fileName: file.name
-  });
+  /** True when Try-On made this picture rather than the shop photographing it. */
+  generated?: boolean;
+}
+
+/**
+ * Puts the bytes in storage and hands back where they landed, WITHOUT registering them
+ * against anything.
+ *
+ * Split out from uploadImageFile because one photograph of the red saree belongs to every
+ * red variant -- red/S, red/M, red/L -- and uploading the same file once per size would
+ * send the same bytes over a shop's connection three times and leave three copies in
+ * storage. The bytes go up once; registerImage then points as many variants at them as
+ * the colour has sizes.
+ */
+export async function putImageBytes(productId: string, file: File) {
+  const prepared: any = await api.post(`/products/${productId}/images/upload-url`, { fileName: file.name });
   const { storagePath, signedUrl, publicUrl } = prepared?.data ?? prepared;
 
-  if (!storagePath || !signedUrl) {
-    throw new Error('Could not prepare the upload. Please try again.');
-  }
+  if (!storagePath || !signedUrl) throw new Error('Could not prepare the upload. Please try again.');
 
-  // 2. The signed URL carries its own authorisation for this one path, so this is a plain
-  //    PUT with no credentials attached. `api` is deliberately not used here: it points at
-  //    our own backend and would attach session cookies to a third-party origin.
   const putResponse = await axios.put(signedUrl, file, {
     headers: { 'Content-Type': file.type || 'application/octet-stream' },
     validateStatus: () => true,
-    // This is a plain axios call, so it does not inherit the shared client's timeout and
-    // had none of its own -- an upload that stalled against storage never settled, and the
-    // publish sequence awaiting it hung for ever with the product already created.
-    // Longer than the API timeout because this is bytes over the wire on whatever
-    // connection the shop has, not a JSON round trip.
     timeout: 120000
   });
-
   if (putResponse.status < 200 || putResponse.status >= 300) {
     throw new Error(`Failed to upload image to storage (HTTP ${putResponse.status})`);
   }
+  return { storagePath, publicUrl, fileName: file.name, fileSize: file.size };
+}
 
-  // 3. Register it. storagePath is the server's own value round-tripped; addImage
-  //    additionally rejects any path outside this tenant + product prefix.
+/**
+ * Records a photograph that is already in storage against a product, and optionally one
+ * of its variants.
+ *
+ * Several rows may share one storagePath -- that is how one photograph of a colour covers
+ * every size of it. Deleting a row removes the file from storage only when it was the last
+ * row using that path (see the backend's deleteImage), so a shop removing red/M's copy
+ * does not blank red/S.
+ */
+export async function registerImage(
+  productId: string,
+  stored: { storagePath: string; publicUrl: string; fileName?: string; fileSize?: number },
+  opts: ImageOpts = {}
+) {
   return api.post(`/products/${productId}/images`, {
-    url: publicUrl,
-    storagePath,
-    fileName: file.name,
-    fileSize: file.size,
-    altText: opts.altText || file.name,
+    url: stored.publicUrl,
+    storagePath: stored.storagePath,
+    fileName: stored.fileName,
+    fileSize: stored.fileSize,
+    altText: opts.altText || stored.fileName,
     isPrimary: opts.isPrimary || false,
     imageType: opts.imageType || 'GALLERY',
     orderIndex: opts.orderIndex ?? 0,
-    // Omitted entirely rather than sent as null: the schema treats the key's absence as
-    // "belongs to the product", and a null would have to be allowed through validation.
+    generated: opts.generated ?? false,
     ...(opts.variantId ? { variantId: opts.variantId } : {})
   });
+}
+
+/**
+ * The ordinary one-photograph case: put the bytes up and record them in one go.
+ *
+ * Kept as the single call most screens want, but built from putImageBytes + registerImage
+ * rather than repeating them -- two copies of the upload sequence is two places for the
+ * tenant-path rule to drift.
+ */
+export async function uploadImageFile(productId: string, file: File, opts: ImageOpts = {}) {
+  const stored = await putImageBytes(productId, file);
+  return registerImage(productId, stored, opts);
 }
 
 // Converts a base64 data: URL (e.g. from the Catalog Try-On generator) into a File

@@ -30,8 +30,17 @@ export function rowLink(open, { label } = {}) {
     role: 'link',
     'aria-label': label,
     onClick: (e) => {
-      // Started on something that handles its own clicks: leave it entirely alone.
-      if (e.target.closest?.(INTERACTIVE)) return;
+      /*
+       * Started on something INSIDE the row that handles its own clicks: leave it alone.
+       *
+       * `!== e.currentTarget` matters more than it looks. rowToggle gives the row itself
+       * role="button", which is in the list above -- so closest() matched the ROW, and every
+       * click on it was skipped as if it had landed on a control. The error log's stack traces
+       * could not be opened by mouse at all, while the keyboard worked perfectly, because only
+       * this branch does the check. Found by clicking one; no build would ever have said a word.
+       */
+      const control = e.target.closest?.(INTERACTIVE);
+      if (control && control !== e.currentTarget) return;
       // They were selecting text, not choosing a row.
       if (window.getSelection?.()?.toString()) return;
       open(e);

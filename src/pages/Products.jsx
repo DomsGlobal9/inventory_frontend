@@ -16,7 +16,7 @@ import { formatRupees } from '../utils/money';
 
 export default function Products() {
   const navigate = useNavigate();
-  const { resetProductData } = useProduct();
+  const { resumePath } = useProduct();
   const [statusFilter, setStatusFilter] = React.useState(''); // Empty means default (ACTIVE, DRAFT)
   const { data, isLoading, isError, error, refetch } = useProducts({ page: 1, limit: 50, status: statusFilter || undefined });
 
@@ -194,10 +194,7 @@ export default function Products() {
           <button 
             className="btn-primary" 
             style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-            onClick={() => {
-              resetProductData();
-              navigate('/add/general');
-            }}
+            onClick={() => navigate(resumePath())}
           >
             <Plus size={16} />
             Add Product

@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { RotateCcw, X } from 'lucide-react';
+import { useProduct } from '../context/ProductContext';
 
 const STEPS = [
   { id: 'general', num: 1, label: 'General Information' },
@@ -12,6 +14,30 @@ export default function WizardLayout({ title, subtitle }) {
   const navigate = useNavigate();
   const currentStep = location.pathname.includes('upload') ? 3 :
                       location.pathname.includes('measurements') ? 2 : 1;
+
+  /*
+   * `|| {}` because this is a LAYOUT.
+   *
+   * A component that destructures straight off a context crashes the whole subtree the moment
+   * the context is momentarily undefined -- which happens during a hot reload in development,
+   * and would happen in production to anyone who ever rendered this outside the provider. A
+   * blank wizard is a far worse outcome than a wizard with no restore banner for one frame.
+   */
+  const { restored, dismissRestored, resetProductData, rememberStep } = useProduct() || {};
+
+  /*
+   * Which step to come back to.
+   *
+   * Recorded here rather than in each step, so a step added later cannot forget to do it --
+   * and read from the URL, which is the one thing that is already true about where they are.
+   */
+  const stepId = STEPS.find(s => s.num === currentStep)?.id ?? 'general';
+  useEffect(() => { rememberStep?.(stepId); }, [stepId, rememberStep]);
+
+  const startFresh = () => {
+    resetProductData?.();
+    navigate('/add/general');
+  };
 
   return (
     <div className="mobile-col mobile-no-scroll" style={{ display: 'flex', flexDirection: 'row', gap: '32px', maxWidth: '1400px', margin: '0 auto', width: '100%', flex: 1, overflow: 'hidden' }}>
@@ -128,6 +154,37 @@ export default function WizardLayout({ title, subtitle }) {
         paddingBottom: '32px', 
         paddingTop: '16px' 
       }}>
+        {/*
+          Said out loud, and undoable.
+
+          Work coming back on its own is only reassuring if the person is told it happened --
+          otherwise a half-filled form they do not remember filling reads as the app having
+          muddled two products together. "Start fresh" is next to it because the other half of
+          trusting it is being able to throw it away in one press.
+        */}
+        {restored && (
+          <div role="status" style={{
+            display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap',
+            padding: '10px 14px', marginBottom: '16px', borderRadius: '10px',
+            background: 'rgba(16, 185, 129, 0.10)', border: '1px solid rgba(16, 185, 129, 0.28)',
+            color: 'var(--text-primary)', fontSize: '13px'
+          }}>
+            <RotateCcw size={15} style={{ color: 'var(--accent-success)', flexShrink: 0 }} />
+            <span style={{ minWidth: 0 }}>
+              Picked up where you left off. Everything you had entered is still here.
+            </span>
+            <span style={{ display: 'flex', gap: '8px', marginLeft: 'auto' }}>
+              <button type="button" className="btn-secondary" onClick={startFresh}
+                style={{ padding: '5px 12px', fontSize: '12px' }}>
+                Start fresh
+              </button>
+              <button type="button" onClick={dismissRestored} aria-label="Hide this message"
+                style={{ background: 'none', border: 0, cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}>
+                <X size={15} />
+              </button>
+            </span>
+          </div>
+        )}
         <Outlet />
       </div>
     </div>

@@ -22,7 +22,7 @@ export default function Dashboard() {
   const canSeeMoney = can('report:financial');
   const { data, isLoading, isError, error } = useDashboardSummary(canSeeMoney);
   const navigate = useNavigate();
-  const { resetProductData } = useProduct();
+  const { resumePath } = useProduct();
   const [searchParams, setSearchParams] = useSearchParams();
   
   /*
@@ -100,7 +100,7 @@ export default function Dashboard() {
           nothing: they press it, and land on a wall they had no way to predict. */}
       <motion.div variants={item} style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
         {can('product:create') && (
-          <button className="btn btn-primary" onClick={() => { resetProductData(); navigate('/add/general'); }} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px' }}>
+          <button className="btn btn-primary" onClick={() => navigate(resumePath())} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px' }}>
             <Plus size={16} /> Product
           </button>
         )}

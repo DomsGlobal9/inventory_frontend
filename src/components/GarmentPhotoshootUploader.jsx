@@ -1,21 +1,10 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { isImageFile, imageFilesFrom } from '../utils/imageFile';
 import { useIsTouchDevice } from '../hooks/useIsTouchDevice';
-import { AlertCircle, CheckCircle, X, Image as ImageIcon, StopCircle, Eye, Camera } from "lucide-react";
+import { AlertCircle, CheckCircle, X, Image as ImageIcon, Eye, Camera } from "lucide-react";
 import { useProduct } from "../context/ProductContext";
-import { api } from "../lib/api";
 import ImageLightbox from "./ImageLightbox";
-import { plainGenerationError } from '../utils/friendlyError';
-import {
-  VIEW_ORDER, fileToBase64, pickRandomModelId, resolveTryOnCategory, streamCatalog
-} from '../lib/catalogGeneration';
-
-const VIEW_LABELS = {
-  front: "Front",
-  left: "Sitting",
-  right: "Right",
-  back: "Back",
-};
+import { resolveTryOnCategory } from '../lib/photoSets';
 
 /**
  * A grid of photographs with one box on the end that adds more.
@@ -125,7 +114,7 @@ function PhotoGrid({ photos, previews, onAdd, onRemove, onView, isTouch, disable
  * service) still gets one plain set of photographs, saved under the empty key -- there is
  * no version of this screen that refuses to take a photograph.
  */
-export default function GarmentPhotoshootUploader({ onGenerationComplete, colorCode = '', colorLabel }) {
+export default function GarmentPhotoshootUploader({ colorCode = '', colorLabel }) {
   const { productData, photosFor, setPhotosFor } = useProduct();
   const mine = photosFor(colorCode);
 
@@ -188,31 +177,30 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete, colorC
   // Offer a camera only where there is one to offer -- see hooks/useIsTouchDevice.
   const isTouch = useIsTouchDevice();
 
-  const [generating, setGenerating] = useState(false);
-  const [step, setStep] = useState(null);
-  const [status, setStatus] = useState(null);
-  const [views, setViews] = useState(mine.generatedViews || {});
   const [error, setError] = useState(null);
   const [lightboxSrc, setLightboxSrc] = useState(null);
-  const abortControllerRef = useRef(null);
 
-  // Which colour this instance is for, readable from a cleanup that runs once on unmount.
-  // The component is keyed by colour today, so the closure would be right anyway -- but a ref
-  // stays right if that keying is ever removed, and cancelling the wrong colour's job is a
-  // silent failure rather than a visible one.
-  const colorCodeRef = useRef(colorCode);
-  colorCodeRef.current = colorCode;
+  /**
+   * Whether this colour is to be photographed on a model once the product is published.
+   *
+   * A CHOICE now, not an action. This step used to hold the stream open itself: press Generate
+   * and wait the better part of a minute, watching a progress bar, on a screen you could not
+   * leave -- and a shop adding a saree in five colours waited five times. The work now happens
+   * on the server, and the only thing the wizard needs from the shop is whether they want it.
+   *
+   * Kept per colour in the wizard's own draft, so it survives a refresh like everything else
+   * here, and read again by ProductPreview once the product and its variants really exist.
+   */
+  const wantViews = mine.wantViews === true;
 
-  // Stop a generation still in flight if the user navigates away mid-stream, so we
-  // don't leave a zombie job burning the Gateway quota.
-  useEffect(() => {
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-        api.post('/catalog-tryon/cancel-job', { jobId: colorCodeRef.current || 'default' }).catch(() => {});
-      }
-    };
-  }, []);
+  /*
+   * There is no longer anything to abort on the way out.
+   *
+   * This used to hold an AbortController and tell the far end to cancel if the shop navigated
+   * away mid-stream, because leaving would otherwise have left a job burning the quota with
+   * nobody to receive it. Nothing starts here now, so leaving costs nothing -- which is the
+   * entire point of the change.
+   */
 
   useEffect(() => {
     const newPreviews = {};
@@ -310,7 +298,6 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete, colorC
   // stale closure.
   useEffect(() => {
     const onPaste = (e) => {
-      if (generating) return;
       const items = e.clipboardData?.items;
       if (!items) return;
       const imageItem = Array.from(items).find((item) => item.type.startsWith('image/'));
@@ -335,33 +322,7 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete, colorC
     window.addEventListener('paste', onPaste);
     return () => window.removeEventListener('paste', onPaste);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [files, fields, generating, tryOnEligible]);
-
-  // The real milestones only move 4 times across a 30-90s generation (once per view),
-  // which reads as "stuck." Layer a slow creep on top that fills most of the gap to
-  // the next milestone and resets every time a real one lands, so the bar is always
-  // visibly moving without ever overtaking the actual progress.
-  const milestonePercent = useMemo(() => {
-    const idx = step ? VIEW_ORDER.indexOf(step) : -1;
-    if (idx < 0) return generating ? 5 : 0;
-    return Math.min(100, Math.round(((idx + 1) / VIEW_ORDER.length) * 100));
-  }, [step, generating]);
-
-  const [creep, setCreep] = useState(0);
-  useEffect(() => {
-    setCreep(0);
-    if (!generating) return;
-    const nextMilestone = milestonePercent >= 100 ? 100 : milestonePercent + (100 / VIEW_ORDER.length);
-    const cap = (nextMilestone - milestonePercent) * 0.75;
-    const interval = setInterval(() => {
-      setCreep((prev) => Math.min(cap, prev + 1.2));
-    }, 350);
-    return () => clearInterval(interval);
-  }, [generating, milestonePercent]);
-
-  const progressPercent = generating
-    ? Math.min(99, Math.round(milestonePercent + creep)) // never let the fake creep touch 100 before COMPLETE actually arrives
-    : milestonePercent;
+  }, [files, fields, tryOnEligible]);
 
   const handleFileChange = (key, file) => {
     if (!file) return;
@@ -380,103 +341,33 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete, colorC
     setUploadedStates((prev) => ({ ...prev, [key]: false }));
   };
 
-  const buildPayload = async () => {
-    // Randomized fresh per generation call -- there are 4 equally-valid models per
-    // category and no preview imagery to pick from, per the Try-On API docs.
-    // Names this generation after the colour it is for, so two colours of one product are two
-    // separate jobs upstream. Sending nothing here meant every generation from a shop shared one
-    // job name, and starting a second one cancelled the first mid-stream. The server prefixes the
-    // shop onto it and strips anything the far end will not accept -- this is only ever a suffix.
-    const base = {
-      modelId: pickRandomModelId(tryOnCategory),
-      category: tryOnCategory,
-      jobId: colorCode || 'default'
-    };
-
-    if (isSaree) {
-      base.saree = await fileToBase64(files.saree);
-      if (files.blouse) base.blouse = await fileToBase64(files.blouse);
-    } else {
-      base.full = await fileToBase64(files["full-dress"]);
-      base.top = await fileToBase64(files.top);
-      base.bottom = await fileToBase64(files.bottom);
-    }
-    return base;
-  };
-
-  const stopGeneration = async () => {
-    abortControllerRef.current?.abort();
-    setGenerating(false);
-    setStatus("Generation stopped.");
-    try {
-      await api.post('/catalog-tryon/cancel-job', { jobId: colorCode || 'default' });
-    } catch (err) {
-      console.error('cancel-job failed:', err);
-    }
-  };
-
-  const startGeneration = async () => {
-    // Validate required fields
-    for (const field of fields) {
-      if (field.required && !files[field.key]) {
-        setError(`Please upload the ${field.label} image first.`);
+  /**
+   * Ask for the four catalog views, or change your mind.
+   *
+   * It records a wish; it does not start anything. buildPayload, startGeneration and
+   * stopGeneration used to live here -- the stream was opened from this component and every
+   * view was saved into wizard state as a data URL, which is why the shop had to sit and watch
+   * a progress bar for the better part of a minute per colour, on a screen they could not
+   * leave. A shop adding a saree in five colours waited five times.
+   *
+   * The generation happens on the server now, and it can only start once the product and its
+   * variants really exist -- a job has to be attached to something. That moment is publishing,
+   * so ProductPreview reads this and starts the work the instant the product is created. Until
+   * then this is one boolean in the wizard's own draft, saved and restored like everything else
+   * on this screen.
+   */
+  const toggleViews = () => {
+    if (!wantViews) {
+      const missing = fields.find(f => f.required && !files[f.key]);
+      if (missing) {
+        // The views are made FROM this photograph. Accepting the request without it would mean
+        // failing quietly a screen later, when nobody is looking at this step any more.
+        setError(`Add the ${missing.label} photo first -- that is the picture the views are made from.`);
         return;
       }
     }
-
-    setGenerating(true);
-    setStep(null);
-    setStatus("Preparing generation...");
-    setViews({});
     setError(null);
-
-    const abortController = new AbortController();
-    abortControllerRef.current = abortController;
-
-    try {
-      const payload = await buildPayload();
-
-      // The stream itself is read in one shared place, because this is no longer the only
-      // caller -- making a colour from another colour's photograph reads the same stream, and
-      // two copies of keepalive-skipping and out-of-order views would drift apart.
-      const collected = await streamCatalog({
-        payload,
-        signal: abortController.signal,
-        onStatus: setStatus,
-        onView: (view, image) => {
-          setViews(prev => ({ ...prev, [view]: image }));
-          setStep(view);
-        }
-      });
-
-      setStatus('Generation complete.');
-      setGenerating(false);
-
-      // Saved together in one write. The generated views and the photographs they were
-      // made from are one colour's set; saving them in two calls let a second colour's
-      // generation land between the halves.
-      //
-      // `hasGeneratedGarment` and `imageUrls` used to be written here as well. Both were
-      // product-wide -- with photographs now kept per colour, whichever colour finished
-      // last would have overwritten the others -- and neither was ever read back by
-      // anything, so they are gone rather than made per-colour.
-      setPhotosFor(colorCode, { generatedViews: collected, sourceFiles: files });
-
-      if (onGenerationComplete) onGenerationComplete();
-    } catch (err) {
-      if (err.name === 'AbortError') return; // user hit Stop -- already handled there
-      // The real error goes here, where we can read it, and nowhere else. What the shop
-      // owner sees is a sentence they can act on -- never the upstream's own words.
-      console.error('Catalog generation failed:', err);
-      setError(plainGenerationError(err));
-      // The progress line still said "Starting AI Generation Pipeline..." underneath the
-      // failure, so the screen contradicted itself. Nothing is starting any more.
-      setStatus(null);
-      setStep(null);
-      setGenerating(false);
-    } finally {
-      abortControllerRef.current = null;
-    }
+    setPhotosFor(colorCode, { wantViews: !wantViews });
   };
 
   // The Try-On API only has models for Saree/Lehanga/Anarkali/Kurti/Sharara. For every
@@ -552,12 +443,11 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete, colorC
             <div
               key={key}
               className="glass-panel"
-              onDragOver={(e) => { e.preventDefault(); if (!generating) setDragOverKey(key); }}
+              onDragOver={(e) => { e.preventDefault(); setDragOverKey(key); }}
               onDragLeave={() => setDragOverKey((prev) => (prev === key ? null : prev))}
               onDrop={(e) => {
                 e.preventDefault();
                 setDragOverKey(null);
-                if (generating) return;
                 const dropped = e.dataTransfer.files?.[0];
                 if (dropped && isImageFile(dropped)) handleFileChange(key, dropped);
               }}
@@ -594,7 +484,7 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete, colorC
                           const f = e.target.files?.[0] || null;
                           if (f) handleFileChange(key, f);
                         }}
-                        disabled={generating || isUploading}
+                        disabled={isUploading}
                       />
                     </label>
 
@@ -628,7 +518,7 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete, colorC
                             // that guard exists to avoid.
                             if (f) handleFileChange(key, f);
                           }}
-                          disabled={generating || isUploading}
+                          disabled={isUploading}
                         />
                       </label>
                     )}
@@ -649,7 +539,7 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete, colorC
                   }}>
                     <button
                       onClick={() => clearField(key)}
-                      disabled={generating || isUploading}
+                      disabled={isUploading}
                       style={{
                         padding: '6px',
                         backgroundColor: 'rgba(255, 0, 0, 0.8)',
@@ -718,44 +608,57 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete, colorC
           onRemove={removeExtraPhoto}
           onView={setLightboxSrc}
           isTouch={isTouch}
-          disabled={generating}
           addLabel="Add photos"
           hint="Several at once is fine"
         />
       </div>
 
-      {/* Generate Button */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', borderTop: '1px solid var(--border-light)', paddingTop: '32px' }}>
-        <div style={{ display: 'flex', gap: '12px', width: '100%', maxWidth: '300px' }}>
-          <button
-            onClick={startGeneration}
-            disabled={generating || fields.some(f => f.required && !files[f.key])}
-            className="btn-primary"
-            style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '16px' }}
-          >
-            {generating ? (
-               <span>GENERATING CATALOG...</span>
-            ) : (
-              <>
-                <ImageIcon size={18} />
-                GENERATE 4-VIEW CATALOG
-              </>
+      {/*
+        A line to tick, not a button that runs for a minute.
+
+        What stood here was GENERATE 4-VIEW CATALOG, a Stop button, a progress bar with a fake
+        creep on it to stop the real milestones reading as stuck, and a gallery of the four views
+        once they landed. All of it existed because the work happened in this tab. It does not any
+        more, so the only thing left to ask is whether they want it -- and the answer is acted on
+        after publishing, when there is a product for the photographs to belong to.
+
+        The shop does not see the views before publishing now. They arrive about a minute later,
+        wherever the shop happens to be, and can be made again from the product's Images tab if
+        they are not liked. That is the trade: a minute of waiting, per colour, for a set of
+        photographs nobody was going to reject anyway.
+      */}
+      <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '32px' }}>
+        <label
+          style={{
+            display: 'flex', alignItems: 'flex-start', gap: '12px', cursor: 'pointer',
+            padding: '16px', borderRadius: '12px',
+            border: `1px solid ${wantViews ? 'var(--accent-gold)' : 'var(--border-light)'}`,
+            background: wantViews ? 'var(--bg-hover)' : 'transparent'
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={wantViews}
+            onChange={toggleViews}
+            style={{ width: '18px', height: '18px', marginTop: '2px', flexShrink: 0, cursor: 'pointer' }}
+          />
+          <span style={{ minWidth: 0 }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)' }}>
+              <ImageIcon size={16} style={{ color: 'var(--accent-gold)' }} />
+              Make the four catalog views{colorLabel ? ` for the ${colorLabel} one` : ''}
+            </span>
+            <span style={{ display: 'block', fontSize: '13px', color: 'var(--text-secondary)', marginTop: '6px', lineHeight: 1.55 }}>
+              Front, left, right and back, on a model, made from the photograph above. We start
+              the moment you publish and tell you when they are ready &mdash;{' '}
+              <b>you do not have to wait here.</b> Your own photograph stays exactly where it is.
+            </span>
+            {wantViews && (
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--success, #16A34A)', marginTop: '8px' }}>
+                <CheckCircle size={14} /> We will make these as soon as you publish.
+              </span>
             )}
-          </button>
-          {generating && (
-            <button
-              onClick={stopGeneration}
-              className="btn-secondary"
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '16px' }}
-              title="Stop Generation"
-            >
-              <StopCircle size={18} />
-            </button>
-          )}
-        </div>
-        {!generating && status && (
-          <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '12px' }}>{status}</p>
-        )}
+          </span>
+        </label>
       </div>
 
       {/* Error */}
@@ -763,90 +666,6 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete, colorC
         <div style={{ padding: '16px', backgroundColor: 'rgba(255, 0, 0, 0.1)', border: '1px solid rgba(255, 0, 0, 0.3)', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
           <AlertCircle color="#EF4444" size={20} />
           <p style={{ color: '#FCA5A5', fontSize: '14px' }}>{error}</p>
-        </div>
-      )}
-
-      {/* Progress loader */}
-      {generating && (
-        <div className="glass-panel" style={{ padding: '24px', border: '1px solid var(--accent-gold)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-            <p style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>AI Pipeline Active</p>
-            <p style={{ fontSize: '12px', color: 'var(--accent-gold)' }}>{progressPercent}%</p>
-          </div>
-          <div style={{ width: '100%', height: '6px', backgroundColor: 'var(--bg-input)', borderRadius: '3px', overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${progressPercent}%`, backgroundColor: 'var(--accent-gold)', transition: 'width 0.3s ease' }} />
-          </div>
-          {status && (
-            <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '12px' }}>{status}</p>
-          )}
-        </div>
-      )}
-
-      {/* Generated views */}
-      {Object.keys(views).length > 0 && (
-        <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '32px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-             <h4 style={{ fontSize: '18px', fontWeight: 500, color: 'var(--text-primary)' }}>
-               Generated Catalog Views
-             </h4>
-             <span style={{ fontSize: '12px', fontWeight: 500, color: '#10B981', padding: '4px 12px', backgroundColor: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', borderRadius: '16px' }}>
-               READY FOR PUBLISH
-             </span>
-          </div>
-          
-          <div className="mobile-2-col-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
-            {VIEW_ORDER.map((viewKey) => {
-              const url = views[viewKey];
-              const displayLabel = VIEW_LABELS[viewKey] || viewKey;
-              
-              return (
-                <div
-                  key={viewKey}
-                  className="glass-panel"
-                  style={{ 
-                    overflow: 'hidden',
-                    border: url ? '1px solid var(--border-light)' : '1px dashed var(--border-focus)'
-                  }}
-                >
-                  <div style={{ backgroundColor: 'rgba(0,0,0,0.4)', padding: '8px 12px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <p style={{ fontSize: '12px', fontWeight: 500, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                      {displayLabel}
-                    </p>
-                    {url && <CheckCircle size={14} color="var(--accent-gold)" />}
-                  </div>
-                  
-                  <div style={{ position: 'relative', width: '100%', aspectRatio: '3/4', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.2)' }}>
-                    {url ? (
-                      <>
-                        <img
-                          src={url}
-                          alt={`${displayLabel} view`}
-                          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-                        />
-                        <button
-                          onClick={() => setLightboxSrc(url)}
-                          title="View full size"
-                          style={{
-                            position: 'absolute', top: '8px', right: '8px',
-                            width: '28px', height: '28px', borderRadius: '50%',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            background: 'rgba(0,0,0,0.6)', border: 'none', color: '#fff', cursor: 'pointer', zIndex: 1
-                          }}
-                        >
-                          <Eye size={14} />
-                        </button>
-                      </>
-                    ) : (
-                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', opacity: 0.3 }}>
-                         <ImageIcon size={24} />
-                         <span style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Pending</span>
-                       </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
         </div>
       )}
     </div>

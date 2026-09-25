@@ -9,6 +9,7 @@ import { mapProductFormToApiPayload } from '../mappers/product.mapper';
 import { buildVariantSku } from '../utils/skuUtils';
 import { bulkCreateVariants, getVariants } from '../services/variant.service';
 import { putImageBytes, registerImage, dataUrlToFile } from '../services/image.service';
+import { startPhotoJobs } from '../services/photoJobs.service';
 import { useCatalogData } from '../hooks/useCatalogConfig';
 import { colorInfoFor } from '../utils/colorOptions';
 import { useLocationContext } from '../contexts/LocationContext';
@@ -239,7 +240,11 @@ export default function ProductPreview() {
             ...(Array.isArray(source) ? source : Object.values(source || {})),
             ...(set.extraFiles || [])
           ].filter(f => f instanceof File),
-          generatedViews: set.generatedViews || {}
+          generatedViews: set.generatedViews || {},
+          // Ticked on the photos step. The views are not made there any more -- see
+          // GarmentPhotoshootUploader -- so this is the wish, and it is acted on below once the
+          // product and its variants exist for the photographs to belong to.
+          wantViews: set.wantViews === true
         };
       })
     };
@@ -277,6 +282,14 @@ export default function ProductPreview() {
       }
 
       let wanted = 0, done = 0;
+      /*
+       * Colours whose photograph really reached storage.
+       *
+       * A generation is made FROM that photograph, so asking for one where the upload failed
+       * would spend a generation to be told there is no source. Counted per colour rather than
+       * from `done`, which is a total across all of them.
+       */
+      const photographed = new Set();
 
       for (const colour of photoPayload.colours) {
         const generated = VIEW_ORDER
@@ -329,6 +342,7 @@ export default function ProductPreview() {
             }
             orderIndex++;
             done++;
+            photographed.add(colour.code);
           } catch (err) {
             console.error(`Failed to upload the ${colour.name} photo:`, err);
           }
@@ -372,6 +386,51 @@ export default function ProductPreview() {
 
       if (wanted > 0 && done < wanted) {
         toast.error(`${wanted - done} of ${wanted} photos did not upload \u2014 you can add them from the product's Photos tab.`);
+      }
+
+      /*
+       * The four catalog views, for every colour that asked for them.
+       *
+       * This is the whole reason the photos step no longer holds a stream open. It used to
+       * generate in the tab: press a button, watch a progress bar for the better part of a
+       * minute, per colour, on a screen you could not leave -- and closing it threw the work
+       * away after it had been paid for. Now the wizard only records the wish, and the work
+       * starts here, at the first moment a job has a real product and real variants to attach
+       * itself to.
+       *
+       * Deliberately the LAST thing that happens, and deliberately after the photographs are
+       * registered: the server works out its own source picture from what the product has, and
+       * it can only find one that is already there.
+       *
+       * A colour with no code is a product with no colours at all -- there is no variant for the
+       * photographs to belong to, so there is nothing to generate against either.
+       */
+      const askFor = photoPayload.colours
+        .filter(c => c.wantViews && c.code && photographed.has(c.code))
+        .map(c => c.name);
+
+      if (askFor.length > 0) {
+        try {
+          const result = await startPhotoJobs({ productId, kind: 'VIEWS', colours: askFor });
+          const started = result?.made?.length ?? 0;
+          if (started > 0) {
+            toast.success(
+              started === 1
+                ? 'We are making the catalog views now. We will tell you when they are ready.'
+                : `We are making the catalog views for ${started} colours. We will tell you when they are ready.`,
+              { duration: 7000 }
+            );
+          }
+          // Said one at a time, because which colour had which problem is the only part the
+          // shop can do anything about.
+          for (const r of result?.refused ?? []) toast.error(`${r.colour}: ${r.why}`);
+        } catch (err) {
+          console.error('Could not start the catalog views:', err);
+          toast.error(
+            err?.message
+            || 'The product is saved, but the catalog views could not be started. You can make them from its Images tab.'
+          );
+        }
       }
     };
 

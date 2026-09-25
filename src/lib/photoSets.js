@@ -21,6 +21,34 @@
 export const VIEW_ORDER = ['front', 'left', 'right', 'back'];
 
 /**
+ * Which model family a garment belongs to, or nothing.
+ *
+ * The Try-On API supports these five and no others. Menswear, kids' sets, western wear and the
+ * catch-all types like "Wedding" have no matching model, and the old behaviour of quietly
+ * defaulting them to KURTI produced nonsense for garments that were nothing like a kurti.
+ * Nothing here means the shop is told plainly rather than charged for a picture of the wrong
+ * thing.
+ *
+ * It arrived here from lib/catalogGeneration.js, which is gone. That file also held
+ * streamCatalog -- the stream reader that made generation happen inside the browser tab, which
+ * is what forced somebody to sit and watch it. Nothing in this app generates in the browser any
+ * more, so the file went rather than being left for the next person to call.
+ *
+ * The server asks the same question of the same dress type in
+ * backend/src/services/photo-jobs/catalog.ts. The two must give the same answer, or a colour the
+ * screen offered would be refused the moment it was asked for.
+ */
+export function resolveTryOnCategory(dressType) {
+  const dt = (dressType || '').toLowerCase();
+  if (dt.includes('saree')) return 'SAREE';
+  if (dt.includes('anarkali')) return 'ANARKALI';
+  if (dt.includes('lehanga') || dt.includes('lehenga')) return 'LEHANGA';
+  if (dt.includes('sharara')) return 'SHARARA';
+  if (dt.includes('kurti') || dt.includes('kurta')) return 'KURTI';
+  return null;
+}
+
+/**
  * One entry per COLOUR, each carrying its variants and its photographs.
  *
  * A colour is several variants -- red/S, red/M and red/L -- and they share one set of

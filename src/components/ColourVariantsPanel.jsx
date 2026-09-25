@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { Palette, StopCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { resolveTryOnCategory } from '../lib/catalogGeneration';
-import { groupByColour, colourTargets, sourceForColours, viewsMadeFor, progressText } from '../lib/photoSets';
+import {
+  resolveTryOnCategory, groupByColour, colourTargets, sourceForColours, viewsMadeFor, progressText
+} from '../lib/photoSets';
 import { usePhotoJobs, useStartPhotoJobs, useCancelPhotoJob } from '../hooks/usePhotoJobs';
 import PhotoJobOutcome from './PhotoJobOutcome';
 

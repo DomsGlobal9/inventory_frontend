@@ -2,9 +2,8 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Camera, StopCircle, Upload } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { uploadImageFile } from '../services/image.service';
-import { resolveTryOnCategory } from '../lib/catalogGeneration';
 import {
-  groupByColour, viewsCandidates, sourceForViews, viewsMadeFor, progressText
+  resolveTryOnCategory, groupByColour, viewsCandidates, sourceForViews, viewsMadeFor, progressText
 } from '../lib/photoSets';
 import { usePhotoJobs, useStartPhotoJobs, useCancelPhotoJob } from '../hooks/usePhotoJobs';
 import PhotoJobOutcome from './PhotoJobOutcome';

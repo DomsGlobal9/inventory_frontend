@@ -5,7 +5,6 @@ import { useProduct } from '../context/ProductContext';
 import { useCatalogData } from '../hooks/useCatalogConfig';
 import { colorInfoFor } from '../utils/colorOptions';
 import GarmentPhotoshootUploader from '../components/GarmentPhotoshootUploader';
-import ColourVariantMaker from '../components/ColourVariantMaker';
 
 /**
  * Photographs, one colour at a time.
@@ -172,19 +171,19 @@ export default function UploadPhotos() {
         key={current.code || '__only__'}
         colorCode={current.code}
         colorLabel={showColourRow ? current.info.name : undefined}
-        onGenerationComplete={() => {}}
       />
 
       {/*
-        Offered only once THIS colour has been generated, and only for colours that still have
-        nothing -- so it appears at the moment it is useful and says nothing the rest of the
-        time. It decides that for itself and renders nothing when there is no offer to make.
+        "Put this colour in the others too" used to sit here, and it could: it copied from a
+        front view this step had just generated into wizard state. Nothing is generated here any
+        more, so at this point there is no front view to copy from and the card had nothing to
+        offer.
+
+        It has not been lost -- it moved to where it now works better. Once the first colour's
+        views are made (a minute or so after publishing, announced by the notice), the product's
+        Images tab offers exactly this for every colour still waiting, one button, and the shop
+        can walk away from that too. The line in the footer below points them at it.
       */}
-      <ColourVariantMaker
-        colourList={colourList}
-        sourceCode={current.code}
-        colorInfoFor={(code) => colorInfoFor(code, colors)}
-      />
 
       <div className="mobile-sticky-footer"
         style={{
@@ -204,11 +203,16 @@ export default function UploadPhotos() {
         */}
         <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-secondary)' }}>
           <Images size={15} style={{ color: 'var(--text-muted)' }} />
+          {/*
+            Nothing here is a locked door, and now there is somewhere better to send them: the
+            product's Images tab can fill the remaining colours from a finished one without
+            anybody photographing anything, and without waiting.
+          */}
           {withPhotos === colourList.length
             ? 'Every colour has a photo.'
             : withPhotos === 0
               ? 'No photos yet — you can add them any time from the product.'
-              : `${colourList.length - withPhotos} colour${colourList.length - withPhotos === 1 ? '' : 's'} still without a photo — you can add them later.`}
+              : `${colourList.length - withPhotos} colour${colourList.length - withPhotos === 1 ? '' : 's'} still without a photo — the product's Images tab can fill them from a finished colour once we have made one.`}
         </span>
         <button
           className="btn-primary"

@@ -19,7 +19,7 @@
  *   node scripts/verify-photo-sets.mjs
  */
 import {
-  VIEW_ORDER, groupByColour, hasWholeSet,
+  VIEW_ORDER, groupByColour, hasWholeSet, resolveTryOnCategory,
   sourceForViews, sourceForColours, viewsCandidates, colourTargets, progressText
 } from '../src/lib/photoSets.js';
 
@@ -53,6 +53,30 @@ function colour(name, { own = 0, views = [], primaryOwn = true, rawUpload = fals
 const names = (list) => list.map(c => c.name).sort().join(', ') || '(none)';
 
 console.log('WHICH PANEL OFFERS WHICH COLOUR\n');
+
+// ── What can be photographed at all ───────────────────────────────────────────────────────────
+console.log('WHAT CAN BE PHOTOGRAPHED AT ALL');
+
+for (const [dressType, expected] of [
+  ['Saree', 'SAREE'], ['Silk Saree', 'SAREE'], ['saree', 'SAREE'],
+  ['Kurti', 'KURTI'], ['Kurta', 'KURTI'],
+  ['Anarkali', 'ANARKALI'],
+  ['Lehanga', 'LEHANGA'], ['Lehenga', 'LEHANGA'],
+  ['Sharara', 'SHARARA']
+]) {
+  check(`"${dressType}" -> ${expected}`, resolveTryOnCategory(dressType) === expected,
+    String(resolveTryOnCategory(dressType)));
+}
+
+/*
+ * The important half. Defaulting an unknown garment to KURTI is what produced model shots of
+ * things that were nothing like a kurti, and the shop paid for each one.
+ */
+for (const dressType of ['Dupatta', 'Salwar Suit', 'Wedding', 'Shirt', 'Palazzo', '', null, undefined]) {
+  check(`"${dressType}" has no model, and is not guessed at`, resolveTryOnCategory(dressType) === null,
+    String(resolveTryOnCategory(dressType)));
+}
+
 
 // ── Counting a set ────────────────────────────────────────────────────────────────────────────
 console.log('WHAT COUNTS AS FINISHED');

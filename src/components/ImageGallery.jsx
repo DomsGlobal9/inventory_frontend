@@ -29,6 +29,8 @@ const describeVariant = (v) =>
 
 export default function ImageGallery({ productId, dressType }) {
   const fileInputRef = useRef(null);
+  // How far a multi-photo upload has got, so the button can say so.
+  const [batch, setBatch] = useState(null);
   // Which section the file picker was opened from, so the upload lands where it was asked
   // for. null means the product as a whole.
   const [uploadTarget, setUploadTarget] = useState(null);
@@ -97,23 +99,65 @@ export default function ImageGallery({ productId, dressType }) {
     fileInputRef.current?.click();
   };
 
+  /*
+   * Several photographs at once.
+   *
+   * A saree comes off the camera as four or five pictures and they were added one at a time:
+   * press Add photo, find the folder, pick one, wait, press Add photo, find the folder again.
+   * The picker takes the lot now.
+   *
+   * Uploaded one after another rather than all at once, deliberately. They arrive in the order
+   * they were picked, which is the order they appear in, and a shop on a slow connection sends
+   * one photograph at a time instead of five competing for the same line.
+   */
   const handleFileChange = async (e) => {
-    const file = e.target.files?.[0];
+    const chosen = [...(e.target.files || [])];
     // Reset the input first: picking the same file twice in a row fires no change event
     // otherwise, so a failed upload could not simply be retried with the same photo.
     if (fileInputRef.current) fileInputRef.current.value = '';
-    if (!file) return;
+    if (!chosen.length) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('File is too large. Maximum size is 5MB.');
-      return;
+    // Said once for the whole batch, naming what was left out rather than just refusing.
+    const tooBig = chosen.filter(f => f.size > 5 * 1024 * 1024);
+    const heic = chosen.filter(f => /heic|heif/i.test(f.type) || /\.(heic|heif)$/i.test(f.name));
+    const usable = chosen.filter(f => !tooBig.includes(f) && !heic.includes(f));
+
+    if (heic.length) {
+      toast.error(heic.length === chosen.length
+        ? 'These are iPhone HEIC photos. Share them as JPEGs (or set the camera to "Most Compatible") and choose them again.'
+        : `${heic.length} iPhone HEIC ${heic.length === 1 ? 'photo was' : 'photos were'} skipped. Share them as JPEGs and add them again.`);
     }
+    if (tooBig.length) {
+      toast.error(`${tooBig.length} ${tooBig.length === 1 ? 'photo is' : 'photos are'} larger than 5MB and ${tooBig.length === 1 ? 'was' : 'were'} skipped.`);
+    }
+    if (!usable.length) return;
 
     // The first photo of a set becomes its primary. Counted within the set, because each
-    // variant has its own primary now -- see image.service.
+    // variant has its own primary now -- see image.service. Only the first of a batch can
+    // claim it, and only if the colour had nothing already.
     const target = uploadTarget;
     const existing = images.filter(i => (i.variantId || null) === (target || null));
-    uploadMutation.mutate({ file, isPrimary: existing.length === 0, variantId: target || undefined });
+
+    setBatch({ done: 0, total: usable.length });
+    let added = 0;
+    try {
+      for (const [i, file] of usable.entries()) {
+        await uploadMutation.mutateAsync({
+          file,
+          isPrimary: existing.length === 0 && i === 0,
+          variantId: target || undefined,
+          silent: true
+        });
+        added++;
+        setBatch({ done: added, total: usable.length });
+      }
+      toast.success(added === 1 ? 'Photo added.' : `${added} photos added.`);
+    } catch (err) {
+      // Whatever arrived is kept; the mutation has already said what went wrong.
+      if (added > 0) toast.success(`${added} of ${usable.length} photos added.`);
+    } finally {
+      setBatch(null);
+    }
   };
 
   const setPrimary = (imageId) => {
@@ -293,6 +337,7 @@ export default function ImageGallery({ productId, dressType }) {
           ref={fileInputRef}
           onChange={handleFileChange}
           accept="image/*"
+          multiple
           style={{ display: 'none' }}
         />
       </div>
@@ -356,8 +401,9 @@ export default function ImageGallery({ productId, dressType }) {
                   style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}
                 >
                   {uploadMutation.isPending && uploadTarget === group.variantId
-                    ? <><Loader2 size={15} className="animate-spin" /> Uploading…</>
-                    : <><Upload size={15} /> Add photo</>}
+                    ? <><Loader2 size={15} className="animate-spin" />
+                        {batch && batch.total > 1 ? `Uploading ${batch.done + 1} of ${batch.total}…` : 'Uploading…'}</>
+                    : <><Upload size={15} /> Add photos</>}
                 </button>
               )}
             </div>

@@ -52,9 +52,13 @@ export function useUploadImage(productId) {
       const response = await uploadImageFile(productId, file, { isPrimary, altText, imageType, variantId });
       return response.data;
     },
-    onSuccess: () => {
+    /*
+     * `silent` exists for the batch: picking five photographs at once used to mean five identical
+     * success toasts stacked up the screen. The gallery says "5 photos added" once instead.
+     */
+    onSuccess: (_data, vars) => {
       invalidateProductPhotoCounts(queryClient, productId);
-      toast.success('Image uploaded successfully');
+      if (!vars?.silent) toast.success('Image uploaded successfully');
     },
     onError: (error) => {
       toast.error(error.message || 'Failed to upload image');

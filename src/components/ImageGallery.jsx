@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import ConfirmModal from './ConfirmModal';
 import PageLoader from './PageLoader';
 import ColourVariantsPanel from './ColourVariantsPanel';
+import CatalogViewsPanel from './CatalogViewsPanel';
 
 /**
  * Photographs, arranged by the thing they are photographs OF.
@@ -280,6 +281,20 @@ export default function ImageGallery({ productId, dressType }) {
           the shop looked at afterwards and did not like. It renders nothing unless there is a
           generated front view to copy and a colour with no photograph at all.
         */}
+        {/*
+          Before the colours: this is the step that unlocks them. A product whose only photograph
+          was uploaded by hand has no generated front view, so the colours card stays hidden --
+          making the views here is what makes it appear.
+        */}
+        {!isError && (
+          <CatalogViewsPanel
+            productId={productId}
+            dressType={dressType}
+            variants={variants}
+            images={images}
+            onChanged={refetch}
+          />
+        )}
         {!isError && (
           <ColourVariantsPanel
             productId={productId}

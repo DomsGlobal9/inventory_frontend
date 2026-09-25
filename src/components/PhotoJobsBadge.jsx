@@ -60,6 +60,17 @@ export default function PhotoJobsBadge() {
   };
 
   return createPortal(
+    <>
+      {/*
+        OUTSIDE the live region, deliberately. role="status" is announced when its contents
+        change, and a <style> tag inside it puts the keyframes into that element's textContent.
+        Nothing renders them and the accessibility tree drops them, so nobody actually hears
+        "@keyframes photoJobsIn" -- but a live region whose text is half CSS is one browser
+        quirk away from being read out, and there is no reason for it to be in there.
+      */}
+      <style>{`
+        @keyframes photoJobsIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+      `}</style>
     <div
       role="status"
       style={{
@@ -73,10 +84,6 @@ export default function PhotoJobsBadge() {
         animation: 'photoJobsIn .28s ease-out'
       }}
     >
-      <style>{`
-        @keyframes photoJobsIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-      `}</style>
-
       {bad
         ? <AlertCircle size={18} style={{ flexShrink: 0, color: '#B45309' }} />
         : <Camera size={18} style={{ flexShrink: 0, color: 'var(--accent-primary, #164B1E)' }} />}
@@ -108,7 +115,8 @@ export default function PhotoJobsBadge() {
       >
         <X size={16} />
       </button>
-    </div>,
+    </div>
+    </>,
     document.body
   );
 }

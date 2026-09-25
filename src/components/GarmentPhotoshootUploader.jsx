@@ -356,9 +356,20 @@ export default function GarmentPhotoshootUploader({ colorCode = '', colorLabel }
    * then this is one boolean in the wizard's own draft, saved and restored like everything else
    * on this screen.
    */
+  /**
+   * The photograph the views would be made from, or nothing.
+   *
+   * Checked on every render, not only when the box is ticked. A shop can tick the box and then
+   * remove the picture -- to swap it for a better one, usually -- and the card went on saying
+   * "we will make these as soon as you publish" over an empty slot. It was not true: publishing
+   * skipped that colour, silently, and the shop found out by noticing photographs that never
+   * arrived. Found by removing a photograph after ticking.
+   */
+  const missingSource = fields.find(f => f.required && !files[f.key]) ?? null;
+
   const toggleViews = () => {
     if (!wantViews) {
-      const missing = fields.find(f => f.required && !files[f.key]);
+      const missing = missingSource;
       if (missing) {
         // The views are made FROM this photograph. Accepting the request without it would mean
         // failing quietly a screen later, when nobody is looking at this step any more.
@@ -652,9 +663,21 @@ export default function GarmentPhotoshootUploader({ colorCode = '', colorLabel }
               the moment you publish and tell you when they are ready &mdash;{' '}
               <b>you do not have to wait here.</b> Your own photograph stays exactly where it is.
             </span>
-            {wantViews && (
+            {/*
+              The tick is KEPT when the photograph goes, rather than quietly turned off: the shop
+              usually removes a picture to put a better one in its place, and silently forgetting
+              what they asked for is its own small betrayal. What changes is what the card claims.
+            */}
+            {wantViews && !missingSource && (
               <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--success, #16A34A)', marginTop: '8px' }}>
                 <CheckCircle size={14} /> We will make these as soon as you publish.
+              </span>
+            )}
+            {wantViews && missingSource && (
+              <span style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', fontSize: '12px', color: '#B45309', marginTop: '8px' }}>
+                <AlertCircle size={14} style={{ flexShrink: 0, marginTop: '1px' }} />
+                Put the {missingSource.label.toLowerCase()} photo back and we will make these. Without
+                it there is nothing to make them from, so publishing now would skip this colour.
               </span>
             )}
           </span>

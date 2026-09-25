@@ -405,9 +405,24 @@ export default function ProductPreview() {
        * A colour with no code is a product with no colours at all -- there is no variant for the
        * photographs to belong to, so there is nothing to generate against either.
        */
-      const askFor = photoPayload.colours
-        .filter(c => c.wantViews && c.code && photographed.has(c.code))
-        .map(c => c.name);
+      const asked = photoPayload.colours.filter(c => c.wantViews && c.code);
+      const askFor = asked.filter(c => photographed.has(c.code)).map(c => c.name);
+
+      /*
+       * Asked for, and not started. The safety net, and it exists because the silent version
+       * really happened: a colour was ticked, its photograph was then removed on the photos
+       * step, and publishing skipped it without a word -- the shop was left waiting for
+       * photographs that were never coming. It covers the upload failing here too, which is the
+       * same outcome arrived at a different way.
+       */
+      const couldNot = asked.filter(c => !photographed.has(c.code)).map(c => c.name);
+      if (couldNot.length > 0) {
+        toast.error(
+          `We could not start the catalog views for ${couldNot.join(', ')} \u2014 there is no photograph `
+          + `of ${couldNot.length === 1 ? 'it' : 'them'} to work from. Add one from the product's Images tab.`,
+          { duration: 10000 }
+        );
+      }
 
       if (askFor.length > 0) {
         try {

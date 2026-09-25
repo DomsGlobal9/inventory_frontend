@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { useCustomerDetails } from '../../hooks/useCustomers';
@@ -353,7 +354,7 @@ export default function CustomerDetail() {
            on the backdrop, so on a narrow window it ran under both edges of the screen and
            lost the ends of its own sentences. Square corners, no shadow and no header rule
            made it read as a browser dialog rather than part of the product. */
-        <div
+        createPortal(<div
           style={{
             position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
             backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000,
@@ -466,7 +467,7 @@ export default function CustomerDetail() {
               </button>
             </div>
           </div>
-        </div>
+        </div>, document.body)
       )}
 
       <CustomerModal isOpen={editing} onClose={() => setEditing(false)} customer={customer} />

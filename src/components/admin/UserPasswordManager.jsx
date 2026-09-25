@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Eye, KeyRound, RefreshCw, Loader2, Mail, MessageCircle, Copy, Check } from 'lucide-react';
 import { useAdminViewUserPassword, useAdminSetUserPassword } from '../../hooks/admin/useAdminConsole';
 import { buildCredentialMailto, buildCredentialWhatsapp } from '../../lib/credentialShare';
@@ -63,7 +64,7 @@ export default function UserPasswordManager({ user, onClose }) {
   };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(4px)' }} onClick={onClose}>
+    createPortal(<div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(4px)' }} onClick={onClose}>
       <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '420px', boxShadow: 'var(--shadow-modal)' }} onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
           <div>
@@ -113,6 +114,6 @@ export default function UserPasswordManager({ user, onClose }) {
           </div>
         )}
       </div>
-    </div>
+    </div>, document.body)
   );
 }

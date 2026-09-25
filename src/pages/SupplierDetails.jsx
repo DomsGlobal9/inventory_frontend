@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { firstMissingField, missingFieldMessage } from '../lib/formGuard';
 import toast from 'react-hot-toast';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -256,11 +257,11 @@ export default function SupplierDetails() {
       {/* Edit Modal */}
       <AnimatePresence>
         {showEditModal && (
-          <motion.div
+          createPortal(<motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
+            style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
             onClick={(e) => { if (e.target === e.currentTarget) setShowEditModal(false); }}
           >
             <motion.div
@@ -353,7 +354,7 @@ export default function SupplierDetails() {
                 </div>
               </form>
             </motion.div>
-          </motion.div>
+          </motion.div>, document.body)
         )}
       </AnimatePresence>
     </motion.div>

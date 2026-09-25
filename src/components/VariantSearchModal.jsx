@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, Package, Check, Loader2 } from 'lucide-react';
 import { api } from '../lib/api';
@@ -116,14 +117,14 @@ export default function VariantSearchModal({ isOpen, onClose, onSelect, supplier
   if (!isOpen) return null;
 
   return (
-    <AnimatePresence>
+    createPortal(<AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 100,
+          backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000,
           display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
           padding: '80px 16px'
         }}
@@ -311,6 +312,6 @@ export default function VariantSearchModal({ isOpen, onClose, onSelect, supplier
           </div>
         </motion.div>
       </motion.div>
-    </AnimatePresence>
+    </AnimatePresence>, document.body)
   );
 }

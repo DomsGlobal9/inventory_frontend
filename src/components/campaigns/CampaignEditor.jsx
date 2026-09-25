@@ -1,4 +1,5 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Users, Loader2, BookmarkPlus } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAudiencePreview, useCampaignOverview, useSaveTemplate } from '../../hooks/useCampaigns';
@@ -147,7 +148,7 @@ export default function CampaignEditor({ campaign, shopName, onClose, onSave, sa
     : { text: `${f.text.length} / ${MAX_TEXT}`, bad: tooLong };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
+    createPortal(<div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
       onMouseDown={(e) => { if (e.target === e.currentTarget && !saving) onClose(); }}>
       <div className="card" role="dialog" aria-modal="true" aria-labelledby="campaign-editor-title"
         style={{ width: '1000px', maxWidth: '100%', maxHeight: 'calc(100vh - 32px)', display: 'flex', flexDirection: 'column', padding: 0 }}>
@@ -306,7 +307,7 @@ export default function CampaignEditor({ campaign, shopName, onClose, onSave, sa
           </div>
         </form>
       </div>
-    </div>
+    </div>, document.body)
   );
 }
 

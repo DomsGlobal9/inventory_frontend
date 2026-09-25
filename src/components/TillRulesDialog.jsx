@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Loader2 } from 'lucide-react';
 import { useOfferSettings, useSaveOfferSettings } from '../hooks/useOffers';
 
@@ -33,7 +34,7 @@ export default function TillRulesDialog({ onClose, canEdit }) {
   const invalid = value !== '' && (!Number.isFinite(n) || n <= 0 || n > 100);
 
   return (
-    <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
+    createPortal(<div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
       onClick={(e) => { if (e.target === e.currentTarget && !save.isPending) onClose(); }}>
       <div className="card" role="dialog" aria-modal="true" aria-labelledby="till-rules-title" style={{ width: '440px', maxWidth: '100%', padding: 0 }}>
         <div style={{ padding: '18px 24px', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -77,6 +78,6 @@ export default function TillRulesDialog({ onClose, canEdit }) {
           </div>
         </form>
       </div>
-    </div>
+    </div>, document.body)
   );
 }

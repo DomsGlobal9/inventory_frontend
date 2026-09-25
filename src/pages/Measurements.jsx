@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -199,7 +200,7 @@ export default function Measurements() {
       
       {/* Size Chart Modal */}
       {showSizeChart && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
+        createPortal(<div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div className="glass-panel" style={{ width: '600px', maxWidth: 'calc(100vw - 32px)', maxHeight: 'calc(100vh - 32px)', overflowY: 'auto', padding: '32px', backgroundColor: 'var(--bg-card)' }}>
             <h2 style={{ fontSize: '24px', marginBottom: '4px' }}>{sizeChart.title} (Inches)</h2>
             <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: 0, marginBottom: '16px' }}>
@@ -230,7 +231,7 @@ export default function Measurements() {
               <button className="btn-primary" onClick={() => setShowSizeChart(false)}>CLOSE</button>
             </div>
           </div>
-        </div>
+        </div>, document.body)
       )}
 
       {/* Main Content Area */}

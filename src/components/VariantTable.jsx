@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Plus, Trash2, Loader2, AlertCircle, Download, AlertTriangle, X, Copy, CheckCircle2, Printer, Info, Settings, Check, Truck, ImageOff, MapPinned } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
@@ -1236,13 +1237,13 @@ export default function VariantTable({ productId, productName, productCode, prod
 
     {/* Delete Confirmation Modal */}
     {deleteTarget && (
-      <>
+      createPortal(<>
         <div
           onClick={() => setDeleteTarget(null)}
           style={{
             position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
             backgroundColor: 'rgba(0,0,0,0.6)',
-            zIndex: 999, backdropFilter: 'blur(4px)'
+            zIndex: 1000, backdropFilter: 'blur(4px)'
           }}
         />
         <motion.div
@@ -1332,15 +1333,15 @@ export default function VariantTable({ productId, productName, productCode, prod
             </div>
           </div>
         </motion.div>
-      </>
+      </>, document.body)
     )}
 
     {/* Stock Breakdown Modal */}
     {stockBreakdownVariant && (
-      <>
+      createPortal(<>
         <div
           onClick={() => setStockBreakdownVariant(null)}
-          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 999, backdropFilter: 'blur(4px)' }}
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1000, backdropFilter: 'blur(4px)' }}
         />
         {/* The centring lives in the motion props, not in a CSS transform. Framer Motion
             writes the element's transform itself to animate scale, so a translate(-50%,-50%)
@@ -1390,7 +1391,7 @@ export default function VariantTable({ productId, productName, productCode, prod
             </div>
           </div>
         </motion.div>
-      </>
+      </>, document.body)
     )}
     </>
   );

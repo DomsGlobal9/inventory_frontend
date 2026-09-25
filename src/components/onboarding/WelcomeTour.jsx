@@ -175,6 +175,8 @@ export default function WelcomeTour() {
   return createPortal(
     // Clicking anywhere outside the card closes the tour. Swallowing those clicks instead would
     // leave somebody pressing the screen with nothing happening, which reads as the app hanging.
+    // Above the modals, which all sit at 1000: the tour points AT the app, so nothing the app
+    // opens may cover it. Deliberately not levelled with them.
     <div style={{ position: 'fixed', inset: 0, zIndex: 9000 }} aria-live="polite" onClick={stop}>
       {/* The dark sheet, with a hole cut around what is being pointed at. */}
       {rect ? (

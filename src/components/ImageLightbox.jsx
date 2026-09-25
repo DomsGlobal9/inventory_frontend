@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -15,7 +16,7 @@ export default function ImageLightbox({ src, alt, onClose }) {
   return (
     <AnimatePresence>
       {src && (
-        <motion.div
+        createPortal(<motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -52,7 +53,7 @@ export default function ImageLightbox({ src, alt, onClose }) {
           >
             <X size={20} />
           </button>
-        </motion.div>
+        </motion.div>, document.body)
       )}
     </AnimatePresence>
   );

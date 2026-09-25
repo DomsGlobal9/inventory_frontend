@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Map as MapIcon, Loader2, Search } from 'lucide-react';
 import { useLocationContext } from '../../contexts/LocationContext';
 import { useDebounced } from '../../hooks/useCounterSale';
@@ -62,11 +63,11 @@ export default function RackMap() {
         )}
 
       {openSpot && spot.data && (
-        <div role="dialog" aria-modal="true" onClick={() => setOpenSpot(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.55)', zIndex: 60, display: 'grid', placeItems: 'center', padding: 16 }}>
+        createPortal(<div role="dialog" aria-modal="true" onClick={() => setOpenSpot(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.55)', zIndex: 1000, display: 'grid', placeItems: 'center', padding: 16 }}>
           <div onClick={(e) => e.stopPropagation()} style={{ width: 'min(560px, 100%)', maxHeight: '85vh', overflowY: 'auto' }}>
             <SpotContents data={spot.data} onClose={() => setOpenSpot(null)} onFind={(it) => { setOpenSpot(null); setText(it.sku); }} />
           </div>
-        </div>
+        </div>, document.body)
       )}
     </ShelvesLayout>
   );

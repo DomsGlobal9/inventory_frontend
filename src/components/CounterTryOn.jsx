@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Shirt, Camera, Loader2, X, Download } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { api } from '../lib/api';
@@ -57,9 +58,9 @@ export default function CounterTryOn({ product, onClose }) {
   };
 
   return (
-    <div role="dialog" aria-modal="true" aria-label={`See ${product.title} on a customer`}
+    createPortal(<div role="dialog" aria-modal="true" aria-label={`See ${product.title} on a customer`}
       style={{
-        position: 'fixed', inset: 0, zIndex: 80, display: 'grid', placeItems: 'center',
+        position: 'fixed', inset: 0, zIndex: 1000, display: 'grid', placeItems: 'center',
         background: 'rgba(10,12,16,.55)', padding: '16px'
       }}>
       <div className="card" style={{ width: '100%', maxWidth: '430px', padding: '18px', maxHeight: '94vh', overflowY: 'auto' }}>
@@ -117,6 +118,6 @@ export default function CounterTryOn({ product, onClose }) {
         <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" capture="environment"
           onChange={pick} style={{ display: 'none' }} aria-label="Photograph of the customer" />
       </div>
-    </div>
+    </div>, document.body)
   );
 }

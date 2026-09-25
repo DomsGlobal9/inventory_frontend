@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, CheckCircle, AlertTriangle, Box, Truck, Edit3, XCircle } from 'lucide-react';
@@ -426,7 +427,7 @@ export default function ReturnDetail() {
       </div>
 
       {inspectModalOpen && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+        createPortal(<div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div ref={inspectDialogRef} role="dialog" aria-modal="true" aria-labelledby="inspect-items-title" tabIndex={-1}
             className="card" style={{ width: '500px', maxWidth: '90vw', maxHeight: 'calc(100dvh - 32px)', overflowY: 'auto' }}>
             <h2 id="inspect-items-title" style={{ margin: '0 0 16px 0', fontSize: '20px' }}>Inspect Items</h2>
@@ -469,7 +470,7 @@ export default function ReturnDetail() {
               </button>
             </div>
           </div>
-        </div>
+        </div>, document.body)
       )}
     </div>
   );

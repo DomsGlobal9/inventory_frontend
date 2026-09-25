@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { firstMissingField, missingFieldMessage } from '../lib/formGuard';
 import toast from 'react-hot-toast';
 import LoadFailed from '../components/LoadFailed';
@@ -155,11 +156,11 @@ export default function Suppliers() {
       {/* Add Modal */}
       <AnimatePresence>
         {showAddModal && (
-          <motion.div 
+          createPortal(<motion.div 
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }}
-            style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
+            style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
           >
             <motion.div 
               initial={{ scale: 0.95, opacity: 0 }} 
@@ -237,7 +238,7 @@ export default function Suppliers() {
                 </div>
               </form>
             </motion.div>
-          </motion.div>
+          </motion.div>, document.body)
         )}
       </AnimatePresence>
     </motion.div>

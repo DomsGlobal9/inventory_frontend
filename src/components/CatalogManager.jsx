@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Plus, Edit2, Trash2, Check, X, Loader2, Save, RotateCcw, Lock, ChevronDown, Search } from 'lucide-react';
 import { useCatalogItems, useAddCatalogItem, useUpdateCatalogItem, useDeleteCatalogItem } from '../hooks/useCatalogSettings';
 import ConfirmModal from './ConfirmModal';
@@ -328,14 +329,14 @@ export default function CatalogManager({ type }) {
       </div>
 
       {modalOpen && (
-        <div style={{
+        createPortal(<div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)',
           // Centred, but allowed to scroll when the content is taller than the screen.
           // A flex-centred child that overflows is clipped at BOTH ends, so adding the shade
           // editor put Save off the bottom of the window with no way to reach it. overflowY
           // on the overlay and a height cap on the panel are what the other modals use.
-          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
           overflowY: 'auto', padding: '16px'
         }}>
           <div style={{
@@ -646,7 +647,7 @@ export default function CatalogManager({ type }) {
               </div>
             </div>
           </div>
-        </div>
+        </div>, document.body)
       )}
       <ConfirmModal 
         isOpen={confirmState.isOpen}

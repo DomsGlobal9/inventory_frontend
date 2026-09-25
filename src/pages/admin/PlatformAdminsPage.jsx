@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { firstMissingField, missingFieldMessage } from '../../lib/formGuard';
 import { ShieldCheck, UserPlus, Loader2, KeyRound, Copy, Check, X, AlertTriangle } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -132,7 +133,7 @@ function ResetDialog({ admin, busy, onCancel, onConfirm }) {
   const ready = mode === 'auto' || custom.length >= 12;
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
+    createPortal(<div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
       onClick={busy ? undefined : onCancel}>
       <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '460px' }}
         onClick={e => e.stopPropagation()}>
@@ -168,7 +169,7 @@ function ResetDialog({ admin, busy, onCancel, onConfirm }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>, document.body)
   );
 }
 

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { AlertTriangle, Ban, Trash2, Loader2, RotateCcw } from 'lucide-react';
 import {
   useSetClientSuspended, useClientDeletionPreview, useDeleteClient
@@ -36,7 +37,7 @@ function DeleteDialog({ clientId, preview, busy, onCancel, onConfirm }) {
   );
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
+    createPortal(<div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
       onClick={busy ? undefined : onCancel}>
       <div onClick={e => e.stopPropagation()} style={{
         background: 'var(--bg-card)', border: '1px solid var(--accent-danger, #ef4444)',
@@ -111,7 +112,7 @@ function DeleteDialog({ clientId, preview, busy, onCancel, onConfirm }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>, document.body)
   );
 }
 

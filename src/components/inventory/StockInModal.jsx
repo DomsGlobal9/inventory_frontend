@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { firstMissingField, missingFieldMessage } from '../../lib/formGuard';
 import toast from 'react-hot-toast';
 import { X, Plus, Loader2 } from 'lucide-react';
@@ -50,11 +51,11 @@ export default function StockInModal({ variant, onClose }) {
   };
 
   return (
-    <AnimatePresence>
+    createPortal(<AnimatePresence>
       {/* Keyed: AnimatePresence tells its children apart by key, and two unkeyed ones made React warn of a repeated key every time this opened. */}
       <motion.div key="backdrop"
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 999, backdropFilter: 'blur(4px)' }}
+        style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 1000, backdropFilter: 'blur(4px)' }}
         onClick={onClose}
       />
       <motion.div key="panel"
@@ -131,6 +132,6 @@ export default function StockInModal({ variant, onClose }) {
           </div>
         </form>
       </motion.div>
-    </AnimatePresence>
+    </AnimatePresence>, document.body)
   );
 }

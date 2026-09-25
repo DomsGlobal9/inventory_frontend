@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { firstMissingField, missingFieldMessage } from '../lib/formGuard';
 import { X, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -44,11 +45,11 @@ export default function StockMovementModal({ isOpen, onClose, productId }) {
   if (!isOpen) return null;
 
   return (
-    <AnimatePresence>
+    createPortal(<AnimatePresence>
       <div style={{
         position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
         background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(4px)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100
+        display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
       }}>
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
@@ -172,6 +173,6 @@ export default function StockMovementModal({ isOpen, onClose, productId }) {
           )}
         </motion.div>
       </div>
-    </AnimatePresence>
+    </AnimatePresence>, document.body)
   );
 }

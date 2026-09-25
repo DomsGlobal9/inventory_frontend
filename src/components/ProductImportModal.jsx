@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { invalidateDerivedViews } from '../lib/invalidate';
 import { X, Upload, Download, Loader2, AlertTriangle, CheckCircle2, FileSpreadsheet } from 'lucide-react';
@@ -121,8 +122,8 @@ export default function ProductImportModal({ isOpen, onClose, onImported }) {
   const blockedByWarnings = hasWarnings && !acceptWarnings;
 
   return (
-    <>
-      <div onClick={close} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', zIndex: 999 }} />
+    createPortal(<>
+      <div onClick={close} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', zIndex: 1000 }} />
       <div style={{
         position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
         width: '680px', maxWidth: 'calc(100vw - 32px)', maxHeight: 'calc(100vh - 32px)', overflowY: 'auto',
@@ -223,6 +224,6 @@ export default function ProductImportModal({ isOpen, onClose, onImported }) {
           )}
         </div>
       </div>
-    </>
+    </>, document.body)
   );
 }

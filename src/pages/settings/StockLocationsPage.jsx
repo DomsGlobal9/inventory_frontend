@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { firstMissingField, missingFieldMessage } from '../../lib/formGuard';
 import { api } from '../../lib/api';
 import toast from 'react-hot-toast';
@@ -280,11 +281,11 @@ export default function StockLocationsPage() {
       </div>
 
       {isModalOpen && (
-        <>
-          <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', zIndex: 100 }} onClick={() => setIsModalOpen(false)} />
+        createPortal(<>
+          <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', zIndex: 1000 }} onClick={() => setIsModalOpen(false)} />
           <div className="card" style={{
             position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-            width: 'calc(100% - 32px)', maxWidth: '480px', maxHeight: 'calc(100dvh - 32px)', overflowY: 'auto', zIndex: 101, padding: '32px',
+            width: 'calc(100% - 32px)', maxWidth: '480px', maxHeight: 'calc(100dvh - 32px)', overflowY: 'auto', zIndex: 1000, padding: '32px',
             boxShadow: 'var(--shadow-modal)', borderRadius: '16px'
           }}>
             <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '24px', color: 'var(--text-primary)' }}>
@@ -360,7 +361,7 @@ export default function StockLocationsPage() {
               </div>
             </form>
           </div>
-        </>
+        </>, document.body)
       )}
 
       <style>{`

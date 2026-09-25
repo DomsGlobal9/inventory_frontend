@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Upload, FileText, AlertCircle, Loader2, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { parseCSV } from '../utils/csvUtils';
@@ -134,7 +135,7 @@ export default function BulkUpdateModal({ isOpen, onClose }) {
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
+        createPortal(<>
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -143,7 +144,7 @@ export default function BulkUpdateModal({ isOpen, onClose }) {
               position: 'fixed',
               top: 0, left: 0, right: 0, bottom: 0,
               backgroundColor: 'rgba(0, 0, 0, 0.7)',
-              zIndex: 999,
+              zIndex: 1000,
               backdropFilter: 'blur(4px)'
             }}
             onClick={handleClose}
@@ -307,7 +308,7 @@ export default function BulkUpdateModal({ isOpen, onClose }) {
               </button>
             </div>
           </motion.div>
-        </>
+        </>, document.body)
       )}
     </AnimatePresence>
   );

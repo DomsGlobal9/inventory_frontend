@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { firstMissingField, missingFieldMessage } from '../../lib/formGuard';
 import toast from 'react-hot-toast';
@@ -136,7 +137,7 @@ const CustomerModal = ({ isOpen, onClose, customer, onSaved }) => {
   const label = { display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '6px' };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '16px' }}>
+    createPortal(<div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '16px' }}>
       <div role="dialog" aria-modal="true" aria-labelledby="customer-modal-title" style={{ background: 'var(--bg-card)', borderRadius: '12px', width: '520px', maxWidth: '100%', maxHeight: 'calc(100dvh - 32px)', overflowY: 'auto', boxShadow: 'var(--shadow-modal)' }}>
 
         <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
@@ -250,7 +251,7 @@ const CustomerModal = ({ isOpen, onClose, customer, onSaved }) => {
         </form>
 
       </div>
-    </div>
+    </div>, document.body)
   );
 };
 

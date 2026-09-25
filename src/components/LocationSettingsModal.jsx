@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { X, Loader2, Save } from 'lucide-react';
 import { api } from '../lib/api';
@@ -63,10 +64,10 @@ export function LocationSettingsModal({ variant, onClose, onSaveSuccess }) {
   };
 
   return (
-    <>
+    createPortal(<>
       <div
         onClick={onClose}
-        style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 999, backdropFilter: 'blur(4px)' }}
+        style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1000, backdropFilter: 'blur(4px)' }}
       />
       <motion.div
         initial={{ opacity: 0, scale: 0.95, x: '-50%', y: '-50%' }}
@@ -145,6 +146,6 @@ export function LocationSettingsModal({ variant, onClose, onSaveSuccess }) {
           )}
         </div>
       </motion.div>
-    </>
+    </>, document.body)
   );
 }

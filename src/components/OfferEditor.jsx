@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Loader2, Search, Check, ChevronDown, ChevronRight, Plus } from 'lucide-react';
 import { useOffer, useOfferOptions, useOfferTargetSearch } from '../hooks/useOffers';
 import { describeOffer, SCOPE_OPTIONS, DEPARTMENT_LABEL } from '../utils/offerSummary';
@@ -581,7 +582,7 @@ export default function OfferEditor({ offer, onClose, onSave }) {
     : 'The price each piece sells at, e.g. 999.';
 
   return (
-    <div style={{
+    createPortal(<div style={{
       position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000,
       display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px'
     }} onClick={(e) => { if (e.target === e.currentTarget && !saving) onClose(); }}>
@@ -877,6 +878,6 @@ export default function OfferEditor({ offer, onClose, onSave }) {
           </div>
         </div>
       </div>
-    </div>
+    </div>, document.body)
   );
 }

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { firstMissingField, missingFieldMessage } from '../lib/formGuard';
 import toast from 'react-hot-toast';
 import { UserPlus, Loader2, Mail, MessageCircle, Copy, Check, X, KeyRound, Shield, Clock, ShieldCheck, Activity, ScrollText, Eye, EyeOff, RefreshCw, Send } from 'lucide-react';
@@ -17,7 +18,7 @@ function RecentActivity({ onClose }) {
   const { data: events, isLoading } = useTeamActivity();
 
   return (
-    <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(4px)' }} onClick={onClose}>
+    createPortal(<div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(4px)' }} onClick={onClose}>
       <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '540px', maxHeight: '80vh', display: 'flex', flexDirection: 'column', boxShadow: 'var(--shadow-modal)' }} onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -61,7 +62,7 @@ function RecentActivity({ onClose }) {
           )}
         </div>
       </div>
-    </div>
+    </div>, document.body)
   );
 }
 
@@ -76,7 +77,7 @@ function SecurityLog({ onClose }) {
   const days = data?.pages[0]?.keptForDays ?? 180;
 
   return (
-    <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', backdropFilter: 'blur(4px)' }} onClick={onClose}>
+    createPortal(<div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', backdropFilter: 'blur(4px)' }} onClick={onClose}>
       <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="security-log-title" tabIndex={-1}
         style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '600px', maxHeight: '85vh', display: 'flex', flexDirection: 'column', boxShadow: 'var(--shadow-modal)' }} onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', marginBottom: '16px' }}>
@@ -138,7 +139,7 @@ function SecurityLog({ onClose }) {
           )}
         </div>
       </div>
-    </div>
+    </div>, document.body)
   );
 }
 
@@ -158,7 +159,7 @@ function CredentialsPanel({ recipientName, email, password, roleLabel, emailed, 
   };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(4px)' }} onClick={onDone}>
+    createPortal(<div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(4px)' }} onClick={onDone}>
       <div style={{ border: '1px solid var(--accent-gold)', background: 'var(--bg-card)', borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '420px', boxShadow: 'var(--shadow-modal)' }} onClick={e => e.stopPropagation()}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
         <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '15px' }}>Credentials for {recipientName}</div>
@@ -219,7 +220,7 @@ function CredentialsPanel({ recipientName, email, password, roleLabel, emailed, 
         </button>
       </div>
     </div>
-    </div>
+    </div>, document.body)
   );
 }
 
@@ -273,7 +274,7 @@ function InviteForm({ roles, onDone }) {
   }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(4px)' }} onClick={onDone}>
+    createPortal(<div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(4px)' }} onClick={onDone}>
       <form onSubmit={handleSubmit} noValidate onClick={e => e.stopPropagation()} style={{ display: 'flex', flexDirection: 'column', gap: '14px', width: '100%', maxWidth: '420px', background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '16px', padding: '24px', boxShadow: 'var(--shadow-modal)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '15px' }}>Add Team Member</div>
@@ -312,7 +313,7 @@ function InviteForm({ roles, onDone }) {
         Create Account
       </button>
     </form>
-    </div>
+    </div>, document.body)
   );
 }
 
@@ -376,7 +377,7 @@ function PasswordManager({ member, onClose }) {
   };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(4px)' }} onClick={onClose}>
+    createPortal(<div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(4px)' }} onClick={onClose}>
       <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '420px', boxShadow: 'var(--shadow-modal)' }} onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
           <div>
@@ -426,7 +427,7 @@ function PasswordManager({ member, onClose }) {
           </div>
         )}
       </div>
-    </div>
+    </div>, document.body)
   );
 }
 

@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Loader2, Store, AlertTriangle, CheckCircle2, RefreshCw, Download, Upload, Trash2 } from 'lucide-react';
 import {
   useOfferShopify, usePutOfferOnShopify, useTakeOfferOffShopify,
@@ -67,7 +68,7 @@ export default function OfferShopifyPanel({ offer, onClose }) {
   );
 
   return (
-    <div role="dialog" aria-modal="true" aria-labelledby="offer-shopify-title" style={{
+    createPortal(<div role="dialog" aria-modal="true" aria-labelledby="offer-shopify-title" style={{
       position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000,
       display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px'
     }} onClick={(e) => { if (e.target === e.currentTarget && !busy) onClose(); }}>
@@ -159,7 +160,7 @@ export default function OfferShopifyPanel({ offer, onClose }) {
           )}
         </div>
       </div>
-    </div>
+    </div>, document.body)
   );
 }
 

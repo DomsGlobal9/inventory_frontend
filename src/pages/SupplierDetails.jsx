@@ -255,9 +255,13 @@ export default function SupplierDetails() {
       </motion.div>
 
       {/* Edit Modal */}
+      {/* Portalled as a whole: AnimatePresence must stay the outermost thing here, because it
+          reads its own children to drive the enter and exit. A portal placed inside it is not a
+          child it can work with, and the modal never appears. */}
+      {createPortal(
       <AnimatePresence>
         {showEditModal && (
-          createPortal(<motion.div
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -354,9 +358,11 @@ export default function SupplierDetails() {
                 </div>
               </form>
             </motion.div>
-          </motion.div>, document.body)
+          </motion.div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+        document.body
+      )}
     </motion.div>
   );
 }

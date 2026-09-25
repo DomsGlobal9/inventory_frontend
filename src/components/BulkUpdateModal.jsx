@@ -132,10 +132,12 @@ export default function BulkUpdateModal({ isOpen, onClose }) {
     onClose();
   };
 
-  return (
+  // The portal wraps AnimatePresence, not the other way round: AnimatePresence reads its own
+  // children to drive the enter and exit, and a portal is not a child it can work with.
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
-        createPortal(<>
+        <>
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -308,8 +310,9 @@ export default function BulkUpdateModal({ isOpen, onClose }) {
               </button>
             </div>
           </motion.div>
-        </>, document.body)
+        </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

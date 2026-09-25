@@ -13,10 +13,13 @@ export default function ImageLightbox({ src, alt, onClose }) {
     return () => window.removeEventListener('keydown', onKey);
   }, [src, onClose]);
 
-  return (
+  // The portal wraps AnimatePresence, not the other way round: AnimatePresence reads its own
+  // children to drive the enter and exit, and a portal is not a child it can work with -- put
+  // inside, the lightbox simply never appeared.
+  return createPortal(
     <AnimatePresence>
       {src && (
-        createPortal(<motion.div
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -53,8 +56,9 @@ export default function ImageLightbox({ src, alt, onClose }) {
           >
             <X size={20} />
           </button>
-        </motion.div>, document.body)
+        </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

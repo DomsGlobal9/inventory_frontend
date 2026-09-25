@@ -4,6 +4,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import toast from 'react-hot-toast';
 import { useOnlineShop, useChooseShopAddress, useSaveOnlineShop, useSetShopOpen } from '../../hooks/useOnlineShop';
 import ShopBanners from './ShopBanners';
+import ShopIcon from './ShopIcon';
 import { useLocationContext } from '../../contexts/LocationContext';
 
 /**
@@ -193,6 +194,8 @@ export default function OnlineShopSettings() {
 
         {/* One switch for the whole catalogue. Nobody is going to set this on four hundred
             products one at a time, which is what made it worth a shop-level setting. */}
+        <ShopIcon shop={shop} />
+
         <label style={{ display: 'flex', gap: '9px', alignItems: 'flex-start', marginTop: '16px', cursor: 'pointer' }}>
           <input type="checkbox" checked={form.showAllPhotos} onChange={(e) => set('showAllPhotos', e.target.checked)}
             style={{ width: '16px', height: '16px', marginTop: '2px' }} />

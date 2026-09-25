@@ -41,6 +41,34 @@ export const useSetShopOpen = () => useShopMutation(
   (r) => toast.success(r.isLive ? 'Your shop is open. Share the link with your customers.' : 'Your shop is closed. The link now says so.')
 );
 
+/* ── The shop's icon ──────────────────────────────────────────────────────────────────────
+ * These two answer with only { iconUrl }, not the whole settings object, because a picture is
+ * the one thing the settings save does not carry. So they patch the cached settings rather than
+ * replacing them -- handing the cache { iconUrl } alone would wipe the address, the return
+ * policy and everything else off the screen until the next fetch.
+ */
+const usePatchShop = (fn, done) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: fn,
+    onSuccess: (result) => {
+      qc.setQueryData(KEY, (old) => (old ? { ...old, ...result } : old));
+      done?.(result);
+    },
+    onError: (e) => toast.error(e?.message || 'That could not be saved.')
+  });
+};
+
+export const useSetShopIcon = () => usePatchShop(
+  async (base64) => (await api.post('/online-shop/icon', { base64 })).data,
+  () => toast.success('Icon saved.')
+);
+
+export const useClearShopIcon = () => usePatchShop(
+  async () => (await api.delete('/online-shop/icon')).data,
+  () => toast.success('Icon removed. Your logo is used instead.')
+);
+
 /* ── Banners ──────────────────────────────────────────────────────────────────────────────
  * The pictures across the top of the shop. Their own query key, because a banner changing has
  * nothing to do with the address or the return policy and should not make those redraw.

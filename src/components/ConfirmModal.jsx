@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useId } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, X, Loader2 } from 'lucide-react';
 import { useDialog } from '../hooks/useDialog';
@@ -70,7 +71,22 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, title, messag
     }
   };
 
-  return (
+  /*
+   * Rendered into <body>, not where it was written.
+   *
+   * Every one of these sits inside the thing it is asking about -- the banner row with its Remove
+   * button, the order line, the product card -- and `position: fixed` with z-index 9999 is only
+   * worth 9999 INSIDE whatever stacking context it happens to land in. Settings has a sticky
+   * sidebar, cards have their own contexts, and framer-motion puts a transform on anything it
+   * animates, each of which starts a new context. The result was a dialog with the page's own
+   * buttons painted on top of its title -- so "Remove this banner?" appeared with Save, Hide it
+   * and the arrows sitting across it, and it was not obvious which layer a click would reach.
+   *
+   * A portal takes it out of all of them: the overlay is a direct child of <body>, so its z-index
+   * competes with the page's top level and nothing inside a card can rise above it. Focus, Escape
+   * and the tab trap are unaffected -- they follow the React tree, not the DOM one.
+   */
+  return createPortal(
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
@@ -169,6 +185,7 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, title, messag
           </div>
         </motion.div>
       </motion.div>
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

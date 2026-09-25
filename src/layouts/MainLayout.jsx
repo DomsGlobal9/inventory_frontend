@@ -5,6 +5,7 @@ import TopNav from '../components/TopNav';
 import Sidebar from '../components/Sidebar';
 import ImpersonationBanner from '../components/ImpersonationBanner';
 import WelcomeTour from '../components/onboarding/WelcomeTour';
+import PhotoJobsBadge from '../components/PhotoJobsBadge';
 
 export default function MainLayout() {
   const location = useLocation();
@@ -20,6 +21,13 @@ export default function MainLayout() {
       <ImpersonationBanner />
       {/* Inside the shell, so the menu and top bar it points at are already on screen. */}
       <WelcomeTour />
+      {/*
+        Here rather than on the product screen, because that is the whole point: the photographs
+        finish while the shop is somewhere else entirely, and the notice has to reach them there.
+        It portals to the body, so where it sits in this tree decides only WHEN it is mounted --
+        every signed-in page -- and not where it appears.
+      */}
+      <PhotoJobsBadge />
       <div className="app-container">
         {/* Mobile Overlay */}
         {isMobileMenuOpen && (

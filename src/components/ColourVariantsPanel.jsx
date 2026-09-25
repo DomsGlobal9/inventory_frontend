@@ -1,12 +1,9 @@
-import React, { useMemo, useRef, useState } from 'react';
-import { Palette, Check, StopCircle, AlertCircle } from 'lucide-react';
+import React, { useEffect, useMemo, useRef } from 'react';
+import { Palette, StopCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { api } from '../lib/api';
-import { plainGenerationError } from '../utils/friendlyError';
-import { putImageBytes, registerImage, dataUrlToFile } from '../services/image.service';
-import {
-  VIEW_ORDER, pickRandomModelId, resolveTryOnCategory, streamCatalog
-} from '../lib/catalogGeneration';
+import { resolveTryOnCategory } from '../lib/catalogGeneration';
+import { usePhotoJobs, useStartPhotoJobs, useCancelPhotoJob } from '../hooks/usePhotoJobs';
+import PhotoJobOutcome from './PhotoJobOutcome';
 
 /**
  * The other colours, on a product that is already published.
@@ -17,25 +14,22 @@ import {
  * like. Both left them with the upload box and nothing else -- so the feature existed only
  * during the one minute they were first typing the product in.
  *
- * Differences from the wizard's version, all of them because the product now really exists:
+ * What it does: takes the front view of a colour that has one, and puts the same piece in the
+ * colours that have no photograph at all. The weave, the border, the blouse and the model stay
+ * as they are; only the colour of the cloth changes.
  *
- *  - The source photograph is a URL on our storage rather than bytes in the browser, and the
- *    far end takes a URL directly. Nothing is re-encoded and nothing large is sent.
- *  - Each view is saved as it arrives, against every variant of the target colour -- red/S,
- *    red/M and red/L are one colour with one set of photographs.
- *  - `generatedFromId` records which photograph it came from, so "where did this come from"
- *    stays answerable after the fact.
+ * THE WORK IS NOT DONE HERE ANY MORE. This used to run the colours one after another in this
+ * tab, each taking about a minute -- so four colours meant four minutes of somebody watching a
+ * screen they could not leave, and leaving it threw away whatever was mid-flight after it had
+ * been paid for. Now all of them are queued in one go and the server works down the list. The
+ * shop can close the tab on the way to the counter.
  */
 export default function ColourVariantsPanel({ productId, dressType, variants, images, onChanged }) {
-  const [running, setRunning] = useState(false);
-  const [current, setCurrent] = useState(null);
-  const [made, setMade] = useState([]);
-  const [failures, setFailures] = useState([]);
-  const [planned, setPlanned] = useState(0);
-  const abortRef = useRef(null);
-  const stoppedRef = useRef(false);
-
   const category = useMemo(() => resolveTryOnCategory(dressType), [dressType]);
+
+  const { data: jobs } = usePhotoJobs(productId);
+  const start = useStartPhotoJobs(productId);
+  const cancel = useCancelPhotoJob(productId);
 
   /*
    * One entry per COLOUR, not per variant. A colour is several variants and they share one set
@@ -67,96 +61,54 @@ export default function ColourVariantsPanel({ productId, dressType, variants, im
     return null;
   }, [colours]);
 
-  // Colours with no photograph at all. A colour that already has one is never touched.
+  /** Colours being made right now, so they are not offered a second time. */
+  const mine = useMemo(() => (jobs?.active ?? []).filter(j => j.kind === 'COLOUR'), [jobs]);
+  const busy = useMemo(() => new Set(mine.map(j => j.colourName.toLowerCase())), [mine]);
+
+  // Colours with no photograph at all. A colour that already has one is never touched, and one
+  // already being made is not offered again -- the database would refuse it anyway, but being
+  // refused for pressing a button the screen was still showing is not an explanation.
   const targets = useMemo(
-    () => colours.filter(c => c.images.length === 0 && c.variantIds.length > 0),
-    [colours]
+    () => colours.filter(c => c.images.length === 0 && c.variantIds.length > 0 && !busy.has(c.name.toLowerCase())),
+    [colours, busy]
   );
 
-  const nothingToOffer = !category || !source || targets.length === 0;
-  if (nothingToOffer && made.length === 0 && failures.length === 0) return null;
+  /*
+   * When a job of ours drops out of the active list it has finished, and the photographs it made
+   * are in the database but not yet on this screen. Watching the IDS rather than a count: one
+   * finishing as the next starts leaves the count unchanged.
+   */
+  const wasActive = useRef([]);
+  useEffect(() => {
+    const now = mine.map(j => j.id);
+    if (wasActive.current.some(id => !now.includes(id))) onChanged?.();
+    wasActive.current = now;
+  }, [mine, onChanged]);
 
-  const stop = async () => {
-    stoppedRef.current = true;
-    abortRef.current?.abort();
-    if (current?.jobId) await api.post('/catalog-tryon/cancel-job', { jobId: current.jobId }).catch(() => {});
-    setRunning(false);
-    setCurrent(null);
+  const nothingToOffer = !category || !source || targets.length === 0;
+  if (nothingToOffer && mine.length === 0 && !(jobs?.recent ?? []).some(j => j.kind === 'COLOUR')) return null;
+
+  /** Stops the lot: the one being made and everything still queued behind it. */
+  const stopAll = async () => {
+    for (const j of mine) await cancel.mutateAsync(j.id).catch(() => {});
   };
 
   const run = async () => {
-    const queue = targets;
-    setPlanned(queue.length);
-    setRunning(true);
-    setMade([]);
-    setFailures([]);
-    stoppedRef.current = false;
-
-    for (const target of queue) {
-      if (stoppedRef.current) break;
-
-      const jobId = `${target.name}-${target.hex || ''}`;
-      setCurrent({ jobId, name: target.name });
-
-      const controller = new AbortController();
-      abortRef.current = controller;
-      let saved = 0;
-      let orderIndex = 0;
-
-      try {
-        await streamCatalog({
-          payload: {
-            modelId: pickRandomModelId(category),
-            category,
-            jobId,
-            // A URL, not bytes. The far end fetches it itself, so nothing is re-encoded here
-            // and a four-colour run does not push megabytes back up the wire four times.
-            saree: source.front.url,
-            // Name and hex together: the name is what actually steers the picture, the hex is
-            // kept as a reference. Border and blouse are deliberately left alone -- they are
-            // usually a contrast the shop chose, and recolouring them sells a garment that
-            // does not exist.
-            color: { name: target.name, hex: (target.hex || '').toLowerCase() || undefined }
-          },
-          signal: controller.signal,
-          onView: async (view, dataUrl) => {
-            // Saved as it lands. A run that is stopped, or fails on its fourth view, keeps
-            // the three that arrived rather than throwing the lot away.
-            const stored = await putImageBytes(productId, dataUrlToFile(dataUrl, `${view}.jpg`));
-            for (const variantId of target.variantIds) {
-              await registerImage(productId, stored, {
-                variantId,
-                // The front leads, or the first to arrive if the front never does -- a colour
-                // with no main photograph falls back to another colour's.
-                isPrimary: view === 'front' || orderIndex === 0,
-                altText: `${target.name}, ${view} view`,
-                imageType: 'GALLERY',
-                generated: true,
-                view,
-                generatedFromId: source.front.id,
-                orderIndex: VIEW_ORDER.indexOf(view) < 0 ? orderIndex : VIEW_ORDER.indexOf(view)
-              });
-            }
-            orderIndex++;
-            saved++;
-          }
-        });
-
-        if (saved > 0) setMade(prev => [...prev, target.name]);
-      } catch (err) {
-        if (err?.name === 'AbortError' || stoppedRef.current) break;
-        console.error(`Colour variant failed for ${target.name}:`, err);
-        setFailures(prev => [...prev, { name: target.name, why: plainGenerationError(err) }]);
-      } finally {
-        abortRef.current = null;
-      }
+    const result = await start.mutateAsync({
+      productId,
+      kind: 'COLOUR',
+      // All of them at once. The server runs one at a time for this shop, so the queue is the
+      // order they were asked for rather than a race, and nothing here has to sit and wait.
+      colours: targets.map(t => t.name)
+    });
+    if (result?.made?.length) {
+      toast.success(result.made.length === 1
+        ? 'We are making it. You can carry on -- we will tell you when it is ready.'
+        : `We are making ${result.made.length} colours. You can carry on -- we will tell you when they are ready.`);
     }
-
-    setCurrent(null);
-    setRunning(false);
-    onChanged?.();
-    if (!stoppedRef.current) toast.success('The colours are made. Look through them below.');
   };
+
+  const running = mine.find(j => j.status === 'RUNNING') ?? mine[0] ?? null;
 
   return (
     <div style={{
@@ -170,7 +122,7 @@ export default function ColourVariantsPanel({ productId, dressType, variants, im
         </h3>
       </div>
 
-      {targets.length > 0 && (
+      {targets.length > 0 && source && (
         <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 14px' }}>
           We take the front view of the {source.colour.name} one and put the same piece in{' '}
           <b>{targets.map(t => t.name).join(', ')}</b>. The weave, the border, the blouse and the
@@ -179,42 +131,38 @@ export default function ColourVariantsPanel({ productId, dressType, variants, im
         </p>
       )}
 
-      {!running && targets.length > 0 && (
-        <button type="button" className="btn btn-primary" onClick={run}
+      {mine.length === 0 && targets.length > 0 && (
+        <button type="button" className="btn btn-primary" onClick={run} disabled={start.isPending}
           style={{ padding: '9px 16px', borderRadius: '8px' }}>
-          MAKE {targets.length === 1 ? 'THIS COLOUR' : `THESE ${targets.length} COLOURS`}
+          {start.isPending
+            ? 'STARTING…'
+            : `MAKE ${targets.length === 1 ? 'THIS COLOUR' : `THESE ${targets.length} COLOURS`}`}
         </button>
       )}
 
       {running && (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
           <p style={{ fontSize: '14px', margin: 0 }}>
-            Making the {current?.name} one&hellip;
+            {running.status === 'QUEUED'
+              ? `The ${running.colourName} one is next in line…`
+              : `Making the ${running.colourName} one…`}
             <span style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)' }}>
-              {made.length} of {planned} done. About a minute each.
+              {mine.length > 1 ? `${mine.length} still to do. ` : ''}
+              <b>You can leave this page</b> &mdash; we will tell you when they are ready.
             </span>
           </p>
-          <button type="button" className="btn" onClick={stop}
+          <button type="button" className="btn" onClick={stopAll} disabled={cancel.isPending}
             style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px' }}>
             <StopCircle size={16} /> Stop
           </button>
         </div>
       )}
 
-      {made.length > 0 && !running && (
-        <p style={{ fontSize: '13px', color: 'var(--success, #16A34A)', marginTop: '10px',
-          display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <Check size={16} /> Made: {made.join(', ')}.
-        </p>
-      )}
-
-      {failures.map((f, n) => (
-        <p key={n} style={{ fontSize: '13px', color: '#B45309', margin: '6px 0 0',
-          display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
-          <AlertCircle size={16} style={{ flexShrink: 0, marginTop: '1px' }} />
-          <span><b>{f.name}</b> &mdash; {f.why}</span>
-        </p>
-      ))}
+      <PhotoJobOutcome
+        jobs={jobs?.recent}
+        kind="COLOUR"
+        doneText={(made) => `Made: ${made.map(j => j.colourName).join(', ')}.`}
+      />
     </div>
   );
 }

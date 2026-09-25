@@ -1,20 +1,19 @@
-import React, { useMemo, useRef, useState } from 'react';
-import { Camera, Check, StopCircle, AlertCircle, Upload } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Camera, StopCircle, Upload } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { plainGenerationError } from '../utils/friendlyError';
-import { putImageBytes, registerImage, dataUrlToFile } from '../services/image.service';
 import { uploadImageFile } from '../services/image.service';
-import {
-  VIEW_ORDER, pickRandomModelId, resolveTryOnCategory, streamCatalog
-} from '../lib/catalogGeneration';
+import { resolveTryOnCategory } from '../lib/catalogGeneration';
+import { usePhotoJobs, useStartPhotoJobs, useCancelPhotoJob } from '../hooks/usePhotoJobs';
+import PhotoJobOutcome from './PhotoJobOutcome';
 
 /**
  * The four catalog views, made from a photograph the shop already has.
  *
- * Until now this only existed in the Add a product wizard, which meant it only existed during
- * the one minute somebody was first typing a product in. Everything afterwards -- a photograph
- * taken later, a product imported from a sheet, a colour added months on -- had the upload box
- * and nothing else. A shop with one good photograph of a saree could not turn it into a set.
+ * Until recently this only existed in the Add a product wizard, which meant it only existed
+ * during the one minute somebody was first typing a product in. Everything afterwards -- a
+ * photograph taken later, a product imported from a sheet, a colour added months on -- had the
+ * upload box and nothing else. A shop with one good photograph of a saree could not turn it into
+ * a set.
  *
  * It also blocked the other half. "The colours with no photograph" copies from a GENERATED front
  * view, so a product whose only photograph was uploaded by hand never qualified: the card simply
@@ -26,15 +25,18 @@ import {
  * it for that purpose. Here it is a photograph they chose to publish, and quietly hiding it from
  * their shop because they pressed a button about something else would be taking a decision that
  * is theirs.
+ *
+ * THE WORK IS NOT DONE HERE ANY MORE. This used to hold the stream open and save every view
+ * itself, so whoever pressed the button had to stay on this screen for the better part of a
+ * minute -- and closing the tab threw the work away after it had already been paid for. Now it
+ * asks the server for a job and watches a row. Press it and walk off; it is still made.
  */
 export default function CatalogViewsPanel({ productId, dressType, variants, images, onChanged }) {
-  const [running, setRunning] = useState(false);
-  const [done, setDone] = useState([]);
-  const [failure, setFailure] = useState(null);
-  const abortRef = useRef(null);
-  const stoppedRef = useRef(false);
-
   const category = useMemo(() => resolveTryOnCategory(dressType), [dressType]);
+
+  const { data: jobs } = usePhotoJobs(productId);
+  const start = useStartPhotoJobs(productId);
+  const cancel = useCancelPhotoJob(productId);
 
   /** One entry per colour: several variants of one colour share one set of photographs. */
   const colours = useMemo(() => {
@@ -53,11 +55,6 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
   }, [variants, images]);
 
   /*
-   * A colour worth offering this for: it has a photograph to work from, and it has no generated
-   * views yet. A colour that already has its set is left alone -- running again would spend the
-   * allowance to replace pictures the shop has already seen and kept.
-   */
-  /*
    * Is there already a generated front view somewhere on this product? If so, the colours panel
    * below can fill an empty colour from it -- no photograph needed, nothing for the shop to go
    * and take. That is the better route whenever it exists.
@@ -72,6 +69,11 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
     [colours]
   );
 
+  /*
+   * A colour worth offering this for: it has a photograph to work from, and no generated views
+   * yet. A colour that already has its set is left alone -- running again would spend the
+   * allowance to replace pictures the shop has already seen and kept.
+   */
   const candidates = useMemo(
     () => colours.filter(c => {
       if (c.images.some(i => i.generated && i.view)) return false;   // already has its set
@@ -86,9 +88,9 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
    * What to generate FROM, in the order that respects what the shop meant.
    *
    * A flat-lay handed over for this job comes first, then the main photograph, then anything.
-   * A colour with nothing is not a dead end any more -- it is offered the flat-lay upload below,
-   * which was the case this panel originally could not help with at all: a product published
-   * without pictures for every colour had no way to give one now and generate from it.
+   * The server works this out again for itself -- it has to, since it runs with nobody here --
+   * and the two orders must stay the same, or the picture named on screen and the picture the
+   * job actually used would be different ones.
    */
   const sourceFor = (c) =>
     c.images.find(i => i.imageType === 'RAW_UPLOAD')
@@ -99,17 +101,59 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
   const [chosen, setChosen] = useState(null);
   const [uploading, setUploading] = useState(false);
   const flatLayRef = useRef(null);
-  const target = candidates.find(c => c.name === chosen) ?? candidates[0] ?? null;
+
+  /** Sets of views being made for this product right now. */
+  const mine = useMemo(() => (jobs?.active ?? []).filter(j => j.kind === 'VIEWS'), [jobs]);
+
+  // A colour being made is no longer a candidate -- it is already happening -- but it must still
+  // be reachable, or its progress would have nowhere to show.
+  const target = candidates.find(c => c.name === chosen)
+    ?? colours.find(c => mine.some(j => j.colourName === c.name))
+    ?? candidates[0]
+    ?? null;
+
   const source = target ? sourceFor(target) : null;
+  const job = target ? mine.find(j => j.colourName === target.name) : null;
+
+  /*
+   * When a job of ours drops out of the active list it has finished, and the photographs it made
+   * are in the database but not yet on this screen.
+   *
+   * Watching the IDS rather than a count: one finishing as another starts leaves the count
+   * unchanged, and the shop would be left looking at a gallery still missing the set they had
+   * just watched being made.
+   */
+  const wasActive = useRef([]);
+  useEffect(() => {
+    const now = mine.map(j => j.id);
+    if (wasActive.current.some(id => !now.includes(id))) onChanged?.();
+    wasActive.current = now;
+  }, [mine, onChanged]);
+
+  const run = async (sourceImageId) => {
+    if (!target) return;
+    const result = await start.mutateAsync({
+      productId,
+      kind: 'VIEWS',
+      colours: [target.name],
+      ...(sourceImageId ? { sourceImageId } : {})
+    });
+    if (result?.made?.length) {
+      toast.success('We are making them. You can carry on -- we will tell you when they are ready.');
+    }
+  };
 
   /*
    * The flat-lay path: a colour with no photograph at all.
    *
    * Uploaded as RAW_UPLOAD rather than GALLERY, which is what keeps it out of the shop -- the
    * gallery shows it dimmed and labelled NOT IN YOUR SHOP, with a way to publish it after all if
-   * the shop decides they want it there. Then it generates straight away, because choosing a
-   * flat-lay IS the instruction; making somebody press a second button afterwards would be asking
-   * them to confirm something they already said.
+   * the shop decides they want it there. Then it starts straight away, because choosing a
+   * flat-lay IS the instruction; making somebody press a second button afterwards would be
+   * asking them to confirm something they already said.
+   *
+   * The UPLOAD still happens here, and should: the file is in this browser and nowhere else.
+   * Only the generation moved.
    */
   const chooseFlatLay = async (e) => {
     const file = e.target.files?.[0];
@@ -127,88 +171,21 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
       });
       /*
        * The row, not the envelope. uploadImageFile hands back what the API returned, and this
-       * backend wraps everything in { success, data } -- so reading .url straight off it gave
+       * backend wraps everything in { success, data } -- so reading straight off it gave
        * undefined, the generation decided it had no source and returned without a word. The
        * flat-lay uploaded, nothing was made, and nothing said why.
        */
       const image = saved?.data ?? saved;
-      if (!image?.url) throw new Error('That picture was saved but could not be read back.');
+      if (!image?.id) throw new Error('That picture was saved but could not be read back.');
       onChanged?.();
-      // Straight into the generation, with the picture just stored as its source.
-      await run(image);
+      // The id, not the URL: the job outlives this page, and the server looks the picture up
+      // again when it gets to it.
+      await run(image.id);
     } catch (err) {
       console.error('Flat-lay upload failed:', err);
       toast.error(err?.message || 'That picture could not be saved. Please try again.');
     } finally {
       setUploading(false);
-    }
-  };
-
-  const stop = () => {
-    stoppedRef.current = true;
-    abortRef.current?.abort();
-    setRunning(false);
-  };
-
-  const run = async (fromImage) => {
-    if (!target) return;
-    const source = fromImage ?? sourceFor(target);
-    if (!source?.url) return;
-
-    stoppedRef.current = false;
-    setRunning(true);
-    setDone([]);
-    setFailure(null);
-
-    const controller = new AbortController();
-    abortRef.current = controller;
-    let orderIndex = 0;
-
-    try {
-      await streamCatalog({
-        payload: {
-          modelId: pickRandomModelId(category),
-          category,
-          jobId: `views-${target.name}`,
-          // A URL, not bytes: the far end fetches it, so nothing is re-encoded and nothing
-          // large goes back up the wire.
-          saree: source.url
-        },
-        signal: controller.signal,
-        onView: async (view, dataUrl) => {
-          // Saved as it lands, so a run that is stopped or fails on its fourth view keeps the
-          // three that arrived.
-          const stored = await putImageBytes(productId, dataUrlToFile(dataUrl, `${view}.jpg`));
-          for (const variantId of target.variantIds) {
-            await registerImage(productId, stored, {
-              variantId,
-              // The front becomes the main photograph; the shop's own picture stays, but the
-              // generated front is the one a catalogue wants to lead with.
-              isPrimary: view === 'front',
-              altText: `${target.name}, ${view} view`,
-              imageType: 'GALLERY',
-              generated: true,
-              view,
-              generatedFromId: source.id,
-              orderIndex: VIEW_ORDER.indexOf(view) < 0 ? orderIndex : VIEW_ORDER.indexOf(view)
-            });
-          }
-          orderIndex++;
-          setDone(prev => [...prev, view]);
-        }
-      });
-    } catch (err) {
-      if (err?.name !== 'AbortError' && !stoppedRef.current) {
-        console.error('Catalog views failed:', err);
-        setFailure(plainGenerationError(err));
-      }
-    } finally {
-      abortRef.current = null;
-      setRunning(false);
-      onChanged?.();
-      if (!stoppedRef.current && !failure) {
-        toast.success('The four views are made. Look through them below.');
-      }
     }
   };
 
@@ -246,7 +223,7 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
         )}
       </p>
 
-      {candidates.length > 1 && !running && (
+      {candidates.length > 1 && !job && (
         <div style={{ marginBottom: '12px' }}>
           <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>
             Which colour to photograph
@@ -258,59 +235,52 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
         </div>
       )}
 
-      {!running && (
+      {!job && (
         <>
           <input ref={flatLayRef} type="file" accept="image/png,image/jpeg,image/webp"
             onChange={chooseFlatLay} style={{ display: 'none' }} />
           <button type="button" className="btn btn-primary"
             onClick={() => (source ? run() : flatLayRef.current?.click())}
-            disabled={uploading}
+            disabled={uploading || start.isPending}
             style={{ padding: '9px 16px', borderRadius: '8px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
             {source
-              ? 'MAKE THE FOUR VIEWS'
+              ? (start.isPending ? 'STARTING…' : 'MAKE THE FOUR VIEWS')
               : <><Upload size={15} /> {uploading ? 'UPLOADING…' : 'CHOOSE A FLAT-LAY'}</>}
           </button>
         </>
       )}
 
-      {running && (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+      {job && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
           <p style={{ fontSize: '14px', margin: 0 }}>
             {/*
               Our words, not the far end's. It reports things like "Starting AI Generation
               Pipeline......", which is a sentence written for whoever built it -- a saree shop
               owner should not be reading about pipelines on their own product screen.
             */}
-            Making the {target.name} views&hellip;
+            {job.status === 'QUEUED'
+              ? `The ${job.colourName} views are next in line…`
+              : `Making the ${job.colourName} views…`}
             <span style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)' }}>
-              {done.length} of 4 done. About a minute in all.
+              {job.viewsDone} of {job.viewsTotal} done. <b>You can leave this page</b> &mdash; we
+              will tell you when they are ready.
             </span>
           </p>
-          <button type="button" className="btn" onClick={stop}
+          <button type="button" className="btn" onClick={() => cancel.mutate(job.id)}
+            disabled={cancel.isPending}
             style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px' }}>
             <StopCircle size={16} /> Stop
           </button>
         </div>
       )}
 
-      {done.length > 0 && !running && (
-        <p style={{
-          fontSize: '13px', color: 'var(--success, #16A34A)', marginTop: '10px',
-          display: 'flex', alignItems: 'center', gap: '6px'
-        }}>
-          <Check size={16} /> Made: {done.join(', ')}. The other colours can be made from these now.
-        </p>
-      )}
-
-      {failure && (
-        <p style={{
-          fontSize: '13px', color: '#B45309', margin: '6px 0 0',
-          display: 'flex', alignItems: 'flex-start', gap: '6px'
-        }}>
-          <AlertCircle size={16} style={{ flexShrink: 0, marginTop: '1px' }} />
-          <span>{failure}</span>
-        </p>
-      )}
+      <PhotoJobOutcome
+        jobs={jobs?.recent}
+        kind="VIEWS"
+        doneText={(made) => made.length === 1
+          ? `${made[0].colourName} is done. The other colours can be made from it now.`
+          : `Made: ${made.map(j => j.colourName).join(', ')}. The other colours can be made from these now.`}
+      />
     </div>
   );
 }

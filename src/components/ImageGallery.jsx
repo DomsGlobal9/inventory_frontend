@@ -7,6 +7,7 @@ import { useVariants } from '../hooks/useVariants';
 import toast from 'react-hot-toast';
 import ConfirmModal from './ConfirmModal';
 import PageLoader from './PageLoader';
+import ColourVariantsPanel from './ColourVariantsPanel';
 
 /**
  * Photographs, arranged by the thing they are photographs OF.
@@ -25,7 +26,7 @@ import PageLoader from './PageLoader';
 const describeVariant = (v) =>
   [v.colorName, v.size].filter(Boolean).join(' · ') || v.sku;
 
-export default function ImageGallery({ productId }) {
+export default function ImageGallery({ productId, dressType }) {
   const fileInputRef = useRef(null);
   // Which section the file picker was opened from, so the upload lands where it was asked
   // for. null means the product as a whole.
@@ -273,6 +274,21 @@ export default function ImageGallery({ productId }) {
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '28px' }}>
+        {/*
+          Offered here as well as in the Add Product wizard, because the two cases that actually
+          need it happen later: a colour added months after the product went online, and a colour
+          the shop looked at afterwards and did not like. It renders nothing unless there is a
+          generated front view to copy and a colour with no photograph at all.
+        */}
+        {!isError && (
+          <ColourVariantsPanel
+            productId={productId}
+            dressType={dressType}
+            variants={variants}
+            images={images}
+            onChanged={refetch}
+          />
+        )}
         {isError ? <LoadFailed what="images" error={error} onRetry={refetch} /> : groups.map(group => (
           <section key={group.key}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '12px' }}>

@@ -524,7 +524,7 @@ export default function ProductDetails() {
             )}
 
             {activeTab === 'images' && (
-              <ImageGallery productId={product.id} />
+              <ImageGallery productId={product.id} dressType={product.dressType} />
             )}
 
             {activeTab === 'inventory' && (

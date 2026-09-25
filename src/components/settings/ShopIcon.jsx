@@ -30,12 +30,14 @@ const label = { display: 'block', fontSize: '12px', color: 'var(--text-secondary
 
 /** The icon as a browser will show it, beside a strip of tab to give the size some meaning. */
 function TabPreview({ src, name }) {
+  // Fills its 210px column so the bar underneath is exactly as wide as the tab sitting on it;
+  // inline-flex made the chip shrink to its text and the bar stick out past it.
   return (
     <div style={{
-      display: 'inline-flex', alignItems: 'center', gap: '7px',
+      display: 'flex', alignItems: 'center', gap: '7px',
       padding: '6px 12px 6px 9px', borderRadius: '8px 8px 0 0',
       background: 'var(--bg-dark)', border: '1px solid var(--border-light)', borderBottom: 'none',
-      maxWidth: '210px'
+      width: '210px', boxSizing: 'border-box'
     }}>
       {src
         ? <img src={src} alt="" width={16} height={16} style={{ width: '16px', height: '16px', objectFit: 'contain', flexShrink: 0 }} />
@@ -84,42 +86,61 @@ export default function ShopIcon({ shop }) {
         at this size. Square looks best. Leave it empty and your logo is used.
       </p>
 
-      <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
-        <div>
+      {/*
+       * Two rows on purpose: the two previews together, the buttons underneath.
+       *
+       * All three were on one line, which fitted -- until an icon was set and a Remove button
+       * appeared beside Change. Measured: the column this sits in is 544px and the three come to
+       * 578px with two buttons, so the buttons wrapped and the one the owner had just used jumped
+       * a line down and 300px left under their cursor. Narrower screens would have wrapped it
+       * whatever I did, so the honest fix is to stop pretending it is one row.
+       *
+       * The previews are centred on each other rather than aligned to their bottoms: the tab chip
+       * has a caption under it and the square does not, so flex-end lined the square up with the
+       * words instead of with the chip, which is what looked crooked.
+       */}
+      <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
+        <div style={{ flex: '0 0 auto' }}>
           <TabPreview src={showing} name={shop?.displayName} />
-          <div style={{
-            height: '2px', background: 'var(--border-light)', maxWidth: '210px'
-          }} />
+          <div style={{ height: '2px', background: 'var(--border-light)', width: '210px' }} />
           <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px' }}>
             {isOwnIcon ? 'Your icon' : showing ? 'Your logo, for now' : 'Nothing yet'}
           </div>
         </div>
 
-        {/* The same picture large, so a shop can see what it actually chose. */}
-        {showing && (
-          <img src={showing} alt="" style={{
-            width: '64px', height: '64px', objectFit: 'contain', borderRadius: '10px',
-            border: '1px solid var(--border-light)', background: 'var(--bg-dark)', padding: '6px'
-          }} />
-        )}
-
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp"
-            onChange={choose} style={{ display: 'none' }} />
-          <button type="button" className="btn-secondary" disabled={working}
-            onClick={() => fileRef.current?.click()}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '7px' }}>
-            {set.isPending ? <Loader2 size={15} className="animate-spin" /> : <Upload size={15} />}
-            {isOwnIcon ? 'Change the icon' : 'Choose an icon'}
-          </button>
-          {isOwnIcon && (
-            <button type="button" className="btn-secondary" disabled={working}
-              onClick={() => setAsking(true)}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', color: 'var(--danger, #dc2626)' }}>
-              <Trash2 size={15} /> Remove
-            </button>
-          )}
+        {/*
+         * The same picture large, so a shop can see what it actually chose. Always drawn, dashed
+         * when empty: rendered only when an icon existed, it appeared out of nowhere and shoved
+         * everything beside it sideways the moment one was chosen.
+         */}
+        <div style={{
+          width: '64px', height: '64px', flex: '0 0 auto', borderRadius: '10px',
+          border: `1px ${showing ? 'solid' : 'dashed'} var(--border-light)`,
+          background: 'var(--bg-dark)', padding: '6px', boxSizing: 'border-box',
+          display: 'grid', placeItems: 'center'
+        }}>
+          {showing
+            ? <img src={showing} alt="" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: 'block' }} />
+            : <ImageIcon size={20} color="var(--text-muted)" />}
         </div>
+      </div>
+
+      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '14px' }}>
+        <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp"
+          onChange={choose} style={{ display: 'none' }} />
+        <button type="button" className="btn-secondary" disabled={working}
+          onClick={() => fileRef.current?.click()}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '7px' }}>
+          {set.isPending ? <Loader2 size={15} className="animate-spin" /> : <Upload size={15} />}
+          {isOwnIcon ? 'Change the icon' : 'Choose an icon'}
+        </button>
+        {isOwnIcon && (
+          <button type="button" className="btn-secondary" disabled={working}
+            onClick={() => setAsking(true)}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', color: 'var(--danger, #dc2626)' }}>
+            <Trash2 size={15} /> Remove
+          </button>
+        )}
       </div>
 
       {!showing && (

@@ -723,11 +723,23 @@ tr:hover td {
     overflow-x: auto;
     white-space: nowrap;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: 8px;
+    padding-bottom: 2px;
     margin-bottom: 16px;
   }
+  /*
+   * No scrollbar under the tabs.
+   *
+   * A 4px grey bar sat under the strip on every phone and tablet, which is a scrollbar drawn for
+   * a device that has no use for one -- a finger does not aim at it. With it hidden the row is
+   * dragged instead: by finger, which is the browser's own scrolling, and by mouse through
+   * useDragScroll, which takes hold of the row itself now that there is no bar to grab.
+   */
+  .mobile-tab-bar {
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+  }
   .mobile-tab-bar::-webkit-scrollbar {
-    height: 4px;
+    display: none;
   }
   .mobile-tab-bar button {
     width: auto !important;

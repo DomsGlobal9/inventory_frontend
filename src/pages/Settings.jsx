@@ -17,6 +17,7 @@ import ReturnRulesPanel from '../components/sales/ReturnRulesPanel';
 import { holdsEverything } from '../lib/authority';
 import { useAuth } from '../context/AuthContext';
 import { usePermission } from '../hooks/usePermission';
+import { useDragScroll } from '../hooks/useDragScroll';
 
 const SETTINGS_DOMAINS = [
   { id: 'GENERAL', label: 'General Info', icon: Store },
@@ -62,6 +63,9 @@ const CATALOG_TABS = [
 export default function Settings() {
   const { user } = useAuth();
   const { can } = usePermission();
+  // On a phone or tablet the tab list lies down and scrolls sideways. Its scrollbar is hidden, so
+  // a mouse needs the row itself to take hold of; a finger already had one.
+  const tabStrip = useDragScroll();
   // ?section=WHATSAPP opens straight onto a section -- the Send buttons link here to "link your
   // shop's WhatsApp". Only a section this person can see; anything else falls back to General.
   const [searchParams] = useSearchParams();
@@ -99,7 +103,7 @@ export default function Settings() {
       <div className="mobile-col" style={{ display: 'flex', gap: '32px', flex: 1, minHeight: 0 }}>
         
         {/* Left Sidebar: Domains */}
-        <div className="settings-sidebar mobile-tab-bar" style={{ 
+        <div ref={tabStrip} className="settings-sidebar mobile-tab-bar" style={{ 
           flexShrink: 0,
           background: 'var(--bg-card)', 
           borderRadius: '16px', 

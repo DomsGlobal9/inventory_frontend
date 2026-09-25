@@ -167,7 +167,19 @@ export async function streamCatalog({ payload, signal, onStatus, onView, onColou
           const key = API_VIEW_TO_LOCAL[data.view] || data.view;
           const clean = await keepFirstPoseOnly(data.image);
           collected[key] = clean;
-          onView?.(key, clean);
+          /*
+           * AWAITED, deliberately.
+           *
+           * A caller may do real work here -- the product page uploads each view to storage and
+           * registers it. Firing this and moving on meant all four uploads were still in flight
+           * when COMPLETE arrived, so the caller refreshed the screen against a database that
+           * had one of them. The photographs all arrived a moment later, but the shop had
+           * already been shown "1 photo" and told it was done.
+           *
+           * Awaiting also makes the four uploads happen one after another rather than at once,
+           * which is the order they should be stored in anyway.
+           */
+          await onView?.(key, clean);
         } else if (data.type === 'ERROR') {
           throw new Error(data.error || 'Generation failed');
         } else if (data.type === 'COMPLETE') {

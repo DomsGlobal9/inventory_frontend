@@ -3,6 +3,9 @@ import { Camera, StopCircle, Upload } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { uploadImageFile } from '../services/image.service';
 import { resolveTryOnCategory } from '../lib/catalogGeneration';
+import {
+  groupByColour, viewsCandidates, sourceForViews, viewsMadeFor, progressText
+} from '../lib/photoSets';
 import { usePhotoJobs, useStartPhotoJobs, useCancelPhotoJob } from '../hooks/usePhotoJobs';
 import PhotoJobOutcome from './PhotoJobOutcome';
 
@@ -30,6 +33,9 @@ import PhotoJobOutcome from './PhotoJobOutcome';
  * itself, so whoever pressed the button had to stay on this screen for the better part of a
  * minute -- and closing the tab threw the work away after it had already been paid for. Now it
  * asks the server for a job and watches a row. Press it and walk off; it is still made.
+ *
+ * Which colours it offers is decided in lib/photoSets.js, shared with the colours panel, so the
+ * two cannot disagree about what still needs doing.
  */
 export default function CatalogViewsPanel({ productId, dressType, variants, images, onChanged }) {
   const category = useMemo(() => resolveTryOnCategory(dressType), [dressType]);
@@ -38,65 +44,8 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
   const start = useStartPhotoJobs(productId);
   const cancel = useCancelPhotoJob(productId);
 
-  /** One entry per colour: several variants of one colour share one set of photographs. */
-  const colours = useMemo(() => {
-    const byColour = new Map();
-    for (const v of variants || []) {
-      const name = v.colorName || null;
-      if (!name) continue;
-      const key = name.toLowerCase();
-      if (!byColour.has(key)) byColour.set(key, { name, hex: v.hexCode || null, variantIds: [], images: [] });
-      byColour.get(key).variantIds.push(v.id);
-    }
-    for (const img of images || []) {
-      for (const c of byColour.values()) if (c.variantIds.includes(img.variantId)) c.images.push(img);
-    }
-    return [...byColour.values()];
-  }, [variants, images]);
-
-  /*
-   * Is there already a generated front view somewhere on this product? If so, the colours panel
-   * below can fill an empty colour from it -- no photograph needed, nothing for the shop to go
-   * and take. That is the better route whenever it exists.
-   *
-   * Same test the colours panel uses, deliberately: the two must agree about what counts, or they
-   * both offer to fill the same colour and the shop has to guess which button is the right one.
-   * Seen on screen before this: "CHOOSE A FLAT-LAY" and "MAKE THIS COLOUR" side by side, both
-   * pointing at Red.
-   */
-  const somethingToCopyFrom = useMemo(
-    () => colours.some(c => c.images.some(i => i.generated && i.view === 'front')),
-    [colours]
-  );
-
-  /*
-   * A colour worth offering this for: it has a photograph to work from, and no generated views
-   * yet. A colour that already has its set is left alone -- running again would spend the
-   * allowance to replace pictures the shop has already seen and kept.
-   */
-  const candidates = useMemo(
-    () => colours.filter(c => {
-      if (c.images.some(i => i.generated && i.view)) return false;   // already has its set
-      if (c.images.length > 0) return true;                          // has a photograph to work from
-      // Nothing of its own: only worth a flat-lay when there is nothing to copy from either.
-      return !somethingToCopyFrom;
-    }),
-    [colours, somethingToCopyFrom]
-  );
-
-  /*
-   * What to generate FROM, in the order that respects what the shop meant.
-   *
-   * A flat-lay handed over for this job comes first, then the main photograph, then anything.
-   * The server works this out again for itself -- it has to, since it runs with nobody here --
-   * and the two orders must stay the same, or the picture named on screen and the picture the
-   * job actually used would be different ones.
-   */
-  const sourceFor = (c) =>
-    c.images.find(i => i.imageType === 'RAW_UPLOAD')
-    ?? c.images.find(i => i.isPrimary)
-    ?? c.images[0]
-    ?? null;
+  const colours = useMemo(() => groupByColour(variants, images), [variants, images]);
+  const candidates = useMemo(() => viewsCandidates(colours), [colours]);
 
   const [chosen, setChosen] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -112,8 +61,11 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
     ?? candidates[0]
     ?? null;
 
-  const source = target ? sourceFor(target) : null;
+  const source = target ? sourceForViews(target) : null;
   const job = target ? mine.find(j => j.colourName === target.name) : null;
+
+  // How far a half-made colour got. Nought for one that has never been run.
+  const madeSoFar = target ? viewsMadeFor(target.images).size : 0;
 
   /*
    * When a job of ours drops out of the active list it has finished, and the photographs it made
@@ -199,12 +151,28 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
         <Camera size={18} />
         <h3 style={{ fontSize: '15px', fontWeight: 600, margin: 0 }}>
-          Make the four catalog views
+          {madeSoFar > 0 ? 'Finish the catalog views' : 'Make the four catalog views'}
         </h3>
       </div>
 
       <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 14px' }}>
-        {source ? (
+        {/*
+          A colour that was stopped part-way is its own case, and saying so plainly is the whole
+          point of it being offered again. Telling them "we take your photograph and make four
+          views" when they are looking at two of those views already on the screen below reads as
+          the app not knowing what it has.
+        */}
+        {madeSoFar > 0 ? (
+          <>
+            <b>{target.name}</b> stopped at {progressText(target)} views. Making them again gives
+            you the whole set &mdash;{' '}
+            {source?.generated
+              ? 'we work from the front view it already has.'
+              : 'we work from your own photograph again.'}{' '}
+            The {madeSoFar === 1 ? 'one you have is' : `${madeSoFar} you have are`} replaced with
+            the new set, so they all match.
+          </>
+        ) : source ? (
           <>
             We take your photograph of the <b>{target.name}</b> one and make the four views a
             catalogue wants &mdash; front, left, right and back &mdash; on a model.{' '}
@@ -230,7 +198,11 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
           </label>
           <select className="input-field" value={target.name}
             onChange={(e) => setChosen(e.target.value)} style={{ maxWidth: '260px' }}>
-            {candidates.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
+            {candidates.map(c => (
+              <option key={c.name} value={c.name}>
+                {c.name}{viewsMadeFor(c.images).size > 0 ? ` (${progressText(c)})` : ''}
+              </option>
+            ))}
           </select>
         </div>
       )}
@@ -244,7 +216,7 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
             disabled={uploading || start.isPending}
             style={{ padding: '9px 16px', borderRadius: '8px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
             {source
-              ? (start.isPending ? 'STARTING…' : 'MAKE THE FOUR VIEWS')
+              ? (start.isPending ? 'STARTING…' : (madeSoFar > 0 ? 'MAKE THE WHOLE SET' : 'MAKE THE FOUR VIEWS'))
               : <><Upload size={15} /> {uploading ? 'UPLOADING…' : 'CHOOSE A FLAT-LAY'}</>}
           </button>
         </>

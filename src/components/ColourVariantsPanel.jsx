@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import { Palette, StopCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { resolveTryOnCategory } from '../lib/catalogGeneration';
+import { groupByColour, colourTargets, sourceForColours, viewsMadeFor, progressText } from '../lib/photoSets';
 import { usePhotoJobs, useStartPhotoJobs, useCancelPhotoJob } from '../hooks/usePhotoJobs';
 import PhotoJobOutcome from './PhotoJobOutcome';
 
@@ -15,14 +16,17 @@ import PhotoJobOutcome from './PhotoJobOutcome';
  * during the one minute they were first typing the product in.
  *
  * What it does: takes the front view of a colour that has one, and puts the same piece in the
- * colours that have no photograph at all. The weave, the border, the blouse and the model stay
- * as they are; only the colour of the cloth changes.
+ * colours that cannot be photographed from anything of their own. The weave, the border, the
+ * blouse and the model stay as they are; only the colour of the cloth changes.
  *
  * THE WORK IS NOT DONE HERE ANY MORE. This used to run the colours one after another in this
  * tab, each taking about a minute -- so four colours meant four minutes of somebody watching a
  * screen they could not leave, and leaving it threw away whatever was mid-flight after it had
  * been paid for. Now all of them are queued in one go and the server works down the list. The
  * shop can close the tab on the way to the counter.
+ *
+ * Which colours it offers is decided in lib/photoSets.js, shared with the views panel, so the
+ * two cannot disagree about what still needs doing.
  */
 export default function ColourVariantsPanel({ productId, dressType, variants, images, onChanged }) {
   const category = useMemo(() => resolveTryOnCategory(dressType), [dressType]);
@@ -31,47 +35,23 @@ export default function ColourVariantsPanel({ productId, dressType, variants, im
   const start = useStartPhotoJobs(productId);
   const cancel = useCancelPhotoJob(productId);
 
-  /*
-   * One entry per COLOUR, not per variant. A colour is several variants and they share one set
-   * of photographs, so asking per variant would generate the same pictures three times over and
-   * bill for all three.
-   */
-  const colours = useMemo(() => {
-    const byColour = new Map();
-    for (const v of variants || []) {
-      const name = v.colorName || null;
-      if (!name) continue;
-      const key = name.toLowerCase();
-      if (!byColour.has(key)) byColour.set(key, { name, hex: v.hexCode || null, variantIds: [], images: [] });
-      byColour.get(key).variantIds.push(v.id);
-    }
-    for (const img of images || []) {
-      for (const c of byColour.values()) if (c.variantIds.includes(img.variantId)) c.images.push(img);
-    }
-    return [...byColour.values()];
-  }, [variants, images]);
-
-  // Somewhere to copy FROM: a colour that already has a generated front view. That is the
-  // photograph the far end works best from, and the one every other colour is matched against.
-  const source = useMemo(() => {
-    for (const c of colours) {
-      const front = c.images.find(i => i.generated && i.view === 'front');
-      if (front) return { colour: c, front };
-    }
-    return null;
-  }, [colours]);
+  const colours = useMemo(() => groupByColour(variants, images), [variants, images]);
+  const source = useMemo(() => sourceForColours(colours), [colours]);
 
   /** Colours being made right now, so they are not offered a second time. */
   const mine = useMemo(() => (jobs?.active ?? []).filter(j => j.kind === 'COLOUR'), [jobs]);
   const busy = useMemo(() => new Set(mine.map(j => j.colourName.toLowerCase())), [mine]);
 
-  // Colours with no photograph at all. A colour that already has one is never touched, and one
-  // already being made is not offered again -- the database would refuse it anyway, but being
-  // refused for pressing a button the screen was still showing is not an explanation.
+  // A colour already being made is not offered again -- the database would refuse it anyway, but
+  // being refused for pressing a button the screen was still showing is not an explanation.
   const targets = useMemo(
-    () => colours.filter(c => c.images.length === 0 && c.variantIds.length > 0 && !busy.has(c.name.toLowerCase())),
+    () => colourTargets(colours).filter(c => !busy.has(c.name.toLowerCase())),
     [colours, busy]
   );
+
+  // Ones that were stopped or failed part-way, rather than never started. Worth naming: the shop
+  // is looking at a photograph of that colour already and would otherwise wonder what we mean.
+  const unfinished = useMemo(() => targets.filter(c => viewsMadeFor(c.images).size > 0), [targets]);
 
   /*
    * When a job of ours drops out of the active list it has finished, and the photographs it made
@@ -118,7 +98,7 @@ export default function ColourVariantsPanel({ productId, dressType, variants, im
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
         <Palette size={18} />
         <h3 style={{ fontSize: '15px', fontWeight: 600, margin: 0 }}>
-          The colours with no photograph
+          The colours still waiting for photographs
         </h3>
       </div>
 
@@ -128,6 +108,19 @@ export default function ColourVariantsPanel({ productId, dressType, variants, im
           <b>{targets.map(t => t.name).join(', ')}</b>. The weave, the border, the blouse and the
           model stay as they are &mdash; only the colour of the cloth changes. Photograph any of
           them yourself instead if you would rather.
+          {unfinished.length > 0 && (
+            <>
+              {' '}
+              {/*
+                Named rather than lumped in. A colour that stopped at 2 of 4 already has pictures
+                on the screen below, and telling the shop it "has no photograph" reads as the app
+                not knowing what it is looking at.
+              */}
+              <b>{unfinished.map(c => `${c.name} (${progressText(c)})`).join(', ')}</b>{' '}
+              {unfinished.length === 1 ? 'was' : 'were'} stopped part-way; running again makes the
+              whole set and replaces what is there, so they match.
+            </>
+          )}
         </p>
       )}
 

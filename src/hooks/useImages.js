@@ -38,9 +38,18 @@ export function useImages(productId) {
 export function useUploadImage(productId) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ file, isPrimary = false, altText = '', variantId }) => {
+    /*
+     * imageType is an argument now, not a constant.
+     *
+     * Everything uploaded here used to become a GALLERY photo, which is right for a picture the
+     * shop wants customers to see and wrong for a flat-lay handed over purely to generate the
+     * catalogue views from. There was no way to say which, so a shop that uploaded a flat-lay
+     * after publishing put a photograph of cloth on a table into their own shop window, with no
+     * way back other than deleting it.
+     */
+    mutationFn: async ({ file, isPrimary = false, altText = '', variantId, imageType = 'GALLERY' }) => {
       // No tenant is passed: the server derives the storage path from the session's JWT.
-      const response = await uploadImageFile(productId, file, { isPrimary, altText, imageType: 'GALLERY', variantId });
+      const response = await uploadImageFile(productId, file, { isPrimary, altText, imageType, variantId });
       return response.data;
     },
     onSuccess: () => {

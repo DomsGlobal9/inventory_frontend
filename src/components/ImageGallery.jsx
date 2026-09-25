@@ -1,6 +1,6 @@
 import React, { useRef, useState, useMemo } from 'react';
 import LoadFailed from './LoadFailed';
-import { Upload, X, Star, Loader2, ImageOff } from 'lucide-react';
+import { Upload, X, Star, Loader2, ImageOff, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useImages, useUploadImage, useDeleteImage, useUpdateImage } from '../hooks/useImages';
 import { useVariants } from '../hooks/useVariants';
@@ -152,6 +152,15 @@ export default function ImageGallery({ productId, dressType }) {
   /** Promote a reference to a real photo, for a merchant who wants it in the shop after all. */
   const showInShop = (imageId) => updateMutation.mutate({ imageId, data: { imageType: 'GALLERY' } });
 
+  /*
+   * And the way back, which did not exist.
+   *
+   * A shop that uploaded a flat-lay before there was anywhere to say "this is only a reference"
+   * put a photograph of cloth on a table into their shop window, and the only way out was to
+   * delete it -- which also threw away the picture their generated views came from.
+   */
+  const hideFromShop = (imageId) => updateMutation.mutate({ imageId, data: { imageType: 'RAW_UPLOAD' } });
+
   const referenceCount = images.filter(i => i.imageType === 'RAW_UPLOAD').length;
 
   const renderImage = (image) => (
@@ -226,14 +235,28 @@ export default function ImageGallery({ productId, dressType }) {
             <Star size={14} />
           </button>
         )}
-        <button
-          onClick={() => handleDelete(image.id)}
-          disabled={deleteMutation.isPending}
-          style={{ color: '#fff', background: 'rgba(239, 68, 68, 0.8)', padding: '6px', borderRadius: '4px', display: 'flex' }}
-          title="Delete this photo"
-        >
-          <X size={14} />
-        </button>
+        <div style={{ display: 'flex', gap: '6px', alignSelf: 'flex-start' }}>
+          {/* Only on a photo customers can see, and never on the main one: hiding the picture a
+              product leads with would empty its place in the shop. */}
+          {!isReference(image) && !image.isPrimary && (
+            <button
+              onClick={() => hideFromShop(image.id)}
+              disabled={updateMutation.isPending}
+              style={{ color: '#fff', background: 'rgba(0,0,0,0.5)', padding: '6px', borderRadius: '4px', display: 'flex' }}
+              title="Keep this as a flat-lay reference, out of your shop"
+            >
+              <EyeOff size={14} />
+            </button>
+          )}
+          <button
+            onClick={() => handleDelete(image.id)}
+            disabled={deleteMutation.isPending}
+            style={{ color: '#fff', background: 'rgba(239, 68, 68, 0.8)', padding: '6px', borderRadius: '4px', display: 'flex' }}
+            title="Delete this photo"
+          >
+            <X size={14} />
+          </button>
+        </div>
       </div>
     </motion.div>
   );

@@ -1,8 +1,9 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { Camera, Check, StopCircle, AlertCircle } from 'lucide-react';
+import { Camera, Check, StopCircle, AlertCircle, Upload } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { plainGenerationError } from '../utils/friendlyError';
 import { putImageBytes, registerImage, dataUrlToFile } from '../services/image.service';
+import { uploadImageFile } from '../services/image.service';
 import {
   VIEW_ORDER, pickRandomModelId, resolveTryOnCategory, streamCatalog
 } from '../lib/catalogGeneration';
@@ -58,14 +59,71 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
    * allowance to replace pictures the shop has already seen and kept.
    */
   const candidates = useMemo(
-    () => colours.filter(c =>
-      c.images.length > 0 && !c.images.some(i => i.generated && i.view)
-    ),
+    () => colours.filter(c => !c.images.some(i => i.generated && i.view)),
     [colours]
   );
 
+  /*
+   * What to generate FROM, in the order that respects what the shop meant.
+   *
+   * A flat-lay handed over for this job comes first, then the main photograph, then anything.
+   * A colour with nothing is not a dead end any more -- it is offered the flat-lay upload below,
+   * which was the case this panel originally could not help with at all: a product published
+   * without pictures for every colour had no way to give one now and generate from it.
+   */
+  const sourceFor = (c) =>
+    c.images.find(i => i.imageType === 'RAW_UPLOAD')
+    ?? c.images.find(i => i.isPrimary)
+    ?? c.images[0]
+    ?? null;
+
   const [chosen, setChosen] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const flatLayRef = useRef(null);
   const target = candidates.find(c => c.name === chosen) ?? candidates[0] ?? null;
+  const source = target ? sourceFor(target) : null;
+
+  /*
+   * The flat-lay path: a colour with no photograph at all.
+   *
+   * Uploaded as RAW_UPLOAD rather than GALLERY, which is what keeps it out of the shop -- the
+   * gallery shows it dimmed and labelled NOT IN YOUR SHOP, with a way to publish it after all if
+   * the shop decides they want it there. Then it generates straight away, because choosing a
+   * flat-lay IS the instruction; making somebody press a second button afterwards would be asking
+   * them to confirm something they already said.
+   */
+  const chooseFlatLay = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file || !target) return;
+    if (/heic|heif/i.test(file.type) || /\.(heic|heif)$/i.test(file.name)) {
+      return toast.error('This is an iPhone HEIC photo. Share it as a JPEG (or set the camera to "Most Compatible") and choose it again.');
+    }
+    setUploading(true);
+    try {
+      const saved = await uploadImageFile(productId, file, {
+        variantId: target.variantIds[0],
+        imageType: 'RAW_UPLOAD',
+        altText: `${target.name}, flat-lay`
+      });
+      /*
+       * The row, not the envelope. uploadImageFile hands back what the API returned, and this
+       * backend wraps everything in { success, data } -- so reading .url straight off it gave
+       * undefined, the generation decided it had no source and returned without a word. The
+       * flat-lay uploaded, nothing was made, and nothing said why.
+       */
+      const image = saved?.data ?? saved;
+      if (!image?.url) throw new Error('That picture was saved but could not be read back.');
+      onChanged?.();
+      // Straight into the generation, with the picture just stored as its source.
+      await run(image);
+    } catch (err) {
+      console.error('Flat-lay upload failed:', err);
+      toast.error(err?.message || 'That picture could not be saved. Please try again.');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const stop = () => {
     stoppedRef.current = true;
@@ -74,10 +132,9 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
     setStep(null);
   };
 
-  const run = async () => {
+  const run = async (fromImage) => {
     if (!target) return;
-    // The best photograph to work from is the main one if there is one, else the first.
-    const source = target.images.find(i => i.isPrimary) ?? target.images[0];
+    const source = fromImage ?? sourceFor(target);
     if (!source?.url) return;
 
     stoppedRef.current = false;
@@ -154,10 +211,23 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
       </div>
 
       <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 14px' }}>
-        We take your photograph of the <b>{target.name}</b> one and make the four views a
-        catalogue wants &mdash; front, left, right and back &mdash; on a model. Your own
-        photograph stays exactly where it is. Photograph the other views yourself instead if you
-        would rather.
+        {source ? (
+          <>
+            We take your photograph of the <b>{target.name}</b> one and make the four views a
+            catalogue wants &mdash; front, left, right and back &mdash; on a model.{' '}
+            {source.imageType === 'RAW_UPLOAD'
+              ? 'Your flat-lay stays out of your shop.'
+              : 'Your own photograph stays exactly where it is.'}{' '}
+            Photograph the other views yourself instead if you would rather.
+          </>
+        ) : (
+          <>
+            <b>{target.name}</b> has no photograph yet. Give us a flat-lay of it &mdash; the piece
+            laid out flat on a table &mdash; and we make the four views from that. The flat-lay is
+            kept as a reference and <b>is not shown in your shop</b>, so a picture of cloth on a
+            table never ends up in your shop window.
+          </>
+        )}
       </p>
 
       {candidates.length > 1 && !running && (
@@ -173,10 +243,18 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
       )}
 
       {!running && (
-        <button type="button" className="btn btn-primary" onClick={run}
-          style={{ padding: '9px 16px', borderRadius: '8px' }}>
-          MAKE THE FOUR VIEWS
-        </button>
+        <>
+          <input ref={flatLayRef} type="file" accept="image/png,image/jpeg,image/webp"
+            onChange={chooseFlatLay} style={{ display: 'none' }} />
+          <button type="button" className="btn btn-primary"
+            onClick={() => (source ? run() : flatLayRef.current?.click())}
+            disabled={uploading}
+            style={{ padding: '9px 16px', borderRadius: '8px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+            {source
+              ? 'MAKE THE FOUR VIEWS'
+              : <><Upload size={15} /> {uploading ? 'UPLOADING…' : 'CHOOSE A FLAT-LAY'}</>}
+          </button>
+        </>
       )}
 
       {running && (

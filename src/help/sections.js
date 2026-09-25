@@ -128,6 +128,18 @@ export const SECTIONS = [
       kn: 'WhatsApp ನಲ್ಲಿ ನಿಮ್ಮ ಗ್ರಾಹಕರಿಗೆ ಆಫರ್‌ಗಳು ಮತ್ತು ಶುಭಾಶಯಗಳು.'
     },
     pages: ['whatsapp-campaigns'] },
+  { id: 'online-shop', title: 'Online shop', icon: 'Globe',
+    blurb: 'Your own shop on the web: open it, share the link, and take orders.',
+    titles: { te: 'Online shop (ఆన్‌లైన్ షాప్)', hi: 'Online shop (ऑनलाइन दुकान)', ta: 'Online shop (ஆன்லைன் கடை)', kn: 'Online shop (ಆನ್‌ಲೈನ್ ಅಂಗಡಿ)' },
+    blurbs: {
+      te: 'వెబ్‌లో మీ సొంత షాప్: తెరవండి, లింక్ పంచుకోండి, ఆర్డర్‌లు తీసుకోండి.',
+      hi: 'वेब पर आपकी अपनी दुकान: खोलें, लिंक भेजें और ऑर्डर लें।',
+      ta: 'இணையத்தில் உங்கள் சொந்தக் கடை: திறக்கவும், இணைப்பைப் பகிரவும், ஆர்டர்களைப் பெறவும்.',
+      kn: 'ವೆಬ್‌ನಲ್ಲಿ ನಿಮ್ಮದೇ ಅಂಗಡಿ: ತೆರೆಯಿರಿ, ಲಿಂಕ್ ಹಂಚಿಕೊಳ್ಳಿ ಮತ್ತು ಆರ್ಡರ್‌ಗಳನ್ನು ಸ್ವೀಕರಿಸಿ.'
+    },
+    // The order somebody actually does it in: understand it, open it, dress it, share it, then
+    // sell from it -- and the pages about what customers do come after the shop exists.
+    pages: ['how-your-shop-works', 'open-your-shop', 'what-customers-see', 'shop-banners', 'share-your-shop', 'taking-orders', 'your-details-and-returns', 'colour-photos', 'filters-customers-use', 'orders-and-alerts', 'who-is-waiting'] },
   { id: 'settings', title: 'Settings', icon: 'Settings',
     blurb: 'Shop details, stores, catalog, Day Book, team, roles and connections.',
     titles: { te: 'Settings (సెట్టింగ్‌లు)', hi: 'Settings (सेटिंग्स)', ta: 'Settings (அமைப்புகள்)', kn: 'Settings (ಸೆಟ್ಟಿಂಗ್‌ಗಳು)' },

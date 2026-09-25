@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link, Navigate, useOutletContext, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Search, ChevronRight, BookOpen, Compass, ShoppingBag, Package, Boxes, Truck, MapPinned, Tag, BarChart3, Settings, LifeBuoy, LayoutDashboard, Undo2, ArrowLeftRight, FileText, Users, Megaphone } from 'lucide-react';
+import { Search, ChevronRight, BookOpen, Compass, ShoppingBag, Package, Boxes, Truck, MapPinned, Tag, BarChart3, Settings, LifeBuoy, LayoutDashboard, Undo2, ArrowLeftRight, FileText, Users, Megaphone, Globe } from 'lucide-react';
 import { SECTIONS } from '../../help/sections';
 import { pagesIn, pageForRoute, pageExists, sectionTitle, sectionBlurb } from '../../help/library';
 import { t } from '../../help/ui';
 
-const Icons = { Search, ChevronRight, BookOpen, Compass, ShoppingBag, Package, Boxes, Truck, MapPinned, Tag, BarChart3, Settings, LifeBuoy, LayoutDashboard, Undo2, ArrowLeftRight, FileText, Users, Megaphone };
+const Icons = { Search, ChevronRight, BookOpen, Compass, ShoppingBag, Package, Boxes, Truck, MapPinned, Tag, BarChart3, Settings, LifeBuoy, LayoutDashboard, Undo2, ArrowLeftRight, FileText, Users, Megaphone, Globe };
 
 /** Where a new reader starts, by the job they do. */
 const ROLES = [

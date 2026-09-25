@@ -41,8 +41,8 @@ Choosing an address and filling in the settings does not put anything on the web
 
 ## What it does not do yet
 
-- **Paying online** is not available yet. Customers pay when the order arrives, in cash or by UPI. The **Online** payment box is there but switched off.
-- **Delivery tracking** is not built in. You send the order the way you send any other.
+- Paying online is not available yet. Customers pay when the order arrives, in cash or by UPI. The **Online** payment box is there but switched off.
+- Delivery tracking is not built in. You send the order the way you send any other.
 
 ## Where to go next
 

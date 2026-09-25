@@ -6,6 +6,7 @@ import SummaryCards from '../components/dashboard/SummaryCards';
 import SetUpShelvesCard from '../components/shelves/SetUpShelvesCard';
 import RecentTransactions from '../components/dashboard/RecentTransactions';
 import LowStockWidget from '../components/dashboard/LowStockWidget';
+import WaitingWidget from '../components/dashboard/WaitingWidget';
 import DeadStockWidget from '../components/dashboard/DeadStockWidget';
 import SupplierSpendWidget from '../components/dashboard/SupplierSpendWidget';
 import InventoryTrendChart from '../components/dashboard/InventoryTrendChart';
@@ -174,6 +175,11 @@ export default function Dashboard() {
         >
           {activeTab === 'overview' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              {/* Customers who wanted something that had sold out. First, because it is the only
+                  thing on this screen that goes stale -- somebody waiting a week has bought it
+                  somewhere else. It renders nothing at all when nobody is waiting, so it costs a
+                  shop with none of them no space and no attention. */}
+              <motion.div variants={item}><WaitingWidget /></motion.div>
               {shows('recent') && (
                 <motion.div variants={item}>
                   <RecentTransactions />

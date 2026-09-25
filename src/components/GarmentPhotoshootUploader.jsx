@@ -299,7 +299,9 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete, colorC
     return () => {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
-        api.post('/catalog-tryon/cancel-job').catch(() => {});
+        // This colour's job, not whatever else the shop has running. The component is keyed by
+        // colour in UploadPhotos, so this instance's colorCode is the one it started.
+        api.post('/catalog-tryon/cancel-job', { jobId: colorCode || 'default' }).catch(() => {});
       }
     };
   }, []);
@@ -473,7 +475,15 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete, colorC
   const buildPayload = async () => {
     // Randomized fresh per generation call -- there are 4 equally-valid models per
     // category and no preview imagery to pick from, per the Try-On API docs.
-    const base = { modelId: pickRandomModelId(tryOnCategory), category: tryOnCategory };
+    // Names this generation after the colour it is for, so two colours of one product are two
+    // separate jobs upstream. Sending nothing here meant every generation from a shop shared one
+    // job name, and starting a second one cancelled the first mid-stream. The server prefixes the
+    // shop onto it and strips anything the far end will not accept -- this is only ever a suffix.
+    const base = {
+      modelId: pickRandomModelId(tryOnCategory),
+      category: tryOnCategory,
+      jobId: colorCode || 'default'
+    };
 
     if (isSaree) {
       base.saree = await fileToBase64(files.saree);
@@ -491,7 +501,7 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete, colorC
     setGenerating(false);
     setStatus("Generation stopped.");
     try {
-      await api.post('/catalog-tryon/cancel-job');
+      await api.post('/catalog-tryon/cancel-job', { jobId: colorCode || 'default' });
     } catch (err) {
       console.error('cancel-job failed:', err);
     }

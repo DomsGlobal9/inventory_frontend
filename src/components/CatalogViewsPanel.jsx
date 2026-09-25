@@ -31,7 +31,6 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
   const [running, setRunning] = useState(false);
   const [done, setDone] = useState([]);
   const [failure, setFailure] = useState(null);
-  const [step, setStep] = useState(null);
   const abortRef = useRef(null);
   const stoppedRef = useRef(false);
 
@@ -58,9 +57,29 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
    * views yet. A colour that already has its set is left alone -- running again would spend the
    * allowance to replace pictures the shop has already seen and kept.
    */
-  const candidates = useMemo(
-    () => colours.filter(c => !c.images.some(i => i.generated && i.view)),
+  /*
+   * Is there already a generated front view somewhere on this product? If so, the colours panel
+   * below can fill an empty colour from it -- no photograph needed, nothing for the shop to go
+   * and take. That is the better route whenever it exists.
+   *
+   * Same test the colours panel uses, deliberately: the two must agree about what counts, or they
+   * both offer to fill the same colour and the shop has to guess which button is the right one.
+   * Seen on screen before this: "CHOOSE A FLAT-LAY" and "MAKE THIS COLOUR" side by side, both
+   * pointing at Red.
+   */
+  const somethingToCopyFrom = useMemo(
+    () => colours.some(c => c.images.some(i => i.generated && i.view === 'front')),
     [colours]
+  );
+
+  const candidates = useMemo(
+    () => colours.filter(c => {
+      if (c.images.some(i => i.generated && i.view)) return false;   // already has its set
+      if (c.images.length > 0) return true;                          // has a photograph to work from
+      // Nothing of its own: only worth a flat-lay when there is nothing to copy from either.
+      return !somethingToCopyFrom;
+    }),
+    [colours, somethingToCopyFrom]
   );
 
   /*
@@ -129,7 +148,6 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
     stoppedRef.current = true;
     abortRef.current?.abort();
     setRunning(false);
-    setStep(null);
   };
 
   const run = async (fromImage) => {
@@ -157,7 +175,6 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
           saree: source.url
         },
         signal: controller.signal,
-        onStatus: (s) => setStep(s),
         onView: async (view, dataUrl) => {
           // Saved as it lands, so a run that is stopped or fails on its fourth view keeps the
           // three that arrived.
@@ -188,7 +205,6 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
     } finally {
       abortRef.current = null;
       setRunning(false);
-      setStep(null);
       onChanged?.();
       if (!stoppedRef.current && !failure) {
         toast.success('The four views are made. Look through them below.');
@@ -260,7 +276,12 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
       {running && (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
           <p style={{ fontSize: '14px', margin: 0 }}>
-            {step || `Making the ${target.name} views`}&hellip;
+            {/*
+              Our words, not the far end's. It reports things like "Starting AI Generation
+              Pipeline......", which is a sentence written for whoever built it -- a saree shop
+              owner should not be reading about pipelines on their own product screen.
+            */}
+            Making the {target.name} views&hellip;
             <span style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)' }}>
               {done.length} of 4 done. About a minute in all.
             </span>

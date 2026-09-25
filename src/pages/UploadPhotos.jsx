@@ -5,6 +5,7 @@ import { useProduct } from '../context/ProductContext';
 import { useCatalogData } from '../hooks/useCatalogConfig';
 import { colorInfoFor } from '../utils/colorOptions';
 import GarmentPhotoshootUploader from '../components/GarmentPhotoshootUploader';
+import ColourVariantMaker from '../components/ColourVariantMaker';
 
 /**
  * Photographs, one colour at a time.
@@ -172,6 +173,17 @@ export default function UploadPhotos() {
         colorCode={current.code}
         colorLabel={showColourRow ? current.info.name : undefined}
         onGenerationComplete={() => {}}
+      />
+
+      {/*
+        Offered only once THIS colour has been generated, and only for colours that still have
+        nothing -- so it appears at the moment it is useful and says nothing the rest of the
+        time. It decides that for itself and renders nothing when there is no offer to make.
+      */}
+      <ColourVariantMaker
+        colourList={colourList}
+        sourceCode={current.code}
+        colorInfoFor={(code) => colorInfoFor(code, colors)}
       />
 
       <div className="mobile-sticky-footer"

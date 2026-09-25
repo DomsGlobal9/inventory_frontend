@@ -341,7 +341,17 @@ export default function ProductPreview() {
             for (const variantId of targets) {
               await registerImage(productId, stored, {
                 variantId,
-                isPrimary: view === 'front',
+                /*
+                 * The front view leads -- unless there isn't one, in which case the first
+                 * generated view does.
+                 *
+                 * A generation that is stopped, or fails part-way, can leave a colour with
+                 * back and side and no front. `view === 'front'` alone then made NOTHING the
+                 * main photograph, and a colour with no main photograph falls back to another
+                 * colour's -- so a half-finished blue was shown as red. Seen for real: a
+                 * colour left holding one view, marked primary=false.
+                 */
+                isPrimary: view === 'front' || (!frontLeads && colour.uploads.length === 0 && orderIndex === 0),
                 altText: `${photoPayload.title} - ${colour.name}, ${view} view`,
                 imageType: 'GALLERY',
                 generated: true,

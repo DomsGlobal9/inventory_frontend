@@ -5,114 +5,17 @@ import { AlertCircle, CheckCircle, X, Image as ImageIcon, StopCircle, Eye, Camer
 import { useProduct } from "../context/ProductContext";
 import { api } from "../lib/api";
 import ImageLightbox from "./ImageLightbox";
-import { API_BASE_URL } from '../lib/config';
 import { plainGenerationError } from '../utils/friendlyError';
+import {
+  VIEW_ORDER, fileToBase64, pickRandomModelId, resolveTryOnCategory, streamCatalog
+} from '../lib/catalogGeneration';
 
-const VIEW_ORDER = ["front", "left", "right", "back"];
 const VIEW_LABELS = {
   front: "Front",
   left: "Sitting",
   right: "Right",
   back: "Back",
 };
-
-// The Try-On API's view names don't match our internal keys/labels 1:1.
-const API_VIEW_TO_LOCAL = { front: "front", sitting: "left", side: "right", back: "back" };
-
-// The Try-On API only supports these 5 garment families. Anything else (menswear,
-// kids' sets, western wear, "Wedding"/"Salwar Suit Sets" and similar catch-alls) has
-// no matching model and must never be offered AI generation -- silently defaulting
-// those to KURTI (the old behavior) produced nonsense results for unrelated garments.
-function resolveTryOnCategory(dressType) {
-  const dt = (dressType || "").toLowerCase();
-  if (dt.includes("saree")) return "SAREE";
-  if (dt.includes("anarkali")) return "ANARKALI";
-  if (dt.includes("lehanga") || dt.includes("lehenga")) return "LEHANGA";
-  if (dt.includes("sharara")) return "SHARARA";
-  if (dt.includes("kurti") || dt.includes("kurta")) return "KURTI";
-  return null; // no supported category -- caller must fall back to plain upload
-}
-
-// There are exactly 4 standardized models per category (per the Try-On API docs)
-// and no per-model preview imagery is exposed, so we can't offer a real picker --
-// pick one at random on every generation instead.
-function pickRandomModelId(category) {
-  const index = Math.floor(Math.random() * 4) + 1;
-  return `${category.toLowerCase()}${index}`;
-}
-
-// Phone-camera photos routinely run 8-15MB; sent 2-3 at a time as base64 (+33%
-// overhead) that blew straight through the backend's payload limit. Downscaling to a
-// generous max dimension and re-encoding as JPEG keeps each image in the low hundreds
-// of KB -- more than enough detail for the Try-On model, and avoids needing an
-// ever-larger server-side limit to chase real-world photo sizes.
-const MAX_DIMENSION = 1600;
-const JPEG_QUALITY = 0.85;
-
-// The Try-On API occasionally returns a single "view" as a multi-pose contact sheet
-// (several near-identical renders side by side on one continuous backdrop) instead of
-// one clean photo. A normal full-body product shot is portrait (taller than wide); a
-// panel composite is landscape, roughly N times wider than a single panel. When we
-// see that shape, assume N equal panels and keep only the first one.
-function loadImage(dataUrl) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error('Failed to load generated image'));
-    img.src = dataUrl;
-  });
-}
-
-async function keepFirstPoseOnly(dataUrl) {
-  try {
-    const img = await loadImage(dataUrl);
-    const ratio = img.naturalWidth / img.naturalHeight;
-    if (ratio <= 1.15) return dataUrl; // normal portrait shot, nothing to crop
-
-    const panelCount = Math.round(ratio / 0.75) || 1; // ~0.75 = typical single-pose portrait ratio
-    if (panelCount <= 1) return dataUrl;
-
-    const panelWidth = Math.floor(img.naturalWidth / panelCount);
-    const canvas = document.createElement('canvas');
-    canvas.width = panelWidth;
-    canvas.height = img.naturalHeight;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0, panelWidth, img.naturalHeight, 0, 0, panelWidth, img.naturalHeight);
-    return canvas.toDataURL('image/jpeg', JPEG_QUALITY);
-  } catch {
-    return dataUrl; // if anything goes wrong, fall back to the original rather than losing the image
-  }
-}
-
-function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const objectUrl = URL.createObjectURL(file);
-
-    img.onload = () => {
-      URL.revokeObjectURL(objectUrl);
-
-      let { width, height } = img;
-      if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
-        const scale = MAX_DIMENSION / Math.max(width, height);
-        width = Math.round(width * scale);
-        height = Math.round(height * scale);
-      }
-
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
-      resolve(canvas.toDataURL('image/jpeg', JPEG_QUALITY));
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(objectUrl);
-      reject(new Error(`Failed to load ${file.name} for compression`));
-    };
-    img.src = objectUrl;
-  });
-}
 
 /**
  * A grid of photographs with one box on the end that adds more.
@@ -293,15 +196,20 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete, colorC
   const [lightboxSrc, setLightboxSrc] = useState(null);
   const abortControllerRef = useRef(null);
 
+  // Which colour this instance is for, readable from a cleanup that runs once on unmount.
+  // The component is keyed by colour today, so the closure would be right anyway -- but a ref
+  // stays right if that keying is ever removed, and cancelling the wrong colour's job is a
+  // silent failure rather than a visible one.
+  const colorCodeRef = useRef(colorCode);
+  colorCodeRef.current = colorCode;
+
   // Stop a generation still in flight if the user navigates away mid-stream, so we
   // don't leave a zombie job burning the Gateway quota.
   useEffect(() => {
     return () => {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
-        // This colour's job, not whatever else the shop has running. The component is keyed by
-        // colour in UploadPhotos, so this instance's colorCode is the one it started.
-        api.post('/catalog-tryon/cancel-job', { jobId: colorCode || 'default' }).catch(() => {});
+        api.post('/catalog-tryon/cancel-job', { jobId: colorCodeRef.current || 'default' }).catch(() => {});
       }
     };
   }, []);
@@ -522,70 +430,39 @@ export default function GarmentPhotoshootUploader({ onGenerationComplete, colorC
     setViews({});
     setError(null);
 
-    const collected = {};
     const abortController = new AbortController();
     abortControllerRef.current = abortController;
 
     try {
       const payload = await buildPayload();
-      const apiBase = API_BASE_URL;
-      const response = await fetch(`${apiBase}/catalog-tryon/generate-catalog`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+
+      // The stream itself is read in one shared place, because this is no longer the only
+      // caller -- making a colour from another colour's photograph reads the same stream, and
+      // two copies of keepalive-skipping and out-of-order views would drift apart.
+      const collected = await streamCatalog({
+        payload,
         signal: abortController.signal,
+        onStatus: setStatus,
+        onView: (view, image) => {
+          setViews(prev => ({ ...prev, [view]: image }));
+          setStep(view);
+        }
       });
 
-      if (!response.ok || !response.body) {
-        const text = await response.text().catch(() => '');
-        throw new Error(text || `Generation failed to start (${response.status})`);
-      }
+      setStatus('Generation complete.');
+      setGenerating(false);
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder('utf-8');
-      let buffer = '';
+      // Saved together in one write. The generated views and the photographs they were
+      // made from are one colour's set; saving them in two calls let a second colour's
+      // generation land between the halves.
+      //
+      // `hasGeneratedGarment` and `imageUrls` used to be written here as well. Both were
+      // product-wide -- with photographs now kept per colour, whichever colour finished
+      // last would have overwritten the others -- and neither was ever read back by
+      // anything, so they are gone rather than made per-colour.
+      setPhotosFor(colorCode, { generatedViews: collected, sourceFiles: files });
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const chunks = buffer.split('\n\n');
-        buffer = chunks.pop();
-
-        for (const chunk of chunks) {
-          if (!chunk.startsWith('data: ')) continue;
-          const data = JSON.parse(chunk.substring(6));
-
-          if (data.type === 'STATUS') {
-            setStatus(data.message);
-          } else if (data.type === 'VIEW_READY') {
-            const localKey = API_VIEW_TO_LOCAL[data.view] || data.view;
-            const cleanImage = await keepFirstPoseOnly(data.image);
-            collected[localKey] = cleanImage;
-            setViews(prev => ({ ...prev, [localKey]: cleanImage }));
-            setStep(localKey);
-          } else if (data.type === 'COMPLETE') {
-            setStatus('Generation complete.');
-            setGenerating(false);
-
-            // Saved together in one write. The generated views and the photographs they were
-            // made from are one colour's set; saving them in two calls let a second colour's
-            // generation land between the halves.
-            //
-            // `hasGeneratedGarment` and `imageUrls` used to be written here as well. Both were
-            // product-wide -- with photographs now kept per colour, whichever colour finished
-            // last would have overwritten the others -- and neither was ever read back by
-            // anything, so they are gone rather than made per-colour.
-            setPhotosFor(colorCode, { generatedViews: collected, sourceFiles: files });
-
-            if (onGenerationComplete) onGenerationComplete();
-          } else if (data.type === 'ERROR') {
-            throw new Error(data.error || 'Generation failed');
-          }
-        }
-      }
+      if (onGenerationComplete) onGenerationComplete();
     } catch (err) {
       if (err.name === 'AbortError') return; // user hit Stop -- already handled there
       // The real error goes here, where we can read it, and nowhere else. What the shop

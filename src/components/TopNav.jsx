@@ -11,6 +11,30 @@ import { useAlerts, useMarkAlertRead, useMarkAllAlertsRead, useTogglePinAlert, u
 import Select from './common/Select';
 
 
+/**
+ * What each kind of alert is called in the bell, and in what colour.
+ *
+ * Written down rather than inferred, because the old rule was "OUT_OF_STOCK, else LOW STOCK" --
+ * which quietly labelled every new kind of alert as a stock warning. An online order is not a
+ * warning at all: nothing is wrong, there is something to do, and doing it is how the shop gets
+ * paid. An unknown type falls back to its own name rather than borrowing one.
+ */
+const ALERT_LABEL = {
+  OUT_OF_STOCK: 'OUT OF STOCK',
+  LOW_STOCK: 'LOW STOCK',
+  ONLINE_ORDER: 'ONLINE SHOP',
+  REORDER_REQUIRED: 'REORDER',
+  OVERSTOCK: 'OVERSTOCK',
+  STOCK_DISCREPANCY: 'COUNT DOES NOT MATCH',
+  SYSTEM_ERROR: 'PROBLEM'
+};
+
+const ALERT_TONE = {
+  OUT_OF_STOCK: 'var(--accent-danger)',
+  SYSTEM_ERROR: 'var(--accent-danger)',
+  ONLINE_ORDER: 'var(--accent-success, #16a34a)'
+};
+
 export default function TopNav({ onMenuClick }) {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -355,11 +379,19 @@ export default function TopNav({ onMenuClick }) {
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px', gap: '8px' }}>
                         <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
                           {alert.isPinned && <Pin size={11} style={{ color: 'var(--accent-gold)', flexShrink: 0 }} fill="var(--accent-gold)" />}
-                          {alert.productTitle}
+                          {/* An alert is not always about a product. An online order has no
+                              variant, so productTitle is null and this row had no heading at
+                              all -- the words "New online order SO-000005" were written, sent,
+                              and shown nowhere. Fall back to the alert's own title. */}
+                          {alert.productTitle || alert.title}
                         </span>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-                          <span style={{ fontSize: '11px', color: alert.type === 'OUT_OF_STOCK' ? 'var(--accent-danger)' : 'var(--accent-gold)' }}>
-                            {alert.type === 'OUT_OF_STOCK' ? 'OUT OF STOCK' : 'LOW STOCK'}
+                          {/* Anything that was not OUT_OF_STOCK was called LOW STOCK, so a new
+                              online order -- money waiting to be packed -- was labelled as a
+                              stock warning. Named from the type, with an unknown one falling
+                              back to its own words rather than to somebody else's. */}
+                          <span style={{ fontSize: '11px', color: ALERT_TONE[alert.type] ?? 'var(--accent-gold)' }}>
+                            {ALERT_LABEL[alert.type] ?? String(alert.type || 'ALERT').replace(/_/g, ' ')}
                           </span>
                           <button
                             title={alert.isPinned ? 'Unpin' : 'Pin'}

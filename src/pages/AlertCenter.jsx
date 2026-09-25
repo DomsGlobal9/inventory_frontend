@@ -22,6 +22,17 @@ export default function AlertCenter() {
   const allAlerts = data?.alerts || [];
   const outOfStock = allAlerts.filter(a => a.type === 'OUT_OF_STOCK');
   const lowStock = allAlerts.filter(a => a.type === 'LOW_STOCK');
+  /*
+   * Everything that is not about stock levels -- today that is the online shop's own alerts,
+   * a new order and a cancellation.
+   *
+   * This page grouped alerts into exactly two buckets and rendered nothing else, so an online
+   * order raised the bell's count and then could not be found anywhere: the shop saw a red 1,
+   * opened it, clicked through, and landed here on a page that did not contain it. They are
+   * listed rather than put in the table above, which is built around stock figures an order
+   * does not have.
+   */
+  const others = allAlerts.filter(a => a.type !== 'OUT_OF_STOCK' && a.type !== 'LOW_STOCK');
 
   const handleExport = () => {
     const rows = (activeTab === 'out_of_stock' ? outOfStock : lowStock).map(v => ({
@@ -98,9 +109,50 @@ export default function AlertCenter() {
           <AlertCircle size={16} />
           Low Stock ({lowStock.length})
         </button>
+        {others.length > 0 && (
+          <button
+            onClick={() => setActiveTab('other')}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              padding: '12px 24px',
+              background: 'transparent',
+              borderBottom: `2px solid ${activeTab === 'other' ? 'var(--accent-success, #16a34a)' : 'transparent'}`,
+              color: activeTab === 'other' ? 'var(--accent-success, #16a34a)' : 'var(--text-secondary)',
+              fontWeight: activeTab === 'other' ? '600' : '400',
+              transition: 'all 0.2s',
+              position: 'relative'
+            }}
+          >
+            <AlertCircle size={16} />
+            Your shop ({others.length})
+          </button>
+        )}
       </motion.div>
 
+      {/* The shop's own alerts, which have no stock figures to put in the table below. Title,
+          what happened, and when -- which for a new order is everything needed to go and pack it. */}
+      {activeTab === 'other' && (
+        <motion.div variants={item} className="table-container mobile-no-scroll"
+          style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '8px' }}>
+          {others.map(a => (
+            <div key={a.id} style={{
+              padding: '14px 16px', borderBottom: '1px solid var(--border-light)',
+              background: a.isRead ? 'transparent' : 'rgba(22, 163, 74, 0.05)'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+                <b style={{ fontSize: '14px', color: 'var(--text-primary)' }}>{a.title}</b>
+                <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                  {new Date(a.createdAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}
+                </span>
+              </div>
+              <p style={{ margin: '4px 0 0', fontSize: '13px', color: 'var(--text-secondary)' }}>{a.message}</p>
+            </div>
+          ))}
+        </motion.div>
+      )}
+
       {/* Content */}
+      {activeTab !== 'other' && (
       <motion.div variants={item} className="table-container mobile-no-scroll" style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
@@ -225,6 +277,7 @@ export default function AlertCenter() {
           </tbody>
         </table>
       </motion.div>
+      )}
     </motion.div>
   );
 }

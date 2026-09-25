@@ -30,9 +30,7 @@ While it runs you see **Making the Bottle Green one…** and how many are done. 
 
 ## 3. Check them before your customers do
 
-When it finishes you see **Made: Bottle Green, Indigo.** and the new photographs appear in the gallery against those colours.
-
-![The gallery after the colours were made: four photographs for Bottle Green — front, left, right and back.](3-done.webp "Four views per colour, the same four the first colour has.")
+While it runs the card says **Making the Bottle Green one…** and counts them off. When it finishes it says **Made: Bottle Green, Indigo.** and the new photographs appear in the gallery against those colours — the same four views the first colour has.
 
 :::warning Look at every one
 These are made by a machine from your photograph. Most come out right; some do not. Look at each one before you leave the screen, and delete any that is wrong — a wrong photograph on your shop is worse than none at all, because the customer only finds out when the parcel arrives.
@@ -44,7 +42,7 @@ Photograph any colour yourself instead if you would rather. A real photograph al
 
 Each colour now shows its own photographs. Choosing a colour changes the pictures.
 
-![The shop page with Bottle Green chosen and its own four photographs in the row underneath.](4-on-the-shop.webp "A colour with no photographs of its own still falls back to the product's first one, so nothing is ever blank.")
+![The same saree on the shop, with its two colours to choose between and the photographs of the chosen one.](3-on-the-shop.webp "A colour with no photographs of its own still falls back to the product's first one, so nothing is ever blank.")
 
 ## While adding a new product
 

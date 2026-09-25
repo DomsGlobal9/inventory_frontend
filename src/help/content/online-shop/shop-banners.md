@@ -48,7 +48,7 @@ Click [[4]] **Add this banner**.
 
 Banners show in the order they are listed. Use the up and down arrows on each row to move it. **Remove** deletes one, after asking.
 
-![The shop on a phone with two banners at the top and the dots showing which one is on screen.](3-on-the-shop.webp "The dots under the picture tell a customer there is more than one to swipe through.")
+![The shop with the banner across the top, its big words and small words on the picture, and the dots showing which one is on screen.](3-on-the-shop.webp "The dots under the picture tell a customer there is more than one to swipe through.")
 
 ## Common problems
 

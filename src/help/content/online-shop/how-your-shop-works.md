@@ -14,7 +14,7 @@ Your online shop is a real shop page on the web, at an address of your own, made
 
 They open your link on their phone. They see your shop's name and logo, your banners, and your pieces — the ones you have published, in the stores you chose. They can search, filter by fabric or craft, open a piece, look at every photograph of it, and pick a colour and a size.
 
-![The Lakshmi Silks shop open on a phone: the shop name and logo at the top, a banner, and a grid of sarees with their prices.](1-your-shop.webp "This is the whole shop. There is nothing for the customer to install and nothing to sign into.")
+![The Lakshmi Silks shop: the shop name at the top, a Festival collection banner, the filter buttons, and a grid of six pieces.](1-your-shop.webp "This is the whole shop. There is nothing for the customer to install and nothing to sign into.")
 
 Two things can happen next, and **you decide which**:
 

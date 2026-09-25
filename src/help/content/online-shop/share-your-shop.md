@@ -10,31 +10,33 @@ keywords: share link qr code print poster whatsapp instagram bio copy the link c
 
 The **Share your shop** card only appears once your shop is open. Everything on it points at the same address — there is only ever one.
 
+## 1. Open Share your shop
+
+In **Settings → Online shop**, scroll down to **Share your shop**. There are three ways to hand your shop to somebody:
+
+- [[1]] **Share on WhatsApp** opens WhatsApp with your shop's name and link already written. Pick the customer or the group and send it. This is the one most shops use most: a customer who already has your number will open a link from you.
+- [[2]] **Copy the link** puts the address on your clipboard.
+- [[3]] **Print the code** prints the square code large, on its own page.
+
 ![The Share your shop card: the square code on the left, and Share on WhatsApp marked 1, Copy the link marked 2 and Print the code marked 3 on the right.](1-share.webp "One address, three ways to hand it to somebody.")
 
-## Send it on WhatsApp
+## 2. Where to paste the link
 
-[[1]] **Share on WhatsApp** opens WhatsApp with your shop's name and link already written. Pick the customer or the group and send it.
-
-This is the one most shops use most. A customer who already has your number in their phone will open a link from you.
-
-## Copy the link
-
-[[2]] **Copy the link** puts the address on your clipboard. Paste it into:
+Once it is copied, paste it into:
 
 - your **Instagram** profile, in the website line
 - your **Facebook** page
 - your shop's **Google** listing, as the website
 - the signature on your email
 
-## Print the code
+## 3. Where a printed code earns its keep
 
-[[3]] **Print the code** prints the square code large, on its own page. A customer points their phone camera at it and your shop opens — they do not need to type anything.
+A customer points their phone camera at the square code and your shop opens — they do not need to type anything.
 
-![The printed page: the shop name, the square code large in the middle, and the address underneath.](2-print-the-code.webp "Stick it by the till, on the changing room door, or on the bag the customer carries home.")
+![The square code as it prints, with the Share your shop heading above it.](2-print-the-code.webp "Stick it by the till, on the changing room door, or on the bag the customer carries home.")
 
-:::tip Where a printed code actually earns its keep
-By the till, while they wait. On the changing room mirror. On the carry bag, so they find it again at home. Inside the shop is where people have a reason to scan it.
+:::tip Put it where people are already waiting
+By the till, while they queue. On the changing room mirror. On the carry bag, so they find it again at home. Inside the shop is where people have a reason to scan it.
 :::
 
 ## Common problems

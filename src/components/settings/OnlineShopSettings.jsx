@@ -196,17 +196,20 @@ export default function OnlineShopSettings() {
             products one at a time, which is what made it worth a shop-level setting. */}
         <ShopIcon shop={shop} />
 
-        <label style={{ display: 'flex', gap: '9px', alignItems: 'flex-start', marginTop: '16px', cursor: 'pointer' }}>
-          <input type="checkbox" checked={form.showAllPhotos} onChange={(e) => set('showAllPhotos', e.target.checked)}
-            style={{ width: '16px', height: '16px', marginTop: '2px' }} />
-          <span style={{ fontSize: '13px' }}>
-            Show every photo of a product
-            <span style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)' }}>
-              On: customers see all of them, including the flat-lay photos Try-On made the others
-              from. Off: only the finished ones. Applies to every product at once.
-            </span>
-          </span>
-        </label>
+        {/*
+          "Show every photo of a product" stood here and has been taken away.
+
+          It decided whether customers saw RAW_UPLOAD pictures -- and RAW_UPLOAD had meanwhile
+          become the way a merchant says "not in my shop". The Images tab's hide button sets it,
+          the gallery labels those pictures NOT IN YOUR SHOP, and the flat-lay upload promises
+          the flat-lay stays out of the shop. With this switched on, all three were untrue: one
+          shop had twenty-two pictures it had hidden, every one of them live, and pressing hide
+          again did nothing because this outranked it.
+
+          A decision about one picture beats a default about all of them. So the picture wins,
+          and a switch that can only contradict it is not worth keeping. The column stays in the
+          database for now; nothing reads it.
+        */}
 
         {/* Try-on, the same one a customer gets by scanning a tag in the shop -- on the page, for
             somebody at home. Every try-on spends a generation from this shop's own allowance, so

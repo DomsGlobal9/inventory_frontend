@@ -305,8 +305,23 @@ export default function ImageGallery({ productId, dressType }) {
     </motion.div>
   );
 
+  /*
+   * A panel that GROWS, not a window that scrolls inside a page that also scrolls.
+   *
+   * This was flex:1 with minHeight:0 and an overflow-y:auto strip inside it -- the house pattern
+   * for a tab whose content fits a screen. The Images tab never did: a section per colour, each
+   * a row of 160px pictures, with the two generation cards above them. On a normal laptop the
+   * header, the four stat cards and the tab strip leave a few hundred pixels, so the whole
+   * gallery arrived as a letterbox with a scrollbar of its own -- scroll the page to reach the
+   * card, then scroll again inside it, with photographs cut in half at both edges. Reported as
+   * "the layout changed".
+   *
+   * index.css already carries .mobile-no-scroll for exactly this problem, and every other tab on
+   * this screen has it. The Images tab is the one that never got it, and it is the one that
+   * needed it most. It grows now, and the page scrolls, at every width.
+   */
   return (
-    <div className="glass-panel" style={{ padding: '32px', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+    <div className="glass-panel" style={{ padding: '32px', display: 'flex', flexDirection: 'column' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', flexWrap: 'wrap', marginBottom: '24px' }}>
         <div>
           <h3 style={{ margin: 0 }}>Product Images</h3>
@@ -342,7 +357,7 @@ export default function ImageGallery({ productId, dressType }) {
         />
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '28px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
         {/*
           Offered here as well as in the Add Product wizard, because the two cases that actually
           need it happen later: a colour added months after the product went online, and a colour

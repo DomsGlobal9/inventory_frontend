@@ -179,8 +179,20 @@ export default function ProductDetails() {
     show: { opacity: 1, y: 0 }
   };
 
+  /*
+   * Which tab is taller than a screen by its nature.
+   *
+   * The others are a form, a table and a list: they fit, and scrolling them inside a page of
+   * fixed height is the right shape. The Images tab is a section per colour and is taller than
+   * any screen the moment a product has three of them, so it flows with the page instead.
+   *
+   * Decided here because this page is what hands out the height.
+   */
+  const flowingTab = activeTab === 'images';
+
   return (
-    <motion.div variants={container} initial="hidden" animate="show" style={{ display: 'flex', flexDirection: 'column', gap: '24px', height: '100%', minHeight: 0 }}>
+    <motion.div variants={container} initial="hidden" animate="show"
+      style={{ display: 'flex', flexDirection: 'column', gap: '24px', minHeight: '100%' }}>
       
       {/* Header */}
       <motion.div variants={item} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, gap: '16px', flexWrap: 'wrap' }}>
@@ -354,15 +366,20 @@ export default function ProductDetails() {
         })}
       </motion.div>
 
-      {/* Tab Content */}
-      <motion.div variants={item} className="mobile-no-scroll" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+      {/* Tab Content. A flowing tab grows; the rest keep the height they were built for. */}
+      <motion.div variants={item} className="mobile-no-scroll"
+        style={flowingTab
+          ? { display: 'flex', flexDirection: 'column' }
+          : { flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
                   <motion.div
             key={activeTab}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.15 }}
             className="mobile-no-scroll"
-            style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
+            style={flowingTab
+              ? { display: 'flex', flexDirection: 'column' }
+              : { flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
           >
             {activeTab === 'overview' && (
               <div className="glass-panel mobile-no-scroll" style={{ padding: '32px', flex: 1, overflowY: 'auto' }}>

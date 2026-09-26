@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus, Play, Pause, Archive, Tag, Search, CalendarClock, Store, CopyPlus, SlidersHorizontal } from 'lucide-react';
+import { Plus, Play, Pause, Archive, Tag, Search, CalendarClock, Store, CopyPlus, SlidersHorizontal , AlertTriangle } from 'lucide-react';
 import { useOffers, useCreateOffer, useUpdateOffer, useSetOfferStatus, useDuplicateOffer } from '../hooks/useOffers';
 import TillRulesDialog from '../components/TillRulesDialog';
 import { usePermission } from '../hooks/usePermission';
@@ -63,6 +63,35 @@ function whenLabel(offer) {
     return `Starts ${shortDate(d)}${atMidnight ? '' : `, ${shortTime(d)}`}`;
   }
   return endLabel(offer.endsAt);
+}
+
+/**
+ * An offer that is switched on and reaches nothing.
+ *
+ * Every other column says it is fine: ACTIVE, dated, running. And it discounts not one piece,
+ * because it is pointed at a shelf that is empty -- "20% off sarees" in a shop whose products
+ * have no dress type set is the usual way in. It can run for a week like that and the only sign
+ * is a sale that made no difference to anything.
+ *
+ * Only shown when the offer is actually meant to be working. A draft or an expired one covering
+ * nothing is not news, and a warning on every line is a warning nobody reads.
+ */
+function ReachesNothing({ offer }) {
+  const live = offer.effectiveStatus === 'ACTIVE' || offer.effectiveStatus === 'SCHEDULED';
+  if (!live || offer.coversProducts !== 0) return null;
+  return (
+    <span
+      title="This offer is pointed at products that do not exist in your shop. Check what it applies to."
+      style={{
+        display: 'inline-flex', alignItems: 'center', gap: '5px',
+        fontSize: '11.5px', fontWeight: 700, color: '#B45309',
+        background: 'rgba(180, 83, 9, .1)', border: '1px solid rgba(180, 83, 9, .3)',
+        borderRadius: '999px', padding: '2px 9px', whiteSpace: 'nowrap'
+      }}
+    >
+      <AlertTriangle size={12} /> Applies to nothing
+    </span>
+  );
 }
 
 export default function Offers() {
@@ -218,6 +247,7 @@ export default function Offers() {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', flexShrink: 0 }}>
                   <OfferStatusPill status={offer.effectiveStatus} />
+                  <ReachesNothing offer={offer} />
                   {offer.shopify && <ShopifyChip status={offer.shopify.status} problem={offer.shopify.problem} />}
                 </div>
               </div>
@@ -284,6 +314,7 @@ export default function Offers() {
                     <td style={{ padding: '16px 20px' }}>
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '6px' }}>
                         <OfferStatusPill status={offer.effectiveStatus} />
+                        <ReachesNothing offer={offer} />
                         {/* Only when the offer HAS a Shopify copy. An offer that was never put on
                             Shopify is not "not on Shopify" in any way a merchant needs telling. */}
                         {offer.shopify && <ShopifyChip status={offer.shopify.status} problem={offer.shopify.problem} />}

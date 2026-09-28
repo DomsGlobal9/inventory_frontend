@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Package } from 'lucide-react';
+import { Package, Loader2 } from 'lucide-react';
 import { formatRupees } from '../utils/money';
 
 const ROTATE_MS = 2600;
@@ -44,12 +44,9 @@ export default function ProductGrid({ products, selected, onToggle, onOpen }) {
   const list = Array.isArray(products) ? products : [];
 
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))',
-      gap: '16px',
-      alignContent: 'start'
-    }}>
+    // Laid out in index.css, because the column count changes with the screen and a media
+    // query cannot be written as an inline style.
+    <div className="product-grid">
       {list.map((product, i) => (
         <ProductCard
           key={product.id ?? i}
@@ -148,6 +145,21 @@ function ProductCard({ product, stagger, reduceMotion, isSelected, onToggle, onO
   const safeIndex = count ? Math.min(index, count - 1) : 0;
   const colour = colours[safeIndex] ?? null;
 
+  /*
+   * Photographs being made right now.
+   *
+   * A colour whose four views are still generating has no picture yet, and the card said "No
+   * photo" -- exactly what it says about a colour nobody has photographed and never will. The two
+   * look identical and mean opposite things: one is a job to do, the other is a job in progress
+   * that finishes on its own. Matched on variant id rather than colour name, because the job's
+   * colourKey is case-folded on the server and re-deriving that here is how the two drift apart.
+   */
+  const jobs = Array.isArray(product.generating) ? product.generating : [];
+  const job = (colour ? jobs.find(j => (j.variantIds ?? []).includes(colour.id)) : jobs[0]) ?? null;
+  const jobText = job
+    ? (job.status === 'QUEUED' ? 'Waiting to start…' : `Making photos ${job.viewsDone ?? 0}/${job.viewsTotal ?? 4}`)
+    : null;
+
   const rawUnits = colour ? colour.units : product.variantSummary?.totalUnits;
   const units = Number(rawUnits);
   const knownUnits = Number.isFinite(units);
@@ -218,8 +230,17 @@ function ProductCard({ product, stagger, reduceMotion, isSelected, onToggle, onO
             position: 'absolute', inset: 0,
             display: 'grid', placeItems: 'center', gap: '6px', alignContent: 'center'
           }}>
-            <Package size={26} color="var(--text-muted)" />
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>No photo</span>
+            {job ? (
+              <>
+                <Loader2 size={24} color="var(--text-muted)" className="animate-spin" />
+                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{jobText}</span>
+              </>
+            ) : (
+              <>
+                <Package size={26} color="var(--text-muted)" />
+                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>No photo</span>
+              </>
+            )}
           </div>
         )}
 
@@ -257,14 +278,37 @@ function ProductCard({ product, stagger, reduceMotion, isSelected, onToggle, onO
           />
         </div>
 
-        {product.status !== 'ACTIVE' && (
-          <span style={{
-            position: 'absolute', top: '8px', right: '8px',
-            padding: '2px 7px', borderRadius: '4px', fontSize: '10px',
-            fontWeight: 600, textTransform: 'uppercase',
-            background: 'rgba(0,0,0,.6)', color: '#fff'
-          }}>{product.status}</span>
-        )}
+        {/*
+          * Stacked, because a product can be a draft AND have its photographs being made -- the
+          * usual state for one somebody has just added. Two absolutely positioned badges at the
+          * same corner would have sat on top of each other.
+          */}
+        <div style={{
+          position: 'absolute', top: '8px', right: '8px',
+          display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px'
+        }}>
+          {product.status !== 'ACTIVE' && (
+            <span style={{
+              padding: '2px 7px', borderRadius: '4px', fontSize: '10px',
+              fontWeight: 600, textTransform: 'uppercase',
+              background: 'rgba(0,0,0,.6)', color: '#fff'
+            }}>{product.status}</span>
+          )}
+          {/*
+            * Said even when a picture IS showing, because that picture is the product cover
+            * standing in for a colour that has none yet. Without this the stand-in reads as the
+            * finished article and somebody prints a tag against the wrong photograph.
+            */}
+          {job && !noPictureAtAll && (
+            <span style={{
+              padding: '2px 7px', borderRadius: '4px', fontSize: '10px', fontWeight: 600,
+              background: 'rgba(0,0,0,.6)', color: '#fff', whiteSpace: 'nowrap',
+              display: 'inline-flex', alignItems: 'center', gap: '4px'
+            }}>
+              <Loader2 size={10} className="animate-spin" /> {jobText}
+            </span>
+          )}
+        </div>
 
         {count > 1 && count <= MAX_DOTS && (
           <div style={{

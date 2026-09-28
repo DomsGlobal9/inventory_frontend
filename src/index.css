@@ -432,6 +432,28 @@ button {
   padding: 2px;
 }
 
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 16px;
+  align-content: start;
+}
+
+/*
+ * Two cards across on a phone, not one.
+ *
+ * A 190px minimum leaves room for exactly one column on a 390px screen, which makes the photo
+ * view as long to scroll as the list it was meant to replace -- the whole point of looking at
+ * pictures is seeing several at once. Stated as two explicit columns rather than a smaller
+ * minimum, so the count is the same on every phone instead of depending on how wide it is.
+ */
+@media (max-width: 560px) {
+  .product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+}
+
 table {
   width: 100%;
   border-collapse: separate;

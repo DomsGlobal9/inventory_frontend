@@ -9,6 +9,19 @@ export const useProducts = (params: any = {}) => {
   return useQuery({
     queryKey: [...queryKeys.products, params],
     queryFn: () => getProducts(params),
+    /*
+     * Asks again while photographs are being made, and only then.
+     *
+     * A card that says "Making photos 2/4" has to become the photograph by itself -- a shopkeeper
+     * who has to know to reload the page is a shopkeeper who sees "No photo" for the rest of the
+     * afternoon. Polling stops the moment nothing on the page is generating, so the ordinary
+     * case is still one request per visit.
+     */
+    refetchInterval: (query: any) => {
+      const rows = query.state.data?.data ?? [];
+      const busy = Array.isArray(rows) && rows.some((p: any) => (p.generating ?? []).length > 0);
+      return busy ? 5000 : false;
+    },
   });
 };
 

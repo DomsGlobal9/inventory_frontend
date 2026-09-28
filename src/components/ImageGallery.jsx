@@ -1,6 +1,7 @@
 import React, { useRef, useState, useMemo } from 'react';
 import LoadFailed from './LoadFailed';
-import { Upload, X, Star, Loader2, ImageOff, EyeOff } from 'lucide-react';
+import { Upload, X, Star, Loader2, ImageOff, EyeOff, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useImages, useUploadImage, useDeleteImage, useUpdateImage } from '../hooks/useImages';
 import { useVariants } from '../hooks/useVariants';
@@ -207,7 +208,16 @@ export default function ImageGallery({ productId, dressType }) {
 
   const referenceCount = images.filter(i => i.imageType === 'RAW_UPLOAD').length;
 
-  const renderImage = (image) => (
+  /*
+   * Which photograph is open full-size, and the list it belongs to.
+   *
+   * The list is carried rather than looked up, so the arrows walk the colour the shopkeeper is
+   * actually looking at instead of every photograph on the product -- pressing next in the blue
+   * ones and landing in the red ones is not what the arrow appears to promise.
+   */
+  const [viewer, setViewer] = useState(null);
+
+  const renderImage = (image, list, index) => (
     <motion.div
       variants={itemVariants}
       initial="hidden"
@@ -223,11 +233,14 @@ export default function ImageGallery({ productId, dressType }) {
         background: 'var(--bg-input)'
       }}
     >
+      {/* The picture itself opens it. Tapping a photograph to see it bigger is the gesture
+          people already have; the button beside it is for anyone who does not try that. */}
       <img
         src={image.url}
         alt={image.altText || 'Product image'}
+        onClick={() => setViewer({ list, index })}
         style={{
-          width: '100%', height: '100%', objectFit: 'cover',
+          width: '100%', height: '100%', objectFit: 'cover', cursor: 'zoom-in',
           // Dimmed, so which ones a customer actually sees is obvious at a glance.
           opacity: isReference(image) ? 0.55 : 1
         }}
@@ -280,6 +293,18 @@ export default function ImageGallery({ productId, dressType }) {
           </button>
         )}
         <div style={{ display: 'flex', gap: '6px', alignSelf: 'flex-start' }}>
+          {/* Deliberately worded "View larger", because the crossed-out eye beside it means
+              something else entirely -- hide this from the shop -- and two eyes a few pixels
+              apart meaning opposite things is how somebody unpublishes a photograph they only
+              wanted a closer look at. */}
+          <button
+            onClick={() => setViewer({ list, index })}
+            style={{ color: '#fff', background: 'rgba(0,0,0,0.5)', padding: '6px', borderRadius: '4px', display: 'flex' }}
+            title="View larger"
+            aria-label="View this photo larger"
+          >
+            <Eye size={14} />
+          </button>
           {/* Only on a photo customers can see, and never on the main one: hiding the picture a
               product leads with would empty its place in the shop. */}
           {!isReference(image) && !image.isPrimary && (
@@ -435,7 +460,9 @@ export default function ImageGallery({ productId, dressType }) {
               </div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(160px, 100%), 1fr))', gap: '16px' }}>
-                <AnimatePresence>{group.images.map(renderImage)}</AnimatePresence>
+                <AnimatePresence>
+                  {group.images.map((img, i) => renderImage(img, group.images, i))}
+                </AnimatePresence>
               </div>
             )}
           </section>
@@ -451,6 +478,125 @@ export default function ImageGallery({ productId, dressType }) {
         confirmText={confirmState.confirmText}
         confirmStyle={confirmState.confirmStyle}
       />
+
+      {viewer && (
+        <PhotoViewer
+          images={viewer.list}
+          startAt={viewer.index}
+          onClose={() => setViewer(null)}
+        />
+      )}
     </div>
+  );
+}
+
+/**
+ * One photograph, as large as the screen allows, with the rest of its colour behind the arrows.
+ *
+ * A grid of thumbnails is fine for finding a picture and useless for judging one -- the border,
+ * the zari, the weave are the reason the shop took the photograph, and none of them survive a
+ * 120px square. Opened by tapping the picture or the eye beside it.
+ *
+ * Three ways through it, because there are three kinds of hands here: the arrows for a mouse, the
+ * arrow keys for a keyboard, and a swipe for the phone a shopkeeper is actually holding.
+ */
+function PhotoViewer({ images, startAt, onClose }) {
+  const [at, setAt] = useState(startAt);
+  const touchX = useRef(null);
+
+  const count = images.length;
+  // Wraps, so the end of the list is not a dead end somebody has to back out of.
+  const go = (step) => setAt(i => (i + step + count) % count);
+
+  React.useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape') onClose();
+      else if (e.key === 'ArrowRight') go(1);
+      else if (e.key === 'ArrowLeft') go(-1);
+    };
+    window.addEventListener('keydown', onKey);
+    /*
+     * The page behind must not scroll while this is open. On a phone a swipe meant for the next
+     * photograph otherwise drags the product page around underneath it, and closing leaves the
+     * shopkeeper somewhere they did not choose to be.
+     */
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = previous;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [count]);
+
+  // A list that shrinks under it -- a photograph deleted in another tab -- must not leave this
+  // pointing past the end and rendering nothing.
+  const image = images[Math.min(at, count - 1)];
+  if (!image) return null;
+
+  const arrow = {
+    position: 'absolute', top: '50%', transform: 'translateY(-50%)',
+    background: 'rgba(0,0,0,.55)', color: '#fff', border: 0, cursor: 'pointer',
+    width: '44px', height: '44px', borderRadius: '50%',
+    display: 'grid', placeItems: 'center'
+  };
+
+  return createPortal(
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Photograph"
+      onClick={onClose}
+      onTouchStart={(e) => { touchX.current = e.touches[0]?.clientX ?? null; }}
+      onTouchEnd={(e) => {
+        if (touchX.current === null) return;
+        const dx = (e.changedTouches[0]?.clientX ?? 0) - touchX.current;
+        touchX.current = null;
+        // 45px, so a tap with a slightly unsteady thumb is still a tap and not a swipe.
+        if (Math.abs(dx) > 45) go(dx < 0 ? 1 : -1);
+      }}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 1100,
+        background: 'rgba(8,10,14,.92)', display: 'grid', placeItems: 'center',
+        padding: '16px', touchAction: 'pan-y'
+      }}
+    >
+      {/* Clicking the dark space closes it; clicking the photograph must not. */}
+      <img
+        src={image.url}
+        alt={image.altText || 'Product photograph'}
+        onClick={(e) => e.stopPropagation()}
+        style={{ maxWidth: '100%', maxHeight: '86vh', objectFit: 'contain', borderRadius: '6px', display: 'block' }}
+      />
+
+      <button
+        onClick={(e) => { e.stopPropagation(); onClose(); }}
+        aria-label="Close"
+        style={{ position: 'absolute', top: '14px', right: '14px', ...arrow, width: '40px', height: '40px', transform: 'none' }}
+      >
+        <X size={20} />
+      </button>
+
+      {count > 1 && (
+        <>
+          <button onClick={(e) => { e.stopPropagation(); go(-1); }} aria-label="Previous photo"
+            style={{ ...arrow, left: '12px' }}>
+            <ChevronLeft size={22} />
+          </button>
+          <button onClick={(e) => { e.stopPropagation(); go(1); }} aria-label="Next photo"
+            style={{ ...arrow, right: '12px' }}>
+            <ChevronRight size={22} />
+          </button>
+          <span style={{
+            position: 'absolute', bottom: '18px', left: '50%', transform: 'translateX(-50%)',
+            color: '#fff', background: 'rgba(0,0,0,.55)', padding: '4px 12px',
+            borderRadius: '12px', fontSize: '12px'
+          }}>
+            {Math.min(at, count - 1) + 1} of {count}
+          </span>
+        </>
+      )}
+    </div>,
+    document.body
   );
 }

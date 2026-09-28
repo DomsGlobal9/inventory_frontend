@@ -236,10 +236,23 @@ export default function ProductPreview() {
           code,
           name: code ? getColorInfo(code).name : productData.title,
           hex: code ? String(getColorInfo(code).value || '').toLowerCase() : null,
+          /*
+           * The slot each photograph came from travels with it.
+           *
+           * Object.values() threw the keys away here, so the drape and the blouse piece arrived
+           * as two indistinguishable GALLERY photographs. The four-view job then took "the
+           * primary, or else the first" -- and a shop that uploaded the blouse before the saree
+           * had the blouse sent as the saree, so the model was photographed wearing a blouse
+           * piece as a drape. Nothing failed and nothing was said.
+           *
+           * Extra photographs carry no slot: they are whatever else the shop wanted to show.
+           */
           uploads: [
-            ...(Array.isArray(source) ? source : Object.values(source || {})),
-            ...(set.extraFiles || [])
-          ].filter(f => f instanceof File),
+            ...(Array.isArray(source)
+              ? source.map(file => ({ file, slot: null }))
+              : Object.entries(source || {}).map(([slot, file]) => ({ file, slot }))),
+            ...(set.extraFiles || []).map(file => ({ file, slot: null }))
+          ].filter(u => u.file instanceof File),
           generatedViews: set.generatedViews || {},
           // Ticked on the photos step. The views are not made there any more -- see
           // GarmentPhotoshootUploader -- so this is the wish, and it is acted on below once the
@@ -325,7 +338,8 @@ export default function ProductPreview() {
 
         // The shop's own photographs first: a real picture of the real garment leads, and
         // the generated model shots follow it.
-        for (const file of colour.uploads) {
+        for (const upload of colour.uploads) {
+          const file = upload.file;
           wanted++;
           try {
             const stored = await putImageBytes(productId, file);
@@ -336,6 +350,9 @@ export default function ProductPreview() {
                 altText: `${photoPayload.title} - ${colour.name}`,
                 imageType: 'GALLERY',
                 generated: false,
+                // Which piece it is, so the photo studio is handed the drape and the blouse
+                // as the two different things they are.
+                ...(upload.slot ? { slot: upload.slot } : {}),
                 orderIndex
               });
               if (!cameFromId) cameFromId = (saved?.data ?? saved)?.id ?? null;

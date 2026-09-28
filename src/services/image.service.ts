@@ -34,6 +34,14 @@ export interface ImageOpts {
   generatedFromId?: string;
   /** Which of the four generated views this is. Try-on asks for the front one by name. */
   view?: 'front' | 'left' | 'right' | 'back';
+  /**
+   * Which garment piece the shop photographed: the slot on the photos step it came from.
+   *
+   * Without it the drape and the blouse piece are two indistinguishable photographs, and the
+   * four-view job picks whichever came first -- which is how a blouse piece ended up being sent
+   * as the saree.
+   */
+  slot?: 'saree' | 'blouse' | 'full-dress' | 'top' | 'top-front' | 'top-back' | 'bottom';
 }
 
 /**
@@ -91,6 +99,7 @@ export async function registerImage(
     // and a null would have to be allowed through validation to mean the same thing.
     ...(opts.generatedFromId ? { generatedFromId: opts.generatedFromId } : {}),
     ...(opts.view ? { view: opts.view } : {}),
+    ...(opts.slot ? { slot: opts.slot } : {}),
     ...(opts.variantId ? { variantId: opts.variantId } : {})
   });
 }

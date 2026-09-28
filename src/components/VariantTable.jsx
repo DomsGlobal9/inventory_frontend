@@ -529,12 +529,34 @@ export default function VariantTable({ productId, productName, productCode, prod
   };
 
   const handlePrintLabels = async (variantsToPrint) => {
+    /*
+     * A label with no barcode is a blank sticker.
+     *
+     * The whole purpose of this label is the thing a scanner reads. Without a barcode it prints
+     * the name, the price, the SKU and then an empty rectangle -- a sticker somebody has to peel
+     * off and throw away, and which looks like the printer failed rather than like the data is
+     * missing. Barcodes are generated whenever a variant is created, so this only reaches
+     * variants that predate that; saying which ones is more useful than printing them blank.
+     */
+    const printable = variantsToPrint.filter(v => v.barcode);
+    const skipped = variantsToPrint.filter(v => !v.barcode);
+
+    if (printable.length === 0) {
+      toast.error(variantsToPrint.length === 1
+        ? 'That variant has no barcode yet, so there is nothing to scan on a label.'
+        : 'None of these variants have a barcode yet, so there is nothing to scan on a label.');
+      return;
+    }
+    if (skipped.length > 0) {
+      toast(`${skipped.length} left out for having no barcode: ${skipped.map(v => v.sku || v.variantCode).join(', ')}`);
+    }
+
     setIsPrinting(true);
     try {
       const logoDataUrl = await logoForPrint();
       const blob = await pdf(
         <LabelDocument
-          variants={variantsToPrint}
+          variants={printable}
           productName={productName}
           clientId={clientId}
           logoDataUrl={logoDataUrl}

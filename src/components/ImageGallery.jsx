@@ -46,6 +46,20 @@ export default function ImageGallery({ productId, dressType }) {
   const variants = variantData?.data || variantData || [];
   const [confirmState, setConfirmState] = useState({ isOpen: false });
 
+  /*
+   * Which photograph is open full-size, and the list it belongs to.
+   *
+   * Up here with the other hooks, and not beside the card that opens it: there is an
+   * `if (isLoading) return` further down, and a useState after it changes how many hooks this
+   * component calls between one render and the next. React notices and the whole product page
+   * goes to the error boundary -- "Something went wrong" over a page that was working.
+   *
+   * The list is carried rather than looked up, so the arrows walk the colour the shopkeeper is
+   * actually looking at instead of every photograph on the product -- pressing next in the blue
+   * ones and landing in the red ones is not what the arrow appears to promise.
+   */
+  const [viewer, setViewer] = useState(null);
+
   /**
    * One group per variant plus one for the product, in the order the variants are listed.
    *
@@ -207,15 +221,6 @@ export default function ImageGallery({ productId, dressType }) {
   const hideFromShop = (imageId) => updateMutation.mutate({ imageId, data: { imageType: 'RAW_UPLOAD' } });
 
   const referenceCount = images.filter(i => i.imageType === 'RAW_UPLOAD').length;
-
-  /*
-   * Which photograph is open full-size, and the list it belongs to.
-   *
-   * The list is carried rather than looked up, so the arrows walk the colour the shopkeeper is
-   * actually looking at instead of every photograph on the product -- pressing next in the blue
-   * ones and landing in the red ones is not what the arrow appears to promise.
-   */
-  const [viewer, setViewer] = useState(null);
 
   const renderImage = (image, list, index) => (
     <motion.div
@@ -516,9 +521,14 @@ function PhotoViewer({ images, startAt, onClose }) {
     };
     window.addEventListener('keydown', onKey);
     /*
-     * The page behind must not scroll while this is open. On a phone a swipe meant for the next
+     * The page behind must not move while this is open. On a phone a swipe meant for the next
      * photograph otherwise drags the product page around underneath it, and closing leaves the
      * shopkeeper somewhere they did not choose to be.
+     *
+     * The real work is touchAction: 'none' on the overlay below -- this app's body is already
+     * overflow hidden and the scrolling happens in .main-content, so locking the body alone
+     * would have looked right and done nothing. Restored to whatever it was rather than cleared,
+     * for the same reason.
      */
     const previous = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -558,7 +568,9 @@ function PhotoViewer({ images, startAt, onClose }) {
       style={{
         position: 'fixed', inset: 0, zIndex: 1100,
         background: 'rgba(8,10,14,.92)', display: 'grid', placeItems: 'center',
-        padding: '16px', touchAction: 'pan-y'
+        // 'none', not 'pan-y': a vertical pan on the overlay scrolls whatever is behind it, and
+        // the swipe here is read from touchstart/touchend, so no browser panning is wanted at all.
+        padding: '16px', touchAction: 'none'
       }}
     >
       {/* Clicking the dark space closes it; clicking the photograph must not. */}

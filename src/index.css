@@ -413,6 +413,25 @@ button {
   background: var(--bg-card);
 }
 
+/*
+ * The photo view's scroll region, and it has to exist.
+ *
+ * The page itself does not scroll: .main-content is overflow hidden on purpose, and exactly one
+ * child of a screen owns the scrollbar. For the list that child is .table-container above. The
+ * grid was added beside it and inherited nothing, so it grew inside a clipped flex item -- the
+ * cards were rendered, laid out, and simply cut off, with no way to reach them. Anything else
+ * dropped into a page next to the table needs its own rule like this one.
+ *
+ * The 2px of padding is for the ring on a selected card, which a scroll container would otherwise
+ * shave off at the edges.
+ */
+.grid-container {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 2px;
+}
+
 table {
   width: 100%;
   border-collapse: separate;

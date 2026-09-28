@@ -284,12 +284,14 @@ export default function Products() {
       )}
 
       {view === 'grid' && !isLoading && !isError && products.length > 0 ? (
-        <ProductGrid
-          products={products}
-          selected={selected}
-          onToggle={toggleOne}
-          onOpen={(id) => navigate(`/products/${id}`)}
-        />
+        <div className="grid-container">
+          <ProductGrid
+            products={products}
+            selected={selected}
+            onToggle={toggleOne}
+            onOpen={(id) => navigate(`/products/${id}`)}
+          />
+        </div>
       ) : (
       <div className="table-container" style={{ overflowX: 'auto' }}>
         {isLoading ? (

@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { formatRupees } from '../utils/money';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Package, Box, History, Image as ImageIcon, ImageOff, Copy, CheckCircle2, Shirt } from 'lucide-react';
+import { ArrowLeft, Package, Box, History, Image as ImageIcon, ImageOff, Copy, CheckCircle2, Shirt, Pencil } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { QRCodeSVG } from 'qrcode.react';
+import ProductOverviewEditor from '../components/ProductOverviewEditor';
 import {
   useProduct as useProductHook,
   useArchiveProduct,
@@ -32,6 +33,7 @@ export default function ProductDetails() {
   const [isStockModalOpen, setIsStockModalOpen] = useState(false);
   const [tryingOn, setTryingOn] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
+  const [editing, setEditing] = useState(false);
   
   const [confirmState, setConfirmState] = useState({ isOpen: false });
   const archiveMutation = useArchiveProduct();
@@ -39,6 +41,33 @@ export default function ProductDetails() {
   const trashMutation = useTrashProduct();
   const hardDeleteMutation = useHardDeleteProduct();
   const updateMutation = useUpdateProduct();
+
+  /*
+   * The Images tab flows with the page; the editor lives on Overview. Switching to it on Edit
+   * means the button never opens a form the reader cannot see.
+   */
+  const startEditing = () => { setActiveTab('overview'); setEditing(true); };
+
+  /**
+   * Save, and say what actually happened -- including the part nobody asked about out loud.
+   *
+   * A shopkeeper changing the global price cares whether the variants moved with it, and the
+   * server is the only thing that knows how many did. Reporting it in the confirmation is the
+   * difference between trusting the screen and going to check.
+   */
+  const saveDetails = async (patch) => {
+    try {
+      const res = await updateMutation.mutateAsync({ id: product.id, data: patch });
+      // api unwraps to the body, so res is { success, data }.
+      const moved = res?.data?.variantsRepriced ?? 0;
+      toast.success(moved > 0
+        ? `Saved. ${moved} variant${moved === 1 ? '' : 's'} took the new price.`
+        : 'Saved.');
+      setEditing(false);
+    } catch {
+      // useUpdateProduct already shows the reason; leaving the form open keeps their typing.
+    }
+  };
 
   const handleCopy = (text, id) => {
     navigator.clipboard.writeText(text);
@@ -385,9 +414,23 @@ export default function ProductDetails() {
               <div className="glass-panel mobile-no-scroll" style={{ padding: '32px', flex: 1, overflowY: 'auto' }}>
                 <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start' }}>
                   <div style={{ flex: 1 }}>
-                    <h3 style={{ marginBottom: '16px' }}>Product Overview</h3>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '16px' }}>
+                      <h3 style={{ margin: 0 }}>Product Overview</h3>
+                      {!editing && (
+                        <button className="btn-secondary" onClick={startEditing} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <Pencil size={14} /> Edit details
+                        </button>
+                      )}
+                    </div>
+
+                    {editing ? <ProductOverviewEditor
+                        product={product}
+                        saving={updateMutation.isPending}
+                        onCancel={() => setEditing(false)}
+                        onSave={saveDetails}
+                      /> : <>
                     <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}>{product.description || 'No description provided.'}</p>
-                    
+
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '24px', marginTop: '32px' }}>
                       {product.brand && (
                         <div>
@@ -485,6 +528,7 @@ export default function ProductDetails() {
                         <p style={{ fontWeight: '500', margin: '4px 0 0' }}>{new Date(product.createdAt).toLocaleDateString()}</p>
                       </div>
                     </div>
+                    </>}
                   </div>
                   <div style={{ flexShrink: 0, width: '280px', padding: '16px', background: 'var(--bg-input)', borderRadius: '8px', border: '1px solid var(--border-light)' }}>
                     <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: 'var(--text-secondary)' }}>Identifiers</h4>

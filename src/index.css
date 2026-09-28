@@ -148,7 +148,6 @@
  */
 html, body, #root {
   height: 100vh;
-  height: 100dvh;
   width: 100vw;
   overflow: hidden;
   background-color: var(--bg-dark);
@@ -336,10 +335,23 @@ button {
 /* Layout Core */
 .app-container {
   display: flex;
-  /* Same reason as the lock above: vh is the address bar's idea of the height, dvh is the eye's. */
   height: 100vh;
-  height: 100dvh;
   width: 100vw;
+}
+
+/*
+ * The dvh override, in @supports rather than as a second declaration.
+ *
+ * Two declarations of the same property is the usual way to write a fallback, and the minifier
+ * deletes the first one: the built stylesheet came out with `height:100dvh` alone and no fallback
+ * at all. @supports is a separate block, so it cannot be collapsed into the rule above, and a
+ * browser too old for the unit keeps the vh line instead of getting no height whatsoever.
+ *
+ * Same reason as the lock above: vh is the address bar's idea of the height, dvh is the eye's.
+ */
+@supports (height: 100dvh) {
+  html, body, #root { height: 100dvh; }
+  .app-container { height: 100dvh; }
 }
 
 /* The logo in the sidebar, shown as it is on every theme. */

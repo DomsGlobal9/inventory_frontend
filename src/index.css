@@ -128,9 +128,27 @@
   padding: 0;
 }
 
-/* Eagle View Lock */
+/*
+ * Eagle View Lock
+ *
+ * dvh, not vh, and on a phone the difference is the whole bug.
+ *
+ * `100vh` is the viewport with the browser's address bar HIDDEN -- sixty to a hundred pixels
+ * taller than what is actually on screen while the bar is showing. The document cannot scroll
+ * (overflow: hidden, deliberately: this app scrolls inside its content pane), so that extra
+ * height hangs below the visible area with no gesture able to reach it. A shop owner on a phone
+ * finds the bottom of a tall page simply missing, and reports it as "cannot scroll" -- which is
+ * exactly what it is.
+ *
+ * Desktop never shows it, because there is no address bar to shrink. That is why it was reported
+ * as happening "in some devices" and could not be reproduced on a laptop.
+ *
+ * `dvh` is the DYNAMIC viewport height: what is on screen right now, shrinking and growing as the
+ * bar hides and returns. The vh line stays first as the fallback for anything too old to know it.
+ */
 html, body, #root {
   height: 100vh;
+  height: 100dvh;
   width: 100vw;
   overflow: hidden;
   background-color: var(--bg-dark);
@@ -318,7 +336,9 @@ button {
 /* Layout Core */
 .app-container {
   display: flex;
+  /* Same reason as the lock above: vh is the address bar's idea of the height, dvh is the eye's. */
   height: 100vh;
+  height: 100dvh;
   width: 100vw;
 }
 

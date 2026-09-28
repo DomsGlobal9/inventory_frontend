@@ -35,15 +35,27 @@ export default function TryOnTagSheet({ product, onClose }) {
   const { data: variants, isLoading } = useVariants(product.id);
   // The api client unwraps to the body, so the rows are data.data -- same as VariantTable.
   const printable = (variants?.data ?? []).filter(v => v.tryOnScanUrl);
-  const [chosen, setChosen] = useState(() => new Set(printable.map(v => v.id)));
+  /*
+   * What is NOT wanted, rather than what is.
+   *
+   * This held the selected ids, seeded from printable in a useState initialiser -- which runs
+   * once, on the first render, while the variants are still being fetched. printable was empty
+   * at that moment, so every tag started unselected and the button read "Print 0 tags". It
+   * looked fine in testing only because the Variants tab had already been opened and React Query
+   * served the list from cache; a shopkeeper going straight here saw nothing to print.
+   *
+   * Tracking the exclusions instead makes the default correct no matter when the data lands:
+   * everything is printed unless somebody says otherwise, which is also the more useful default.
+   */
+  const [excluded, setExcluded] = useState(() => new Set());
 
-  const toggle = (id) => setChosen(prev => {
+  const toggle = (id) => setExcluded(prev => {
     const next = new Set(prev);
     if (next.has(id)) next.delete(id); else next.add(id);
     return next;
   });
 
-  const tags = printable.filter(v => chosen.has(v.id));
+  const tags = printable.filter(v => !excluded.has(v.id));
   const shopName = branding?.businessName || '';
 
   return createPortal(
@@ -77,7 +89,7 @@ export default function TryOnTagSheet({ product, onClose }) {
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
                 {printable.map(v => (
                   <label key={v.id} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', cursor: 'pointer' }}>
-                    <input type="checkbox" checked={chosen.has(v.id)} onChange={() => toggle(v.id)} />
+                    <input type="checkbox" checked={!excluded.has(v.id)} onChange={() => toggle(v.id)} />
                     {[v.colorName, v.size].filter(Boolean).join(' · ') || v.variantCode}
                   </label>
                 ))}

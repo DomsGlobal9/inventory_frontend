@@ -7,6 +7,7 @@ import { hasPartPaise, PAISA_MESSAGE } from '../utils/money';
 import Barcode from 'react-barcode';
 import { pdf } from '@react-pdf/renderer';
 import { LabelDocument } from './LabelDocument';
+import { useBranding } from '../hooks/useBranding';
 import { LocationSettingsModal } from './LocationSettingsModal';
 import { useVariants, useBulkCreateVariants, useDeleteVariant, useUpdateVariant } from '../hooks/useVariants';
 import { useCatalogData } from '../hooks/useCatalogConfig';
@@ -46,6 +47,7 @@ export default function VariantTable({ productId, productName, productCode, prod
   const bulkCreateMutation = useBulkCreateVariants(productId);
   const updateVariantMutation = useUpdateVariant(productId);
   const { currentLocation } = useLocationContext();
+  const { data: branding } = useBranding();
   // What was paid, and the profit worked out from it, are only for people who may see cost. The
   // server no longer sends the numbers to anyone else -- without this the columns would still be
   // drawn, showing an empty cost box to type into and "No cost data yet" as everyone's margin.
@@ -467,14 +469,75 @@ export default function VariantTable({ productId, productName, productCode, prod
     }
   };
 
+  /**
+   * The shop's logo as a data url, or null if anything at all went wrong.
+   *
+   * Fetched HERE rather than handed to react-pdf as a URL, because react-pdf loads a remote image
+   * during the render and a failure rejects the whole document. A logo that is offline, blocked
+   * by CORS or deleted from storage would stop a shop printing labels -- and a shop that cannot
+   * ticket its stock cannot put it on the shelf. Every failure path returns null, so the worst
+   * outcome is a label without a logo.
+   */
+  const logoForPrint = async () => {
+    const url = branding?.logoUrl;
+    if (!url) return null;
+    try {
+      const res = await fetch(url, { mode: 'cors' });
+      if (!res.ok) return null;
+      const blob = await res.blob();
+      if (!blob.type.startsWith('image/')) return null;
+
+      /*
+       * Re-encoded through a canvas, not handed over as fetched, and the reason is a real logo.
+       *
+       * react-pdf renders JPEG and PNG only. A shop's logo in this storage came back as
+       * Content-Type image/png with a filename ending .png, and its bytes began "RIFF....WEBP" --
+       * a WebP wearing a PNG's name. react-pdf dropped it without a word and the label printed
+       * with an empty space where the mark should be, which is the worst way to fail: it looks
+       * like the feature was never built.
+       *
+       * Checking the type cannot catch that, because the server is the thing that is wrong. The
+       * browser decodes whatever it actually is -- webp, avif, svg, png -- and the canvas hands
+       * back a PNG, which react-pdf understands by definition.
+       */
+      const bitmapUrl = URL.createObjectURL(blob);
+      try {
+        const img = new window.Image();
+        const loaded = await new Promise((resolve) => {
+          img.onload = () => resolve(true);
+          img.onerror = () => resolve(false);
+          img.src = bitmapUrl;
+        });
+        if (!loaded || !img.naturalWidth) return null;
+
+        // Capped: a label logo is 9pt tall, and a 2000px original would put a megabyte of
+        // needless image into every PDF a shop prints.
+        const scale = Math.min(1, 320 / img.naturalWidth);
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
+        canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return null;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        return canvas.toDataURL('image/png');
+      } finally {
+        URL.revokeObjectURL(bitmapUrl);
+      }
+    } catch {
+      return null;
+    }
+  };
+
   const handlePrintLabels = async (variantsToPrint) => {
     setIsPrinting(true);
     try {
+      const logoDataUrl = await logoForPrint();
       const blob = await pdf(
         <LabelDocument
           variants={variantsToPrint}
           productName={productName}
           clientId={clientId}
+          logoDataUrl={logoDataUrl}
           // Labels are physically applied at a location, so they must carry that
           // location's price when it overrides the variant's own.
           locationId={currentLocation?.id}

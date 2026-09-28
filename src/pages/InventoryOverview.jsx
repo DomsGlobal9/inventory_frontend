@@ -10,7 +10,27 @@ import StockOutModal from '../components/inventory/StockOutModal';
 import AdjustModal from '../components/inventory/AdjustModal';
 import { usePermission } from '../hooks/usePermission';
 import Select from '../components/common/Select';
+import { formatRupees } from '../utils/money';
 
+/** A small, quiet mark. The figure beside it is a selling price standing in for a cost. */
+const Est = () => (
+  <span style={{ marginLeft: '4px', fontSize: '10px', color: 'var(--text-muted)', fontStyle: 'italic' }}>est.</span>
+);
+
+/*
+ * Said in full on hover, because "est." on its own invites the wrong guess -- a shopkeeper
+ * reading an estimated figure as a real cost will price against it.
+ */
+const COST_NOTE = {
+  AVERAGE: 'The weighted average actually paid for the stock on hand.',
+  LAST_PURCHASE: 'No average cost yet — this is what the most recent purchase order paid.',
+  COST_PRICE: 'No purchase history yet — this is the cost price entered on the product.',
+  SELLING: 'No cost has ever been recorded. Estimated from the selling price, so it is higher than the stock really cost.',
+  COMPARE_AT: 'No cost has ever been recorded. Estimated from the compare-at price, so it is higher than the stock really cost.',
+  BASE: 'No cost has ever been recorded. Estimated from the product price, so it is higher than the stock really cost. Enter a cost price to value it properly.',
+  NONE: 'Nothing is known about what this stock cost, and no price to estimate from.'
+};
+const costNote = (v) => COST_NOTE[v.costBasis] ?? '';
 
 export default function InventoryOverview() {
   const navigate = useNavigate();
@@ -182,8 +202,28 @@ export default function InventoryOverview() {
                   <td style={{ textAlign: 'right', fontWeight: '600', color: variant.quantity <= 0 ? 'var(--accent-danger)' : 'inherit' }}>
                     {variant.quantity}
                   </td>
-                  {showCost && <td style={{ textAlign: 'right' }}>₹{variant.averageCost?.toFixed(2)}</td>}
-                  {showCost && <td style={{ textAlign: 'right', fontWeight: '500' }}>₹{variant.inventoryValue?.toFixed(2)}</td>}
+                  {/*
+                    * "est." where the figure is a selling price standing in for a cost nobody
+                    * ever entered. The number itself comes from the same chain the dashboard and
+                    * the reports use -- this column used to read the average-cost column alone,
+                    * so a shop that set opening stock without a costed purchase saw zero here
+                    * and lakhs on the dashboard, with no way to tell which was lying. An
+                    * unmarked estimate would only swap one silent wrong number for another.
+                    */}
+                  {showCost && (
+                    <td style={{ textAlign: 'right' }} title={costNote(variant)}>
+                      {/* Indian grouping, like every other money figure in the app. toFixed
+                          alone printed a lakh as 1376334.00, which has to be counted by eye. */}
+                      {formatRupees(variant.averageCost ?? 0)}
+                      {variant.costIsEstimate && <Est />}
+                    </td>
+                  )}
+                  {showCost && (
+                    <td style={{ textAlign: 'right', fontWeight: '500' }} title={costNote(variant)}>
+                      {formatRupees(variant.inventoryValue ?? 0)}
+                      {variant.costIsEstimate && <Est />}
+                    </td>
+                  )}
                   <td>
                     <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
                       {can('inventory:receive') && (

@@ -838,3 +838,95 @@ tr:hover td {
 @media (prefers-reduced-motion: reduce) {
   .row-link { transition: none; }
 }
+
+/*
+ * Try-on swing tags.
+ *
+ * Sized in MILLIMETRES because this ends up on paper and a pixel means nothing to a printer.
+ * 50x85mm is a garment swing tag: big enough for a QR that scans across a counter under a shop's
+ * fluorescent tube, small enough that six fit on an A4 sheet with room to cut between them.
+ *
+ * On screen the same tags are shown at the same millimetre sizes, so what a shopkeeper approves
+ * is what comes out of the printer rather than an approximation of it.
+ */
+.tagsheet-paper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6mm;
+  justify-content: flex-start;
+}
+
+.tryon-tag {
+  width: 50mm;
+  height: 85mm;
+  box-sizing: border-box;
+  padding: 4mm 3mm;
+  border: 0.3mm dashed #b9b9b9;   /* the cutting line, and it prints */
+  border-radius: 2mm;
+  background: #fff;
+  color: #111;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Never let a tag be split across two sheets. */
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+/*
+ * The logo, stacked and large.
+ *
+ * It was beside the shop name at 6mm, which made it a bullet point rather than a mark. A swing
+ * tag is the shop's own object hanging on its own goods -- it should read as theirs from across
+ * a counter, not on inspection. So: logo on its own line, up to 13mm, name underneath it small.
+ *
+ * max-height AND max-width, both with object-fit: contain, because a logo is usually a wordmark
+ * -- wide and short -- and constraining only the height lets one run off the side of a 50mm tag.
+ */
+.tryon-tag-head {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1mm;
+  width: 100%; padding-bottom: 2mm; border-bottom: 0.2mm solid #ddd;
+}
+/*
+ * 11mm, not 13. At 13 the content came to 330px inside a 320px tag -- measured, not guessed --
+ * and what falls off the bottom of a swing tag is the variant code, which is the one line a
+ * shop assistant needs to match the tag back to the piece. Still nearly twice the 6mm it began
+ * at, and the tag has room to breathe.
+ */
+.tryon-tag-logo { max-height: 11mm; max-width: 40mm; object-fit: contain; }
+.tryon-tag-shop { font-size: 7.5pt; line-height: 1.2; color: #333; }
+
+.tryon-tag-call { font-size: 9pt; margin: 2mm 0 0.5mm; }
+.tryon-tag-how  { font-size: 7pt; color: #555; margin: 0 0 1.5mm; }
+
+/* White quiet zone around the code: a QR printed edge to edge is a QR that fails to scan. */
+.tryon-tag-qr { background: #fff; padding: 1mm; line-height: 0; }
+.tryon-tag-qr svg { width: 30mm; height: 30mm; display: block; }
+
+.tryon-tag-title   { font-size: 8pt; margin: 2mm 0 0; line-height: 1.25; }
+.tryon-tag-variant { font-size: 7.5pt; color: #444; margin: 1mm 0 0; }
+.tryon-tag-price   { font-size: 10pt; margin: 1.5mm 0 0; }
+.tryon-tag-code    { font-size: 6.5pt; color: #777; margin: auto 0 0; letter-spacing: 0.02em; }
+
+/*
+ * Printing: the tags, and nothing else.
+ *
+ * The modal, the app behind it and the buttons are all on the page, and a print with the
+ * shop's sidebar down one edge wastes a sheet every time. So everything is hidden and only the
+ * sheet is put back, at the top of a clean page.
+ */
+@media print {
+  body * { visibility: hidden !important; }
+  .tagsheet-paper, .tagsheet-paper * { visibility: visible !important; }
+  .tagsheet-chrome { display: none !important; }
+  .tagsheet-modal {
+    position: absolute !important; inset: 0 !important;
+    max-width: none !important; max-height: none !important;
+    padding: 0 !important; margin: 0 !important;
+    border: 0 !important; box-shadow: none !important; background: #fff !important;
+    overflow: visible !important;
+  }
+  .tagsheet-paper { position: absolute; left: 0; top: 0; }
+  @page { margin: 8mm; }
+}

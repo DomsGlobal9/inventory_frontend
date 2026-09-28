@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { formatRupees } from '../utils/money';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Package, Box, History, Image as ImageIcon, ImageOff, Copy, CheckCircle2, Shirt, Pencil } from 'lucide-react';
+import { ArrowLeft, Package, Box, History, Image as ImageIcon, ImageOff, Copy, CheckCircle2, Shirt, Pencil, Printer } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { QRCodeSVG } from 'qrcode.react';
 import ProductOverviewEditor from '../components/ProductOverviewEditor';
+import TryOnTagSheet from '../components/TryOnTagSheet';
 import {
   useProduct as useProductHook,
   useArchiveProduct,
@@ -34,6 +35,7 @@ export default function ProductDetails() {
   const [tryingOn, setTryingOn] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
   const [editing, setEditing] = useState(false);
+  const [taggingUp, setTaggingUp] = useState(false);
   
   const [confirmState, setConfirmState] = useState({ isOpen: false });
   const archiveMutation = useArchiveProduct();
@@ -577,6 +579,15 @@ export default function ProductDetails() {
                             <div style={{ background: '#fff', padding: '8px', borderRadius: '8px', display: 'inline-flex' }}>
                               <QRCodeSVG value={product.tryOnScanUrl} size={120} />
                             </div>
+                            {/*
+                              The code on this screen is the PRODUCT's. A tag hangs on one saree,
+                              so the tags carry each colour's own -- which is a different thing
+                              and worth its own button rather than a print of what is shown here.
+                            */}
+                            <button className="btn-secondary" onClick={() => setTaggingUp(true)}
+                              style={{ marginTop: '10px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                              <Printer size={14} /> Print tags for each colour
+                            </button>
                             <p style={{ margin: '8px 0 0', fontSize: '12px', color: 'var(--text-secondary)', maxWidth: '240px' }}>
                               {product.status === 'ACTIVE'
                                 ? 'A customer scans this and sees themselves wearing it.'
@@ -614,6 +625,7 @@ export default function ProductDetails() {
       </motion.div>
       
       {tryingOn && <CounterTryOn product={product} onClose={() => setTryingOn(false)} />}
+      {taggingUp && <TryOnTagSheet product={product} onClose={() => setTaggingUp(false)} />}
 
       <StockMovementModal 
         isOpen={isStockModalOpen} 

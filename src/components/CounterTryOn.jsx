@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Shirt, Camera, Loader2, X, Download } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { api } from '../lib/api';
+import { useVariants } from '../hooks/useVariants';
 
 /**
  * Try-on at the counter.
@@ -26,6 +27,31 @@ export default function CounterTryOn({ product, onClose }) {
   const [result, setResult] = useState(null);
   const [busy, setBusy] = useState(false);
 
+  /*
+   * WHICH ONE THEY ARE HOLDING.
+   *
+   * This used to try on whatever photograph happened to be the product's cover, whatever colour
+   * the customer was actually holding. On a saree that is the whole question: the indigo and the
+   * crimson are the same garment and a completely different decision, and showing somebody the
+   * wrong one is worse than showing them nothing, because they believe it.
+   *
+   * Only offered when there is a choice to make. One variant needs no picker, and a row of one
+   * is a question with a single answer.
+   */
+  /*
+   * Fetched, not read off the product: the product endpoint carries images but NOT variants --
+   * the Variants tab loads those separately. Reading product.variants left this silently empty,
+   * so the picker never appeared and every try-on quietly used the cover photograph again.
+   */
+  const { data: variantRows } = useVariants(product.id);
+
+  const withPhotos = (variantRows?.data ?? [])
+    .map(v => ({ ...v, photo: v.photoUrl ?? null }))
+    .filter(v => v.photo);
+
+  const [chosenVariant, setChosenVariant] = useState(withPhotos[0]?.id ?? null);
+  const chosen = withPhotos.find(v => v.id === chosenVariant) ?? null;
+
   const pick = (e) => {
     const file = e.target.files?.[0];
     e.target.value = '';
@@ -43,7 +69,12 @@ export default function CounterTryOn({ product, onClose }) {
   const go = async () => {
     setBusy(true);
     try {
-      const { data } = await api.post(`/tryon/${product.id}`, { photo });
+      // The garment photograph is checked against this product's own rows on the server, never
+      // trusted from here -- otherwise this would be a way to have any shop pay to composite
+      // any two pictures.
+      const { data } = await api.post(`/tryon/${product.id}`, {
+        photo, ...(chosen?.photo ? { imageUrl: chosen.photo } : {})
+      });
       setResult(data.imageUrl);
     } catch (err) {
       toast.error(err?.message || 'That did not work. Try a clear, full-length photograph.');
@@ -102,6 +133,33 @@ export default function CounterTryOn({ product, onClose }) {
           </>
         ) : (
           <>
+            {withPhotos.length > 1 && (
+              <div style={{ marginBottom: '16px' }}>
+                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '0 0 8px' }}>
+                  Which one are they holding?
+                </p>
+                <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
+                  {withPhotos.map(v => {
+                    const on = v.id === chosenVariant;
+                    return (
+                      <button key={v.id} type="button" onClick={() => setChosenVariant(v.id)}
+                        aria-pressed={on}
+                        title={[v.colorName, v.size].filter(Boolean).join(' · ')}
+                        style={{
+                          flexShrink: 0, width: '68px', padding: '4px', cursor: 'pointer',
+                          background: 'transparent', borderRadius: '8px', textAlign: 'center',
+                          border: on ? '2px solid var(--accent-primary)' : '1px solid var(--border-light)'
+                        }}>
+                        <img src={v.photo} alt="" style={{ width: '100%', aspectRatio: '3/4', objectFit: 'cover', borderRadius: '5px', display: 'block' }} />
+                        <span style={{ display: 'block', fontSize: '10px', marginTop: '4px', color: on ? 'var(--text-primary)' : 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {v.colorName || v.size || v.variantCode}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
             <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6, margin: '0 0 16px' }}>
               Take a full-length photograph of the customer, straight on, with a plain background if
               you can. It is used once to make the picture and then deleted — nothing is kept.

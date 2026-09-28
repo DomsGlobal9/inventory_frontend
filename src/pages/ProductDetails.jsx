@@ -413,6 +413,25 @@ export default function ProductDetails() {
                           <p style={{ fontWeight: '500', margin: '4px 0 0' }}>{product.dressType}</p>
                         </div>
                       )}
+                      {/*
+                        Tax, shown whether it is set or not.
+
+                        Every other row here hides when empty, which is right for a brand or a
+                        craft -- an absent one says nothing. An absent HSN is the opposite: it is
+                        the reason a tax invoice cannot be issued for this product, and hiding it
+                        would leave a shopkeeper looking for a setting that is not on the screen.
+                      */}
+                      <div>
+                        <p style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>HSN code</p>
+                        <p style={{ fontWeight: '500', margin: '4px 0 0' }}>{product.hsnCode || 'Not set'}</p>
+                      </div>
+                      <div>
+                        <p style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>GST rate</p>
+                        <p style={{ fontWeight: '500', margin: '4px 0 0' }}>
+                          {product.taxRateBps == null ? 'Not set' : `${product.taxRateBps / 100}%`}
+                          {product.taxSlabbed ? ' up to ₹2,500, 18% above' : ''}
+                        </p>
+                      </div>
                       {product.fabric && (
                         <div>
                           <p style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Fabric</p>

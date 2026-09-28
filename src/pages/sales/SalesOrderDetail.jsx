@@ -418,9 +418,16 @@ export default function SalesOrderDetail() {
                 })}
               </div>
             )}
+            {/*
+              "Included", not "+", because these prices already contain the tax.
+              A plus sign makes the column claim Subtotal + Tax = Grand Total, and on an
+              inclusive bill it does not: 6,000 + 285.71 was shown above a grand total of
+              6,000. An owner can live with a figure they have to think about; they cannot
+              live with three numbers on one screen that do not add up.
+            */}
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', color: 'var(--text-secondary)' }}>
-              <span>Tax</span>
-              <span>+{formatINRExact(Number(order.taxAmount))}</span>
+              <span>Tax {Number(order.taxAmount) > 0 ? '(included)' : ''}</span>
+              <span>{formatINRExact(Number(order.taxAmount))}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px', color: 'var(--text-secondary)' }}>
               <span>Shipping</span>

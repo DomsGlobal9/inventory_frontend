@@ -214,6 +214,21 @@ export default function ReturnDetail() {
           <p style={{ color: 'var(--text-secondary)', margin: 0 }}>
             Order {ret.salesOrder?.orderNumber} • Customer: {ret.salesOrder?.customer?.name}
           </p>
+          {/*
+            The credit note number, because this is the one thing an accountant needs from this
+            screen. A return under GST issues a credit note with its own series, and it was being
+            written to the database and shown nowhere -- so the number existed and nobody could
+            quote it. Only a registered shop gets one; a composition or unregistered shop refunds
+            without a tax document, and this line is absent for them rather than empty.
+          */}
+          {ret.creditNoteNo && (
+            <p style={{ color: 'var(--text-secondary)', margin: '6px 0 0', fontSize: '14px' }}>
+              Credit note <strong>{ret.creditNoteNo}</strong>
+              {Number(ret.cgst || 0) + Number(ret.sgst || 0) + Number(ret.igst || 0) > 0 && (
+                <> • GST reversed ₹{(Number(ret.cgst || 0) + Number(ret.sgst || 0) + Number(ret.igst || 0)).toFixed(2)}</>
+              )}
+            </p>
+          )}
           {ret.status === 'COMPLETED' && Object.keys(restocked).length > 0 && (
             <div style={{ marginTop: 12 }}>
               <PutAwayNotice locationId={ret.salesOrder?.locationId} what="this return"

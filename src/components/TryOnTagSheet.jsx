@@ -76,8 +76,15 @@ export default function TryOnTagSheet({ product, onClose }) {
         {isLoading ? (
           <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>Loading the colours…</p>
         ) : printable.length === 0 ? (
-          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>
-            There is nothing to print yet. Try-on links appear once this shop's try-on is set up.
+          /*
+           * Say WHICH nothing. The old line blamed the shop's try-on setup for every empty sheet,
+           * including the commonest cause by far -- a product with no colours added yet. A
+           * shopkeeper went looking for a setting that was not the problem.
+           */
+          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.6 }}>
+            {(variants?.data ?? []).length === 0
+              ? 'This product has no colours or sizes yet. Add them on the Variants tab and each one gets its own tag.'
+              : 'Try-on is not switched on for this workspace yet, so there is no code to put on a tag.'}
           </p>
         ) : (
           <>

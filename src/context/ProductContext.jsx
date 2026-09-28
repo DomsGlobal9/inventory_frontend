@@ -49,7 +49,17 @@ export const ProductProvider = ({ children }) => {
     fabric: '',
     craft: '',
     brand: '',
-    
+
+    /*
+     * GST, asked for while the product is being added rather than only when editing it later.
+     * Empty means "not set", which is a different answer from 0 (exempt) -- so these stay as
+     * strings here and are left out of the payload entirely when untouched.
+     */
+    hsnCode: '',
+    taxRateBps: '',
+    taxSlabbed: false,
+
+
     // Measurements / Pricing
     price: '',
     // What the stock cost. Asked for because not asking is what produced a shop holding 50

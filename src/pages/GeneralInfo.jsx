@@ -6,15 +6,64 @@ import { useProduct } from '../context/ProductContext';
 import { useCatalogData } from '../hooks/useCatalogConfig';
 import Dropdown from '../components/Dropdown';
 import { useSameNameProducts } from '../hooks/useProducts';
+import { useBranding } from '../hooks/useBranding';
+
+/** Basis points, the same list the edit screen offers. 500 = 5%. */
+const GST_RATES = [
+  { label: 'Not set', value: '' },
+  { label: 'Exempt (0%)', value: '0' },
+  { label: '5%', value: '500' },
+  { label: '12%', value: '1200' },
+  { label: '18%', value: '1800' },
+  { label: '28%', value: '2800' }
+];
 
 export default function GeneralInfo() {
   const navigate = useNavigate();
   const { productData, updateProductData } = useProduct();
   const { dressByCategory, designTypes, materials, productTypes, categories } = useCatalogData();
+  const { data: branding } = useBranding();
 
   const PRODUCT_TYPES_LABELS = productTypes.map(p => p.label ?? p);
   const DRESS_TYPES = dressByCategory[productData.category] || [];
   const sameName = useSameNameProducts(productData.title, productData.id);
+
+  /*
+   * A saree is fabric, so it is unstitched unless somebody says otherwise.
+   *
+   * Matched exactly rather than by "contains saree", so a stitched piece added to the catalogue
+   * later -- a saree blouse, a pre-pleated saree -- is not quietly reclassified as fabric. It
+   * decides the GST treatment as well as the label: unstitched fabric is 5% flat, stitched
+   * apparel is 5% or 18% depending on what one piece sells for.
+   *
+   * Applied when the dress type is CHOSEN, never on load, and never again afterwards -- so a
+   * shopkeeper who then presses READY TO WEAR keeps it.
+   */
+  const unstitchedLabel = PRODUCT_TYPES_LABELS.find(t => /unstitched/i.test(t)) ?? null;
+  const chooseDressType = (val) => {
+    updateProductData('dressType', val);
+    if (unstitchedLabel && /^saree$/i.test(String(val).trim())) {
+      updateProductData('productType', unstitchedLabel);
+    }
+  };
+
+  /*
+   * The brand starts as the shop's own name, which is what it is for all but a few products.
+   *
+   * Once only, and only on a product being added: filling it in on an EDIT would silently rewrite
+   * a saved product's brand the moment somebody opened it. It also waits for the name to load
+   * rather than reading it on the first render, which is the mistake that left the try-on picker
+   * defaulting to nothing.
+   */
+  const storeName = branding?.businessName ?? '';
+  const brandFilled = React.useRef(false);
+  React.useEffect(() => {
+    if (brandFilled.current) return;
+    if (productData.id || productData.brand) { brandFilled.current = true; return; }
+    if (!storeName) return;
+    updateProductData('brand', storeName);
+    brandFilled.current = true;
+  }, [storeName, productData.id, productData.brand, updateProductData]);
 
   return (
     <div className="animate-fade-in mobile-no-scroll" style={{ display: 'flex', flexDirection: 'column', gap: '24px', flex: 1, minHeight: 0 }}>
@@ -59,7 +108,7 @@ export default function GeneralInfo() {
                 placeholder="Select Dress Type"
                 options={DRESS_TYPES}
                 emptyText={productData.category ? undefined : 'Choose a Product Category first.'}
-                onChange={(val) => updateProductData('dressType', val)}
+                onChange={chooseDressType}
               />
             </div>
           </div>
@@ -130,8 +179,52 @@ export default function GeneralInfo() {
               className="input-field" 
               placeholder="e.g. Heritage 2024"
               value={productData.brand}
-              onChange={(e) => updateProductData('brand', e.target.value)} 
+              onChange={(e) => updateProductData('brand', e.target.value)}
             />
+          </div>
+
+          {/*
+            * GST, asked here rather than only on the edit screen.
+            *
+            * These fields existed only once a product had been created, so every product added
+            * through this wizard began with no HSN code and no rate -- and a product with no rate
+            * cannot go on a tax invoice. The shop found out at the counter, one product at a
+            * time. Optional, because a shop that is not registered never needs any of it and a
+            * draft is a save-point for something unfinished.
+            */}
+          <div className="mobile-col" style={{ display: 'flex', gap: '24px' }}>
+            <div style={{ flex: 1 }}>
+              <label className="input-label">HSN code</label>
+              <input
+                type="text"
+                className="input-field"
+                placeholder="4, 6 or 8 digits"
+                inputMode="numeric"
+                value={productData.hsnCode}
+                onChange={(e) => updateProductData('hsnCode', e.target.value)}
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label className="input-label">GST rate</label>
+              <select
+                className="input-field"
+                value={productData.taxRateBps}
+                onChange={(e) => updateProductData('taxRateBps', e.target.value)}
+              >
+                {GST_RATES.map(r => <option key={r.label} value={r.value}>{r.label}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-secondary)' }}>
+              <input
+                type="checkbox"
+                checked={productData.taxSlabbed}
+                onChange={(e) => updateProductData('taxSlabbed', e.target.checked)}
+              />
+              Priced by the piece — 5% up to ₹2,500, 18% above
+            </label>
           </div>
         </div>
       </div>

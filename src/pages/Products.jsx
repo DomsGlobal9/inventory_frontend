@@ -1,7 +1,7 @@
 import React from 'react';
 import LoadFailed from '../components/LoadFailed';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Package, Download, Upload, FileSpreadsheet } from 'lucide-react';
+import { Plus, Package, Download, Upload, FileSpreadsheet, LayoutGrid, List } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { useProducts, useBulkSetProductStatus } from '../hooks/useProducts';
@@ -13,12 +13,36 @@ import PageLoader from '../components/PageLoader';
 import Select from '../components/common/Select';
 import ConfirmModal from '../components/ConfirmModal';
 import { formatRupees } from '../utils/money';
+import ProductGrid from '../components/ProductGrid';
 
 
 export default function Products() {
   const navigate = useNavigate();
   const { resumePath } = useProduct();
   const [statusFilter, setStatusFilter] = React.useState(''); // Empty means default (ACTIVE, DRAFT)
+
+  /*
+   * Table or photographs, remembered per person.
+   *
+   * Kept in localStorage rather than on the account: two people share a shop but not a habit,
+   * and the one who works from the stockroom on a tablet wants pictures while the one doing the
+   * books on a laptop wants columns. Neither should change the other's screen.
+   *
+   * Read inside the initialiser so the first paint is already the view they chose -- setting it
+   * in an effect shows the table for a frame and then swaps, which reads as a glitch.
+   */
+  const [view, setView] = React.useState(() => {
+    try {
+      return localStorage.getItem('products.view') === 'grid' ? 'grid' : 'table';
+    } catch {
+      // Private browsing, or storage switched off. A preference is not worth an exception.
+      return 'table';
+    }
+  });
+  const chooseView = (next) => {
+    setView(next);
+    try { localStorage.setItem('products.view', next); } catch { /* as above */ }
+  };
   const { data, isLoading, isError, error, refetch } = useProducts({ page: 1, limit: 50, status: statusFilter || undefined });
 
   const [isBulkUpdateModalOpen, setIsBulkUpdateModalOpen] = React.useState(false);
@@ -235,6 +259,38 @@ export default function Products() {
         </div>
       )}
 
+      {/*
+        The switch. Two buttons rather than a dropdown: there are two choices, both are one
+        word, and a menu to pick between two things is a menu nobody opens twice.
+      */}
+      {!isLoading && !isError && products.length > 0 && (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', marginBottom: '12px' }}>
+          {[
+            { id: 'table', label: 'List', Icon: List },
+            { id: 'grid', label: 'Photos', Icon: LayoutGrid }
+          ].map(({ id, label, Icon }) => (
+            <button
+              key={id}
+              onClick={() => chooseView(id)}
+              aria-pressed={view === id}
+              title={id === 'grid' ? 'See the photographs' : 'See the details'}
+              className={view === id ? 'btn-primary' : 'btn-secondary'}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 12px', fontSize: '13px' }}
+            >
+              <Icon size={14} /> {label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {view === 'grid' && !isLoading && !isError && products.length > 0 ? (
+        <ProductGrid
+          products={products}
+          selected={selected}
+          onToggle={toggleOne}
+          onOpen={(id) => navigate(`/products/${id}`)}
+        />
+      ) : (
       <div className="table-container" style={{ overflowX: 'auto' }}>
         {isLoading ? (
           <PageLoader text="Loading products..." />
@@ -319,7 +375,8 @@ export default function Products() {
           </motion.table>
         )}
       </div>
-      
+      )}
+
       <ConfirmModal
         isOpen={confirmState.isOpen}
         onClose={() => setConfirmState({ isOpen: false })}

@@ -904,7 +904,23 @@ tr:hover td {
 .tryon-tag-qr { background: #fff; padding: 1mm; line-height: 0; }
 .tryon-tag-qr svg { width: 30mm; height: 30mm; display: block; }
 
-.tryon-tag-title   { font-size: 8pt; margin: 2mm 0 0; line-height: 1.25; }
+/*
+ * Two lines of title, never three.
+ *
+ * A tag is a fixed 85mm and the product name is the only thing on it with no length limit. A
+ * long one -- "Kanchipuram Pure Silk Bridal Saree with Heavy Zari Border" -- wrapped to three or
+ * four lines and pushed the variant code off the bottom edge, which is the one line somebody
+ * needs to match a tag back to the piece. Caught by printing a product whose name is longer than
+ * the one I first tested with.
+ *
+ * Clamped rather than shrunk: 8pt is already small on a swing tag, and a name nobody can read is
+ * no better than a name cut short.
+ */
+.tryon-tag-title   {
+  font-size: 8pt; margin: 2mm 0 0; line-height: 1.25;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 .tryon-tag-variant { font-size: 7.5pt; color: #444; margin: 1mm 0 0; }
 .tryon-tag-price   { font-size: 10pt; margin: 1.5mm 0 0; }
 .tryon-tag-code    { font-size: 6.5pt; color: #777; margin: auto 0 0; letter-spacing: 0.02em; }

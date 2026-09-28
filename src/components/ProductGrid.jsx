@@ -4,37 +4,54 @@ import { Package, AlertTriangle } from 'lucide-react';
 import { formatRupees } from '../utils/money';
 
 /**
- * Products as photographs.
+ * The catalogue as photographs -- one card per COLOUR, not per product.
  *
- * A saree is recognised by eye. The table is the right tool for finding a code or sorting by
- * stock, and the wrong one for "which one is the peacock blue with the heavy border" -- a
- * question a shopkeeper answers instantly from a picture and slowly from a list of names.
+ * A saree is recognised by eye, and what a shopkeeper is looking for is never "the product". It
+ * is the crimson one. A card showing the goldenrod photograph while standing for three colours is
+ * a card somebody scrolls straight past, which defeats the only reason to have a photo view at
+ * all.
  *
- * So: mostly photograph, with the few numbers that change what somebody does next. Name, price,
- * and what is on the shelf. Not the category, not the fabric, not the HSN -- those are on the
- * product's own page, and a card that repeats the table has no reason to exist.
+ * So each variant gets its own card, with its own picture, its own price and its own stock. A
+ * product with no variants still gets one card, because a catalogue that hides a product until
+ * somebody adds a colour to it is a catalogue that has lost a product.
+ *
+ * Clicking any card opens the PRODUCT -- there is no per-variant page, and the product page is
+ * where its colours are managed.
  */
 export default function ProductGrid({ products, selected, onToggle, onOpen }) {
+  /*
+   * Flattened here rather than in the parent, because selection still belongs to the PRODUCT.
+   * Publish and unpublish act on products, so ticking the crimson card selects the saree, and
+   * every colour of that saree shows as ticked. Anything else would let somebody tick two cards
+   * and see "1 selected", which is the kind of small lie that stops people trusting a screen.
+   */
+  const cards = products.flatMap(product => {
+    const colours = product.colours?.length ? product.colours : [null];
+    return colours.map(colour => ({ product, colour }));
+  });
+
   return (
     <div style={{
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))',
       gap: '16px'
     }}>
-      {products.map(product => {
-        const units = product.variantSummary?.totalUnits ?? 0;
-        const low = product.variantSummary?.lowStockVariants ?? 0;
+      {cards.map(({ product, colour }) => {
+        const units = colour ? colour.units : (product.variantSummary?.totalUnits ?? 0);
+        const price = colour?.sellingPrice ?? product.basePrice;
+        const photo = colour?.photoUrl ?? product.coverImageUrl;
         const isSelected = selected.has(product.id);
+        const label = [colour?.colorName, colour?.size].filter(Boolean).join(' · ');
 
         return (
           <motion.div
-            key={product.id}
+            key={colour ? colour.id : product.id}
             layout
             onClick={() => onOpen(product.id)}
             role="button"
             tabIndex={0}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(product.id); } }}
-            aria-label={`Open ${product.title}`}
+            aria-label={`Open ${product.title}${label ? `, ${label}` : ''}`}
             style={{
               cursor: 'pointer',
               borderRadius: '12px',
@@ -46,18 +63,18 @@ export default function ProductGrid({ products, selected, onToggle, onOpen }) {
             }}
           >
             <div style={{ position: 'relative', aspectRatio: '3 / 4', background: 'var(--bg-input)' }}>
-              {product.coverImageUrl ? (
+              {photo ? (
                 <img
-                  src={product.coverImageUrl}
+                  src={photo}
                   alt=""
                   loading="lazy"
                   style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                 />
               ) : (
                 /*
-                 * No photograph is worth saying, not hiding. A product with no picture cannot go
-                 * on a storefront and cannot be tried on, and a grid is exactly where that is
-                 * visible at a glance rather than found one product at a time.
+                 * No photograph is worth saying, not hiding. A colour with no picture cannot go on
+                 * a storefront and cannot be tried on, and a grid is exactly where that is visible
+                 * at a glance rather than found one product at a time.
                  */
                 <div style={{ width: '100%', height: '100%', display: 'grid', placeItems: 'center', gap: '6px' }}>
                   <Package size={26} color="var(--text-muted)" />
@@ -67,10 +84,7 @@ export default function ProductGrid({ products, selected, onToggle, onOpen }) {
 
               {/* stopPropagation: the card opens the product, and a tick that navigated away
                   would make selecting more than one impossible. */}
-              <div
-                onClick={(e) => e.stopPropagation()}
-                style={{ position: 'absolute', top: '8px', left: '8px' }}
-              >
+              <div onClick={(e) => e.stopPropagation()} style={{ position: 'absolute', top: '8px', left: '8px' }}>
                 <input
                   type="checkbox"
                   checked={isSelected}
@@ -100,18 +114,19 @@ export default function ProductGrid({ products, selected, onToggle, onOpen }) {
                 }}
               >{product.title}</p>
 
-              <p style={{ margin: '4px 0 0', fontSize: '11px', color: 'var(--text-muted)' }}>
-                {product.productCode}
+              {/* The colour is what the card IS. Falls back to the code when a variant has no
+                  colour name, so the card always says which one it is. */}
+              <p style={{ margin: '3px 0 0', fontSize: '11px', color: 'var(--text-secondary)' }}>
+                {label || colour?.variantCode || product.productCode}
               </p>
 
               <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '8px', marginTop: '8px' }}>
-                <span style={{ fontSize: '14px', fontWeight: 500 }}>{formatRupees(product.basePrice)}</span>
+                <span style={{ fontSize: '14px', fontWeight: 500 }}>{formatRupees(price)}</span>
                 <span style={{
                   fontSize: '11px',
                   color: units === 0 ? 'var(--accent-danger)' : 'var(--text-secondary)',
                   display: 'inline-flex', alignItems: 'center', gap: '4px'
                 }}>
-                  {low > 0 && units > 0 && <AlertTriangle size={11} color="var(--accent-warning)" />}
                   {units === 0 ? 'Out of stock' : `${units} in stock`}
                 </span>
               </div>

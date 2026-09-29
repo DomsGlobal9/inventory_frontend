@@ -218,11 +218,19 @@ export default function ProductDetails() {
    * any screen the moment a product has three of them, so it flows with the page instead.
    *
    * Decided here because this page is what hands out the height.
+   *
+   * "Flows with the page" needs something to scroll, and on a desktop nothing did: the shell
+   * gives .main-content overflow hidden on purpose, and only below 768px does it scroll instead.
+   * So on a laptop the Images tab grew past the bottom of the window and was clipped, with no
+   * scrollbar and no way to reach the photographs below the first row. Reported on a Kanchi silk
+   * with four views per colour. .page-scroll (the Reports and Day Book fix) makes this page its
+   * own scroller on wide screens and switches itself off on phones, where .main-content already
+   * scrolls. The other tabs fit the height exactly, so nothing changes for them.
    */
   const flowingTab = activeTab === 'images';
 
   return (
-    <motion.div variants={container} initial="hidden" animate="show"
+    <motion.div variants={container} initial="hidden" animate="show" className="page-scroll"
       style={{ display: 'flex', flexDirection: 'column', gap: '24px', minHeight: '100%' }}>
       
       {/* Header */}

@@ -10,6 +10,8 @@ import { buildVariantSku } from '../utils/skuUtils';
 import { bulkCreateVariants, getVariants } from '../services/variant.service';
 import { putImageBytes, registerImage, dataUrlToFile } from '../services/image.service';
 import { startPhotoJobs } from '../services/photoJobs.service';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '../lib/queryKeys';
 import { useCatalogData } from '../hooks/useCatalogConfig';
 import { colorInfoFor } from '../utils/colorOptions';
 import { useLocationContext } from '../contexts/LocationContext';
@@ -21,6 +23,7 @@ const VIEW_ORDER = ['front', 'left', 'right', 'back'];
 export default function ProductPreview() {
   const { productData, resetProductData } = useProduct();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { colors } = useCatalogData();
   /*
    * Once the three columns stack, their widths are no longer a column width -- they are the
@@ -464,6 +467,23 @@ export default function ProductPreview() {
           );
         }
       }
+
+      /*
+       * Tell the product list, now that there is something to tell it.
+       *
+       * The create mutation invalidates it too, but that fires when the product ROW is made --
+       * before any of this ran. So the list refetched a product with no photographs and no job,
+       * then sat on that: staleTime is 30s and refetchOnWindowFocus is off, and the grid's own
+       * polling only starts when a job is present, which that snapshot said there was not. The
+       * card showed "No photo" on a saree that had eight, with nothing to make it look again.
+       *
+       * This runs after the uploads AND after the jobs are queued, which is the first moment the
+       * answer is worth asking for.
+       */
+      queryClient.invalidateQueries({ queryKey: queryKeys.products });
+      queryClient.invalidateQueries({ queryKey: ['images', productId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.variants(productId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.product(productId) });
     };
 
     if (productData.id) {

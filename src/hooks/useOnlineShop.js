@@ -110,3 +110,46 @@ export const useRemoveBanner = () => useBannerMutation(
   async (id) => (await api.delete(`/online-shop/banners/${id}`)).data,
   () => toast.success('Banner removed.')
 );
+
+/* ── Payments: the shop's own Razorpay account ─────────────────────────────────────────────
+ * Its own cache entry: the settings object never carries it, and the keys screen answers with
+ * { account, webhookSecret } for the two actions that hand over a webhook secret (shown once) and
+ * with the account alone for the rest. Either way, the account is what gets cached -- a secret
+ * is never kept anywhere a later render could show it again.
+ */
+const PAY_KEY = ['online-shop', 'payments'];
+
+export const useShopPayments = () => useQuery({
+  queryKey: PAY_KEY,
+  queryFn: async () => (await api.get('/online-shop/payments')).data
+});
+
+const usePaymentMutation = (fn, done) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: fn,
+    onSuccess: (result) => {
+      qc.setQueryData(PAY_KEY, result?.account ?? result);
+      done?.(result);
+    },
+    onError: (e) => toast.error(e?.message || 'That could not be saved.')
+  });
+};
+
+/** Save the Key ID and Key Secret; the server checks them at once. */
+export const useSavePaymentKeys = () => usePaymentMutation(
+  async (keys) => (await api.put('/online-shop/payments', keys)).data
+);
+
+export const useCheckPayments = () => usePaymentMutation(
+  async () => (await api.post('/online-shop/payments/check', {})).data
+);
+
+export const useNewWebhookSecret = () => usePaymentMutation(
+  async () => (await api.post('/online-shop/payments/webhook-secret', {})).data
+);
+
+export const useDisconnectPayments = () => usePaymentMutation(
+  async () => (await api.delete('/online-shop/payments')).data,
+  () => toast.success('Your Razorpay account is disconnected. Its keys are deleted.')
+);

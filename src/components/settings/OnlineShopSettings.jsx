@@ -4,6 +4,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import toast from 'react-hot-toast';
 import { useOnlineShop, useChooseShopAddress, useSaveOnlineShop, useSetShopOpen } from '../../hooks/useOnlineShop';
 import ShopBanners from './ShopBanners';
+import ShopPayments from './ShopPayments';
 import ShopIcon from './ShopIcon';
 import { useLocationContext } from '../../contexts/LocationContext';
 
@@ -342,6 +343,11 @@ export default function OnlineShopSettings() {
           </div>
         )}
       </div>
+
+      {/* ── Payments ────────────────────────────────────────────────────────────────
+          The shop's own Razorpay account. Set up here before "Online" can be offered above --
+          and whether it is offered is still the "Taking orders" card's decision. */}
+      <ShopPayments />
 
       {/* ── Banners ─────────────────────────────────────────────────────────────────
           Only once there is an address. Before that there is no shop for a banner to sit on,

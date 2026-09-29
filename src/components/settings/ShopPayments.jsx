@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { CreditCard, Check, AlertTriangle, Copy, ExternalLink, Loader2, KeyRound, RefreshCw, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import {
-  useShopPayments, useSavePaymentKeys, useCheckPayments, useNewWebhookSecret, useDisconnectPayments
+  useShopPayments, useSavePaymentKeys, useCheckPayments, useNewWebhookSecret, useDisconnectPayments,
+  useOnlinePaymentActivity, useRefundOnline, useOnlineShop
 } from '../../hooks/useOnlineShop';
+import { usePermission } from '../../hooks/usePermission';
 import { useAuth } from '../../context/AuthContext';
 import { holdsEverything } from '../../lib/authority';
 
@@ -148,6 +151,8 @@ export default function ShopPayments() {
   const { user } = useAuth();
   const isOwner = holdsEverything(user);
   const { data: account, isLoading, isError } = useShopPayments();
+  // The saved setting, not the tick above that may not be saved yet.
+  const { data: shop } = useOnlineShop();
   const save = useSavePaymentKeys();
   const checkIt = useCheckPayments();
   const rotate = useNewWebhookSecret();
@@ -254,14 +259,142 @@ export default function ShopPayments() {
           )}
 
           <p style={{ ...hint, margin: '14px 0 0' }}>
-            {account.readyForCustomers
-              ? 'Your account is ready. Customers will be offered online payment once it is switched on under Taking orders — coming in the next update. Until then they pay when the order arrives.'
+            {account.readyForCustomers && shop?.payOnline
+              ? 'Customers can pay online at your checkout.'
+              : account.readyForCustomers
+              ? <>Your account is ready. Switch on "Online" under How customers may pay, in <Link to="/settings?section=ONLINE_SHOP">Settings → Online shop</Link>, to offer it at the checkout.</>
               : account.mode === 'TEST'
                 ? 'Test keys never take a real customer\'s money. Replace them with your Live keys before customers pay online.'
                 : 'Customers pay when the order arrives until this shows Connected.'}
           </p>
+
+          <PaymentActivity />
         </>
       )}
+    </div>
+  );
+}
+
+const WORD = { PAID: 'Paid', RETURNED: 'Returned', ATTENTION: 'Needs looking at' };
+const rupee = (n) => `₹${Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: Number(n) % 1 ? 2 : 0, maximumFractionDigits: 2 })}`;
+
+/**
+ * What has been paid online, and money back.
+ *
+ * A refund can only ever go back to the card or UPI it came from -- Razorpay does that, not us -- so
+ * the only choices here are how much and why. Refunds need the same permission the till uses to pay
+ * money back; the server checks it, and this screen simply does not offer the button otherwise.
+ */
+function PaymentActivity() {
+  const { can } = usePermission();
+  const { data: rows, isLoading } = useOnlinePaymentActivity();
+  const refund = useRefundOnline();
+  const [open, setOpen] = useState(null); // { id, amount, reason, key }
+
+  if (isLoading) return null;
+  if (!rows?.length) {
+    return <p style={{ ...hint, margin: '16px 0 0' }}>No online payments yet. They appear here as customers pay.</p>;
+  }
+
+  return (
+    <div style={{ marginTop: '18px', paddingTop: '14px', borderTop: '1px solid var(--border-light)' }}>
+      <span style={{ ...label, fontWeight: 600, color: 'var(--text-primary)' }}>Recent online payments</span>
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12.5px', minWidth: '500px' }}>
+          <thead>
+            <tr style={{ textAlign: 'left', color: 'var(--text-secondary)' }}>
+              <th style={{ padding: '6px 8px' }}>When</th>
+              <th style={{ padding: '6px 8px' }}>Order</th>
+              <th style={{ padding: '6px 8px' }}>Customer</th>
+              <th style={{ padding: '6px 8px', textAlign: 'right' }}>Paid</th>
+              <th style={{ padding: '6px 8px', textAlign: 'right' }}>Returned</th>
+              <th style={{ padding: '6px 8px' }}></th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(r => (
+              <React.Fragment key={r.id}>
+                <tr style={{ borderTop: '1px solid var(--border-light)' }}>
+                  <td style={{ padding: '8px' }}>{new Date(r.paidAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</td>
+                  <td style={{ padding: '8px' }}>
+                    {r.salesOrderId && r.orderNumber ? <Link to={`/orders/${r.salesOrderId}`}>{r.orderNumber}</Link> : (r.orderNumber ?? '—')}
+                    <span style={{ display: 'block', color: 'var(--text-secondary)', fontSize: '11px' }}>
+                      {WORD[r.state]}{r.method ? ` · ${r.method.toUpperCase()}` : ''}{r.orderStatus === 'CANCELLED' ? ' · cancelled' : ''}
+                    </span>
+                  </td>
+                  <td style={{ padding: '8px' }}>{r.customerName ?? '—'}</td>
+                  <td style={{ padding: '8px', textAlign: 'right' }}>{rupee(r.amount)}</td>
+                  <td style={{ padding: '8px', textAlign: 'right' }}>
+                    {r.refunded > 0 ? rupee(r.refunded) : '—'}
+                    {r.refundPending > 0 && <span style={{ display: 'block', color: 'var(--text-secondary)', fontSize: '11px' }}>{rupee(r.refundPending)} on its way</span>}
+                    {r.givenBackElsewhere > 0 && <span style={{ display: 'block', color: 'var(--text-secondary)', fontSize: '11px' }}>+ {rupee(r.givenBackElsewhere)} at the counter</span>}
+                  </td>
+                  <td style={{ padding: '8px 0 8px 8px', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                    {r.refundable > 0 && can('return:counter') && open?.id !== r.id && (
+                      <button type="button" className="btn-secondary" style={{ padding: '4px 10px', fontSize: '12px' }}
+                        onClick={() => setOpen({ id: r.id, salesOrderId: r.salesOrderId, orderNumber: r.orderNumber, customerName: r.customerName, amount: String(r.refundable), reason: '', key: crypto.randomUUID(), max: r.refundable })}>
+                        Refund
+                      </button>
+                    )}
+                  </td>
+                </tr>
+                {r.note && (
+                  <tr><td colSpan={6} style={{ padding: '0 8px 8px', color: r.state === 'ATTENTION' ? 'var(--accent-danger)' : 'var(--text-secondary)', fontSize: '11.5px' }}>{r.note}</td></tr>
+                )}
+                {r.refunds?.some(x => x.status === 'FAILED') && (
+                  <tr><td colSpan={6} style={{ padding: '0 8px 8px', color: 'var(--accent-danger)', fontSize: '11.5px' }}>
+                    A refund did not go through: {r.refunds.find(x => x.status === 'FAILED')?.failReason} The customer has NOT been refunded.
+                  </td></tr>
+                )}
+              </React.Fragment>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/*
+        Below the table, not inside it: on a phone the table scrolls sideways, and a form in one of
+        its rows opened scrolled out of sight -- the owner pressed Refund and saw nothing happen.
+      */}
+      {open && <RefundForm open={open} setOpen={setOpen} refund={refund} />}
+    </div>
+  );
+}
+
+function RefundForm({ open, setOpen, refund }) {
+  const text = String(open.amount ?? '').trim();
+  const n = /^\d{1,9}(\.\d{1,2})?$/.test(text) ? Number(text) : NaN;
+  // The server refuses anything else anyway; saying so here saves a round trip and a red toast.
+  const problem = !(n > 0) ? 'Write the amount in rupees, for example 500 or 499.50.'
+    : n > open.max + 0.001 ? `Only ${rupee(open.max)} is left to refund on this order.`
+    : null;
+  return (
+    <div style={{ marginTop: '10px', padding: '12px', borderRadius: '10px', background: 'var(--bg-hover)' }}>
+      <span style={{ ...label, fontWeight: 600, color: 'var(--text-primary)' }}>
+        Refund {open.orderNumber ?? 'this payment'}{open.customerName ? ` · ${open.customerName}` : ''}
+      </span>
+      <div style={{ ...row, alignItems: 'flex-end' }}>
+        <label style={{ display: 'block' }}>
+          <span style={label}>Amount (up to {rupee(open.max)})</span>
+          <input className="input-field" inputMode="decimal" value={open.amount} style={{ width: '120px' }}
+            aria-invalid={!!problem} onChange={(e) => setOpen(o => ({ ...o, amount: e.target.value }))} />
+        </label>
+        <label style={{ display: 'block', flex: 1, minWidth: '160px' }}>
+          <span style={label}>Why (the customer does not see this)</span>
+          <input className="input-field" value={open.reason} maxLength={200} style={{ width: '100%' }}
+            placeholder="Delivery was very late" onChange={(e) => setOpen(o => ({ ...o, reason: e.target.value }))} />
+        </label>
+        <button type="button" className="btn-primary" disabled={refund.isPending || !!problem}
+          onClick={() => refund.mutate(
+            { salesOrderId: open.salesOrderId, amount: open.amount, reason: open.reason, requestKey: open.key },
+            { onSuccess: () => setOpen(null) }
+          )}>
+          {refund.isPending ? 'Refunding…' : `Refund ${problem ? '' : rupee(n)}`.trim()}
+        </button>
+        <button type="button" className="btn-secondary" onClick={() => setOpen(null)}>Cancel</button>
+      </div>
+      {problem && text !== '' && <p role="alert" style={{ ...hint, margin: '6px 0 0', color: 'var(--accent-danger)' }}>{problem}</p>}
+      <p style={{ ...hint, margin: '6px 0 0' }}>It goes back to the card or UPI the customer paid with. It cannot be undone. Taking pieces back? Use Returns instead — it puts them back in stock and refunds through Razorpay in one go.</p>
     </div>
   );
 }

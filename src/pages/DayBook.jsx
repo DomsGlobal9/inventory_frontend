@@ -386,8 +386,8 @@ export default function DayBook() {
           </div>
           <SimpleTable
             head={['How', 'Taken', 'Paid back']}
-            rows={['CASH', 'UPI', 'CARD', 'POINTS', 'CREDIT'].filter(m => d.money.taken[m] || d.money.paidBack[m]).map(m => [
-              { CASH: 'Cash', UPI: 'UPI', CARD: 'Card', POINTS: 'Loyalty points', CREDIT: 'Store credit' }[m],
+            rows={['CASH', 'UPI', 'CARD', 'POINTS', 'CREDIT', 'ONLINE'].filter(m => d.money.taken[m] || d.money.paidBack[m]).map(m => [
+              { CASH: 'Cash', UPI: 'UPI', CARD: 'Card', POINTS: 'Loyalty points', CREDIT: 'Store credit', ONLINE: 'Online (Razorpay)' }[m],
               d.money.taken[m] ? money(d.money.taken[m].amount) : '—',
               d.money.paidBack[m] ? money(d.money.paidBack[m].amount) : '—'
             ])}

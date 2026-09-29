@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Globe, Check, Loader2, AlertTriangle, ExternalLink, Copy, Share2, Printer, ShoppingBag } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import toast from 'react-hot-toast';
-import { useOnlineShop, useChooseShopAddress, useSaveOnlineShop, useSetShopOpen } from '../../hooks/useOnlineShop';
+import { useOnlineShop, useChooseShopAddress, useSaveOnlineShop, useSetShopOpen, useShopPayments } from '../../hooks/useOnlineShop';
+import { Link } from 'react-router-dom';
 import ShopBanners from './ShopBanners';
-import ShopPayments from './ShopPayments';
 import ShopIcon from './ShopIcon';
 import { useLocationContext } from '../../contexts/LocationContext';
 
@@ -28,6 +28,11 @@ export default function OnlineShopSettings() {
   const { locations } = useLocationContext();
   const chooseAddress = useChooseShopAddress();
   const save = useSaveOnlineShop();
+  // Whether the shop's Razorpay account can take real money right now -- the server's answer, not
+  // a guess from what the keys look like. It decides whether "Online" can be switched on.
+  const { data: payments } = useShopPayments();
+  const payReady = !!payments?.readyForCustomers;
+  const toPayments = <Link to="/settings?section=PAYMENTS">Settings → Payments</Link>;
   const setOpen = useSetShopOpen();
 
   const [slug, setSlug] = useState('');
@@ -297,16 +302,39 @@ export default function OnlineShopSettings() {
                 <input type="checkbox" checked={form.payOnDelivery} onChange={(e) => set('payOnDelivery', e.target.checked)} />
                 <span style={{ fontSize: '13px' }}>When it arrives <span style={{ color: 'var(--text-muted)' }}>(cash or UPI)</span></span>
               </label>
-              {/* Paying online needs a payment gateway set up for this shop; until that exists it
-                  cannot be offered, and saying so is better than a switch that does nothing. */}
+              {/*
+                Online, through the shop's own Razorpay account (Settings → Payments, its own section).
+
+                It can be switched ON only once that account can take real money -- working LIVE
+                keys -- because the server refuses otherwise and a switch that says yes and then
+                refuses is worse than one that says why. Switching it OFF is always allowed.
+              */}
               <label style={{
                 display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '8px 12px',
-                border: '1px solid var(--border-light)', borderRadius: '8px', opacity: 0.55, cursor: 'not-allowed'
-              }} title="Paying online needs your payment gateway set up first.">
-                <input type="checkbox" checked={false} disabled readOnly />
-                <span style={{ fontSize: '13px' }}>Online <span style={{ color: 'var(--text-muted)' }}>(coming with payments)</span></span>
+                border: '1px solid var(--border-light)', borderRadius: '8px',
+                background: form.payOnline ? 'var(--bg-hover)' : 'transparent',
+                opacity: payReady || form.payOnline ? 1 : 0.55,
+                cursor: payReady || form.payOnline ? 'pointer' : 'not-allowed'
+              }} title={payReady || form.payOnline ? '' : 'Connect your Razorpay account in Settings → Payments first.'}>
+                <input type="checkbox" checked={form.payOnline} disabled={!payReady && !form.payOnline}
+                  onChange={(e) => set('payOnline', e.target.checked)} />
+                <span style={{ fontSize: '13px' }}>Online <span style={{ color: 'var(--text-muted)' }}>(UPI, card — Razorpay)</span></span>
               </label>
             </div>
+            {!payReady && (
+              <span style={{ ...hint, marginBottom: 0, marginTop: '6px', display: 'block' }}>
+                {payments?.connected && payments?.status === 'CONNECTED' && payments?.mode === 'TEST'
+                  ? <>Your Razorpay keys are TEST keys, which take no real money. Connect your Live keys in {toPayments} to offer paying online.</>
+                  : payments?.connected
+                    ? <>Your Razorpay keys are not working. Check them in {toPayments} to offer paying online.</>
+                    : <>To take payment online, connect your Razorpay account in {toPayments}.</>}
+              </span>
+            )}
+            {form.payOnline && !payReady && (
+              <span style={{ ...hint, marginBottom: 0, marginTop: '4px', display: 'block', color: 'var(--accent-danger, #b42318)' }}>
+                Customers are not being offered it until the keys work again — they can still pay when it arrives.
+              </span>
+            )}
 
             <div style={{ marginTop: '16px' }}>
               <label style={label} htmlFor="os-pins">Where you deliver</label>
@@ -343,11 +371,6 @@ export default function OnlineShopSettings() {
           </div>
         )}
       </div>
-
-      {/* ── Payments ────────────────────────────────────────────────────────────────
-          The shop's own Razorpay account. Set up here before "Online" can be offered above --
-          and whether it is offered is still the "Taking orders" card's decision. */}
-      <ShopPayments />
 
       {/* ── Banners ─────────────────────────────────────────────────────────────────
           Only once there is an address. Before that there is no shop for a banner to sit on,

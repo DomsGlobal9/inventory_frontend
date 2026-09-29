@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { ArrowLeft, Search, Undo2, Banknote, Smartphone, CreditCard, Wallet, Repeat, CheckCircle2, Loader2, AlertTriangle, Minus, Plus } from 'lucide-react';
+import { ArrowLeft, Search, Undo2, Banknote, Smartphone, CreditCard, Wallet, Repeat, CheckCircle2, Loader2, AlertTriangle, Minus, Plus, Globe } from 'lucide-react';
 import { useLocationContext } from '../../contexts/LocationContext';
 import { useFindSales, useSaleForReturn, useReturnPreview, useCompleteCounterReturn } from '../../hooks/useCounterReturn';
 import { RETURN_REASONS } from '../../components/sales/labels';
@@ -20,6 +20,9 @@ const METHODS = [
   { key: 'CARD', label: 'Card', icon: CreditCard },
   { key: 'CREDIT', label: 'Store credit', icon: Wallet }
 ];
+
+/** Only for a bill paid online: back through Razorpay to however the customer paid. */
+const ONLINE = { key: 'ONLINE', label: 'Online', icon: Globe };
 
 const IN_WORDS = { CASH: 'cash', UPI: 'UPI', CARD: 'card', CREDIT: 'store credit' };
 const card = { background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: 14, padding: 16, display: 'grid', gap: 12 };
@@ -90,6 +93,9 @@ export default function CounterReturn() {
   useEffect(() => { setQty({}); setDamaged({}); setReason(''); setNote(''); setMode('REFUND'); setMethod('CASH'); setReference(''); key.current = crypto.randomUUID(); }, [orderId]);
 
   const s = sale.data;
+  const paidOnline = s?.paidOnline ?? null;
+  const methods = paidOnline ? [ONLINE, ...METHODS] : METHODS;
+  useEffect(() => { if (paidOnline) setMethod('ONLINE'); }, [s?.id, !!paidOnline]);
   const lines = useMemo(() => Object.entries(qty).filter(([, n]) => n > 0)
     .map(([dispatchItemId, quantity]) => ({ dispatchItemId, quantity, condition: damaged[dispatchItemId] ? 'DAMAGED' : 'RESTOCK' })), [qty, damaged]);
   const previewLines = useMemo(() => lines.map(({ dispatchItemId, quantity }) => ({ dispatchItemId, quantity })), [lines]);
@@ -105,6 +111,10 @@ export default function CounterReturn() {
     : !p ? 'Working it out…'
     : blocked ? p.needsManager
     : needsCustomer ? 'Store credit needs a customer on the bill. Give the money back another way.'
+    : paidOnline && mode === 'REFUND' && p.money > paidOnline.left + 0.001
+      ? (paidOnline.left <= 0
+        ? 'Everything paid for this bill has already been given back. Nothing more can go back on it.'
+        : `Only ${formatINRExact(paidOnline.left)} of this bill is left to give back — the rest already went back.`)
     : null;
 
   const submit = () => {
@@ -133,6 +143,14 @@ export default function CounterReturn() {
         ) : done.refundWords ? (
           <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--accent-success)' }}>Give back {done.refundWords}</div>
         ) : null}
+        {done.online && done.online.status !== 'FAILED' && (
+          <div style={{ fontSize: 18, fontWeight: 700 }}>{formatINRExact(done.online.amount)} is going back through Razorpay — nothing to hand over. It reaches them in 5–7 working days.</div>
+        )}
+        {done.online?.status === 'FAILED' && (
+          <div role="alert" style={{ fontSize: 14, color: 'var(--accent-danger)', display: 'flex', gap: 6, justifyContent: 'center' }}>
+            <AlertTriangle size={16} style={{ flexShrink: 0 }} /> Razorpay could not refund {formatINRExact(done.online.amount)}. The customer has NOT been paid back — open the return and record how you give it back.
+          </div>
+        )}
         {done.pointsBack > 0 && <div style={{ fontSize: 14 }}>{done.pointsBack.toLocaleString('en-IN')} loyalty points went back to their points.</div>}
         <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
           {done.exchange && done.customer?.id && (
@@ -231,8 +249,8 @@ export default function CounterReturn() {
             </div>
             {mode === 'REFUND' ? (
               <>
-                <div role="radiogroup" aria-label="How the money goes back" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
-                  {METHODS.map(({ key: k, label, icon: Icon }) => (
+                <div role="radiogroup" aria-label="How the money goes back" style={{ display: 'grid', gridTemplateColumns: `repeat(${methods.length}, 1fr)`, gap: 8 }}>
+                  {methods.map(({ key: k, label, icon: Icon }) => (
                     <button key={k} type="button" role="radio" aria-checked={method === k} onClick={() => setMethod(k)}
                       style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '8px 4px', borderRadius: 10, cursor: 'pointer', color: 'var(--text-primary)', fontSize: 13,
                         border: `1px solid ${method === k ? 'var(--accent-primary)' : 'var(--border-light)'}`, background: method === k ? 'var(--bg-hover)' : 'transparent', fontWeight: method === k ? 600 : 400 }}>
@@ -243,6 +261,12 @@ export default function CounterReturn() {
                 {(method === 'UPI' || method === 'CARD') && (
                   <input className="input-field" aria-label="Reference" maxLength={40} value={reference} onChange={(e) => setReference(e.target.value)}
                     placeholder={method === 'UPI' ? 'UPI reference (optional)' : 'Last 4 digits or approval code (optional)'} />
+                )}
+                {method === 'ONLINE' && <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Paid online, so it goes back through Razorpay to how they paid — nothing to hand over. It reaches them in 5–7 working days.</div>}
+                {paidOnline && (paidOnline.backOnline > 0 || paidOnline.backElsewhere > 0) && (
+                  <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+                    Already given back on this bill: {[paidOnline.backOnline > 0 && `${formatINRExact(paidOnline.backOnline)} through Razorpay`, paidOnline.backElsewhere > 0 && `${formatINRExact(paidOnline.backElsewhere)} at the counter`].filter(Boolean).join(' and ')}. {formatINRExact(paidOnline.left)} is left.
+                  </div>
                 )}
                 {method === 'CREDIT' && <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Kept for {s.customer?.name?.split(' ')[0] ?? 'the customer'} to spend in the shop. It shows at New sale when their number is typed.</div>}
               </>
@@ -268,7 +292,7 @@ export default function CounterReturn() {
               style={{ padding: '14px 16px', fontSize: 16, fontWeight: 700, display: 'inline-flex', justifyContent: 'center', alignItems: 'center', gap: 8 }}>
               {complete.isPending ? <><Loader2 size={18} className="animate-spin" /> Taking it back…</>
                 : mode === 'EXCHANGE' ? `Take back and exchange${p ? ` · ${formatINRExact(p.money + (p.creditBack || 0))} credit` : ''}`
-                : `Take back${p ? (p.money > 0 ? ` · give ${formatINRExact(p.money)} in ${IN_WORDS[method]}` : p.creditBack > 0 ? ` · ${formatINRExact(p.creditBack)} back as credit` : '') : ''}`}
+                : `Take back${p ? (p.money > 0 ? (method === 'ONLINE' ? ` · ${formatINRExact(p.money)} back through Razorpay` : ` · give ${formatINRExact(p.money)} in ${IN_WORDS[method]}`) : p.creditBack > 0 ? ` · ${formatINRExact(p.creditBack)} back as credit` : '') : ''}`}
             </button>
             {problem && !complete.isPending && <div style={{ fontSize: 13, color: 'var(--text-secondary)', textAlign: 'center' }}>{problem}</div>}
           </section>

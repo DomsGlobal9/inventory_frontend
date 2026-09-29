@@ -20,7 +20,7 @@ import { logoAsPng } from '../../components/pdf/pdfLogo';
  */
 
 const money = (v) => Number(v ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const METHOD = { CASH: 'Cash', UPI: 'UPI', CARD: 'Card', POINTS: 'Loyalty points', CREDIT: 'Store credit' };
+const METHOD = { CASH: 'Cash', UPI: 'UPI', CARD: 'Card', POINTS: 'Loyalty points', CREDIT: 'Store credit', ONLINE: 'Online (Razorpay)' };
 const ORIGINAL_WINDOW_MS = 10 * 60_000;
 
 export default function Receipt() {

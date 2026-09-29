@@ -130,6 +130,12 @@ const usePaymentMutation = (fn, done) => {
     mutationFn: fn,
     onSuccess: (result) => {
       qc.setQueryData(PAY_KEY, result?.account ?? result);
+      /*
+       * The shop's own settings too. Disconnecting switches paying online OFF on the server, and
+       * keys that stop working take it off the checkout -- the "Taking orders" card must show that,
+       * not the tick it had before.
+       */
+      qc.invalidateQueries({ queryKey: KEY, exact: true });
       done?.(result);
     },
     onError: (e) => toast.error(e?.message || 'That could not be saved.')
@@ -148,6 +154,36 @@ export const useCheckPayments = () => usePaymentMutation(
 export const useNewWebhookSecret = () => usePaymentMutation(
   async () => (await api.post('/online-shop/payments/webhook-secret', {})).data
 );
+
+/**
+ * What has been paid online lately, and what has gone back. Re-asked every half minute while the
+ * card is open: a refund Razorpay is still processing turns into "refunded" on its own.
+ */
+export const useOnlinePaymentActivity = (enabled = true) => useQuery({
+  queryKey: [...PAY_KEY, 'activity'],
+  queryFn: async () => (await api.get('/online-shop/payments/activity')).data,
+  enabled,
+  refetchInterval: 30_000
+});
+
+/**
+ * Money back to a customer who paid online -- all or part. The request key is made once per refund
+ * the owner starts, so a double click or a retry after a slow answer refunds once, never twice.
+ */
+export const useRefundOnline = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (body) => (await api.post('/online-shop/payments/refund', body)).data,
+    onSuccess: (r) => {
+      qc.invalidateQueries({ queryKey: [...PAY_KEY, 'activity'] });
+      qc.invalidateQueries({ queryKey: ['sales-orders'] });
+      if (r?.status === 'FAILED') toast.error('Razorpay could not refund it. The customer has NOT been refunded — see the alert for why.');
+      else if (r?.status === 'PROCESSED') toast.success('Refunded. It reaches the customer in 5–7 working days.');
+      else toast.success('Refund started. Razorpay is processing it.');
+    },
+    onError: (e) => toast.error(e?.message || 'That refund could not be started.')
+  });
+};
 
 export const useDisconnectPayments = () => usePaymentMutation(
   async () => (await api.delete('/online-shop/payments')).data,

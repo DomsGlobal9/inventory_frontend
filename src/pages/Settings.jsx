@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Settings as SettingsIcon, Tag, Palette, Scissors, Layers, Hexagon, Grid, ShoppingBag, Store, Users, Key, Shield, MapPin, LifeBuoy, BookOpen, Globe, MessageCircle, Gift, Undo2 } from 'lucide-react';
+import { Settings as SettingsIcon, Tag, Palette, Scissors, Layers, Hexagon, Grid, ShoppingBag, Store, Users, Key, Shield, MapPin, LifeBuoy, BookOpen, Globe, MessageCircle, Gift, Undo2, CreditCard } from 'lucide-react';
 import CatalogManager from '../components/CatalogManager';
 import StockLocationsPage from './settings/StockLocationsPage';
 import DayBook from './DayBook';
@@ -13,6 +13,7 @@ import RoleManager from '../components/RoleManager';
 import WhatsAppSettings from '../components/whatsapp/WhatsAppSettings';
 import LoyaltySettings from '../components/loyalty/LoyaltySettings';
 import OnlineShopSettings from '../components/settings/OnlineShopSettings';
+import ShopPayments from '../components/settings/ShopPayments';
 import ReturnRulesPanel from '../components/sales/ReturnRulesPanel';
 import { holdsEverything } from '../lib/authority';
 import { useAuth } from '../context/AuthContext';
@@ -26,6 +27,9 @@ const SETTINGS_DOMAINS = [
   { id: 'DAYBOOK', label: 'Day Book', icon: BookOpen, permission: 'report:financial' },
   { id: 'STOREFRONT', label: 'Storefront', icon: Globe, permission: 'admin:locations' },
   { id: 'ONLINE_SHOP', label: 'Online shop', icon: Globe, permission: 'admin:online_shop' },
+  // Its own place: the shop's Razorpay account, what has been paid online and money back. The
+  // server guards all of it with admin:online_shop, so the menu does too.
+  { id: 'PAYMENTS', label: 'Payments', icon: CreditCard, permission: 'admin:online_shop' },
   { id: 'WHATSAPP', label: 'WhatsApp', icon: MessageCircle, permission: 'whatsapp:manage' },
   { id: 'LOYALTY', label: 'Loyalty & wishes', icon: Gift, permission: 'loyalty:manage' },
   { id: 'RETURNS', label: 'Returns & exchanges', icon: Undo2, permission: 'return:complete' },
@@ -48,7 +52,7 @@ const SETTINGS_DOMAINS = [
  * chain had to be extended by hand every time a domain gained content -- and when Day Book was
  * added it was not, so the page rendered the day book AND the placeholder underneath it.
  */
-const IMPLEMENTED_DOMAINS = new Set(['GENERAL', 'CATALOG', 'LOCATIONS', 'DAYBOOK', 'STOREFRONT', 'ONLINE_SHOP', 'WHATSAPP', 'LOYALTY', 'RETURNS', 'SERVICES', 'USERS', 'ROLES', 'SUPPORT']);
+const IMPLEMENTED_DOMAINS = new Set(['GENERAL', 'CATALOG', 'LOCATIONS', 'DAYBOOK', 'STOREFRONT', 'ONLINE_SHOP', 'PAYMENTS', 'WHATSAPP', 'LOYALTY', 'RETURNS', 'SERVICES', 'USERS', 'ROLES', 'SUPPORT']);
 
 const CATALOG_TABS = [
   { id: 'SIZE', label: 'Sizes', icon: Scissors, description: 'Manage available sizes across your products' },
@@ -72,6 +76,11 @@ export default function Settings() {
   const asked = searchParams.get('section');
   const [activeDomain, setActiveDomain] = useState(() =>
     SETTINGS_DOMAINS.some(d => d.id === asked && can(d.permission)) ? asked : 'GENERAL');
+  // And a link from one section to another (Online shop → "Settings → Payments") while this page is
+  // already open: the address changes but nothing re-mounts, so follow it here.
+  useEffect(() => {
+    if (asked && SETTINGS_DOMAINS.some(d => d.id === asked && can(d.permission))) setActiveDomain(asked);
+  }, [asked]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Only the sections this person's role can actually use. Listing Day Book to somebody
   // without report:financial offers them a door that opens onto a refusal -- and they have no
@@ -263,6 +272,12 @@ export default function Settings() {
           {activeDomain === 'ONLINE_SHOP' && (
             <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '32px' }}>
               <OnlineShopSettings />
+            </div>
+          )}
+
+          {activeDomain === 'PAYMENTS' && (
+            <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '32px' }}>
+              <ShopPayments />
             </div>
           )}
 

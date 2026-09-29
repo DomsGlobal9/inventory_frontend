@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Package, Loader2 } from 'lucide-react';
+import { Package, Loader2, Check } from 'lucide-react';
 import { formatRupees } from '../utils/money';
 
 const ROTATE_MS = 2600;
@@ -64,6 +64,53 @@ export default function ProductGrid({ products, selected, onToggle, onOpen }) {
         />
       ))}
     </div>
+  );
+}
+
+/**
+ * The tick on a card, drawn rather than left to the browser.
+ *
+ * A native checkbox is a small pale square with a hairline border, and it sits here on top of a
+ * photograph -- on a cream saree it all but disappears, and on a dark one it is a white blob. It
+ * also renders differently on every platform, so the one control a shopkeeper uses to pick out
+ * twenty products looked like a rendering fault.
+ *
+ * The real input is still there, one pixel wide and invisible: it keeps the keyboard, the screen
+ * reader and the form semantics, and only its appearance is replaced. The dark disc behind the
+ * tick is what makes it legible on any photograph, light or dark.
+ */
+function SelectBox({ checked, onChange, label }) {
+  const [focused, setFocused] = React.useState(false);
+
+  return (
+    <label style={{ display: 'inline-flex', cursor: 'pointer', lineHeight: 0 }}>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={onChange}
+        aria-label={label}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        style={{ position: 'absolute', width: '1px', height: '1px', opacity: 0, margin: 0 }}
+      />
+      <span
+        aria-hidden="true"
+        style={{
+          width: '22px', height: '22px', borderRadius: '7px',
+          display: 'grid', placeItems: 'center',
+          background: checked ? 'var(--accent-primary)' : 'rgba(18,22,26,.45)',
+          border: checked ? '1.5px solid var(--accent-primary)' : '1.5px solid rgba(255,255,255,.9)',
+          // Reads on a white saree as well as a black one; the native control did neither.
+          boxShadow: focused
+            ? '0 0 0 3px rgba(255,255,255,.55), 0 1px 4px rgba(0,0,0,.45)'
+            : '0 1px 4px rgba(0,0,0,.45)',
+          backdropFilter: 'blur(2px)',
+          transition: 'background .15s ease, border-color .15s ease, box-shadow .15s ease'
+        }}
+      >
+        {checked && <Check size={14} strokeWidth={3.5} color="#fff" />}
+      </span>
+    </label>
   );
 }
 
@@ -269,12 +316,10 @@ function ProductCard({ product, stagger, reduceMotion, isSelected, onToggle, onO
         {/* stopPropagation: the card opens the product, and a tick that navigated away
             would make selecting more than one impossible. */}
         <div onClick={(e) => e.stopPropagation()} style={{ position: 'absolute', top: '8px', left: '8px' }}>
-          <input
-            type="checkbox"
+          <SelectBox
             checked={isSelected}
             onChange={() => onToggle(product.id)}
-            aria-label={`Select ${product.title}`}
-            style={{ cursor: 'pointer', width: '16px', height: '16px' }}
+            label={`Select ${product.title}`}
           />
         </div>
 

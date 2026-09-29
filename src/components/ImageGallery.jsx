@@ -231,7 +231,16 @@ export default function ImageGallery({ productId, dressType }) {
       exit={{ opacity: 0, scale: 0.9 }}
       style={{
         position: 'relative',
-        aspectRatio: '1/1',
+        /*
+         * 3:4, the shape the catalog views are now made in.
+         *
+         * These tiles were square, and a 3:4 photograph in a square box with object-fit cover
+         * loses about a quarter off the top and bottom -- the head and the feet. Those are
+         * precisely what the photo studio's framing rule was added to guarantee, so the
+         * thumbnails were hiding the one thing worth looking at. A flat-lay is landscape and is
+         * cropped at the sides here instead, which it was anyway.
+         */
+        aspectRatio: '3 / 4',
         borderRadius: '8px',
         overflow: 'hidden',
         border: image.isPrimary ? '2px solid var(--accent-gold)' : '1px solid var(--border-light)',

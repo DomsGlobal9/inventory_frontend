@@ -126,7 +126,7 @@ export default function GeneralInfo() {
 
             <div style={{ flex: 1 }}>
               <label className="input-label">Material / Fabric</label>
-              <Dropdown 
+              <Dropdown
                 value={productData.fabric}
                 placeholder="Select Fabric"
                 options={materials}
@@ -134,21 +134,32 @@ export default function GeneralInfo() {
               />
             </div>
           </div>
+
+          {/*
+            * Under the craft and the fabric, which is what it is describing.
+            *
+            * It sat at the top of the other column, opposite the product's name, where it was the
+            * tallest thing on the form and pushed the tax fields down past everything else. The
+            * description is written last, after the shop has said what the garment IS, so it
+            * belongs at the end of that thought rather than at the top of a second one.
+            *
+            * flex: 1 so it takes the height the left column has left over -- the same trick it
+            * used in the other column, which is what made it a comfortable box to write in.
+            */}
+          <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: '120px' }}>
+            <label className="input-label">Product Description</label>
+            <textarea
+              className="input-field"
+              placeholder="Describe your product..."
+              value={productData.description}
+              onChange={(e) => updateProductData('description', e.target.value)}
+              style={{ resize: 'none', flex: 1, minHeight: '96px' }}
+            />
+          </div>
         </div>
 
         {/* Right Column */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-            <label className="input-label">Product Description</label>
-            <textarea 
-              className="input-field" 
-              placeholder="Describe your product..."
-              value={productData.description}
-              onChange={(e) => updateProductData('description', e.target.value)}
-              style={{ resize: 'none', flex: 1 }}
-            />
-          </div>
-
           <div>
             <label className="input-label">Product Type</label>
             <div style={{ display: 'flex', gap: '8px', background: 'var(--bg-input)', padding: '4px', borderRadius: '4px', border: '1px solid var(--border-light)' }}>

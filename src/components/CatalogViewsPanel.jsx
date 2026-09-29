@@ -60,7 +60,21 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
    * list above, because repeating work the shop has already paid for is a different decision
    * from doing it the first time, and must be asked for rather than defaulted into.
    */
-  const finished = useMemo(() => wholeSetColours(colours), [colours]);
+  /*
+   * A colour already being worked on is not offered again, however finished its current set is.
+   *
+   * Pressing it would ask the server for a second job on the same colour, which the partial
+   * unique index refuses -- so the shop would get a failure for doing exactly what the screen
+   * invited them to do. Its progress is shown by the panel above instead.
+   */
+  const busyColours = useMemo(
+    () => new Set((jobs?.active ?? []).map(j => j.colourName)),
+    [jobs]
+  );
+  const finished = useMemo(
+    () => wholeSetColours(colours).filter(c => !busyColours.has(c.name)),
+    [colours, busyColours]
+  );
   const [redoName, setRedoName] = useState(null);
   const [redoArmed, setRedoArmed] = useState(false);
   const redoTarget = finished.find(c => c.name === redoName) ?? finished[0] ?? null;

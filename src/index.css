@@ -750,6 +750,25 @@ tr:hover td {
   .mobile-2-col-grid {
     grid-template-columns: 1fr !important;
   }
+
+  /*
+   * Short numeric tiles stay two across even on the narrowest phone.
+   *
+   * A label and a figure need about 150px, and stacking four of them put the product's tabs most
+   * of a screen below the fold -- so opening a product on a phone showed four boxes and no way to
+   * tell there was anything under them. Opted into per grid rather than changed on
+   * .mobile-2-col-grid, which also carries grids of full sentences that genuinely need the width.
+   */
+  .mobile-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+  .mobile-stat-grid .glass-panel {
+    padding: 14px !important;
+  }
+  .mobile-stat-grid h2 {
+    font-size: 19px !important;
+  }
   
   @media (min-width: 481px) {
     .mobile-2-col-grid {
@@ -825,12 +844,35 @@ tr:hover td {
    * SalesOrders carries this class on the same element as .table-container, so its 595px table
    * was clipped at 320px with no way to reach the right-hand columns. The axis that needed
    * resetting was always only the vertical one. */
+  /*
+   * THIRD TIME, and the last two both failed for the same reason: you cannot ask one element for
+   * horizontal scrolling and vertical `visible`. The spec says so -- when one axis is not
+   * visible, a `visible` on the other axis computes to `auto` -- so the pair above quietly made
+   * every panel carrying this class a scroll container in BOTH directions.
+   *
+   * It never scrolled, because height is auto and there is nothing to scroll. But a dead
+   * overflow:auto box still swallows the touch on iOS instead of passing it up to .main-content,
+   * which is the element that actually scrolls. That is why the Images tab scrolled on some
+   * phones and not others.
+   *
+   * So the two cases are separated instead of stacked on one element.
+   */
   .mobile-no-scroll {
-    overflow-y: visible !important;
-    overflow-x: auto !important;
+    overflow: visible !important;
     flex: none !important;
     min-height: min-content !important;
     height: auto !important;
+  }
+
+  /*
+   * A wide table still has to be draggable sideways -- SalesOrders' 595px table was once clipped
+   * at 320px with no way to reach the right-hand columns, which is what the previous attempt was
+   * fixing. Horizontal only: `hidden` on the vertical axis makes this a single-axis scroller, and
+   * a vertical swipe inside it reaches .main-content as it should.
+   */
+  .mobile-no-scroll.table-container {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
   }
 }
 

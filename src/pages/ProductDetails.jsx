@@ -346,7 +346,7 @@ export default function ProductDetails() {
       </motion.div>
 
       {/* Stats Summary */}
-      <motion.div variants={item} className="mobile-2-col-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', flexShrink: 0 }}>
+      <motion.div variants={item} className="mobile-2-col-grid mobile-stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', flexShrink: 0 }}>
         <div className="glass-panel" style={{ padding: '20px' }}>
           <p style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Base Price</p>
           <h2 style={{ fontSize: '24px', margin: '8px 0 0' }}>{formatRupees(product.basePrice)}</h2>
@@ -414,7 +414,14 @@ export default function ProductDetails() {
           >
             {activeTab === 'overview' && (
               <div className="glass-panel mobile-no-scroll" style={{ padding: '32px', flex: 1, overflowY: 'auto' }}>
-                <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start' }}>
+                {/*
+                  * Stacks on a phone. The Identifiers panel beside this is a fixed 280px and does
+                  * not shrink, so on a 390px screen it took 280 of the 326 available and left the
+                  * overview itself about fourteen pixels wide -- a column of single letters, with
+                  * the panel and its QR code running off the right-hand edge where nothing could
+                  * scroll to reach them.
+                  */}
+                <div className="mobile-col" style={{ display: 'flex', gap: '32px', alignItems: 'flex-start' }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '16px' }}>
                       <h3 style={{ margin: 0 }}>Product Overview</h3>

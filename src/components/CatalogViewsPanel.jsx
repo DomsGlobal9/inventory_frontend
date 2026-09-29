@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Camera, StopCircle, Upload } from 'lucide-react';
+import { Camera, StopCircle, Upload, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { uploadImageFile } from '../services/image.service';
 import {
-  resolveTryOnCategory, groupByColour, viewsCandidates, sourceForViews, viewsMadeFor, progressText
+  resolveTryOnCategory, groupByColour, viewsCandidates, sourceForViews, viewsMadeFor, progressText,
+  wholeSetColours
 } from '../lib/photoSets';
 import { usePhotoJobs, useStartPhotoJobs, useCancelPhotoJob } from '../hooks/usePhotoJobs';
 import PhotoJobOutcome from './PhotoJobOutcome';
@@ -50,6 +51,20 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
   const [uploading, setUploading] = useState(false);
   const flatLayRef = useRef(null);
 
+  /*
+   * Colours whose four views are done, and can only be MADE AGAIN.
+   *
+   * There was no way to do this at all: a finished colour drops out of the candidate list, and
+   * with nothing left to offer the whole panel returned null -- so a set that came back badly
+   * framed was simply what the shop had. Kept as its own control rather than folded into the
+   * list above, because repeating work the shop has already paid for is a different decision
+   * from doing it the first time, and must be asked for rather than defaulted into.
+   */
+  const finished = useMemo(() => wholeSetColours(colours), [colours]);
+  const [redoName, setRedoName] = useState(null);
+  const [redoArmed, setRedoArmed] = useState(false);
+  const redoTarget = finished.find(c => c.name === redoName) ?? finished[0] ?? null;
+
   /** Sets of views being made for this product right now. */
   const mine = useMemo(() => (jobs?.active ?? []).filter(j => j.kind === 'VIEWS'), [jobs]);
 
@@ -81,12 +96,15 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
     wasActive.current = now;
   }, [mine, onChanged]);
 
-  const run = async (sourceImageId) => {
-    if (!target) return;
+  // colourName is passed explicitly, because "make them again" runs a colour that is deliberately
+  // NOT the panel's current target -- a finished one.
+  const run = async (sourceImageId, colourName) => {
+    const name = colourName ?? target?.name;
+    if (!name) return;
     const result = await start.mutateAsync({
       productId,
       kind: 'VIEWS',
-      colours: [target.name],
+      colours: [name],
       ...(sourceImageId ? { sourceImageId } : {})
     });
     if (result?.made?.length) {
@@ -140,13 +158,19 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
     }
   };
 
-  if (!category || !target) return null;
+  // Still shown when there is nothing left to photograph but something that can be made again --
+  // which is the whole product, once every colour is finished.
+  if (!category || (!target && !redoTarget)) return null;
 
   return (
     <div style={{
       border: '1px solid var(--border-light)', borderRadius: '12px',
       padding: '16px', marginBottom: '20px'
     }}>
+      {/* Everything here is about a colour that still NEEDS photographing. Once they all have
+          their four views there is no target, and only the "make them again" control below
+          remains -- which is the case that used to make this whole panel disappear. */}
+      {target && (<>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
         <Camera size={18} />
         <h3 style={{ fontSize: '15px', fontWeight: 600, margin: 0 }}>
@@ -220,6 +244,7 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
           </button>
         </>
       )}
+      </>)}
 
       {job && (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
@@ -242,6 +267,70 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
             style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px' }}>
             <StopCircle size={16} /> Stop
           </button>
+        </div>
+      )}
+
+      {/*
+        * MAKE THEM AGAIN.
+        *
+        * A set comes back and it is simply not good enough -- the model is half out of frame, the
+        * drape is wrong, the colour reads oddly. Until now that was the end of it: a finished
+        * colour is not a candidate, so nothing offered it and this panel disappeared entirely.
+        *
+        * Asked for and then confirmed, because it spends a generation to replace photographs the
+        * shop already has. Separated from the panel above by a rule for the same reason -- it
+        * must never be the button somebody presses while meaning the other one.
+        */}
+      {redoTarget && !job && (
+        <div style={{
+          borderTop: target ? '1px solid var(--border-light)' : 'none',
+          marginTop: target ? '16px' : 0,
+          paddingTop: target ? '14px' : 0
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+            <RefreshCw size={16} />
+            <h3 style={{ fontSize: '15px', fontWeight: 600, margin: 0 }}>Not happy with a set?</h3>
+          </div>
+          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 12px' }}>
+            {redoTarget.name} has all four views. Making them again replaces them with a fresh set
+            {sourceForViews(redoTarget)?.generated
+              ? ', worked from the front view it already has.'
+              : ', worked from your own photograph again.'}{' '}
+            It uses one generation from your allowance.
+          </p>
+
+          {finished.length > 1 && (
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                Which set to make again
+              </label>
+              <select className="input-field" value={redoTarget.name}
+                onChange={(e) => { setRedoName(e.target.value); setRedoArmed(false); }}
+                style={{ maxWidth: '260px' }}>
+                {finished.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
+              </select>
+            </div>
+          )}
+
+          {redoArmed ? (
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <button type="button" className="btn btn-primary"
+                onClick={async () => { setRedoArmed(false); await run(undefined, redoTarget.name); }}
+                disabled={start.isPending}
+                style={{ padding: '9px 16px', borderRadius: '8px' }}>
+                {start.isPending ? 'STARTING…' : `YES, REPLACE THE ${redoTarget.name.toUpperCase()} SET`}
+              </button>
+              <button type="button" className="btn" onClick={() => setRedoArmed(false)}
+                style={{ padding: '9px 16px', borderRadius: '8px' }}>
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <button type="button" className="btn" onClick={() => setRedoArmed(true)}
+              style={{ padding: '9px 16px', borderRadius: '8px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+              <RefreshCw size={15} /> MAKE THEM AGAIN
+            </button>
+          )}
         </div>
       )}
 

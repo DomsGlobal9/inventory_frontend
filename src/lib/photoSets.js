@@ -144,6 +144,21 @@ export function sourceForColours(colours) {
  * -- or when it has nothing at all and there is no other colour to copy from either, which is the
  * case the flat-lay upload exists for.
  */
+/**
+ * The colours that already have all four views, and can therefore only be MADE AGAIN.
+ *
+ * Deliberately not part of viewsCandidates. A finished colour is excluded there so the ordinary
+ * flow -- "which colour still needs photographing" -- never proposes work that is already done,
+ * and that exclusion was right. What was missing is the other door: a set that came back badly
+ * framed, or of the wrong drape, had no way to be run again at all. The panel simply vanished.
+ *
+ * Kept apart so the two can never be confused: this one costs a generation to repeat something
+ * the shop already has, so it is asked for explicitly and confirmed, never offered as a default.
+ */
+export function wholeSetColours(colours) {
+  return (colours || []).filter(c => hasWholeSet(c.images));
+}
+
 export function viewsCandidates(colours) {
   return (colours || []).filter(c => {
     if (hasWholeSet(c.images)) return false;

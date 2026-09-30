@@ -13,6 +13,8 @@
     "@react-pdf/renderer": "^4.5.1",
     "@supabase/supabase-js": "^2.112.2",
     "@tanstack/react-query": "^5.101.4",
+    "@zxing/browser": "^0.2.1",
+    "@zxing/library": "^0.23.0",
     "axios": "^1.19.0",
     "bwip-js": "^4.11.2",
     "dayjs": "^1.11.21",

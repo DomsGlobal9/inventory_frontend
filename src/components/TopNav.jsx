@@ -538,7 +538,7 @@ export default function TopNav({ onMenuClick }) {
 
             {!scanningSupported() && (
               <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
-                This browser cannot use the camera to scan. Chrome on Android can.
+                This browser cannot open the camera, so scanning is off here. Type the code instead.
               </p>
             )}
           </div>

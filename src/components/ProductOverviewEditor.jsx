@@ -31,6 +31,7 @@ const RATES = [
 
 export default function ProductOverviewEditor({ product, saving, onCancel, onSave }) {
   const [form, setForm] = useState({
+    title: product.title ?? '',
     description: product.description ?? '',
     brand: product.brand ?? '',
     category: product.category ?? '',
@@ -44,6 +45,7 @@ export default function ProductOverviewEditor({ product, saving, onCancel, onSav
     basePrice: product.basePrice == null ? '' : String(product.basePrice)
   });
   const [impact, setImpact] = useState(null);
+  const [nameProblem, setNameProblem] = useState(null);
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
   const priceChanged = String(form.basePrice) !== String(product.basePrice ?? '');
@@ -71,7 +73,11 @@ export default function ProductOverviewEditor({ product, saving, onCancel, onSav
 
   const submit = (e) => {
     e.preventDefault();
+    // Said here, next to the box, rather than as a toast from the server after the round trip.
+    const title = form.title.replace(/\s+/g, ' ').trim();
+    if (!title) { setNameProblem('Give the product a name.'); return; }
     const out = {
+      title,
       description: form.description.trim(),
       brand: form.brand.trim(),
       category: form.category,
@@ -97,6 +103,17 @@ export default function ProductOverviewEditor({ product, saving, onCancel, onSav
 
   return (
     <form onSubmit={submit}>
+      {/* The name first: it is what a customer, the shop and every list see. Renaming changes the
+          product's web address too (the server rebuilds it), but the product code stays, so old
+          shop links keep working. */}
+      <div style={{ marginBottom: '20px' }}>
+        <label className="input-label" htmlFor="product-name">Product name</label>
+        <input id="product-name" className="input-field" value={form.title} maxLength={200}
+          onChange={(e) => { setNameProblem(null); set('title')(e); }}
+          aria-invalid={nameProblem ? true : undefined} aria-describedby={nameProblem ? 'product-name-problem' : undefined} />
+        {nameProblem ? <p id="product-name-problem" role="alert" style={{ color: 'var(--accent-danger)', fontSize: '12.5px', margin: '6px 0 0' }}>{nameProblem}</p> : null}
+      </div>
+
       <div>
         <label className="input-label">Description</label>
         <textarea className="input-field" rows={4} value={form.description} onChange={set('description')}

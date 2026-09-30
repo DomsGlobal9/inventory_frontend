@@ -335,6 +335,18 @@ export default function OnlineShopSettings() {
                 Customers are not being offered it until the keys work again — they can still pay when it arrives.
               </span>
             )}
+            {/*
+              Test keys that ARE being offered. The warning above cannot say this, because it only
+              shows when the option is refused — so a shop testing its checkout would see nothing at
+              all, and an order would look paid with no money behind it.
+            */}
+            {form.payOnline && payReady && payments?.mode === 'TEST' && (
+              <span role="alert" style={{ ...hint, marginBottom: 0, marginTop: '4px', display: 'block', color: 'var(--accent-danger, #b42318)' }}>
+                Testing: these are TEST keys, so a customer can go right through the checkout and the
+                order will say paid — but no money reaches your Razorpay account. Connect your Live
+                keys in {toPayments} before you sell for real.
+              </span>
+            )}
 
             <div style={{ marginTop: '16px' }}>
               <label style={label} htmlFor="os-pins">Where you deliver</label>

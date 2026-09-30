@@ -259,7 +259,9 @@ export default function ShopPayments() {
           )}
 
           <p style={{ ...hint, margin: '14px 0 0' }}>
-            {account.readyForCustomers && shop?.payOnline
+            {account.readyForCustomers && shop?.payOnline && account.mode === 'TEST'
+              ? 'Customers can go through your checkout, but these are TEST keys — the order says paid and no money arrives. Replace them with your Live keys before you sell for real.'
+              : account.readyForCustomers && shop?.payOnline
               ? 'Customers can pay online at your checkout.'
               : account.readyForCustomers
               ? <>Your account is ready. Switch on "Online" under How customers may pay, in <Link to="/settings?section=ONLINE_SHOP">Settings → Online shop</Link>, to offer it at the checkout.</>

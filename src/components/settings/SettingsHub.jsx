@@ -68,8 +68,9 @@ const initials = (name) => String(name || '').trim().split(/\s+/).slice(0, 2).ma
 const CSS = `
   .hub-profile { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 16px; overflow: hidden; }
   .hub-who { background: color-mix(in srgb, var(--brand) 16%, var(--bg-card)); padding: 22px; display: flex; gap: 14px; align-items: flex-start; }
-  .hub-avatar { width: 64px; height: 64px; border-radius: 14px; background: var(--bg-card); border: 1px solid var(--border-light); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 20px; color: var(--brand-ink); flex-shrink: 0; overflow: hidden; }
-  .hub-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .hub-avatar { width: 72px; height: 72px; border-radius: 14px; background: #fff; border: 1px solid var(--border-light); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 20px; color: var(--brand-ink); flex-shrink: 0; overflow: hidden; }
+  /* The whole logo, never a crop of it: "contain", with a little air, on white so any logo reads. */
+  .hub-avatar img { width: 100%; height: 100%; object-fit: contain; padding: 5px; box-sizing: border-box; }
   .hub-k { font-size: 12px; color: var(--text-secondary); }
   .hub-v { font-size: 14px; color: var(--text-primary); display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
   .hub-facts { padding: 20px 24px; display: grid; grid-template-columns: 130px minmax(0, 1fr); row-gap: 12px; column-gap: 12px; align-items: center; align-content: start; }
@@ -82,7 +83,10 @@ const CSS = `
   .hub-card ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
   .hub-card li .hub-link { font-size: 14px; }
   .hub-eyebrow { font-size: 13px; color: var(--text-secondary); margin: 0 0 10px; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .hub-help { position: fixed; right: 24px; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); z-index: 40; display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px; border: 1px solid var(--border-light); background: var(--brand-deep); color: #fff; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.18); }
+  .hub-help:hover { filter: brightness(1.08); }
   @media (max-width: 720px) {
+    .hub-help { right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
     .hub-profile { grid-template-columns: 1fr; }
     .hub-facts { grid-template-columns: 1fr; row-gap: 4px; }
     .hub-facts .hub-k { margin-top: 8px; }
@@ -161,12 +165,11 @@ export default function SettingsHub({ open, canOpen }) {
         </div>
       </section>
 
-      <p className="hub-eyebrow" style={{ marginTop: '28px' }}>
-        <span>Shop settings</span>
-        <button type="button" className="hub-link" onClick={() => open('SUPPORT')} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-          <LifeBuoy size={14} /> Help and support
-        </button>
-      </p>
+      <p className="hub-eyebrow" style={{ marginTop: '28px' }}>Shop settings</p>
+      {/* Floats in the corner, so it is there wherever the page has been scrolled to. */}
+      <button type="button" className="hub-help" onClick={() => open('SUPPORT')}>
+        <LifeBuoy size={16} /> Help and support
+      </button>
       <div className="hub-cards">
         {cards.map(g => {
           const Icon = g.icon;

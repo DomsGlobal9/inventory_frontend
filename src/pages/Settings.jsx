@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Settings as SettingsIcon, Tag, Palette, Scissors, Layers, Hexagon, Grid, ShoppingBag, Store, Users, Key, Shield, MapPin, LifeBuoy, BookOpen, Globe, MessageCircle, Gift, Undo2, CreditCard, ArrowLeft } from 'lucide-react';
+import { Tag, Palette, Scissors, Layers, Hexagon, Grid, ShoppingBag, Store, Users, Key, Shield, MapPin, LifeBuoy, BookOpen, Globe, MessageCircle, Gift, Undo2, CreditCard, ArrowLeft } from 'lucide-react';
 import CatalogManager from '../components/CatalogManager';
 import StockLocationsPage from './settings/StockLocationsPage';
 import DayBook from './DayBook';
@@ -120,37 +120,31 @@ export default function Settings() {
     <div className="mobile-no-scroll" style={{ width: '100%', maxWidth: '1400px', margin: '0 auto', paddingTop: '24px', flex: 1, height: '100%', display: 'flex', flexDirection: 'column' }}>
       <style>{`
         @media (max-width: 768px) {
-          .settings-title { font-size: 24px !important; }
-          .settings-title svg { width: 24px; height: 24px; }
           .settings-header { margin-bottom: 16px !important; }
         }
         .settings-crumb { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; padding: 0; font: inherit; font-size: 14px; color: var(--brand-ink); cursor: pointer; }
         .settings-crumb:hover { text-decoration: underline; }
+        /* Scrolls, without showing a bar for it. */
+        .settings-scroll { scrollbar-width: none; -ms-overflow-style: none; }
+        .settings-scroll::-webkit-scrollbar { display: none; }
       `}</style>
-      <header className="settings-header" style={{ marginBottom: activeDomain ? '20px' : '28px', flexShrink: 0 }}>
-        {activeDomain ? (
-          /* Where you are, and the way back: Settings / Money / Payments. Back is a real navigation,
-             so the browser's own Back button does the same thing. */
+      {/* The front page needs no heading of its own -- the sidebar already says Settings, and its first
+          words are "Your profile". An open section gets the way back instead: Settings / Money /
+          Payments. Back is a real navigation, so the browser's own Back button does the same thing. */}
+      {activeDomain && (
+        <header className="settings-header" style={{ marginBottom: '20px', flexShrink: 0 }}>
           <nav aria-label="Where you are" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', fontSize: '14px', color: 'var(--text-secondary)' }}>
             <button type="button" className="settings-crumb" onClick={back}><ArrowLeft size={16} /> Settings</button>
             {group && <><span aria-hidden="true">/</span><span>{group.label}</span></>}
             <span aria-hidden="true">/</span>
             <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{domainLabel}</span>
           </nav>
-        ) : (
-          <>
-            <h1 className="settings-title" style={{ fontSize: '32px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <SettingsIcon size={32} />
-              Settings
-            </h1>
-            <p style={{ color: 'var(--text-secondary)', margin: 0 }}>Your profile, your shop, and how it sells.</p>
-          </>
-        )}
-      </header>
+        </header>
+      )}
 
       <div style={{ flex: 1, minHeight: 0, display: 'flex' }}>
         {/* Main Content Area */}
-        <div style={{ flex: 1, minWidth: 0, overflowY: 'auto', paddingBottom: '64px', paddingRight: '8px' }}>
+        <div className="settings-scroll" style={{ flex: 1, minWidth: 0, overflowY: 'auto', paddingBottom: '96px' }}>
 
           {!activeDomain && <SettingsHub open={open} canOpen={canOpen} />}
 

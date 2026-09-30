@@ -47,7 +47,8 @@ export const GROUPS = [
     { label: 'Razorpay account', section: 'PAYMENTS' },
     { label: 'Online payments and refunds', section: 'PAYMENTS', part: 'pay-activity' },
     { label: 'Returns and exchanges', section: 'RETURNS' },
-    { label: 'Day Book', section: 'DAYBOOK' }
+    { label: 'Day Book', section: 'DAYBOOK' },
+    { label: 'POS (billing counter)', section: 'POS' }
   ] },
   { id: 'CUSTOMERS', label: 'Customers', icon: MessageCircle, links: [
     { label: 'WhatsApp', section: 'WHATSAPP' },

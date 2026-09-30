@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Tag, Palette, Scissors, Layers, Hexagon, Grid, ShoppingBag, Store, Users, Key, Shield, MapPin, LifeBuoy, BookOpen, Globe, MessageCircle, Gift, Undo2, CreditCard, ArrowLeft } from 'lucide-react';
+import { Tag, Palette, Scissors, Layers, Hexagon, Grid, ShoppingBag, Store, Users, Key, Shield, MapPin, LifeBuoy, BookOpen, Globe, MessageCircle, Gift, Undo2, CreditCard, Monitor, ArrowLeft } from 'lucide-react';
 import CatalogManager from '../components/CatalogManager';
 import StockLocationsPage from './settings/StockLocationsPage';
 import DayBook from './DayBook';
@@ -14,6 +14,7 @@ import WhatsAppSettings from '../components/whatsapp/WhatsAppSettings';
 import LoyaltySettings from '../components/loyalty/LoyaltySettings';
 import OnlineShopSettings from '../components/settings/OnlineShopSettings';
 import ShopPayments from '../components/settings/ShopPayments';
+import PosTills from '../components/settings/PosTills';
 import SettingsHub, { groupOf } from '../components/settings/SettingsHub';
 import ReturnRulesPanel from '../components/sales/ReturnRulesPanel';
 import { holdsEverything } from '../lib/authority';
@@ -30,6 +31,8 @@ const SETTINGS_DOMAINS = [
   // Its own place: the shop's Razorpay account, what has been paid online and money back. The
   // server guards all of it with admin:online_shop, so the menu does too.
   { id: 'PAYMENTS', label: 'Payments', icon: CreditCard, permission: 'admin:online_shop' },
+  // The till's key. Same guard as Connected websites on the server (admin:locations).
+  { id: 'POS', label: 'POS (billing counter)', icon: Monitor, permission: 'admin:locations' },
   { id: 'WHATSAPP', label: 'WhatsApp', icon: MessageCircle, permission: 'whatsapp:manage' },
   { id: 'LOYALTY', label: 'Loyalty & wishes', icon: Gift, permission: 'loyalty:manage' },
   { id: 'RETURNS', label: 'Returns & exchanges', icon: Undo2, permission: 'return:complete' },
@@ -52,7 +55,7 @@ const SETTINGS_DOMAINS = [
  * chain had to be extended by hand every time a domain gained content -- and when Day Book was
  * added it was not, so the page rendered the day book AND the placeholder underneath it.
  */
-const IMPLEMENTED_DOMAINS = new Set(['GENERAL', 'CATALOG', 'LOCATIONS', 'DAYBOOK', 'STOREFRONT', 'ONLINE_SHOP', 'PAYMENTS', 'WHATSAPP', 'LOYALTY', 'RETURNS', 'SERVICES', 'USERS', 'ROLES', 'SUPPORT']);
+const IMPLEMENTED_DOMAINS = new Set(['GENERAL', 'CATALOG', 'LOCATIONS', 'DAYBOOK', 'STOREFRONT', 'ONLINE_SHOP', 'PAYMENTS', 'POS', 'WHATSAPP', 'LOYALTY', 'RETURNS', 'SERVICES', 'USERS', 'ROLES', 'SUPPORT']);
 
 const CATALOG_TABS = [
   { id: 'SIZE', label: 'Sizes', icon: Scissors, description: 'Manage available sizes across your products' },
@@ -243,6 +246,12 @@ export default function Settings() {
           {activeDomain === 'PAYMENTS' && (
             <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '32px' }}>
               <ShopPayments />
+            </div>
+          )}
+
+          {activeDomain === 'POS' && (
+            <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '32px' }}>
+              <PosTills />
             </div>
           )}
 

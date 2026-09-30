@@ -75,13 +75,13 @@ const CSS = `
   .hub-v { font-size: 14px; color: var(--text-primary); display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
   .hub-facts { padding: 20px 24px; display: grid; grid-template-columns: 130px minmax(0, 1fr); row-gap: 12px; column-gap: 12px; align-items: center; align-content: start; }
   .hub-link { background: none; border: none; padding: 0; font: inherit; font-size: 13px; color: var(--brand-ink); cursor: pointer; text-decoration: none; text-align: left; }
-  .hub-link:hover { text-decoration: underline; }
+  .hub-link:hover { color: var(--text-primary); }
   .hub-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
   .hub-card { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 16px; padding: 18px 20px; }
   .hub-card h3 { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; margin: 0 0 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light); color: var(--text-primary); }
   .hub-ic { width: 32px; height: 32px; border-radius: 50%; background: color-mix(in srgb, var(--brand) 28%, var(--bg-card)); color: var(--brand-ink); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .hub-card ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
-  .hub-card li .hub-link { font-size: 14px; }
+  .hub-card li .hub-link { font-size: 14px; font-weight: 600; }
   .hub-eyebrow { font-size: 13px; color: var(--text-secondary); margin: 0 0 10px; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
   .hub-help { position: fixed; right: 24px; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); z-index: 40; display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px; border: 1px solid var(--border-light); background: var(--brand-deep); color: #fff; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.18); }
   .hub-help:hover { filter: brightness(1.08); }

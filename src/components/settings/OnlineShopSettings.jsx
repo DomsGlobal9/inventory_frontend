@@ -271,7 +271,7 @@ export default function OnlineShopSettings() {
       {/* ── Taking orders ───────────────────────────────────────────────────────────
           Off until the shop says otherwise. Turning it on holds real stock and promises a real
           delivery, so it is a decision rather than a default. */}
-      <div className="card" style={card}>
+      <div id="os-orders" className="card" style={{ ...card, scrollMarginTop: 12 }}>
         <h3 style={h3}><ShoppingBag size={16} /> Taking orders</h3>
         <p style={hint}>
           With this off, customers can look at your shop and ask you on WhatsApp — which is how
@@ -375,7 +375,7 @@ export default function OnlineShopSettings() {
       {/* ── Banners ─────────────────────────────────────────────────────────────────
           Only once there is an address. Before that there is no shop for a banner to sit on,
           and a picture uploaded to nothing is work the owner would have to do again. */}
-      {shop.slug ? <ShopBanners /> : null}
+      {shop.slug ? <div id="os-banners" style={{ scrollMarginTop: 12 }}><ShopBanners /></div> : null}
 
       {/* ── The shop is the seller ──────────────────────────────────────────────────── */}
       <div className="card" style={card}>
@@ -423,7 +423,7 @@ export default function OnlineShopSettings() {
 
       {/* ── Sharing it ──────────────────────────────────────────────────────────────── */}
       {shop.isLive && shop.url && (
-        <div className="card no-print" style={card}>
+        <div id="os-share" className="card no-print" style={{ ...card, scrollMarginTop: 12 }}>
           <h3 style={h3}><Share2 size={16} /> Share your shop</h3>
           <p style={hint}>
             Send the link on WhatsApp, or print the code and put it by the till. A customer points

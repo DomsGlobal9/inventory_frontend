@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Settings as SettingsIcon, Tag, Palette, Scissors, Layers, Hexagon, Grid, ShoppingBag, Store, Users, Key, Shield, MapPin, LifeBuoy, BookOpen, Globe, MessageCircle, Gift, Undo2, CreditCard } from 'lucide-react';
+import { Settings as SettingsIcon, Tag, Palette, Scissors, Layers, Hexagon, Grid, ShoppingBag, Store, Users, Key, Shield, MapPin, LifeBuoy, BookOpen, Globe, MessageCircle, Gift, Undo2, CreditCard, ArrowLeft } from 'lucide-react';
 import CatalogManager from '../components/CatalogManager';
 import StockLocationsPage from './settings/StockLocationsPage';
 import DayBook from './DayBook';
@@ -14,14 +14,14 @@ import WhatsAppSettings from '../components/whatsapp/WhatsAppSettings';
 import LoyaltySettings from '../components/loyalty/LoyaltySettings';
 import OnlineShopSettings from '../components/settings/OnlineShopSettings';
 import ShopPayments from '../components/settings/ShopPayments';
+import SettingsHub, { groupOf } from '../components/settings/SettingsHub';
 import ReturnRulesPanel from '../components/sales/ReturnRulesPanel';
 import { holdsEverything } from '../lib/authority';
 import { useAuth } from '../context/AuthContext';
 import { usePermission } from '../hooks/usePermission';
-import { useDragScroll } from '../hooks/useDragScroll';
 
 const SETTINGS_DOMAINS = [
-  { id: 'GENERAL', label: 'General Info', icon: Store },
+  { id: 'GENERAL', label: 'Profile and shop details', icon: Store },
   { id: 'CATALOG', label: 'Catalog Configuration', icon: Grid, permission: 'admin:catalog' },
   { id: 'LOCATIONS', label: 'Stock Locations', icon: MapPin, permission: 'admin:locations' },
   { id: 'DAYBOOK', label: 'Day Book', icon: BookOpen, permission: 'report:financial' },
@@ -67,28 +67,45 @@ const CATALOG_TABS = [
 export default function Settings() {
   const { user } = useAuth();
   const { can } = usePermission();
-  // On a phone or tablet the tab list lies down and scrolls sideways. Its scrollbar is hidden, so
-  // a mouse needs the row itself to take hold of; a finger already had one.
-  const tabStrip = useDragScroll();
-  // ?section=WHATSAPP opens straight onto a section -- the Send buttons link here to "link your
-  // shop's WhatsApp". Only a section this person can see; anything else falls back to General.
-  const [searchParams] = useSearchParams();
+  /*
+   * The address is the state. No ?section → the front page (SettingsHub: profile, then cards of
+   * links). ?section=X → that section alone, full width, with a way back. ?part=Y → the element
+   * inside it to scroll to (or, for the catalogue, the tab to open). Links from elsewhere
+   * (?section=WHATSAPP from the Send buttons, Online shop ↔ Payments) work unchanged, and the
+   * browser's Back button walks back to the cards, because every move is a real navigation.
+   *
+   * Only a section this person's role can use; anything else shows the front page. GENERAL and
+   * SUPPORT carry no permission: they hold a person's own profile and password, so everybody
+   * keeps somewhere to be.
+   */
+  const [searchParams, setSearchParams] = useSearchParams();
   const asked = searchParams.get('section');
-  const [activeDomain, setActiveDomain] = useState(() =>
-    SETTINGS_DOMAINS.some(d => d.id === asked && can(d.permission)) ? asked : 'GENERAL');
-  // And a link from one section to another (Online shop → "Settings → Payments") while this page is
-  // already open: the address changes but nothing re-mounts, so follow it here.
-  useEffect(() => {
-    if (asked && SETTINGS_DOMAINS.some(d => d.id === asked && can(d.permission))) setActiveDomain(asked);
-  }, [asked]); // eslint-disable-line react-hooks/exhaustive-deps
+  const part = searchParams.get('part');
+  const canOpen = (id) => { const d = SETTINGS_DOMAINS.find(x => x.id === id); return !!d && can(d.permission); };
+  const activeDomain = asked && canOpen(asked) ? asked : null;
+  const open = (section, nextPart) => setSearchParams(nextPart ? { section, part: nextPart } : { section });
+  const back = () => setSearchParams({});
 
-  // Only the sections this person's role can actually use. Listing Day Book to somebody
-  // without report:financial offers them a door that opens onto a refusal -- and they have no
-  // way to know that before pressing it. GENERAL and SUPPORT carry no permission: they hold a
-  // person's own profile and password, so everybody keeps somewhere to be.
-  const visibleDomains = SETTINGS_DOMAINS.filter(d => can(d.permission));
-  const [activeCatalogTab, setActiveCatalogTab] = useState('SIZE');
-  
+  const activeCatalogTab = activeDomain === 'CATALOG' && CATALOG_TABS.some(t => t.id === part) ? part : 'SIZE';
+
+  // Land on the part asked for. Sections fetch before they draw, so the element may not exist yet:
+  // look for it for a few seconds, then stop looking.
+  useEffect(() => {
+    if (!activeDomain || !part || activeDomain === 'CATALOG') return undefined;
+    let tries = 0;
+    const timer = setInterval(() => {
+      const el = document.getElementById(part);
+      if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); clearInterval(timer); }
+      else if (++tries > 25) clearInterval(timer);
+    }, 200);
+    return () => clearInterval(timer);
+  }, [activeDomain, part]);
+  const group = activeDomain ? groupOf(activeDomain) : null;
+  // "Catalogue / Colours", not "Catalogue / Catalog Configuration".
+  const domainLabel = activeDomain === 'CATALOG'
+    ? CATALOG_TABS.find(t => t.id === activeCatalogTab)?.label
+    : SETTINGS_DOMAINS.find(d => d.id === activeDomain)?.label;
+
   const isSuperAdmin = holdsEverything(user);
   // Passwords are set once by a Super Admin/Admin and stay permanent -- nobody edits their
   // own, so Team & Users is the only place a password is ever touched, and only these two
@@ -101,88 +118,42 @@ export default function Settings() {
 
   return (
     <div className="mobile-no-scroll" style={{ width: '100%', maxWidth: '1400px', margin: '0 auto', paddingTop: '24px', flex: 1, height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <header className="settings-header" style={{ marginBottom: '32px', flexShrink: 0 }}>
-        <h1 className="settings-title" style={{ fontSize: '32px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <SettingsIcon size={32} />
-          Settings
-        </h1>
-        <p style={{ color: 'var(--text-secondary)' }}>Manage your boutique configuration, team, and billing.</p>
+      <style>{`
+        @media (max-width: 768px) {
+          .settings-title { font-size: 24px !important; }
+          .settings-title svg { width: 24px; height: 24px; }
+          .settings-header { margin-bottom: 16px !important; }
+        }
+        .settings-crumb { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; padding: 0; font: inherit; font-size: 14px; color: var(--brand-ink); cursor: pointer; }
+        .settings-crumb:hover { text-decoration: underline; }
+      `}</style>
+      <header className="settings-header" style={{ marginBottom: activeDomain ? '20px' : '28px', flexShrink: 0 }}>
+        {activeDomain ? (
+          /* Where you are, and the way back: Settings / Money / Payments. Back is a real navigation,
+             so the browser's own Back button does the same thing. */
+          <nav aria-label="Where you are" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', fontSize: '14px', color: 'var(--text-secondary)' }}>
+            <button type="button" className="settings-crumb" onClick={back}><ArrowLeft size={16} /> Settings</button>
+            {group && <><span aria-hidden="true">/</span><span>{group.label}</span></>}
+            <span aria-hidden="true">/</span>
+            <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{domainLabel}</span>
+          </nav>
+        ) : (
+          <>
+            <h1 className="settings-title" style={{ fontSize: '32px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <SettingsIcon size={32} />
+              Settings
+            </h1>
+            <p style={{ color: 'var(--text-secondary)', margin: 0 }}>Your profile, your shop, and how it sells.</p>
+          </>
+        )}
       </header>
 
-      <div className="mobile-col" style={{ display: 'flex', gap: '32px', flex: 1, minHeight: 0 }}>
-        
-        {/* Left Sidebar: Domains */}
-        <div ref={tabStrip} className="settings-sidebar mobile-tab-bar" style={{ 
-          flexShrink: 0,
-          background: 'var(--bg-card)', 
-          borderRadius: '16px', 
-          border: '1px solid var(--border-light)',
-          padding: '16px 0',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '4px',
-          position: 'sticky',
-          top: '0',
-          alignSelf: 'flex-start',
-          zIndex: 10
-        }}>
-          <style>{`
-            /* No taller than the space beside the page, and scrolls inside it. It grew past the bottom of
-               a laptop screen, and the page itself does not scroll, so Help & Support and everything
-               under it were cut off with no way to reach them. */
-            .settings-sidebar { width: 280px; max-height: 100%; overflow-y: auto; overscroll-behavior: contain; }
-            @media (max-width: 768px) {
-              .settings-sidebar { width: 100%; padding: 8px !important; margin-bottom: 0 !important; max-height: none; overflow-y: visible; }
-              /* The heading hid, but its padded, bordered box stayed -- an empty gap at the
-                 start of the tab strip, before the first tab. */
-              .settings-sidebar .settings-sidebar-title { display: none; }
-              .settings-title { font-size: 24px !important; }
-              .settings-title svg { width: 24px; height: 24px; }
-              .settings-header { margin-bottom: 16px !important; }
-              .settings-sidebar button { border-left: none !important; border-bottom: 4px solid transparent; border-radius: 8px; padding: 8px 12px !important; }
-              .settings-sidebar button.active { border-bottom: 4px solid var(--primary-color) !important; background: var(--bg-hover) !important; }
-            }
-          `}</style>
-          <div className="settings-sidebar-title" style={{ padding: '0 24px 12px 24px', borderBottom: '1px solid var(--border-light)', marginBottom: '12px' }}>
-            <h3 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>
-              Configuration
-            </h3>
-          </div>
-          
-          {visibleDomains.map(domain => {
-            const Icon = domain.icon;
-            const isActive = activeDomain === domain.id;
-            return (
-              <button
-                key={domain.id}
-                className={isActive ? 'active' : ''}
-                onClick={() => setActiveDomain(domain.id)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  padding: '12px 24px',
-                  background: isActive ? 'rgba(0,0,0,0.03)' : 'transparent',
-                  border: 'none',
-                  borderLeft: `4px solid ${isActive ? 'var(--primary-color)' : 'transparent'}`,
-                  color: isActive ? 'var(--primary-color)' : 'var(--text-primary)',
-                  fontWeight: isActive ? 600 : 500,
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  transition: 'all 0.2s ease',
-                  flexShrink: 0
-                }}
-              >
-                <Icon size={18} />
-                {domain.label}
-              </button>
-            );
-          })}
-        </div>
-
+      <div style={{ flex: 1, minHeight: 0, display: 'flex' }}>
         {/* Main Content Area */}
         <div style={{ flex: 1, minWidth: 0, overflowY: 'auto', paddingBottom: '64px', paddingRight: '8px' }}>
-          
+
+          {!activeDomain && <SettingsHub open={open} canOpen={canOpen} />}
+
           {activeDomain === 'CATALOG' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               
@@ -200,7 +171,7 @@ export default function Settings() {
                   return (
                     <button
                       key={tab.id}
-                      onClick={() => setActiveCatalogTab(tab.id)}
+                      onClick={() => open('CATALOG', tab.id)}
                       style={{
                         display: 'flex', alignItems: 'center', gap: '8px',
                         padding: '10px 16px', border: 'none',
@@ -331,7 +302,7 @@ export default function Settings() {
             </div>
           )}
 
-          {!IMPLEMENTED_DOMAINS.has(activeDomain) && (
+          {activeDomain && !IMPLEMENTED_DOMAINS.has(activeDomain) && (
             <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '48px', textAlign: 'center' }}>
               <div style={{ color: 'var(--text-secondary)', marginBottom: '16px' }}>
                 {(() => {

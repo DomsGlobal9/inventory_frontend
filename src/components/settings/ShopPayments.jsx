@@ -297,7 +297,7 @@ function PaymentActivity() {
   }
 
   return (
-    <div style={{ marginTop: '18px', paddingTop: '14px', borderTop: '1px solid var(--border-light)' }}>
+    <div id="pay-activity" style={{ marginTop: '18px', paddingTop: '14px', borderTop: '1px solid var(--border-light)', scrollMarginTop: 12 }}>
       <span style={{ ...label, fontWeight: 600, color: 'var(--text-primary)' }}>Recent online payments</span>
       <div style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12.5px', minWidth: '500px' }}>

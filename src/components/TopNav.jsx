@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Bell, Settings, User, Menu, Loader2, LogOut, CheckCheck, Sun, Moon, Pin, X, HelpCircle } from 'lucide-react';
+import { Search, Bell, Settings, User, Menu, Loader2, LogOut, CheckCheck, Sun, Moon, Pin, X, HelpCircle, ScanLine } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { api } from '../lib/api';
@@ -9,6 +9,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { MapPin } from 'lucide-react';
 import { useAlerts, useMarkAlertRead, useMarkAllAlertsRead, useTogglePinAlert, useDeleteAlert } from '../hooks/useAlerts';
 import Select from './common/Select';
+import BarcodeScanner, { scanningSupported } from './BarcodeScanner';
 
 
 /**
@@ -40,6 +41,9 @@ export default function TopNav({ onMenuClick }) {
   const { user, logout } = useAuth();
   const [query, setQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
+  // The phone's search: the bar has no room for a box, so a button opens one over the page.
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [scanning, setScanning] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { locations, currentLocation, setCurrentLocationId } = useLocationContext();
   const route = useLocation();
@@ -152,24 +156,31 @@ export default function TopNav({ onMenuClick }) {
     navigate('/login', { replace: true });
   };
 
-  const handleSearch = async (e) => {
-    if (e.key === 'Enter' && query.trim()) {
+  /*
+   * One search, three ways in: typed and Enter on a desktop, a hardware scanner typing into the
+   * same box, and the phone's camera. They all land here so a scanned barcode behaves identically
+   * however it was read.
+   */
+  const runSearch = async (raw) => {
+    const scanned = String(raw ?? '').trim();
+    if (!scanned) return;
+    {
       setIsSearching(true);
       try {
-        const response = await api.get(`/search?q=${encodeURIComponent(query.trim())}`);
+        const response = await api.get(`/search?q=${encodeURIComponent(scanned)}`);
         const data = response.data;
-        
-        const scanned = query.trim();
 
         // If we found a variant, jump straight to it on the Variants tab
         if (data?.variants?.length > 0) {
           navigate(data.variants[0].url);
           setQuery(''); // Clear so the next scan doesn't concatenate onto this one
+          setSearchOpen(false);
         }
         // Else if we found a product, open the product
         else if (data?.products?.length > 0) {
           navigate(data.products[0].url);
           setQuery('');
+          setSearchOpen(false);
         }
         // Nothing matched. This used to do absolutely nothing -- the barcode just sat in
         // the box, so a scan of an unknown/mislabelled item was indistinguishable from the
@@ -188,6 +199,11 @@ export default function TopNav({ onMenuClick }) {
       }
     }
   };
+
+  const handleSearch = (e) => { if (e.key === 'Enter') runSearch(query); };
+
+  /* A scanned code searches at once -- the person is holding a saree, not a keyboard. */
+  const onScanned = (code) => { setScanning(false); setQuery(code); runSearch(code); };
 
   return (
     <nav style={{
@@ -224,7 +240,22 @@ export default function TopNav({ onMenuClick }) {
           @media (max-width: 1024px) {
             .mobile-only-icon { display: block; color: var(--text-primary); }
           }
+          /* The search box is mobile-hide, so a phone had no way to search or scan at all. This
+             button takes its place and opens the same search over the page. */
+          .nav-search-btn { display: none; }
+          @media (max-width: 1024px) {
+            .nav-search-btn { display: inline-flex; color: var(--text-primary); }
+          }
         `}</style>
+
+        <button
+          type="button"
+          className="btn-icon nav-search-btn"
+          onClick={() => setSearchOpen(true)}
+          aria-label="Search or scan a barcode"
+        >
+          <Search size={22} />
+        </button>
 
         <div className="mobile-hide" data-tour="search" style={{
           display: 'flex',
@@ -242,8 +273,8 @@ export default function TopNav({ onMenuClick }) {
           ) : (
             <Search size={18} color="var(--text-secondary)" style={{ marginRight: '12px', flexShrink: 0 }} />
           )}
-        <input 
-          type="text" 
+        <input
+          type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleSearch}
@@ -264,6 +295,15 @@ export default function TopNav({ onMenuClick }) {
             margin: '-10px 0',
           }}
         />
+        {/* A laptop with a webcam can scan too, so this is offered wherever the browser can read a
+            barcode rather than on phones alone. */}
+        {scanningSupported() && (
+          <button type="button" className="btn-icon" onClick={() => setScanning(true)}
+            aria-label="Scan a barcode with the camera" title="Scan a barcode"
+            style={{ marginLeft: '8px', padding: '2px', flexShrink: 0, color: 'var(--text-secondary)' }}>
+            <ScanLine size={18} />
+          </button>
+        )}
         </div>
         
         {locations.length > 0 && (
@@ -453,6 +493,65 @@ export default function TopNav({ onMenuClick }) {
           {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
         </button>
       </div>
+
+      {/* The phone's search: over the page, because the bar has no room for a box. */}
+      {searchOpen && (
+        <div role="dialog" aria-label="Search" onClick={() => setSearchOpen(false)} style={{
+          position: 'fixed', inset: 0, zIndex: 9000, background: 'rgba(0,0,0,.45)',
+          display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '16px'
+        }}>
+          <div onClick={(e) => e.stopPropagation()} style={{
+            background: 'var(--bg-card)', borderRadius: '14px', border: '1px solid var(--border-light)',
+            width: '100%', maxWidth: '520px', padding: '14px', display: 'grid', gap: '12px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              {isSearching
+                ? <Loader2 size={18} className="animate-spin" color="var(--text-secondary)" />
+                : <Search size={18} color="var(--text-secondary)" />}
+              <input
+                autoFocus
+                className="input-field"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={handleSearch}
+                placeholder="Name, SKU or barcode"
+                aria-label="Search products, SKU or barcode"
+                style={{ flex: 1, minWidth: 0 }}
+              />
+              <button type="button" className="btn-icon" onClick={() => setSearchOpen(false)} aria-label="Close search">
+                <X size={20} />
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button type="button" className="btn-primary" onClick={() => runSearch(query)}
+                disabled={!query.trim() || isSearching} style={{ flex: 1 }}>
+                {isSearching ? 'Looking…' : 'Search'}
+              </button>
+              {scanningSupported() && (
+                <button type="button" className="btn-secondary" onClick={() => setScanning(true)}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  <ScanLine size={16} /> Scan
+                </button>
+              )}
+            </div>
+
+            {!scanningSupported() && (
+              <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
+                This browser cannot use the camera to scan. Chrome on Android can.
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {scanning && (
+        <BarcodeScanner
+          onFound={onScanned}
+          onClose={() => setScanning(false)}
+          title="Point at the barcode"
+        />
+      )}
     </nav>
   );
 }

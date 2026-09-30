@@ -641,6 +641,27 @@ tr:hover td {
     min-height: 44px;
   }
 
+  /* ...except the colour dots along the bottom of a product card, which are 7px indicators sitting
+     5px apart. The rule above turned each one into a 44px circle, and on a phone a row of them
+     covered the photograph they were pointing at -- reported from production 30 Sep.
+     `min-width` wins over an inline `width`, which is why the 7px in ProductGrid.jsx lost.
+     They keep their size and get a finger-sized hit area drawn around them instead: 7px + 8px on
+     every side is 23px, the same 24px-ish target the checkboxes below settle for, and for the same
+     reason -- a 44px one would not fit the layout it lives in.
+
+     Written `button.grid-dot:empty` rather than `.grid-dot`, because `button:empty` above outranks
+     a bare class and the first attempt at this fix changed nothing on the phone. */
+  button.grid-dot:empty {
+    min-width: 0;
+    min-height: 0;
+  }
+  .grid-dot::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+  }
+
   /* Checkboxes were not in this list at all and render 18x18 -- half of WCAG 2.5.8's 24px
      minimum, and they sit in dense table rows where a missed tap selects the wrong line.
      24px rather than 44px on purpose: these live inside row grids that a 44px control would

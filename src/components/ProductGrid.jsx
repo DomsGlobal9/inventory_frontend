@@ -368,9 +368,10 @@ function ProductCard({ product, stagger, reduceMotion, isSelected, onToggle, onO
                 title={c.colorName || c.variantCode || `Colour ${i + 1}`}
                 aria-label={`Show ${c.colorName || c.variantCode || `colour ${i + 1}`}`}
                 aria-current={i === safeIndex}
+                className="grid-dot"
                 style={{
                   width: '7px', height: '7px', padding: 0, borderRadius: '50%', cursor: 'pointer',
-                  border: '1px solid rgba(0,0,0,.35)',
+                  border: '1px solid rgba(0,0,0,.35)', position: 'relative',
                   background: i === safeIndex ? '#fff' : 'rgba(255,255,255,.45)'
                 }}
               />

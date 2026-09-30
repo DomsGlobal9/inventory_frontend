@@ -1,6 +1,7 @@
 import React, { forwardRef, useEffect, useRef, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { ScanLine, Loader2, X, Minus, Plus, MapPin, Search, PackagePlus, ArrowRightLeft, TriangleAlert, Settings2, ClipboardList, ClipboardCheck, Boxes, Map as MapIcon } from 'lucide-react';
+import { ScanLine, Loader2, X, Minus, Plus, MapPin, Search, PackagePlus, ArrowRightLeft, TriangleAlert, Settings2, ClipboardList, ClipboardCheck, Boxes, Map as MapIcon, Camera } from 'lucide-react';
+import BarcodeScanner, { scanningSupported } from '../BarcodeScanner';
 import { usePermission } from '../../hooks/usePermission';
 import { useLocationContext } from '../../contexts/LocationContext';
 import { useShelfIssues } from '../../hooks/useShelves';
@@ -123,15 +124,33 @@ export function ShelvesLayout({ title, subtitle, icon: Icon, actions, children, 
 /**
  * One box for a scanner and for typing. A scanner types fast and presses Enter, so Enter hands the
  * text over at once; typing is also passed on as it changes for live search.
+ *
+ * The camera is the third way in, and the only one a person walking the racks with a phone has:
+ * every screen that uses this box -- putting away, picking, moving, counting, the map, "where is
+ * it" -- asks for a shelf label or a price tag, which is exactly what a camera can read. It goes
+ * through the same submit path as Enter, twin-scan guard and all, so a code is treated identically
+ * however it arrived.
  */
 export const ScanInput = forwardRef(function ScanInput({ value, onChange, onSubmit, placeholder, busy, autoFocus = true, label = 'Scan or search', clearOnSubmit = false }, ref) {
   const inner = useRef(null);
   const input = ref || inner;
+  const [scanning, setScanning] = useState(false);
   // Some scanners send Enter twice in the same instant. The box is cleared through React state,
   // which has not redrawn yet, so the second Enter reads the same text and counts the same piece
   // again. Two real scans are never this close together (a person cannot be), so the twin is
   // dropped. 60ms is far below a genuine repeat and far above one screen redraw.
   const lastSubmit = useRef({ text: '', at: 0 });
+
+  /* Enter, and the camera, both come through here so neither can drift from the other. */
+  const hand = (raw) => {
+    const text = String(raw ?? '').trim();
+    const now = Date.now();
+    if (!text || (lastSubmit.current.text === text && now - lastSubmit.current.at < 60)) return;
+    lastSubmit.current = { text, at: now };
+    onSubmit?.(text);
+    if (clearOnSubmit) onChange('');
+  };
+
   return (
     <div className="sh-scan">
       <ScanLine size={22} className="sh-scan-icon" />
@@ -149,13 +168,7 @@ export const ScanInput = forwardRef(function ScanInput({ value, onChange, onSubm
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             e.preventDefault();
-            const text = value.trim();
-            const now = Date.now();
-            if (text && !(lastSubmit.current.text === text && now - lastSubmit.current.at < 60)) {
-              lastSubmit.current = { text, at: now };
-              onSubmit?.(text);
-              if (clearOnSubmit) onChange('');
-            }
+            hand(value);
           } else if (e.key === 'Escape' && value) {
             onChange('');
           }
@@ -168,7 +181,27 @@ export const ScanInput = forwardRef(function ScanInput({ value, onChange, onSubm
             <X size={16} />
           </button>
         )}
+        {scanningSupported() && (
+          <button type="button" className="sh-iconbtn" aria-label="Scan with the camera" title="Scan with the camera"
+            onClick={() => setScanning(true)}>
+            <Camera size={18} />
+          </button>
+        )}
       </div>
+
+      {scanning && (
+        <BarcodeScanner
+          title={placeholder || 'Point at the label'}
+          onClose={() => setScanning(false)}
+          onFound={(code) => {
+            setScanning(false);
+            onChange(code);
+            hand(code);
+            // Back to the box: on these screens one scan usually follows another.
+            setTimeout(() => input.current?.focus(), 0);
+          }}
+        />
+      )}
     </div>
   );
 });

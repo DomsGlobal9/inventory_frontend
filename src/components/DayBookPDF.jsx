@@ -183,8 +183,11 @@ export default function DayBookPDF({ day, heading, businessName, locationName, g
             <View style={styles.statRow}>
               <View style={styles.stat}><Text style={styles.statLabel}>Dispatches</Text><Text style={styles.statValue}>{num(d.sales.dispatchCount)}</Text></View>
               <View style={styles.stat}><Text style={styles.statLabel}>Units sent</Text><Text style={styles.statValue}>{num(d.sales.unitsDispatched)}</Text></View>
-              <View style={styles.stat}><Text style={styles.statLabel}>Revenue</Text><Text style={styles.statValue}>{money(d.sales.revenue)}</Text></View>
-              <View style={styles.stat}><Text style={styles.statLabel}>What it cost you</Text><Text style={styles.statValue}>{money(d.sales.costOfGoods)}</Text></View>
+              <View style={styles.stat}><Text style={styles.statLabel}>Billed</Text><Text style={styles.statValue}>{money(d.sales.revenue)}</Text></View>
+              {d.sales.gstCollected > 0 ? <View style={styles.stat}><Text style={styles.statLabel}>GST in it</Text><Text style={styles.statValue}>{money(d.sales.gstCollected)}</Text></View> : null}
+              {d.sales.returns?.value > 0 ? <View style={styles.stat}><Text style={styles.statLabel}>Returned</Text><Text style={styles.statValue}>-{money(d.sales.returns.value)}</Text></View> : null}
+              {(d.sales.gstCollected > 0 || d.sales.returns?.value > 0) ? <View style={styles.stat}><Text style={styles.statLabel}>Sales you keep</Text><Text style={styles.statValue}>{money(d.sales.netSales)}</Text></View> : null}
+              <View style={styles.stat}><Text style={styles.statLabel}>What it cost you</Text><Text style={styles.statValue}>{money(d.sales.netCost ?? d.sales.costOfGoods)}</Text></View>
               <View style={styles.stat}><Text style={styles.statLabel}>Profit</Text><Text style={styles.statValue}>{money(d.sales.grossProfit)}</Text></View>
             </View>
             {/* A month of dispatches is pages of rows; a range shows its days instead (below). */}

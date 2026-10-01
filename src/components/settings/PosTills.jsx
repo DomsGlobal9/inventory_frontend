@@ -48,7 +48,8 @@ export default function PosTills() {
   const [shown, setShown] = useState(null);
   const [confirm, setConfirm] = useState({ isOpen: false });
 
-  const done = () => qc.invalidateQueries({ queryKey: KEY });
+  // Every 'pos' query: the list here, and which stores bill at a till (it decides whether New sale shows).
+  const done = () => qc.invalidateQueries({ queryKey: ['pos'] });
   const say = (e) => e?.response?.data?.message || e?.message || 'That did not work. Try again.';
 
   const create = useMutation({

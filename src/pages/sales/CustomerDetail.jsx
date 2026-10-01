@@ -18,6 +18,7 @@ import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { COUNTER_PHONE_QUERY } from '../../hooks/useCounterSale';
 import { ORDER_STATUS, DISPATCH_STATUS, CUSTOMER_STATUS, RETURN_REASONS, StatusPill } from '../../components/sales/labels';
 import { rowLink } from '../../components/common/rowLink';
+import { useTillLocations } from '../../hooks/useTillLocations';
 
 export default function CustomerDetail() {
   const { id } = useParams();
@@ -36,6 +37,8 @@ export default function CustomerDetail() {
   const [returnQty, setReturnQty] = useState({});
   const [editing, setEditing] = useState(false);
   const phoneScreen = useMediaQuery(COUNTER_PHONE_QUERY);
+  // A store that bills at the POS does not start a sale from here either.
+  const { billsAtPos } = useTillLocations();
 
   /*
    * The reasons a return can be filed under (components/sales/labels, shared with the Returns
@@ -135,7 +138,7 @@ export default function CustomerDetail() {
           <p style={{ margin: '8px 0 0', color: 'var(--text-secondary)' }}>{customer.customerCode}</p>
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          {can('sales_order:counter_sale') && !phoneScreen && (
+          {can('sales_order:counter_sale') && !phoneScreen && !billsAtPos && (
             <button className="btn-primary" onClick={() => navigate(`/orders/new-sale?customer=${customer.id}`)} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
               <ShoppingBag size={15} /> New sale
             </button>

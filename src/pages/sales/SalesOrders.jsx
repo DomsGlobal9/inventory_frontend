@@ -10,6 +10,8 @@ import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { COUNTER_PHONE_QUERY } from '../../hooks/useCounterSale';
 import { ORDER_STATUS as STATUS } from '../../components/sales/labels';
 import { rowLink } from '../../components/common/rowLink';
+import { useTillLocations } from '../../hooks/useTillLocations';
+import BillsAtPosNote from '../../components/sales/BillsAtPosNote';
 
 const PAYMENT = {
   PAID: { label: 'Paid', color: '16, 185, 129' },
@@ -23,6 +25,8 @@ const Pill = ({ label, color }) => (
 
 /** Where an order came from, as a shop says it. */
 const whereFrom = (order) => order.atCounter ? 'Counter'
+  // A bill rung up on the ScaleEzy POS. It read as plain 'Order', the same as one typed in by hand.
+  : order.sourceSystem === 'SCALEEZY_POS' ? 'POS till'
   : order.sourceSystem === 'SHOPIFY' ? 'Shopify'
   : order.channel === 'ONLINE' ? 'Online'
   : order.channel === 'MARKETPLACE' ? 'Marketplace'
@@ -43,6 +47,7 @@ export default function SalesOrders() {
   const { can } = usePermission();
   const narrow = useMediaQuery('(max-width: 760px)');
   const phone = useMediaQuery(COUNTER_PHONE_QUERY);
+  const { billsAtPos, storeName } = useTillLocations();
   const [statusFilter, setStatusFilter] = useState('');
   const [sourceFilter, setSourceFilter] = useState('');
   const [searchText, setSearchText] = useState('');
@@ -67,11 +72,14 @@ export default function SalesOrders() {
           <p style={{ color: 'var(--text-secondary)' }}>Sales at the counter, online and from Shopify, and what was paid.</p>
         </div>
         {/* Not on a phone: selling is done from the counter computer or a tablet. */}
-        {can('sales_order:counter_sale') && !phone && (
-          <button className="btn-primary" onClick={() => navigate('/orders/new-sale')} style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-            <Plus size={16} /> New sale
-          </button>
-        )}
+        {/* A store with a till connected rings its sales up there; the note says so in the button's place. */}
+        {can('sales_order:counter_sale') && !phone && (billsAtPos
+          ? <BillsAtPosNote storeName={storeName} />
+          : (
+            <button className="btn-primary" onClick={() => navigate('/orders/new-sale')} style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              <Plus size={16} /> New sale
+            </button>
+          ))}
       </div>
 
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', flexShrink: 0 }}>
@@ -92,6 +100,7 @@ export default function SalesOrders() {
           <Select className="input-field" style={{ paddingLeft: 44, width: '100%', appearance: 'none' }} value={sourceFilter} onChange={(e) => setSourceFilter(e.target.value)} aria-label="Where from">
             <option value="">From anywhere</option>
             <option value="COUNTER">Counter</option>
+            <option value="POS">POS till</option>
             <option value="SHOPIFY">Shopify</option>
             <option value="OTHER">Other</option>
           </Select>

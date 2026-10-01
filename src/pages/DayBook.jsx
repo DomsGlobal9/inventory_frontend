@@ -128,7 +128,9 @@ export default function DayBook() {
     d.sales.dispatchCount
       ? `Sales: ${d.sales.dispatchCount} dispatch(es), ${num(d.sales.unitsDispatched)} units, ${money(d.sales.revenue)}`
       : 'No sales dispatched.',
-    d.sales.dispatchCount ? `Profit: ${money(d.sales.grossProfit)}` : '',
+    d.sales.gstCollected > 0 ? `GST in it: ${money(d.sales.gstCollected)}` : '',
+    d.sales.returns?.value > 0 ? `Returned: ${num(d.sales.returns.units)} units, ${money(d.sales.returns.value)}` : '',
+    (d.sales.dispatchCount || d.sales.returns?.count) ? `Profit: ${money(d.sales.grossProfit)}` : '',
     '',
     user?.name || ''
   ].filter(Boolean).join('\n') : '';
@@ -342,16 +344,30 @@ export default function DayBook() {
       )}
 
       {/* ── Sales ───────────────────────────────────────────────────────── */}
-      {d?.sales?.dispatchCount > 0 && (
+      {/* A day with only a return on it still has something to say about profit. */}
+      {(d?.sales?.dispatchCount > 0 || d?.sales?.returns?.count > 0) && (
         <Panel title="Sales dispatched" subtitle="Counted when the goods actually left, not when the order was written.">
           <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap', padding: '18px 20px' }}>
             <Stat label="Dispatches" value={num(d.sales.dispatchCount)} />
             <Stat label="Units sent" value={num(d.sales.unitsDispatched)} />
-            <Stat label="Revenue" value={money(d.sales.revenue)} />
-            <Stat label="What it cost you" value={money(d.sales.costOfGoods)} />
+            <Stat label="Billed" value={money(d.sales.revenue)} />
+            {/* Shown only where they exist: a shop that charges no GST and had nothing come back
+                sees the same three figures it always did. */}
+            {d.sales.gstCollected > 0 && <Stat label="GST in it" value={money(d.sales.gstCollected)} />}
+            {d.sales.returns?.value > 0 && <Stat label={`Returned (${num(d.sales.returns.units)})`} value={`−${money(d.sales.returns.value)}`} />}
+            {(d.sales.gstCollected > 0 || d.sales.returns?.value > 0) && <Stat label="Sales you keep" value={money(d.sales.netSales)} />}
+            <Stat label="What it cost you" value={money(d.sales.netCost ?? d.sales.costOfGoods)} />
             <Stat label="Profit" value={money(d.sales.grossProfit)}
               tone={d.sales.grossProfit >= 0 ? 'good' : 'bad'} />
           </div>
+          {/* How the profit was reached, in one sentence, whenever it is not simply billed less cost. */}
+          {(d.sales.gstCollected > 0 || d.sales.returns?.value > 0) && (
+            <p data-testid="profit-how" style={{ margin: '0 20px 16px', fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+              Profit is worked out on {money(d.sales.netSales)}: what was billed
+              {d.sales.gstCollected > 0 ? `, less ${money(d.sales.gstCollected)} GST that is collected for the government` : ''}
+              {d.sales.returns?.value > 0 ? `, less ${money(d.sales.returns.value - (d.sales.returns.gst || 0))} for what came back` : ''}.
+            </p>
+          )}
           {/* Said plainly, because the alternative is a merchant believing they made 5,000
               profit on a 5,000 sale. Stock that was never costed contributes nothing to "what
               it cost you", so its entire selling price sits in the profit above. */}

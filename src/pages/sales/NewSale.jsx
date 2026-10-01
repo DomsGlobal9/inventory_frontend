@@ -4,6 +4,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { ArrowLeft, Minus, Plus, Trash2, Tag, Percent, CheckCircle2, Printer, Loader2, UserRound, X, ShoppingBag, MonitorSmartphone, Gift, Wallet, Repeat } from 'lucide-react';
 import { useLocationContext } from '../../contexts/LocationContext';
+import { useTillLocations } from '../../hooks/useTillLocations';
+import BillsAtPosNote from '../../components/sales/BillsAtPosNote';
 import { usePermission } from '../../hooks/usePermission';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { useCustomerDetails } from '../../hooks/useCustomers';
@@ -103,6 +105,7 @@ export default function NewSale() {
   // Selling happens at the counter, on the shop's computer or tablet. A phone screen is too small to
   // scan, check a bill and take split payments without mistakes, so the till is not offered there.
   const phone = useMediaQuery(COUNTER_PHONE_QUERY);
+  const { billsAtPos, storeName } = useTillLocations();
 
   const [sale, setSale] = useState(null);
   const [done, setDone] = useState(null);
@@ -321,6 +324,21 @@ export default function NewSale() {
           {sale && sale.items.length > 0 ? ' The basket started here is kept for this store.' : ''}
         </p>
         <button className="btn-secondary" onClick={() => navigate('/orders')} style={{ justifySelf: 'center' }}>Back to orders</button>
+      </div>
+    );
+  }
+  /*
+   * A store with a till bills there. Reached by an old link or a bookmark, this page says so
+   * instead of quietly being a second place to ring up a sale. An exchange is let through: its
+   * customer is standing here with store credit from a bill made on this screen, and has to be
+   * able to spend it.
+   */
+  if (billsAtPos && !exchange && !done) {
+    return (
+      <div style={{ maxWidth: 560, margin: '48px auto', padding: '0 16px', display: 'grid', gap: 16, justifyItems: 'start' }}>
+        <h1 style={{ fontSize: 24, margin: 0 }}>New sale is on the till for this store</h1>
+        <BillsAtPosNote storeName={storeName} block />
+        <button className="btn-secondary" onClick={() => navigate('/orders')}>Back to orders</button>
       </div>
     );
   }

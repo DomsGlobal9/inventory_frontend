@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { useLocationContext } from '../contexts/LocationContext';
+import { usePermission } from './usePermission';
 
 /**
  * Whether the store on screen bills at a ScaleEzy POS till.
@@ -15,7 +16,11 @@ import { useLocationContext } from '../contexts/LocationContext';
  */
 export function useTillLocations() {
   const { currentLocation } = useLocationContext();
+  // Only somebody who could ring up a sale has a New sale to hide; nobody else asks (the server
+  // refuses them anyway).
+  const { can } = usePermission();
   const { data } = useQuery({
+    enabled: can('sales_order:counter_sale'),
     queryKey: ['pos', 'billing-locations'],
     queryFn: async () => (await api.get('/pos-connections/billing-locations')).data?.locationIds ?? [],
     staleTime: 60_000

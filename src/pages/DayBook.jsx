@@ -60,16 +60,25 @@ export default function DayBook() {
   const jumpToTop = useRef(false);
   if (typedRange) lastGoodRange.current = typedRange;
   const range = mode === 'range' ? (typedRange || lastGoodRange.current) : null;
-  const [locationId, setLocationId] = useState('');
+  /*
+   * Opens on the store chosen in the top bar. It used to open on "All locations" whatever the top
+   * bar said, so a manager with Main Store selected was reading the whole shop's day under a
+   * heading that said nothing about which store -- and every other screen in the app WAS showing
+   * Main Store. `null` means "not chosen here yet": follow the top bar. Once somebody picks from
+   * the Day Book's own list (including "All locations", which is ''), that choice stands.
+   */
+  const [chosenLocation, setLocationId] = useState(null);
   const [printing, setPrinting] = useState(false);
   // isFetching, not just isLoading: placeholderData keeps the previous day on screen while a
   // new one loads, so between clicking a date and the answer arriving the page shows one day's
   // figures. Exporting during that window produced a PDF of the day you had just navigated
   // away from, named after it too, with nothing on screen to suggest anything was wrong.
-  const { data, isLoading, isFetching, isError, error } = useDayBook(date || undefined, locationId || undefined, range);
   // Reuses the locations the app already loaded for its header selector rather than
   // fetching them again for a dropdown.
-  const { locations = [] } = useLocationContext();
+  const { locations = [], currentLocation } = useLocationContext();
+  // A shop with one store has nothing to choose between: the whole shop IS that store.
+  const locationId = chosenLocation !== null ? chosenLocation : (locations.length > 1 ? (currentLocation?.id ?? '') : '');
+  const { data, isLoading, isFetching, isError, error } = useDayBook(date || undefined, locationId || undefined, range);
   const { user } = useAuth();
   // After the day has loaded: the page changes height as it arrives, so jumping earlier lands
   // part-way down.

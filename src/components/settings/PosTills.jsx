@@ -41,6 +41,12 @@ export default function PosTills() {
     queryFn: async () => (await api.get('/pos-connections')).data || []
   });
 
+  // Bills the owner chose to leave out at the till. Kept after a till is disconnected.
+  const { data: leftOut = [] } = useQuery({
+    queryKey: ['pos', 'left-out'],
+    queryFn: async () => (await api.get('/pos-connections/left-out')).data || []
+  });
+
   const [locationId, setLocationId] = useState('');
   const [name, setName] = useState('');
   const [problem, setProblem] = useState(null);
@@ -194,6 +200,25 @@ export default function PosTills() {
           })}
         </ul>
       )}
+
+      {leftOut.length ? (
+        <section aria-label="Bills not added to Inventory" style={{ ...card, marginTop: '18px', border: '1px solid var(--accent-warning, #b45309)' }}>
+          <h3 style={{ fontSize: '16px', margin: '0 0 6px' }}>Bills not added to Inventory</h3>
+          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 12px', lineHeight: 1.6 }}>
+            These bills were made at the till, but someone chose to leave them out. Their pieces were
+            not taken off your stock here, and their money is not in your Day Book. Count those pieces
+            at your next stock check.
+          </p>
+          <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+            {leftOut.map((b) => (
+              <li key={b.document} style={{ padding: '8px 0', borderTop: '1px solid var(--border-light)', fontSize: '13px', overflowWrap: 'anywhere' }}>
+                <strong>{b.document}</strong>{b.locationName ? ` · ${b.locationName}` : ''} · {when(b.skippedAt)}
+                {b.reason ? <span style={{ display: 'block', color: 'var(--text-secondary)' }}>“{b.reason}”{b.skippedBy ? ` (${b.skippedBy})` : ''}</span> : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <ConfirmModal
         isOpen={confirm.isOpen}

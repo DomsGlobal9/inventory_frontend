@@ -246,6 +246,15 @@ export default function TopNav({ onMenuClick }) {
           @media (max-width: 1024px) {
             .nav-search-btn { display: inline-flex; color: var(--text-primary); }
           }
+          /* On a phone the store box is squeezed below what its dropdown would take, and the store
+             name ran out of the box and under the bell. The pin is decoration; the name is not.
+             ponytail: below ~340px wide there is room for a letter only (the list still opens on a
+             tap); giving it more means moving a top-bar button into the menu. */
+          @media (max-width: 480px) {
+            .store-pin { display: none; }
+            .store-box { padding: 0 6px !important; }
+            .topbar-actions { gap: 6px !important; }
+          }
         `}</style>
 
         <button
@@ -307,13 +316,13 @@ export default function TopNav({ onMenuClick }) {
         </div>
         
         {locations.length > 0 && (
-          <div data-tour="store-switcher" title="The store you are working in" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-input)', border: '1px solid var(--border-light)', borderRadius: '8px', padding: '0 12px', height: '40px', minWidth: 0, flexShrink: 1 }}>
-            <MapPin size={16} color="var(--text-secondary)" style={{ marginRight: '8px', flexShrink: 0 }} />
-            <Select 
-              value={currentLocation?.id || ''} 
+          <div data-tour="store-switcher" className="store-box" title="The store you are working in" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-input)', border: '1px solid var(--border-light)', borderRadius: '8px', padding: '0 12px', height: '40px', minWidth: 0, flexShrink: 1, overflow: 'hidden' }}>
+            <MapPin className="store-pin" size={16} color="var(--text-secondary)" style={{ marginRight: '8px', flexShrink: 0 }} />
+            <Select
+              value={currentLocation?.id || ''}
               onChange={(e) => setCurrentLocationId(e.target.value)}
               variant="ghost"
-              style={{ width: '100%', minWidth: '96px', maxWidth: '180px' }}
+              style={{ width: '100%', minWidth: 0, maxWidth: '180px' }}
             >
               {locations.map(loc => (
                 <option key={loc.id} value={loc.id}>{loc.name} ({loc.code})</option>
@@ -323,7 +332,7 @@ export default function TopNav({ onMenuClick }) {
         )}
       </div>
       
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+      <div className="topbar-actions" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
         <div className="alert-dropdown-container" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '8px' }}>
           {/*
             The "new alert" notice, INSIDE the bar rather than hanging below it.

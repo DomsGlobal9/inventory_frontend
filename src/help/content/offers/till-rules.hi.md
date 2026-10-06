@@ -41,7 +41,7 @@ keywords: काउंटर नियम टिल रूल्स हाथ �
 
 मालिक और एडमिन हमेशा सीमा से ऊपर जा सकते हैं। किसी और रोल को यह ताकत देने के लिए **Settings → Roles and permissions** में उसे **Take off more than the till limit by hand** वाली permission दें।
 
-हाथ से पैसे कैसे कम करें, यह [काउंटर पर बिक्री करें](/help/orders/new-sale) में है।
+हाथ से पैसे कैसे कम करें, यह [काउंटर पर बिक्री करें](/help/settings/pos-billing-counter) में है।
 
 ## आम समस्याएँ
 

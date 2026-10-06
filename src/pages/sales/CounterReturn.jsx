@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { ArrowLeft, Search, Undo2, Banknote, Smartphone, CreditCard, Wallet, Repeat, CheckCircle2, Loader2, AlertTriangle, Minus, Plus, Globe } from 'lucide-react';
+import { ArrowLeft, Search, Undo2, Banknote, Smartphone, CreditCard, Wallet, CheckCircle2, Loader2, AlertTriangle, Minus, Plus, Globe } from 'lucide-react';
 import { useLocationContext } from '../../contexts/LocationContext';
 import { useFindSales, useSaleForReturn, useReturnPreview, useCompleteCounterReturn } from '../../hooks/useCounterReturn';
 import { RETURN_REASONS } from '../../components/sales/labels';
@@ -153,10 +153,6 @@ export default function CounterReturn() {
         )}
         {done.pointsBack > 0 && <div style={{ fontSize: 14 }}>{done.pointsBack.toLocaleString('en-IN')} loyalty points went back to their points.</div>}
         <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-          {done.exchange && done.customer?.id && (
-            <button className="btn-primary" autoFocus onClick={() => navigate(`/orders/new-sale?customer=${done.customer.id}&exchange=1`)}
-              style={{ display: 'inline-flex', gap: 8, alignItems: 'center' }}><Repeat size={16} /> Choose the new pieces</button>
-          )}
           <Link to={`/returns/${done.returnId}`} className={done.exchange ? 'btn-secondary' : 'btn-primary'} style={{ textDecoration: 'none' }}>Open the return</Link>
           <button className="btn-secondary" onClick={() => { setDone(null); setParams({}); }}>Another return</button>
         </div>
@@ -238,15 +234,8 @@ export default function CounterReturn() {
           </section>
 
           <section style={card} aria-label="Money back">
-            <div role="radiogroup" aria-label="Money back or exchange" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-              {[['REFUND', 'Give the money back', Undo2], ['EXCHANGE', 'Exchange for something else', Repeat]].map(([k, label, Icon]) => (
-                <button key={k} type="button" role="radio" aria-checked={mode === k} onClick={() => setMode(k)}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '10px 8px', borderRadius: 10, cursor: 'pointer', color: 'var(--text-primary)',
-                    border: `1px solid ${mode === k ? 'var(--accent-primary)' : 'var(--border-light)'}`, background: mode === k ? 'var(--bg-hover)' : 'transparent', fontWeight: mode === k ? 600 : 400 }}>
-                  <Icon size={16} /> {label}
-                </button>
-              ))}
-            </div>
+            {/* An exchange is a return here and a new bill on the POS till (New sale left Inventory
+                on 6 Oct 2026); what the pieces were worth can be kept as store credit below. */}
             {mode === 'REFUND' ? (
               <>
                 <div role="radiogroup" aria-label="How the money goes back" style={{ display: 'grid', gridTemplateColumns: `repeat(${methods.length}, 1fr)`, gap: 8 }}>
@@ -268,7 +257,7 @@ export default function CounterReturn() {
                     Already given back on this bill: {[paidOnline.backOnline > 0 && `${formatINRExact(paidOnline.backOnline)} through Razorpay`, paidOnline.backElsewhere > 0 && `${formatINRExact(paidOnline.backElsewhere)} at the counter`].filter(Boolean).join(' and ')}. {formatINRExact(paidOnline.left)} is left.
                   </div>
                 )}
-                {method === 'CREDIT' && <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Kept for {s.customer?.name?.split(' ')[0] ?? 'the customer'} to spend in the shop. It shows at New sale when their number is typed.</div>}
+                {method === 'CREDIT' && <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Kept for {s.customer?.name?.split(' ')[0] ?? 'the customer'}. Pay it out from their customer page when they ask, or they spend it in the shop.</div>}
               </>
             ) : (
               <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>

@@ -7,7 +7,7 @@ import { Monitor } from 'lucide-react';
  * A button that quietly disappears reads as something broken. This says where selling moved to,
  * in one line, and that everything rung up there still arrives here.
  */
-export default function BillsAtPosNote({ storeName, block = false }) {
+export default function BillsAtPosNote({ storeName, block = false, linked = true }) {
   return (
     <div role="note" style={{
       display: 'flex', alignItems: 'flex-start', gap: '10px',
@@ -16,10 +16,17 @@ export default function BillsAtPosNote({ storeName, block = false }) {
       color: 'var(--text-secondary)', fontSize: block ? '15px' : '13px', lineHeight: 1.5, maxWidth: block ? '560px' : '340px'
     }}>
       <Monitor size={block ? 20 : 16} style={{ flexShrink: 0, marginTop: '2px', color: 'var(--text-primary)' }} />
-      <span>
-        <strong style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{storeName} bills at the POS.</strong>{' '}
-        Make the sale on the till. It shows up here, takes the stock out and reaches the Day Book on its own.
-      </span>
+      {linked ? (
+        <span>
+          <strong style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{storeName} bills at the POS.</strong>{' '}
+          Make the sale on the till. It shows up here, takes the stock out and reaches the Day Book on its own.
+        </span>
+      ) : (
+        <span>
+          <strong style={{ color: 'var(--text-primary)', fontWeight: 600 }}>Walk-in bills are made on the ScaleEzy POS till.</strong>{' '}
+          Connect a till in Settings → POS (billing counter), and every bill it makes shows up here on its own.
+        </span>
+      )}
     </div>
   );
 }

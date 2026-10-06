@@ -10,7 +10,7 @@ keywords: loyalty points reward rewards points earn redeem use pay with points c
 
 Loyalty points are a thank-you to customers who come back. They earn points on what they pay, and later use those points to pay part of a bill.
 
-Points are used only at the counter, in [New sale](/help/orders/new-sale). They are earned at the counter, and on online shop and Shopify orders if you tick them.
+Points are used only at the counter, in [New sale](/help/settings/pos-billing-counter). They are earned at the counter, and on online shop and Shopify orders if you tick them.
 
 ## 1. Switch points on
 

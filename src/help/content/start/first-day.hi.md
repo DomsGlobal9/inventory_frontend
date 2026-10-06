@@ -26,7 +26,7 @@ keywords: शुरुआत चेकलिस्ट नया स्टाफ�
 
 1. [स्क्रीन पर रास्ता ढूँढें](/help/start/find-your-way)
 2. [कहाँ रखा है?](/help/shelves/where-is-it): कोई भी पीस सेकंडों में ढूँढें
-3. [काउंटर पर बिक्री करें](/help/orders/new-sale)
+3. [काउंटर पर बिक्री करें](/help/settings/pos-billing-counter)
 4. [रसीद प्रिंट करें या दोबारा प्रिंट करें](/help/orders/receipts)
 5. [ग्राहक](/help/customers/customers)
 

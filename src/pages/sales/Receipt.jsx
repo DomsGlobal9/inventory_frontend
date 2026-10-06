@@ -57,7 +57,7 @@ export default function Receipt() {
     return (
       <div style={{ padding: 48, display: 'grid', justifyItems: 'center', gap: 16, textAlign: 'center' }}>
         <p style={{ margin: 0, color: 'var(--text-secondary)', maxWidth: 420 }}>
-          Receipts are only for sales made at the counter with New sale. Order {sale.orderNumber} was not sold at the counter.
+          Receipts here are for bills made at Inventory's own counter. Order {sale.orderNumber} was not sold there — a bill made on the POS till is printed by the till.
         </p>
         <button className="btn-secondary" onClick={() => navigate(`/orders/${sale.id}`)} style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}>
           <ArrowLeft size={15} /> Back to the order

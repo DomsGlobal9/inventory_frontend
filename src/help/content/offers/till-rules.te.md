@@ -41,7 +41,7 @@ keywords: టిల్ రూల్స్ చేత్తో డిస్కౌ�
 
 యజమాని, అడ్మిన్‌లు ఎప్పుడైనా లిమిట్ దాటవచ్చు. **Settings → Roles and permissions** లో **Take off more than the till limit by hand** పర్మిషన్‌తో వేరే రోల్‌కు కూడా ఆ అధికారం ఇవ్వవచ్చు.
 
-చేత్తో డబ్బు ఎలా తగ్గించాలో [కౌంటర్ సేల్ చేయండి](/help/orders/new-sale) లో ఉంది.
+చేత్తో డబ్బు ఎలా తగ్గించాలో [కౌంటర్ సేల్ చేయండి](/help/settings/pos-billing-counter) లో ఉంది.
 
 ## సాధారణ సమస్యలు
 

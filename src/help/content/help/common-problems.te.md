@@ -49,15 +49,15 @@ ScaleEzy పాస్‌వర్డ్ రీసెట్ ఈమెయిల్
 ## అమ్మకం
 
 :::faq నాకు New sale కనిపించడం లేదు
-మీ రోల్ కౌంటర్‌లో అమ్మలేదు, లేదా మీరు ఫోన్‌లో ఉన్నారు. New sale కంప్యూటర్ లేదా ట్యాబ్లెట్‌లో పనిచేస్తుంది. [పూర్తి జవాబు](/help/orders/new-sale#i-don-t-see-new-sale)
+మీ రోల్ కౌంటర్‌లో అమ్మలేదు, లేదా మీరు ఫోన్‌లో ఉన్నారు. New sale కంప్యూటర్ లేదా ట్యాబ్లెట్‌లో పనిచేస్తుంది. [పూర్తి జవాబు](/help/settings/pos-billing-counter#i-don-t-see-new-sale)
 :::
 
 :::faq Complete sale బూడిద రంగులోనే ఉంది
-బటన్ కింద ఉన్న లైన్ చదవండి. ఏమి లేదో అది చెబుతుంది, ఉదాహరణకు కస్టమర్ పేరు లేదా ఫోన్, లేదా బిల్ మీద డబ్బు ఎందుకు తగ్గిస్తున్నారు. [పూర్తి జవాబు](/help/orders/new-sale#complete-sale-stays-grey)
+బటన్ కింద ఉన్న లైన్ చదవండి. ఏమి లేదో అది చెబుతుంది, ఉదాహరణకు కస్టమర్ పేరు లేదా ఫోన్, లేదా బిల్ మీద డబ్బు ఎందుకు తగ్గిస్తున్నారు. [పూర్తి జవాబు](/help/settings/pos-billing-counter#complete-sale-stays-grey)
 :::
 
 :::faq "Prices changed. Check the bill, then press Complete sale again." అని వస్తోంది
-మీరు బిల్ చేస్తున్నప్పుడు ఒక ధర లేదా ఆఫర్ మారింది. కొత్త **To pay** చెక్ చేసి మళ్లీ **Complete sale** నొక్కండి. [పూర్తి జవాబు](/help/orders/new-sale#prices-changed-check-the-bill-then-press-complete-sale-again)
+మీరు బిల్ చేస్తున్నప్పుడు ఒక ధర లేదా ఆఫర్ మారింది. కొత్త **To pay** చెక్ చేసి మళ్లీ **Complete sale** నొక్కండి. [పూర్తి జవాబు](/help/settings/pos-billing-counter#prices-changed-check-the-bill-then-press-complete-sale-again)
 :::
 
 :::faq నాకు ఒక ఆర్డర్ దొరకడం లేదు

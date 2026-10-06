@@ -10,7 +10,7 @@ keywords: customer client buyer phone number add new edit vip group tag wholesal
 
 Customers are found by their **phone number**. One number belongs to one customer.
 
-You do not have to add customers here first. When you type a new number in [New sale](/help/orders/new-sale), the customer is saved with the sale.
+You do not have to add customers here first. When you type a new number in [New sale](/help/settings/pos-billing-counter), the customer is saved with the sale.
 
 ## 1. Open Customers
 

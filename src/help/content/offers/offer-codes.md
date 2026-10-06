@@ -59,7 +59,7 @@ The offer is still a [[1]] **Draft**. At the top of its page press [[2]] **Start
 
 ![The offer page for Welcome gift 500 off, ₹500 off the whole bill with a single-use code when the bill is ₹3,000 or more. Draft is marked 1 and Start is marked 2.](5-start-the-offer.webp "It says Schedule instead of Start when the start date is still ahead.")
 
-At the till, the customer's code goes in the **Offer code** box on the bill. See [New sale](/help/orders/new-sale).
+At the till, the customer's code goes in the **Offer code** box on the bill. See [New sale](/help/settings/pos-billing-counter).
 
 ## Common problems
 

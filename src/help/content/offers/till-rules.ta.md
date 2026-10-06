@@ -41,7 +41,7 @@ keywords: கவுண்டர் விதிகள் கையால் ட�
 
 உரிமையாளரும் அட்மின்களும் எப்போதும் வரம்பைத் தாண்டலாம். **Settings → Roles and permissions**-இல் **Take off more than the till limit by hand** அனுமதியைக் கொடுத்து, வேறு ஒரு ரோலுக்கும் அந்த அதிகாரத்தைக் கொடுக்கலாம்.
 
-கையால் பணத்தைக் குறைப்பது எப்படி என்று [New sale](/help/orders/new-sale)-இல் உள்ளது.
+கையால் பணத்தைக் குறைப்பது எப்படி என்று [New sale](/help/settings/pos-billing-counter)-இல் உள்ளது.
 
 ## பொதுவான பிரச்சினைகள்
 

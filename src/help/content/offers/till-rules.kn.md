@@ -41,7 +41,7 @@ keywords: ಕೌಂಟರ್ ನಿಯಮ ಟಿಲ್ ರೂಲ್ಸ್ ಕೈ
 
 ಮಾಲೀಕರು ಮತ್ತು ಅಡ್ಮಿನ್‌ಗಳು ಯಾವಾಗಲೂ ಮಿತಿ ದಾಟಬಹುದು. **Settings → Roles and permissions** ನಲ್ಲಿ **Take off more than the till limit by hand** ಅನುಮತಿ ಕೊಟ್ಟು ಬೇರೆ ರೋಲ್‌ಗೂ ಆ ಅಧಿಕಾರ ಕೊಡಬಹುದು.
 
-ಕೈಯಿಂದ ಹಣ ಕಡಿಮೆ ಮಾಡುವುದು ಹೇಗೆ ಎಂದು [ಹೊಸ ಸೇಲ್](/help/orders/new-sale) ನಲ್ಲಿದೆ.
+ಕೈಯಿಂದ ಹಣ ಕಡಿಮೆ ಮಾಡುವುದು ಹೇಗೆ ಎಂದು [ಹೊಸ ಸೇಲ್](/help/settings/pos-billing-counter) ನಲ್ಲಿದೆ.
 
 ## ಸಾಮಾನ್ಯ ಸಮಸ್ಯೆಗಳು
 

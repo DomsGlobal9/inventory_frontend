@@ -34,7 +34,7 @@ export default function StoreCreditCard({ customerId }) {
     <div className="card" style={{ padding: '24px' }}>
       <h3 style={{ margin: '0 0 12px', fontSize: '16px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}><Wallet size={16} /> Store credit</h3>
       <div style={{ fontSize: '28px', fontWeight: 600 }}>{formatINRExact(data.credit)}</div>
-      <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>to spend in the shop. It shows at New sale when their number is typed.</div>
+      <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>to spend in the shop, or to pay out from here when they ask.</div>
       <ul style={{ listStyle: 'none', margin: '14px 0 0', padding: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {data.entries.slice(0, 6).map(e => (
           <li key={e.id} style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', fontSize: '13px' }}>

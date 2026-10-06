@@ -49,15 +49,15 @@ Click in the box first, then scan again: the scanner types where the cursor is. 
 ## Selling
 
 :::faq I don't see New sale
-Your role can't sell at the counter, or you are on a phone. New sale works on a computer or tablet. [Full answer](/help/orders/new-sale#i-don-t-see-new-sale)
+Your role can't sell at the counter, or you are on a phone. New sale works on a computer or tablet. [Full answer](/help/settings/pos-billing-counter#i-don-t-see-new-sale)
 :::
 
 :::faq Complete sale stays grey
-Read the line under the button. It says what is missing, for example the customer's name or phone, or why money is coming off the bill. [Full answer](/help/orders/new-sale#complete-sale-stays-grey)
+Read the line under the button. It says what is missing, for example the customer's name or phone, or why money is coming off the bill. [Full answer](/help/settings/pos-billing-counter#complete-sale-stays-grey)
 :::
 
 :::faq "Prices changed. Check the bill, then press Complete sale again."
-A price or offer changed while you were billing. Check the new **To pay** and press **Complete sale** again. [Full answer](/help/orders/new-sale#prices-changed-check-the-bill-then-press-complete-sale-again)
+A price or offer changed while you were billing. Check the new **To pay** and press **Complete sale** again. [Full answer](/help/settings/pos-billing-counter#prices-changed-check-the-bill-then-press-complete-sale-again)
 :::
 
 :::faq I can't find an order

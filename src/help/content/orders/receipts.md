@@ -8,7 +8,7 @@ appLabel: Orders
 keywords: receipt bill print reprint invoice duplicate copy thermal printer 80mm
 ---
 
-Right after a sale, click **Print receipt** on the *Sale complete* screen. See [Make a counter sale](/help/orders/new-sale). To print it again later, follow these steps.
+Right after a sale, click **Print receipt** on the *Sale complete* screen. See [Make a counter sale](/help/settings/pos-billing-counter). To print it again later, follow these steps.
 
 ## 1. Open the order
 

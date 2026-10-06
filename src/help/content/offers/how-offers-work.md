@@ -40,7 +40,7 @@ Every offer answers four questions:
 
 ## Where it comes off
 
-- **At the till.** A running offer comes off by itself when you make a [New sale](/help/orders/new-sale). A code offer comes off when the code is typed in the **Offer code** box.
+- **At the till.** A running offer comes off by itself when you make a [New sale](/help/settings/pos-billing-counter). A code offer comes off when the code is typed in the **Offer code** box.
 - **Online.** Orders from your online store get it too. Under **More options** you can make an offer till only or online only, or only for some stores.
 - **On Shopify.** Shopify charges its own discounts, so you can put a copy of the offer there. See [Offers on Shopify](/help/offers/offers-on-shopify).
 

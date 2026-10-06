@@ -49,15 +49,15 @@ ScaleEzy पासवर्ड रीसेट का ईमेल नहीं 
 ## बिक्री
 
 :::faq मुझे New sale नहीं दिख रहा
-आपका रोल काउंटर पर नहीं बेच सकता, या आप फ़ोन पर हैं। New sale कंप्यूटर या टैबलेट पर चलता है। [पूरा जवाब](/help/orders/new-sale#i-don-t-see-new-sale)
+आपका रोल काउंटर पर नहीं बेच सकता, या आप फ़ोन पर हैं। New sale कंप्यूटर या टैबलेट पर चलता है। [पूरा जवाब](/help/settings/pos-billing-counter#i-don-t-see-new-sale)
 :::
 
 :::faq Complete sale ग्रे ही रहता है
-बटन के नीचे की लाइन पढ़ें। वह बताती है कि क्या कमी है, जैसे ग्राहक का नाम या फ़ोन, या बिल से पैसे क्यों कम हो रहे हैं। [पूरा जवाब](/help/orders/new-sale#complete-sale-stays-grey)
+बटन के नीचे की लाइन पढ़ें। वह बताती है कि क्या कमी है, जैसे ग्राहक का नाम या फ़ोन, या बिल से पैसे क्यों कम हो रहे हैं। [पूरा जवाब](/help/settings/pos-billing-counter#complete-sale-stays-grey)
 :::
 
 :::faq "Prices changed. Check the bill, then press Complete sale again." लिखा आ रहा है
-बिल बनाते समय कोई कीमत या ऑफ़र बदल गया। नया **To pay** जाँचें और फिर से **Complete sale** दबाएँ। [पूरा जवाब](/help/orders/new-sale#prices-changed-check-the-bill-then-press-complete-sale-again)
+बिल बनाते समय कोई कीमत या ऑफ़र बदल गया। नया **To pay** जाँचें और फिर से **Complete sale** दबाएँ। [पूरा जवाब](/help/settings/pos-billing-counter#prices-changed-check-the-bill-then-press-complete-sale-again)
 :::
 
 :::faq मुझे ऑर्डर नहीं मिल रहा

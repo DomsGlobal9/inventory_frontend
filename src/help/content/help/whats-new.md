@@ -50,4 +50,4 @@ Know exactly which shelf every piece is on. Set up your racks, print shelf label
 
 ### New sale at the counter
 
-Sell to walk-in customers from a computer or tablet: look up the customer by phone, scan items, give a discount by hand with a reason, take cash, UPI, card or a split payment, and print a receipt. See [Make a counter sale](/help/orders/new-sale).
+Sell to walk-in customers from a computer or tablet: look up the customer by phone, scan items, give a discount by hand with a reason, take cash, UPI, card or a split payment, and print a receipt. See [Make a counter sale](/help/settings/pos-billing-counter).

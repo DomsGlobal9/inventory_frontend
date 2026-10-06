@@ -5,7 +5,7 @@ import { searchHelp, getPages } from '../../help/library';
 import { t } from '../../help/ui';
 
 // Shown before anything is typed; any that do not exist yet are simply skipped.
-const SUGGESTED = ['/help/orders/new-sale', '/help/purchase-orders/receive-a-delivery', '/help/shelves/put-away', '/help/settings/add-team-member', '/help/help/common-problems', '/help/start/sign-in'];
+const SUGGESTED = ['/help/settings/pos-billing-counter', '/help/purchase-orders/receive-a-delivery', '/help/shelves/put-away', '/help/settings/add-team-member', '/help/help/common-problems', '/help/start/sign-in'];
 
 /** Search over every guide page, from the keyboard: type, ↑ ↓ to choose, Enter to open, Esc to close. */
 export default function HelpSearch({ onClose, lang = 'en' }) {

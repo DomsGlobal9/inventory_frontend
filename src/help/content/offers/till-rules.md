@@ -42,7 +42,7 @@ If a cashier takes off more than the limit, the sale is not completed. They see 
 
 The owner and admins may always go over the limit. You can give another role that power with the permission **Take off more than the till limit by hand**, in **Settings → Roles and permissions**.
 
-How to take money off by hand is in [New sale](/help/orders/new-sale).
+How to take money off by hand is in [New sale](/help/settings/pos-billing-counter).
 
 ## Common problems
 

@@ -26,7 +26,7 @@ keywords: தொடக்கம் செக்லிஸ்ட் புதி�
 
 1. [ScaleEzy-இல் வழி கண்டுபிடித்தல்](/help/start/find-your-way)
 2. [எங்கே இருக்கிறது?](/help/shelves/where-is-it): எந்தப் பீஸையும் சில விநாடிகளில் கண்டுபிடியுங்கள்
-3. [கவுண்டர் விற்பனை செய்தல்](/help/orders/new-sale)
+3. [கவுண்டர் விற்பனை செய்தல்](/help/settings/pos-billing-counter)
 4. [ரசீது பிரிண்ட் அல்லது மீண்டும் பிரிண்ட் செய்தல்](/help/orders/receipts)
 5. [வாடிக்கையாளர்கள்](/help/customers/customers)
 

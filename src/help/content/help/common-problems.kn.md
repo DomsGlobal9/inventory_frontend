@@ -49,15 +49,15 @@ ScaleEzy ಪಾಸ್‌ವರ್ಡ್ ರೀಸೆಟ್ ಇಮೇಲ್ ಕ�
 ## ಮಾರಾಟ
 
 :::faq ನನಗೆ New sale ಕಾಣುತ್ತಿಲ್ಲ
-ನಿಮ್ಮ ರೋಲ್‌ಗೆ ಕೌಂಟರ್‌ನಲ್ಲಿ ಮಾರಲು ಅನುಮತಿ ಇಲ್ಲ, ಅಥವಾ ನೀವು ಫೋನ್‌ನಲ್ಲಿ ಇದ್ದೀರಿ. New sale ಕಂಪ್ಯೂಟರ್ ಅಥವಾ ಟ್ಯಾಬ್ಲೆಟ್‌ನಲ್ಲಿ ಕೆಲಸ ಮಾಡುತ್ತದೆ. [ಪೂರ್ತಿ ಉತ್ತರ](/help/orders/new-sale#i-don-t-see-new-sale)
+ನಿಮ್ಮ ರೋಲ್‌ಗೆ ಕೌಂಟರ್‌ನಲ್ಲಿ ಮಾರಲು ಅನುಮತಿ ಇಲ್ಲ, ಅಥವಾ ನೀವು ಫೋನ್‌ನಲ್ಲಿ ಇದ್ದೀರಿ. New sale ಕಂಪ್ಯೂಟರ್ ಅಥವಾ ಟ್ಯಾಬ್ಲೆಟ್‌ನಲ್ಲಿ ಕೆಲಸ ಮಾಡುತ್ತದೆ. [ಪೂರ್ತಿ ಉತ್ತರ](/help/settings/pos-billing-counter#i-don-t-see-new-sale)
 :::
 
 :::faq Complete sale ಬೂದು ಬಣ್ಣದಲ್ಲೇ ಇದೆ
-ಬಟನ್‌ನ ಕೆಳಗಿನ ಸಾಲು ಓದಿ. ಏನು ಬಾಕಿ ಇದೆ ಎಂದು ಅದು ಹೇಳುತ್ತದೆ, ಉದಾಹರಣೆಗೆ ಗ್ರಾಹಕರ ಹೆಸರು ಅಥವಾ ಫೋನ್, ಅಥವಾ ಬಿಲ್‌ನಿಂದ ಹಣ ಯಾಕೆ ಕಡಿಮೆಯಾಗುತ್ತಿದೆ. [ಪೂರ್ತಿ ಉತ್ತರ](/help/orders/new-sale#complete-sale-stays-grey)
+ಬಟನ್‌ನ ಕೆಳಗಿನ ಸಾಲು ಓದಿ. ಏನು ಬಾಕಿ ಇದೆ ಎಂದು ಅದು ಹೇಳುತ್ತದೆ, ಉದಾಹರಣೆಗೆ ಗ್ರಾಹಕರ ಹೆಸರು ಅಥವಾ ಫೋನ್, ಅಥವಾ ಬಿಲ್‌ನಿಂದ ಹಣ ಯಾಕೆ ಕಡಿಮೆಯಾಗುತ್ತಿದೆ. [ಪೂರ್ತಿ ಉತ್ತರ](/help/settings/pos-billing-counter#complete-sale-stays-grey)
 :::
 
 :::faq "Prices changed. Check the bill, then press Complete sale again." ಎಂದು ಬರುತ್ತಿದೆ
-ನೀವು ಬಿಲ್ ಮಾಡುತ್ತಿರುವಾಗ ಬೆಲೆ ಅಥವಾ ಆಫರ್ ಬದಲಾಗಿದೆ. ಹೊಸ **To pay** ನೋಡಿ ಮತ್ತು ಮತ್ತೆ **Complete sale** ಒತ್ತಿರಿ. [ಪೂರ್ತಿ ಉತ್ತರ](/help/orders/new-sale#prices-changed-check-the-bill-then-press-complete-sale-again)
+ನೀವು ಬಿಲ್ ಮಾಡುತ್ತಿರುವಾಗ ಬೆಲೆ ಅಥವಾ ಆಫರ್ ಬದಲಾಗಿದೆ. ಹೊಸ **To pay** ನೋಡಿ ಮತ್ತು ಮತ್ತೆ **Complete sale** ಒತ್ತಿರಿ. [ಪೂರ್ತಿ ಉತ್ತರ](/help/settings/pos-billing-counter#prices-changed-check-the-bill-then-press-complete-sale-again)
 :::
 
 :::faq ಆರ್ಡರ್ ಸಿಗುತ್ತಿಲ್ಲ

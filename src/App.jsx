@@ -51,7 +51,6 @@ import Customers from './pages/sales/Customers';
 import CustomerDetail from './pages/sales/CustomerDetail';
 import SalesOrders from './pages/sales/SalesOrders';
 import SalesOrderDetail from './pages/sales/SalesOrderDetail';
-import NewSale from './pages/sales/NewSale';
 import Receipt from './pages/sales/Receipt';
 import ReturnsList from './pages/sales/ReturnsList';
 import ReturnDetail from './pages/sales/ReturnDetail';
@@ -162,7 +161,8 @@ function App() {
           <Route path="/products/:id" element={<Guard permission="product:view"><ProductDetails /></Guard>} />
           <Route path="/products" element={<Guard permission="product:view"><Products /></Guard>} />
           <Route path="/orders" element={<Guard permission="sales_order:view"><SalesOrders /></Guard>} />
-          <Route path="/orders/new-sale" element={<Guard permission="sales_order:counter_sale" what="sell at the counter"><NewSale /></Guard>} />
+          {/* New sale moved to the ScaleEzy POS till (6 Oct 2026). Old bookmarks land on Orders. */}
+          <Route path="/orders/new-sale" element={<Navigate to="/orders" replace />} />
           <Route path="/orders/:id" element={<Guard permission="sales_order:view"><SalesOrderDetail /></Guard>} />
           <Route path="/returns" element={<Guard permission="return:view"><ReturnsList /></Guard>} />
           <Route path="/returns/new" element={<Guard permission="return:view"><CounterReturn /></Guard>} />

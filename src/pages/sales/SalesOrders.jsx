@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import LoadFailed from '../../components/LoadFailed';
 import { useNavigate } from 'react-router-dom';
 import { useSalesOrders } from '../../hooks/useSalesOrders';
-import { Search, Filter, Plus, Store } from 'lucide-react';
+import { Search, Filter, Store } from 'lucide-react';
 import { formatINRExact } from '../../utils/formatUtils';
 import Select from '../../components/common/Select';
 import { usePermission } from '../../hooks/usePermission';
@@ -71,15 +71,9 @@ export default function SalesOrders() {
           <h1 style={{ fontSize: 32, marginBottom: 8, color: 'var(--text-primary)' }}>Sales Orders</h1>
           <p style={{ color: 'var(--text-secondary)' }}>Sales at the counter, online and from Shopify, and what was paid.</p>
         </div>
-        {/* Not on a phone: selling is done from the counter computer or a tablet. */}
-        {/* A store with a till connected rings its sales up there; the note says so in the button's place. */}
-        {can('sales_order:counter_sale') && !phone && (billsAtPos
-          ? <BillsAtPosNote storeName={storeName} />
-          : (
-            <button className="btn-primary" onClick={() => navigate('/orders/new-sale')} style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-              <Plus size={16} /> New sale
-            </button>
-          ))}
+        {/* Walk-in bills are made on the POS till (New sale left Inventory on 6 Oct 2026). The note
+            says so where the button was, and whether this store has a till yet. */}
+        {can('sales_order:counter_sale') && !phone && <BillsAtPosNote storeName={storeName} linked={billsAtPos} />}
       </div>
 
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', flexShrink: 0 }}>

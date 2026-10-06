@@ -47,7 +47,7 @@ export const SECTIONS = [
       ta: 'கவுண்டர் விற்பனை, ரசீதுகள், ஆன்லைன் ஆர்டர்களை அனுப்புதல்.',
       kn: 'ಕೌಂಟರ್ ಮಾರಾಟ, ರಸೀದಿಗಳು, ಆನ್‌ಲೈನ್ ಆರ್ಡರ್‌ಗಳನ್ನು ಕಳುಹಿಸುವುದು.'
     },
-    pages: ['new-sale', 'receipts', 'find-an-order', 'send-online-orders', 'cancel-an-order'] },
+    pages: ['receipts', 'find-an-order', 'send-online-orders', 'cancel-an-order'] },
   { id: 'returns', title: 'Returns', icon: 'Undo2',
     blurb: 'Book in what customers bring back, check it and finish it.',
     titles: { te: 'Returns (రిటర్న్‌లు)', hi: 'Returns (रिटर्न)', ta: 'Returns (ரிட்டர்ன்கள்)', kn: 'Returns (ರಿಟರ್ನ್‌ಗಳು)' },

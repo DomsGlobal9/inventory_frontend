@@ -18,7 +18,7 @@ ScaleEzy keeps track of every piece in your shop: what you have, where it is, wh
 
 1. **Buy.** You raise a purchase order with your supplier. When the goods arrive, you *receive* them and your stock goes up.
 2. **Keep.** If you use racks and shelves, you put each piece on a shelf, so anyone can find it in seconds.
-3. **Sell.** At the counter with **New sale**, or online and on Shopify. Your stock goes down by itself.
+3. **Sell.** At the counter on the ScaleEzy POS till, or online and on Shopify. Your stock goes down by itself.
 4. **Returns.** When a customer brings something back, you check it and it goes back into stock.
 
 ### What happens to stock at each step
@@ -27,7 +27,7 @@ ScaleEzy keeps track of every piece in your shop: what you have, where it is, wh
 
 | Step | What happens to your stock |
 |---|---|
-| **Counter sale** (New sale) | Goes down at once, in the store you sold from. |
+| **Counter sale** (on the POS till) | Goes down as soon as the till sends the bill, in the store the till sells from. |
 | **Draft order** | Nothing changes. |
 | **Confirmed order** | Nothing leaves the store yet, but the pieces are **held** for this order. |
 | **Dispatched** (sent or handed over) | Goes down, and the hold is released. If only some pieces are sent, the rest stay held. |
@@ -46,13 +46,13 @@ Every change to your stock is saved as its own line, with who did it and when. Y
 | Part | What it is for |
 |---|---|
 | **Products** | Everything you sell, with sizes, colours, prices, barcodes and photos |
-| **Orders** | Counter sales, online orders and Shopify orders, and what was paid |
+| **Orders** | Bills from the POS till, online orders and Shopify orders, and what was paid |
 | **Returns** | Items customers bring back |
 | **Inventory** | How much you have in each store, alerts for low stock, and stock counts |
 | **Shelves** | Which rack and shelf every piece is on |
 | **Transfers** | Moving stock between your stores |
 | **Purchase Orders** | Buying from suppliers and receiving deliveries |
-| **Offers** | Sales, discount codes and discounts at the counter |
+| **Offers** | Sales, discount codes and the till's discount limit |
 | **Customers** | Your customers and what they bought |
 | **Settings** | Your shop details, stores, team and roles |
 

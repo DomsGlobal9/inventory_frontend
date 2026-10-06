@@ -74,13 +74,13 @@ At the bottom, [[1]] a sentence says in plain words what the offer will do. Read
 
 ## 8. Start it
 
-A new offer is always saved as a [[1]] **Draft**, so nothing changes at the till by accident. Press [[2]] the start button (a triangle) on its row.
+A new offer is always saved as a [[1]] **Draft**, so nothing changes online by accident. Press [[2]] the start button (a triangle) on its row.
 
 ![The new offer Kurti week 15% off in the list, with Draft marked 1 and the start button marked 2.](8-start-it.webp "If the start date is in the future, the button shows a calendar instead and the offer says Starts later.")
 
 ## 9. Check it is running
 
-The status changes to [[1]] **Running**. The offer now comes off at the till and online.
+The status changes to [[1]] **Running**. The offer now comes off online. Offers at the POS till are coming.
 
 ![The same offer, now with the status Running marked 1.](9-running.webp "The Used column counts the orders that got it.")
 

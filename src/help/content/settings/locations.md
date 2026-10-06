@@ -89,8 +89,7 @@ When a shop closes or you stop using a godown, switch it off. Its history stays.
 
 What changes when a location is **Inactive**:
 
-- It **cannot sell at the counter**. Finding an item in **New sale** there is refused with *…is closed, so it cannot sell*.
-- It **cannot take orders**. A new order there is refused with *…is closed, so it cannot take orders*.
+- It **cannot sell or take orders**. A new order there is refused with *…is closed, so it cannot take orders*.
 - Purchase orders **cannot be delivered** there, and a delivery cannot be received into it.
 - It still shows in the locations list and in the store list at the top, so you can switch it on again.
 

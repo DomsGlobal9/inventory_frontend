@@ -8,7 +8,7 @@ appLabel: Offers
 keywords: till rules discount by hand manual discount limit cashier percentage maximum manager reason bargain
 ---
 
-At the counter, sales staff can take money off by hand, for example for a small mark on a saree. Every discount by hand needs a reason and records who gave it. **Till rules** sets how big that discount may be.
+At the ScaleEzy POS till, the cashier can take money off by hand, for example for a small mark on a saree. **Till rules** sets how big that discount may be. You set the limit here in Inventory, and the till follows it.
 
 - Every shop starts with **no limit**.
 - The owner or an admin sets the limit.
@@ -36,13 +36,13 @@ Sales staff see the same box with the limit, and [[1]] *Only the shop owner can 
 
 ![The Discounts by hand box as sales staff see it, with the limit 10 and the words Only the shop owner can change this marked 1, and a Close button.](3-what-sales-see.webp "Admins can change it too.")
 
-## At the counter
+## At the till
 
-If a cashier takes off more than the limit, the sale is not completed. They see a message like *Taking 1500 off … is 15% — more than the 10% the till may take off by hand. A manager has to take this one off.*
+The ScaleEzy POS till follows this limit. A cashier can take money off by hand up to the limit; more than that needs a manager.
 
-The owner and admins may always go over the limit. You can give another role that power with the permission **Take off more than the till limit by hand**, in **Settings → Roles and permissions**.
+In Inventory, the owner and admins may always go over the limit, and the permission **Take off more than the till limit by hand**, in **Settings → Roles and permissions**, gives another role that power.
 
-How to take money off by hand is in [New sale](/help/settings/pos-billing-counter).
+Offers that come off by themselves, and offer codes, are coming to the till. Until then every discount at the till is given by hand, within this limit. See [Connect your POS till](/help/settings/pos-billing-counter).
 
 ## Common problems
 

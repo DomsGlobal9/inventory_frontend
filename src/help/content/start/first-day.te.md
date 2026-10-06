@@ -26,7 +26,7 @@ keywords: మొదలు చెక్‌లిస్ట్ కొత్త స�
 
 1. [స్క్రీన్‌లో దారి తెలుసుకోండి](/help/start/find-your-way)
 2. [ఎక్కడ ఉంది?](/help/shelves/where-is-it): ఏ పీస్ అయినా సెకన్లలో వెతకండి
-3. [కౌంటర్ సేల్ చేయండి](/help/settings/pos-billing-counter)
+3. [మీ POS టిల్ కనెక్ట్ చేయండి](/help/settings/pos-billing-counter)
 4. [రసీదు ప్రింట్ లేదా మళ్లీ ప్రింట్ చేయండి](/help/orders/receipts)
 5. [కస్టమర్లు](/help/customers/customers)
 

@@ -3,12 +3,14 @@ title: Use a barcode scanner
 summary: Which scanner works, how to test it, how to scan with a phone's camera instead, and every screen where you can scan instead of typing.
 for: Everyone
 minutes: 3
-app: /orders/new-sale
-appLabel: New sale
+app: /dashboard
+appLabel: ScaleEzy
 keywords: barcode scanner scan gun usb bluetooth qr code label tag reader not working enter hardware camera phone scanning sku
 ---
 
 A barcode scanner saves typing. Point it at a price tag or a shelf label, and the code appears in the box on your screen as if you typed it.
+
+Billing at the counter is done on the ScaleEzy POS till, which scans price tags itself; see [Connect your POS till](/help/settings/pos-billing-counter). This page is about scanning in Inventory.
 
 ## Which scanner works
 
@@ -30,16 +32,13 @@ The number should appear and the cursor should jump to the next line. That jump 
 
 ## 2. Click in the box, then scan
 
-The scanner types wherever the cursor is. So the box must be **active** first: click in it. On **New sale** and on the **Shelves** screens the cursor is already in the box when the screen opens.
-
-![New sale. The box Scan a barcode, or type a name, SKU or colour is marked 1.](1-new-sale.webp "Each scan adds the item to the bill.")
+The scanner types wherever the cursor is. So the box must be **active** first: click in it. On the **Shelves** screens the cursor is already in the box when the screen opens.
 
 ## Where you can scan
 
 | Screen | Box | What a scan does |
 |---|---|---|
 | **Top of every screen** | **Search products, SKU, barcode...** | Opens that item. On a phone, tap the 🔍 at the top first. |
-| **New sale** | **Scan a barcode, or type a name, SKU or colour** | Adds the item to the bill. If several items match, pick one from the list. |
 | **Stock count** (while counting) | **Scan barcode or search SKU...** | Finds the item and puts the cursor in its count box. Type how many you counted. |
 | **Shelves → Where is it?** | **Scan a tag or shelf label, or type saree, SKU, colour…** | A price tag shows where that item is. A shelf label shows what is on that shelf. |
 | **Shelves → Put away** | **Scan the tag or filter…**, then **Scan the shelf label — it saves straight away** | Scan the item, then the shelf. It saves at once. |
@@ -92,12 +91,6 @@ Click in the box first, then scan again. The scanner types where the cursor is. 
 
 :::faq The code appears but nothing is found or added
 The scanner may not be sending **Enter**. Test it in Notepad (step 1). If the code has joined onto an old one, clear the box and scan again.
-:::
-
-:::faq New sale says "Nothing here matches", "None here" or "Not sold here"
-- **Nothing here matches**: no item in your shop has this code, or the product is archived. Check the tag.
-- **None here**: the item has no free pieces in the store chosen at the top of the screen. Check the store name. See [Working with more than one store](/help/start/more-than-one-store).
-- **Not sold here**: the item is switched off for this store. See [A different price in one store](/help/products/price-per-store).
 :::
 
 :::faq A shelf label says it is in another location

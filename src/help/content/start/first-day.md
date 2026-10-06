@@ -26,7 +26,7 @@ You help customers and make sales.
 
 1. [Find your way around](/help/start/find-your-way)
 2. [Where is it?](/help/shelves/where-is-it): find any piece in seconds
-3. [Make a counter sale](/help/settings/pos-billing-counter)
+3. [Connect your POS till](/help/settings/pos-billing-counter)
 4. [Print or reprint a receipt](/help/orders/receipts)
 5. [Customers](/help/customers/customers)
 

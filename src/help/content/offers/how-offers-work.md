@@ -1,6 +1,6 @@
 ---
 title: How offers work
-summary: Write a discount once in Offers. It comes off by itself at the till and in your online store, and you can see what it gave away.
+summary: Write a discount once in Offers. It comes off by itself in your online store, and you can see what it gave away. Offers at the POS till are coming.
 for: Everyone
 minutes: 3
 app: /offers
@@ -8,7 +8,7 @@ appLabel: Offers
 keywords: offers discounts sale deal coupon code promotion festive percentage off price off automatic till online shopify overview status
 ---
 
-An **offer** is a discount rule, for example *10% off every saree until Deepavali*. You write it once. After that nobody at the counter has to remember it or type it in: ScaleEzy takes the money off for you.
+An **offer** is a discount rule, for example *10% off every saree until Deepavali*. You write it once. Online, ScaleEzy takes the money off for you. At the ScaleEzy POS till, offers are coming: today the cashier gives the discount by hand, within the limit set in **Till rules**.
 
 ## Where to find it
 
@@ -40,7 +40,7 @@ Every offer answers four questions:
 
 ## Where it comes off
 
-- **At the till.** A running offer comes off by itself when you make a [New sale](/help/settings/pos-billing-counter). A code offer comes off when the code is typed in the **Offer code** box.
+- **At the POS till.** Coming. Today the cashier takes money off by hand, within the limit in [Till rules](/help/offers/till-rules). Offers and codes that come off by themselves at the till are next; see [Connect your POS till](/help/settings/pos-billing-counter).
 - **Online.** Orders from your online store get it too. Under **More options** you can make an offer till only or online only, or only for some stores.
 - **On Shopify.** Shopify charges its own discounts, so you can put a copy of the offer there. See [Offers on Shopify](/help/offers/offers-on-shopify).
 

@@ -17,10 +17,7 @@ Before your first campaign:
 
 ## 1. Only customers who agreed
 
-A campaign reaches only customers who said yes to offers on WhatsApp. Ask them first, then record it:
-
-- at the counter, in **New sale**: tick **Agrees to offers on WhatsApp**;
-- on the customer's page: tick [[1]] **Agrees to offers on WhatsApp** in the **Offers on WhatsApp** card.
+A campaign reaches only customers who said yes to offers on WhatsApp. Ask them first, then record it on the customer's page: tick [[1]] **Agrees to offers on WhatsApp** in the **Offers on WhatsApp** card.
 
 ![The Offers on WhatsApp card on a customer's page, with Agrees to offers on WhatsApp ticked and marked 1.](1-agrees.webp "Tick it only when the customer said yes.")
 

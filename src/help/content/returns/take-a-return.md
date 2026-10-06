@@ -1,6 +1,6 @@
 ---
 title: Take a return at the counter
-summary: A customer brings something back to the shop. Find the bill, take the pieces back and give the money back, or exchange them, in one go.
+summary: A customer brings something back to the shop. Find the bill, take the pieces back and give the money back, or keep it as store credit, in one go.
 for: Sales staff, managers and owners
 minutes: 4
 app: /returns/new
@@ -9,6 +9,8 @@ keywords: return counter walk in bring back refund money back cash upi card exch
 ---
 
 When the customer is standing at the counter with the piece, you do not need the four steps a parcel return goes through. **Take a return** does it all at once: the pieces come back into stock, loyalty points are sorted out, and the money going back is recorded.
+
+**Take a return** is for bills made at Inventory's own counter. A bill made on the ScaleEzy POS till is returned on the till, and that return reaches Inventory by itself.
 
 ## 1. Find the bill
 
@@ -33,29 +35,25 @@ The money is what the customer paid for those pieces after discounts, not the pr
 
 ## 3. Give the money back
 
-1. Choose [[1]] **Give the money back**.
-2. Choose how: [[2]] **Cash**, **UPI**, **Card** or **Store credit**. For UPI or card you can type the reference.
-3. Click [[3]] the button, for example *Take back · give ₹900 in cash*.
+1. Choose how: [[1]] **Cash**, **UPI**, **Card** or **Store credit**. For UPI or card you can type the reference.
+2. Click [[2]] the button, for example *Take back · give ₹900 in cash*.
 
-![Money back. Give the money back is marked 1, Cash 2 and Take back · give ₹1,450 in cash 3.](4-give-the-money-back.webp "Points earned on these pieces are taken back, and the screen says so.")
+![Money back. Cash is marked 1 and Take back · give ₹1,450 in cash 2.](4-give-the-money-back.webp "Points earned on these pieces are taken back, and the screen says so.")
 
-4. Give the money back as the screen says.
+3. Give the money back as the screen says.
 
-**Store credit** keeps the money for the customer to spend in the shop later. It shows at **New sale** as soon as their phone number is typed.
+**Store credit** keeps the money on the customer's page instead of handing it over. It needs a customer on the bill. A manager can pay it out in money later, from the customer's page.
 
 If part of the bill was paid with loyalty points, that part goes back as points, not money. The screen says how much.
 
-## 4. Or exchange it
+## 4. An exchange
 
-For "the same kurti in L instead of M":
+For "the same kurti in L instead of M", an exchange is a return here and a new bill on the till:
 
-1. Choose **Exchange for something else**, and click the button.
-2. Click **Choose the new pieces**. **New sale** opens for the same customer, with [[1]] a line saying it is an exchange and [[2]] the returned value ready as store credit.
-3. Add the new pieces. The credit pays first; the customer pays only the difference. Then click [[3]] **Complete sale**.
+1. Take the return as above. Give the money back, or choose **Store credit** to keep the value on the customer's page.
+2. Sell the new piece on the ScaleEzy POS till, like any walk-in bill. See [Connect your POS till](/help/settings/pos-billing-counter).
 
-![New sale for an exchange. The exchange line is marked 1, the store credit to use 2 and Complete sale 3.](5-exchange.webp "If the new pieces cost more, the difference is paid the usual way.")
-
-4. If the new pieces cost less, what is left stays as their store credit.
+Store credit can be paid out in money from the customer's page at any time: **Store credit** → **Pay out in money**.
 
 ## 5. When a manager is needed
 

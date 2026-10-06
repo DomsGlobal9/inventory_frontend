@@ -19,10 +19,10 @@ The owner, an admin or an inventory manager adds stores and godowns in **Setting
 
 ![The store list open at the top of the screen. The store box is marked 1 and Godown is marked 2.](1-store-picker.webp "The screen reloads to show the store you picked.")
 
-The screen reloads and everything now belongs to that store. Your choice is remembered **on this device**, so a till in the shop and a computer in the godown can each stay on their own store.
+The screen reloads and everything now belongs to that store. Your choice is remembered **on this device**, so a computer in the shop and one in the godown can each stay on their own store.
 
-:::tip A half-finished sale is not lost
-A **New sale** you have started is kept for each store on this device. Switch back to that store and it is still there.
+:::note The POS till has its own store
+A connected till sells from the store chosen when its key was made, not from the store picked here. See [Connect your POS till](/help/settings/pos-billing-counter).
 :::
 
 ## 2. What follows the store you picked
@@ -33,7 +33,7 @@ These change when you switch store:
 |---|---|
 | **Inventory** | Stock numbers and stock value of this store only. **Receive Stock**, **Issue Stock** and **Adjust Stock** change this store. |
 | **Alerts** (the bell) | Low stock and out of stock alerts for this store. A saree can be low in the shop and fine in the godown. |
-| **New sale** | You sell from this store. The screen says **Selling from** and the store name. |
+| **Orders** | The note at the top right says whether this store has a connected till yet. |
 | **Purchase Orders** | A new order is delivered to this store unless you change **Deliver to**. |
 | **Shelves** | **Where is it?**, **Put away**, **Move**, **Pick**, **Count** and the racks all use this store's shelves. |
 | **Reorder** | Suggestions use this store's stock and orders. |

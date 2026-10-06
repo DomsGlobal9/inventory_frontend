@@ -32,7 +32,7 @@
     <!-- 4 sell -->
     <rect x="850" y="40" width="250" height="110" rx="16" fill="#164B1E"/>
     <text x="975" y="86" fill="#fff" font-size="18" font-weight="700">Counter sale</text>
-    <text x="975" y="112" fill="#d9f99d">New sale · receipt</text>
+    <text x="975" y="112" fill="#d9f99d">POS till · bill</text>
     <rect x="850" y="220" width="250" height="110" rx="16" fill="#164B1E"/>
     <text x="975" y="266" fill="#fff" font-size="18" font-weight="700">Online &amp; Shopify</text>
     <text x="975" y="292" fill="#d9f99d">pick · send out</text>

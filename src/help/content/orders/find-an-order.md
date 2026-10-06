@@ -8,13 +8,13 @@ appLabel: Orders
 keywords: order search look up find sale bill number phone status dispatched confirmed cancelled counter shopify online paid
 ---
 
-Every sale lives in **Orders**: sales at your counter, bills from your POS till, online orders and Shopify orders.
+Every sale lives in **Orders**: bills from your POS till, older sales made at Inventory's own counter, online orders and Shopify orders.
 
 ## 1. Open Orders
 
-In the menu on the left, click [[1]] **Orders**. The newest orders are at the top.
+In the menu on the left, click [[1]] **Orders**. The newest orders are at the top. If your role includes counter sales, a note at the top right says walk-in bills are made on the ScaleEzy POS till. See [Connect your POS till](/help/settings/pos-billing-counter).
 
-![The Sales Orders list. Orders is marked 1 in the left menu. Each row shows the order number, customer, where it came from, total, status and payment.](1-open.webp "WHERE FROM says Counter for sales made with New sale.")
+![The Sales Orders list. Orders is marked 1 in the left menu. Each row shows the order number, customer, where it came from, total, status and payment.](1-open.webp "WHERE FROM says POS till for bills from the till, and Counter for older bills made in Inventory.")
 
 Each row shows:
 
@@ -36,17 +36,17 @@ Each row shows:
 
 Click **View** on a row. The order page shows:
 
-1. [[1]] The order number, status, customer, date, store and who made it. *Sold at the counter* means it was a counter sale.
+1. [[1]] The order number, status, customer, date, store and who made it. *Sold at the counter* means it was a bill made at Inventory's own counter, before walk-in bills moved to the till.
 2. [[2]] **Taken from shelves**: which shelf each piece was taken from. You only see this if your shop uses shelves.
 3. [[3]] **Line Items**: each item with how many were ordered, are still held (**RESERVED**) and were sent (**DISPATCHED**).
-4. [[4]] **Summary**: the total, and every discount with its reason. **OFFER** is a running offer. **BY HAND** is a discount given at the counter.
+4. [[4]] **Summary**: the total, and every discount with its reason. **OFFER** is a running offer. **BY HAND** is a discount given by hand.
 5. [[5]] **Payments**: how it was paid, when and by whom. At the top right it says **Paid** or how much is **due**. A refund for a return is written on the return, not here.
 
 ![The order page for SO-000001. The heading is marked 1, Taken from shelves 2, Line Items 3, Summary 4 and Payments 5.](3-read-the-order.webp "On a small screen, scroll the Line Items table sideways to see the prices.")
 
 What you can do next depends on the order:
 
-- A counter sale: [Print or reprint a receipt](/help/orders/receipts).
+- A bill made at Inventory's own counter: [Print or reprint a receipt](/help/orders/receipts). A till bill is printed by the till.
 - A confirmed order: [Send out an online order](/help/orders/send-online-orders).
 - An order that is not needed: [Cancel an order](/help/orders/cancel-an-order).
 
@@ -54,7 +54,7 @@ What you can do next depends on the order:
 
 On a phone the orders are shown as cards. Tap a card to open the order.
 
-![Orders on a phone, shown as cards with order number, total, customer, date and status.](4-on-a-phone-phone.webp "New sale is not shown on a phone.")
+![Orders on a phone, shown as cards with order number, total, customer, date and status.](4-on-a-phone-phone.webp "The search box and the two lists work the same on a phone.")
 
 ## Common problems
 

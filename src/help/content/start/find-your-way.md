@@ -60,7 +60,7 @@ Your own details and password are in **Your profile**, at the top of **Settings*
 
 ## 7. Help for this screen
 
-[[7]] The **?** button opens this guide at the page for the screen you are on. It opens in a **new tab**, so a half-finished sale or order stays as it is. Close the tab to go back.
+[[7]] The **?** button opens this guide at the page for the screen you are on. It opens in a **new tab**, so a half-finished order stays as it is. Close the tab to go back.
 
 ## On a phone or tablet
 
@@ -68,6 +68,6 @@ The menu is hidden to give you more room. Tap [[1]] the **☰** button at the to
 
 ![ScaleEzy on a phone. The menu button at the top left is marked 1.](3-on-a-phone-phone.webp "Tap outside the menu to close it.")
 
-:::note New sale needs a bigger screen
-Counter sales work on a computer or tablet, not on a phone. Everything else works on a phone.
+:::note Walk-in bills are made on the POS till
+Inventory does not bill walk-in customers itself; the ScaleEzy POS till does. Connect it in **Settings → POS (billing counter)**, and every bill it makes shows up in **Orders** by itself. See [Connect your POS till](/help/settings/pos-billing-counter). Everything in Inventory works on a phone.
 :::

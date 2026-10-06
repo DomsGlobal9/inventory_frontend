@@ -4,10 +4,10 @@ summary: बिलिंग काउंटर वाले ScaleEzy POS को 
 for: मालिक, एडमिन और इन्वेंटरी मैनेजर
 minutes: 3
 appLabel: POS (billing counter)
-keywords: पीओएस pos टिल till बिलिंग काउंटर पॉइंट ऑफ़ सेल टिल जोड़ें टिल की चाबी key पेस्ट इन्वेंटरी लिंक चाबी बदलें जुड़ाव हटाएँ new sale छुपा बिल POS पर छोड़े गए बिल बिल नहीं जुड़ा scaleezy pos काउंटर
+keywords: पीओएस pos टिल till बिलिंग काउंटर पॉइंट ऑफ़ सेल टिल जोड़ें टिल की चाबी key पेस्ट इन्वेंटरी लिंक चाबी बदलें जुड़ाव हटाएँ new sale हटा दुकान पर आए ग्राहकों के बिल walk-in बिल POS पर छोड़े गए बिल बिल नहीं जुड़ा scaleezy pos काउंटर
 ---
 
-**ScaleEzy POS** आपके बिलिंग काउंटर का टिल है। इसे एक बार जोड़ दें, फिर टिल पर बना हर बिल:
+**ScaleEzy POS** आपके बिलिंग काउंटर का टिल है। दुकान पर आए ग्राहक का हर बिल इसी पर बनता है, Inventory में नहीं। इसे एक बार जोड़ दें, फिर टिल पर बना हर बिल:
 
 - यहाँ उस स्टोर के स्टॉक से पीस घटाता है,
 - **Orders** में दिखता है, **POS till** के निशान के साथ,
@@ -52,15 +52,22 @@ keywords: पीओएस pos टिल till बिलिंग काउंट�
 
 ![जुड़ा हुआ टिल, Main Store में Main counter। Replace key पर 1 और Disconnect पर 2 का निशान है।](4-your-tills.webp "पहला बिल आने के बाद No bills yet की जगह Connected लिखा आता है।")
 
-## New sale टिल पर चला जाता है
+## दुकान पर आए ग्राहकों के बिल टिल पर बनते हैं
 
-जैसे ही किसी स्टोर में टिल जुड़ जाता है, उस स्टोर के लिए Inventory में **New sale** हट जाता है। उसकी जगह एक नोट बताता है कि यह स्टोर POS पर बिल बनाता है। इस तरह किसी स्टोर में बिल नंबरों की दो अलग लिस्ट कभी नहीं बनतीं।
+Inventory का अपना कोई काउंटर बिल नहीं है। हर स्टोर के लिए, दुकान पर आए ग्राहक का हर बिल ScaleEzy POS टिल पर बनता है, इसलिए किसी स्टोर में बिल नंबरों की दो अलग लिस्ट कभी नहीं बनतीं। **Orders** में, जहाँ पहले New sale बटन था, अब हर स्टोर के लिए एक नोट दिखता है:
 
-![Sales Orders। जहाँ New sale था, वहाँ एक नोट पर 1 का निशान है: Main Store bills at the POS. Make the sale on the till.](6-new-sale-steps-aside.webp "आपके बाकी स्टोर में New sale तब तक रहता है जब तक उन्हें टिल नहीं मिलता।")
+- [[1]] जिस स्टोर में टिल जुड़ा है: *Main Store bills at the POS. Make the sale on the till. It shows up here, takes the stock out and reaches the Day Book on its own.*
+- जिस स्टोर में अभी टिल नहीं है: *Walk-in bills are made on the ScaleEzy POS till. Connect a till in Settings → POS (billing counter), and every bill it makes shows up here on its own.*
 
-- जिन स्टोर में टिल नहीं है, उनमें **New sale** रहता है।
-- Inventory में बने बिलों की वापसी पहले की तरह ही चलती है।
-- टिल को **Disconnect** करें, तो उस स्टोर में **New sale** वापस आ जाता है।
+![Sales Orders। जहाँ पहले New sale बटन था, वहाँ एक नोट पर 1 का निशान है: Main Store bills at the POS. Make the sale on the till. It shows up here, takes the stock out and reaches the Day Book on its own.](6-new-sale-steps-aside.webp "जिस स्टोर में अभी टिल नहीं है, वहाँ टिल जोड़ने को कहने वाला नोट दिखता है।")
+
+जिन लोगों के रोल में काउंटर बिक्री शामिल है, उन्हें यह नोट कंप्यूटर या टैबलेट पर दिखता है।
+
+Inventory में क्या रहता है:
+
+- Inventory के अपने काउंटर पर बने बिलों की वापसी, **Returns** में: **Returns → Take a return**। [काउंटर पर रिटर्न लें](/help/returns/take-a-return) देखें। टिल पर बना बिल टिल पर ही वापस लिया जाता है, और वह रिटर्न अपने-आप Inventory तक पहुँच जाता है।
+- Inventory के काउंटर पर बने पुराने बिलों की रसीदें अब भी ऑर्डर से दोबारा प्रिंट की जा सकती हैं। टिल अपने बिल खुद प्रिंट करता है। [रसीद प्रिंट करें या दोबारा प्रिंट करें](/help/orders/receipts) देखें।
+- लॉयल्टी पॉइंट, काउंटर के नियम (till rules) और ऑफ़र कोड अब भी यहीं सेट होते हैं। [लॉयल्टी पॉइंट](/help/customers/loyalty-points) और [काउंटर के नियम (Till rules)](/help/offers/till-rules) देखें।
 
 **Orders** में सिर्फ़ टिल के बिल देखने के लिए **Where from** बॉक्स में **POS till** चुनें।
 
@@ -84,8 +91,8 @@ keywords: पीओएस pos टिल till बिलिंग काउंट�
 **Connected websites** की चाबियाँ सिर्फ़ वेबसाइट के लिए चलती हैं। टिल की चाबी यहीं, **POS (billing counter)** में बनाएँ।
 :::
 
-:::faq Orders से New sale गायब हो गया
-उस स्टोर में टिल जुड़ा है, इसलिए उसके बिल टिल पर बनते हैं। [New sale टिल पर चला जाता है](#new-sale-moves-to-the-till) देखें।
+:::faq New sale कहाँ गया?
+Inventory अब दुकान पर आए ग्राहकों के बिल नहीं बनाता; हर स्टोर के लिए ScaleEzy POS टिल बनाता है। [दुकान पर आए ग्राहकों के बिल टिल पर बनते हैं](#walk-in-bills-are-made-on-the-till) देखें।
 :::
 
 :::faq टिल का कोई बिल अभी Orders में नहीं है

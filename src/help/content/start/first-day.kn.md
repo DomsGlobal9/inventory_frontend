@@ -26,7 +26,7 @@ keywords: ಆರಂಭ ಶುರು ಚೆಕ್‌ಲಿಸ್ಟ್ ಹೊಸ 
 
 1. [ಸ್ಕ್ರೀನ್‌ನಲ್ಲಿ ದಾರಿ ತಿಳಿಯಿರಿ](/help/start/find-your-way)
 2. [ಎಲ್ಲಿದೆ?](/help/shelves/where-is-it): ಯಾವುದೇ ಪೀಸ್ ಅನ್ನು ಕೆಲವೇ ಸೆಕೆಂಡುಗಳಲ್ಲಿ ಹುಡುಕಿ
-3. [ಕೌಂಟರ್ ಮಾರಾಟ ಮಾಡಿ](/help/settings/pos-billing-counter)
+3. [ನಿಮ್ಮ POS ಟಿಲ್ ಜೋಡಿಸಿ](/help/settings/pos-billing-counter)
 4. [ರಸೀದಿ ಪ್ರಿಂಟ್ ಅಥವಾ ಮತ್ತೆ ಪ್ರಿಂಟ್ ಮಾಡಿ](/help/orders/receipts)
 5. [ಗ್ರಾಹಕರು](/help/customers/customers)
 

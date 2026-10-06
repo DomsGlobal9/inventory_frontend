@@ -42,35 +42,33 @@ When the store with its own price is chosen at the top of the screen, the Varian
 
 ![The You sell at column of the red saree. The line Main Store sells at 8200 is marked 1.](4-shown-in-the-table.webp "The box above it still shows the normal price, 8500.")
 
-## 5. What the counter uses
+## 5. What the till uses
 
-At **New sale** in that store, [[1]] the item now shows the store price.
-
-![New sale in Main Store, search Kanchipuram. The red saree at 8,200 is marked 1. The maroon one keeps its own price.](5-at-the-counter.webp "In other stores the same saree still sells at the normal price.")
+The ScaleEzy POS till gets its prices from Inventory, store by store. After changing a store price, press **Refresh items from Inventory** on that store's till. The item then bills at the store price there; in other stores the same item keeps the normal price.
 
 ScaleEzy picks the price in this order:
 
-1. The store price from **Location Settings**, if there is one for the store you are working in.
+1. The store price from **Location Settings**, if there is one for that store.
 2. Otherwise the variant's own price in **You sell at** on the Variants tab.
 3. Otherwise the product's base price.
 
-A running offer then takes its discount off that price.
+Online, a running offer then takes its discount off that price.
 
 :::note Not available in a store
-When **Available** is unticked, the item shows *Not sold here* at New sale in that store and cannot be added to the sale. Orders for it from that store are refused. The Variants tab shows *Not sold at* and the store name.
+When **Available** is unticked, orders for it from that store are refused. The Variants tab shows *Not sold at* and the store name.
 :::
 
 ## Common problems
 
 :::faq The counter still shows the old price
-Check the store at the top of the screen. The store price only applies in that one store. Also check that you pressed **Save** in the box of the right store.
+The store price only applies in the store the till sells from. Check that you pressed **Save** in the box of the right store, then press **Refresh items from Inventory** on the till.
 :::
 
 :::faq I want the normal price back
 Open **Location Settings**, empty the **Price Override (₹)** box of that store and press **Save**.
 :::
 
-:::faq "Not sold here" at the counter
+:::faq An item cannot be sold in one store
 **Available** is unticked for this store. Open **Location Settings**, tick **Available** and press **Save**.
 :::
 

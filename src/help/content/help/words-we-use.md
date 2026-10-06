@@ -3,7 +3,7 @@ title: Words we use
 summary: Short, plain meanings of the words you see in ScaleEzy.
 for: Everyone
 minutes: 3
-keywords: glossary meaning dictionary term definition what does mean sku variant grn dispatch ledger department category godown reserved held group scanner
+keywords: glossary meaning dictionary term definition what does mean sku variant grn dispatch ledger department category godown reserved held group scanner pos till counter sale
 ---
 
 ## Products
@@ -66,15 +66,16 @@ keywords: glossary meaning dictionary term definition what does mean sku variant
 
 | Word | What it means |
 |---|---|
-| **Counter sale** | A sale to a customer standing in your shop, made with **New sale**. |
+| **Counter sale** | A sale to a customer standing in your shop. Made on the ScaleEzy POS till; it shows in **Orders** as **POS till**. Older ones made in Inventory show as **Counter**. |
+| **POS till** | The ScaleEzy POS at your billing counter, where walk-in bills are made. Connected in **Settings → POS (billing counter)**. |
 | **Order** | Any sale: at the counter, online or from Shopify. |
 | **Confirmed** | An order you have accepted. Its stock is kept aside for it. |
 | **Reserved (held)** | Pieces kept aside for a confirmed order. They are still in the store, but nobody else can sell them. |
 | **Dispatch / Send out** | Handing the pieces over or sending them. This is when stock goes down for an online order. |
 | **Return** | Pieces a customer brings back. They are checked, then go back into stock or are marked damaged. |
-| **Offer** | A discount you set up once, which works at the counter, online and on Shopify. |
+| **Offer** | A discount you set up once in **Offers**. It comes off online and on Shopify; at the POS till it is coming. |
 | **Customer group** | A name like *VIP* or *Wholesale* that you give to some customers on their page. An offer can be only for some groups. |
-| **Discount by hand** | A discount the salesperson gives at the counter, with a reason, up to the limit the owner set. |
+| **Discount by hand** | A discount the cashier gives on the POS till, up to the limit the owner set in **Till rules**. |
 | **Day Book** | One day's summary: what came in, what went out, sales and profit. |
 
 ## Your team

@@ -9,7 +9,7 @@
   <g text-anchor="middle">
     <!-- till -->
     <rect x="60" y="110" width="220" height="170" rx="16" fill="#164B1E"/>
-    <text x="170" y="182" fill="#ffffff" font-size="21" font-weight="700">New sale</text>
+    <text x="170" y="182" fill="#ffffff" font-size="21" font-weight="700">POS till</text>
     <text x="170" y="212" fill="#d9f99d" font-size="15">nobody scans</text>
     <text x="170" y="234" fill="#d9f99d" font-size="15">a shelf</text>
 

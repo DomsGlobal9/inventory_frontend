@@ -48,16 +48,8 @@ Click in the box first, then scan again: the scanner types where the cursor is. 
 
 ## Selling
 
-:::faq I don't see New sale
-Your role can't sell at the counter, or you are on a phone. New sale works on a computer or tablet. [Full answer](/help/settings/pos-billing-counter#i-don-t-see-new-sale)
-:::
-
-:::faq Complete sale stays grey
-Read the line under the button. It says what is missing, for example the customer's name or phone, or why money is coming off the bill. [Full answer](/help/settings/pos-billing-counter#complete-sale-stays-grey)
-:::
-
-:::faq "Prices changed. Check the bill, then press Complete sale again."
-A price or offer changed while you were billing. Check the new **To pay** and press **Complete sale** again. [Full answer](/help/settings/pos-billing-counter#prices-changed-check-the-bill-then-press-complete-sale-again)
+:::faq Where do I make a walk-in bill?
+On the ScaleEzy POS till, not in Inventory. Connect the till in **Settings → POS (billing counter)**; every bill it makes shows up in **Orders**, takes the stock out and reaches the Day Book by itself. [Full answer](/help/settings/pos-billing-counter#walk-in-bills-are-made-on-the-till)
 :::
 
 :::faq I can't find an order
@@ -136,8 +128,8 @@ A product's name can't be changed after it is saved. Selling prices can still be
 The SKU in your file doesn't match any item. Check the spelling, or copy the exact SKU from the product's **Variants** tab. [Full answer](/help/products/bulk-updates#sku-not-found)
 :::
 
-:::faq The counter still shows the old price
-A store price only applies in that one store. Check the store at the top, and that you pressed **Save** in the right store's box. [Full answer](/help/products/price-per-store#the-counter-still-shows-the-old-price)
+:::faq The till still shows the old price
+A store price only applies in the store the till sells from. Check that you pressed **Save** in the right store's box, then press **Refresh items from Inventory** on the till. [Full answer](/help/products/price-per-store#the-counter-still-shows-the-old-price)
 :::
 
 ## Purchase orders
@@ -156,8 +148,8 @@ A saved purchase order can't be edited or cancelled yet. Raise a new, correct or
 
 ## Offers
 
-:::faq The offer does not come off at the till
-Check it says **Running**, then check the minimum spend, the stores it applies to, and whether a higher-priority offer took that item. [Full answer](/help/offers/create-an-offer#the-offer-does-not-come-off-at-the-till)
+:::faq The offer does not come off
+At the POS till, offers are coming; today the cashier gives the discount by hand. Online, check it says **Running**, then the minimum spend, the stores it applies to, and whether a higher-priority offer took that item. [Full answer](/help/offers/create-an-offer#the-offer-does-not-come-off-at-the-till)
 :::
 
 :::faq A salesperson cannot give a discount at all

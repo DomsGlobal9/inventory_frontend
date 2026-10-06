@@ -5,10 +5,10 @@ for: The owner, admins and inventory managers
 minutes: 3
 app: /settings?section=POS
 appLabel: POS (billing counter)
-keywords: pos till billing counter point of sale connect till key till key paste inventory link replace key disconnect new sale hidden bills at the pos left out bill not added scaleezy pos counter
+keywords: pos till billing counter point of sale connect till key till key paste inventory link replace key disconnect new sale moved walk-in bills bills at the pos left out bill not added scaleezy pos counter
 ---
 
-The **ScaleEzy POS** is the till at your billing counter. Connect it once, and from then on every bill made on the till:
+The **ScaleEzy POS** is the till at your billing counter. Every walk-in bill is made on it, not in Inventory. Connect it once, and from then on every bill made on the till:
 
 - takes the pieces out of that store's stock here,
 - shows up in **Orders**, marked **POS till**,
@@ -53,15 +53,22 @@ Both ask first.
 
 ![A connected till, Main counter at Main Store. Replace key is marked 1 and Disconnect is marked 2.](4-your-tills.webp "No bills yet changes to Connected after the first bill.")
 
-## New sale moves to the till
+## Walk-in bills are made on the till
 
-Once a store has a connected till, **New sale** in Inventory steps aside for that store. In its place, a note says the store bills at the POS. That way a store never has two lists of bill numbers.
+Inventory has no counter bill of its own. Every walk-in bill, for every store, is made on the ScaleEzy POS till, so a store never has two lists of bill numbers. In **Orders**, where the New sale button used to be, each store shows a note instead:
 
-![Sales Orders. Where New sale was, a note is marked 1: Main Store bills at the POS. Make the sale on the till.](6-new-sale-steps-aside.webp "Your other stores keep New sale until they get a till.")
+- [[1]] A store with a connected till: *Main Store bills at the POS. Make the sale on the till. It shows up here, takes the stock out and reaches the Day Book on its own.*
+- A store with no till yet: *Walk-in bills are made on the ScaleEzy POS till. Connect a till in Settings → POS (billing counter), and every bill it makes shows up here on its own.*
 
-- Other stores without a till keep **New sale**.
-- Returns of bills made in Inventory still work as before.
-- **Disconnect** the till and **New sale** comes back for that store.
+![Sales Orders. Where the New sale button used to be, a note is marked 1: Main Store bills at the POS. Make the sale on the till. It shows up here, takes the stock out and reaches the Day Book on its own.](6-new-sale-steps-aside.webp "A store with no till yet shows the note that says to connect one.")
+
+People whose role includes counter sales see the note, on a computer or tablet.
+
+What stays in Inventory:
+
+- **Returns** of bills made at Inventory's own counter: **Returns → Take a return**. See [Take a return at the counter](/help/returns/take-a-return). A bill made on the till is returned on the till, and that return reaches Inventory by itself.
+- Receipts of older bills made at Inventory's counter can still be printed again from the order. The till prints its own bills. See [Print or reprint a receipt](/help/orders/receipts).
+- Loyalty points, till rules and offer codes are still set here. See [Loyalty points](/help/customers/loyalty-points) and [Till rules](/help/offers/till-rules).
 
 To see only the till's bills in **Orders**, choose **POS till** in the **Where from** box.
 
@@ -85,8 +92,8 @@ The key was replaced or disconnected here, or a website key was pasted by mistak
 Keys from **Connected websites** only work for websites. Make the till's key here, in **POS (billing counter)**.
 :::
 
-:::faq New sale disappeared from Orders
-That store has a connected till, so its bills are made on the till. See [New sale moves to the till](#new-sale-moves-to-the-till).
+:::faq Where did New sale go?
+Inventory no longer makes walk-in bills; the ScaleEzy POS till does, for every store. See [Walk-in bills are made on the till](#walk-in-bills-are-made-on-the-till).
 :::
 
 :::faq A bill from the till is not in Orders yet

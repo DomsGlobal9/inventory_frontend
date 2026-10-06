@@ -8,9 +8,13 @@ keywords: updates release changes new features announcements latest
 
 ## October 2026
 
+### New sale has moved to the POS till
+
+Inventory's own New sale screen is gone. Walk-in bills are now made on the ScaleEzy POS till, for every store: connect it in **Settings → POS (billing counter)**, and every bill it makes shows up in **Orders**, takes the stock out and reaches the Day Book by itself. Returns, receipts of older counter bills, loyalty points, till rules and offer codes stay in Inventory. See [Connect your POS till](/help/settings/pos-billing-counter).
+
 ### Connect your ScaleEzy POS till
 
-Bill at the counter on the ScaleEzy POS, and every bill takes the stock out here and reaches the Day Book by itself. Make a till key in **Settings → POS (billing counter)** and paste it into the till. A store with a connected till bills only on the till, so **New sale** steps aside there. See [Connect your POS till](/help/settings/pos-billing-counter).
+Bill at the counter on the ScaleEzy POS, and every bill takes the stock out here and reaches the Day Book by itself. Make a till key in **Settings → POS (billing counter)** and paste it into the till. See [Connect your POS till](/help/settings/pos-billing-counter).
 
 ### Day Book: GST and returns
 
@@ -50,4 +54,4 @@ Know exactly which shelf every piece is on. Set up your racks, print shelf label
 
 ### New sale at the counter
 
-Sell to walk-in customers from a computer or tablet: look up the customer by phone, scan items, give a discount by hand with a reason, take cash, UPI, card or a split payment, and print a receipt. See [Make a counter sale](/help/settings/pos-billing-counter).
+Inventory had its own counter bill for walk-in customers, made on a computer or tablet: look up the customer by phone, scan items, give a discount by hand with a reason, take cash, UPI, card or a split payment, and print a receipt. Since October 2026 walk-in bills are made on the ScaleEzy POS till instead; see the top of this page.

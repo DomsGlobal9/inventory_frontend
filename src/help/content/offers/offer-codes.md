@@ -8,7 +8,7 @@ appLabel: Offers
 keywords: code coupon voucher promo code single use unique codes shared code welcome gift csv copy print card
 ---
 
-A code offer only comes off when the code is typed in the **Offer code** box at the till, or entered online. Only the owner or an admin can make code offers.
+A code offer only comes off when the customer enters the code at your online shop's checkout. Codes at the ScaleEzy POS till are coming. Only the owner or an admin can make code offers.
 
 In this example we make **₹500 off the whole bill, for bills of ₹3,000 or more**. Fill in the offer as in [Create an offer](/help/offers/create-an-offer), then:
 
@@ -28,7 +28,7 @@ A shared code is ready as soon as you save and start the offer. You can skip to 
 
 For gift cards or a list of customers, click [[1]] **Single-use codes**. Each code works only once.
 
-![Who gets it with Single-use codes marked 1. The hint says each code works once, make them on the offer page after saving.](2-single-use-codes.webp "Single-use codes work only at your till and on your own website. They cannot be put on Shopify.")
+![Who gets it with Single-use codes marked 1. The hint says each code works once, make them on the offer page after saving.](2-single-use-codes.webp "Single-use codes work on your own website. They cannot be put on Shopify.")
 
 Press **Create offer**. The offer is saved as a draft.
 
@@ -59,7 +59,7 @@ The offer is still a [[1]] **Draft**. At the top of its page press [[2]] **Start
 
 ![The offer page for Welcome gift 500 off, ₹500 off the whole bill with a single-use code when the bill is ₹3,000 or more. Draft is marked 1 and Start is marked 2.](5-start-the-offer.webp "It says Schedule instead of Start when the start date is still ahead.")
 
-At the till, the customer's code goes in the **Offer code** box on the bill. See [New sale](/help/settings/pos-billing-counter).
+Online, the customer types the code at checkout. Codes at the POS till are coming; see [Connect your POS till](/help/settings/pos-billing-counter).
 
 ## Common problems
 

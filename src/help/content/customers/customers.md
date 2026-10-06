@@ -10,7 +10,7 @@ keywords: customer client buyer phone number add new edit vip group tag wholesal
 
 Customers are found by their **phone number**. One number belongs to one customer.
 
-You do not have to add customers here first. When you type a new number in [New sale](/help/settings/pos-billing-counter), the customer is saved with the sale.
+You do not have to add every customer here by hand. A bill made on the [ScaleEzy POS till](/help/settings/pos-billing-counter) with the customer's phone number on it saves the customer here by itself.
 
 ## 1. Open Customers
 
@@ -35,13 +35,12 @@ If the number is already saved for someone, you see who has it and a button to o
 
 ## 3. The customer page
 
-1. [[1]] **New sale** starts a counter sale for this customer (on a computer or tablet).
-2. [[2]] **Edit** changes their phone, name, email, company or GSTIN.
-3. [[3]] **Groups** shows the groups they are in.
-4. [[4]] **Sales Orders** lists everything they bought. Click **View** to open an order.
-5. [[5]] **Dispatches** lists what was sent or handed to them. This is where you book a return.
+1. [[1]] **Edit** changes their phone, name, email, company or GSTIN.
+2. [[2]] **Groups** shows the groups they are in.
+3. [[3]] **Sales Orders** lists everything they bought. Click **View** to open an order.
+4. [[4]] **Dispatches** lists what was sent or handed to them. This is where you book a return.
 
-![Lakshmi Narayanan's page. New sale is marked 1, Edit 2, the Groups box 3, the Sales Orders tab 4 and the Dispatches tab 5.](3-customer-page.webp "Contact Info, Company Details and Address are on the left.")
+![Lakshmi Narayanan's page. Edit is marked 1, the Groups box 2, the Sales Orders tab 3 and the Dispatches tab 4.](3-customer-page.webp "Contact Info, Company Details and Address are on the left.")
 
 ## 4. Put a customer in a group
 
@@ -61,7 +60,7 @@ It saves straight away. Read more in [How offers work](/help/offers/how-offers-w
 3. Under **Customers**, choose **Some groups**, then click the **VIP** group. The small number shows how many customers are in it.
 4. Save the offer.
 
-At the counter, the offer comes off only when the sale has a customer from the VIP group on it. Type the customer's phone number in **New sale** first. A sale with no customer, or a customer who is not in the group, does not get it.
+Online, the offer comes off only when the order has a customer from the VIP group on it. An order with no customer, or a customer who is not in the group, does not get it. At the POS till, offers are coming; until then the cashier gives VIP customers their discount by hand.
 
 ## Common problems
 

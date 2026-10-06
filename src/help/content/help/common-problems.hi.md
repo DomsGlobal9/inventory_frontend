@@ -48,16 +48,8 @@ ScaleEzy पासवर्ड रीसेट का ईमेल नहीं 
 
 ## बिक्री
 
-:::faq मुझे New sale नहीं दिख रहा
-आपका रोल काउंटर पर नहीं बेच सकता, या आप फ़ोन पर हैं। New sale कंप्यूटर या टैबलेट पर चलता है। [पूरा जवाब](/help/settings/pos-billing-counter#i-don-t-see-new-sale)
-:::
-
-:::faq Complete sale ग्रे ही रहता है
-बटन के नीचे की लाइन पढ़ें। वह बताती है कि क्या कमी है, जैसे ग्राहक का नाम या फ़ोन, या बिल से पैसे क्यों कम हो रहे हैं। [पूरा जवाब](/help/settings/pos-billing-counter#complete-sale-stays-grey)
-:::
-
-:::faq "Prices changed. Check the bill, then press Complete sale again." लिखा आ रहा है
-बिल बनाते समय कोई कीमत या ऑफ़र बदल गया। नया **To pay** जाँचें और फिर से **Complete sale** दबाएँ। [पूरा जवाब](/help/settings/pos-billing-counter#prices-changed-check-the-bill-then-press-complete-sale-again)
+:::faq दुकान पर आए ग्राहक का बिल कहाँ बनाऊँ?
+ScaleEzy POS टिल पर, Inventory में नहीं। **Settings → POS (billing counter)** में टिल जोड़ें; उस पर बना हर बिल अपने-आप **Orders** में दिखता है, स्टॉक घटाता है और Day Book तक पहुँचता है। [पूरा जवाब](/help/settings/pos-billing-counter#walk-in-bills-are-made-on-the-till)
 :::
 
 :::faq मुझे ऑर्डर नहीं मिल रहा
@@ -136,8 +128,8 @@ ScaleEzy पासवर्ड रीसेट का ईमेल नहीं 
 आपकी फ़ाइल का SKU किसी आइटम से मेल नहीं खाता। स्पेलिंग जाँचें, या प्रोडक्ट के **Variants** टैब से ठीक वही SKU कॉपी करें। [पूरा जवाब](/help/products/bulk-updates#sku-not-found)
 :::
 
-:::faq काउंटर पर अब भी पुरानी कीमत दिख रही है
-स्टोर की कीमत सिर्फ़ उसी एक स्टोर में लगती है। स्क्रीन के ऊपर स्टोर जाँचें, और देखें कि आपने सही स्टोर के बॉक्स में **Save** दबाया था। [पूरा जवाब](/help/products/price-per-store#the-counter-still-shows-the-old-price)
+:::faq टिल पर अब भी पुरानी कीमत दिख रही है
+स्टोर की कीमत सिर्फ़ उसी स्टोर में लगती है जहाँ से टिल बेचता है। देखें कि आपने सही स्टोर के बॉक्स में **Save** दबाया था, फिर टिल पर **Refresh items from Inventory** दबाएँ। [पूरा जवाब](/help/products/price-per-store#the-counter-still-shows-the-old-price)
 :::
 
 ## परचेज़ ऑर्डर
@@ -156,8 +148,8 @@ ScaleEzy पासवर्ड रीसेट का ईमेल नहीं 
 
 ## ऑफ़र
 
-:::faq काउंटर पर ऑफ़र नहीं कट रहा
-देखें कि उस पर **Running** लिखा है। फिर कम से कम खरीद की रकम, किन स्टोरों पर लागू है, और क्या किसी ज़्यादा प्राथमिकता वाले ऑफ़र ने वह आइटम ले लिया, यह जाँचें। [पूरा जवाब](/help/offers/create-an-offer#the-offer-does-not-come-off-at-the-till)
+:::faq ऑफ़र नहीं कट रहा
+POS टिल पर ऑफ़र जल्द आ रहे हैं; अभी कैशियर डिस्काउंट हाथ से देता है। ऑनलाइन के लिए देखें कि उस पर **Running** लिखा है, फिर कम से कम खरीद की रकम, किन स्टोरों पर लागू है, और क्या किसी ज़्यादा प्राथमिकता वाले ऑफ़र ने वह आइटम ले लिया, यह जाँचें। [पूरा जवाब](/help/offers/create-an-offer#the-offer-does-not-come-off-at-the-till)
 :::
 
 :::faq सेल्समैन कोई भी डिस्काउंट नहीं दे पा रहा

@@ -9,13 +9,13 @@ keywords: एपीआई सर्विस की ट्राई-ऑन ट�
 
 कुछ एक्स्ट्रा सर्विस, जैसे **4-View Catalog Try-On**, ScaleEzy की तरफ़ से आती हैं। ScaleEzy इन्हें आपकी दुकान के लिए चालू करता है और इनका ध्यान रखता है। यह स्क्रीन सिर्फ़ इन्हें दिखाती है। **यहाँ कुछ सेट करना या बदलना नहीं है।**
 
-**APIs & Services** सिर्फ़ मालिक और उन लोगों को दिखता है जिनके पास **Manage the team and their roles** की इजाज़त है।
+**APIs and services** सिर्फ़ मालिक और उन लोगों को दिखता है जिनके पास **Manage the team and their roles** की इजाज़त है।
 
-## 1. APIs & Services खोलें
+## 1. APIs and services खोलें
 
-**Settings** खोलें और [[1]] **APIs & Services** दबाएँ।
+**Settings** खोलें। **Developers** के नीचे **APIs and services** दबाएँ। [[1]] सबसे ऊपर की लाइन बताती है कि आप कहाँ हैं: *Settings / Developers / APIs and services*।
 
-![APIs और Services स्क्रीन, जिसमें दो सर्विस कार्ड हैं, 4-View Catalog Try-On और Try-On। APIs और Services पर 1 का निशान है।](1-open.webp "हर सर्विस का अपना कार्ड है।")
+![APIs and services स्क्रीन, जिसमें दो सर्विस कार्ड हैं, 4-View Catalog Try-On और Try-On। Settings / Developers / APIs and services वाली लाइन पर 1 का निशान है।](1-open.webp "हर सर्विस का अपना कार्ड है।")
 
 अगर कोई सर्विस चालू नहीं है, तो स्क्रीन पर *No platform services are switched on for this workspace yet.* लिखा आता है।
 
@@ -41,13 +41,13 @@ keywords: एपीआई सर्विस की ट्राई-ऑन ट�
 ## आम समस्याएँ
 
 :::faq जो सर्विस चाहिए वह NOT ACTIVE है, या दिख ही नहीं रही
-सर्विस ScaleEzy चालू करता है। **Help & Support** में टिकट बनाएँ और बताएँ कि कौन-सी सर्विस चाहिए।
+सर्विस ScaleEzy चालू करता है। **Help and support** में टिकट बनाएँ और बताएँ कि कौन-सी सर्विस चाहिए।
 :::
 
 :::faq "You have used this month's allowance" लिखा आ रहा है
 महीने की लिमिट पूरी हो जाने पर कार्ड पर यह लिखा आता है। फिर नई try-on फ़ोटो पर *This workspace has used its ... Ask Scaleezy to raise the limit to carry on.* आता है और फ़ोटो नहीं बनती। ScaleEzy से लिमिट बढ़ाने को कहें। अगले महीने गिनती फिर से शुरू होती है।
 :::
 
-:::faq Settings में APIs & Services नहीं दिख रहा
+:::faq Settings में APIs and services नहीं दिख रहा
 यह सिर्फ़ मालिक और उन लोगों को दिखता है जो टीम संभाल सकते हैं।
 :::

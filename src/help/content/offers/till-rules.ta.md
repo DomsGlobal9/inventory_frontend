@@ -39,7 +39,7 @@ keywords: கவுண்டர் விதிகள் கையால் ட�
 
 ஒரு கேஷியர் வரம்பைவிட அதிகமாகக் குறைத்தால், விற்பனை முடியாது. *Taking 1500 off … is 15% — more than the 10% the till may take off by hand. A manager has to take this one off.* போன்ற மெசேஜ் அவருக்குத் தெரியும்.
 
-உரிமையாளரும் அட்மின்களும் எப்போதும் வரம்பைத் தாண்டலாம். **Settings → Roles & Permissions**-இல் **Take off more than the till limit by hand** அனுமதியைக் கொடுத்து, வேறு ஒரு ரோலுக்கும் அந்த அதிகாரத்தைக் கொடுக்கலாம்.
+உரிமையாளரும் அட்மின்களும் எப்போதும் வரம்பைத் தாண்டலாம். **Settings → Roles and permissions**-இல் **Take off more than the till limit by hand** அனுமதியைக் கொடுத்து, வேறு ஒரு ரோலுக்கும் அந்த அதிகாரத்தைக் கொடுக்கலாம்.
 
 கையால் பணத்தைக் குறைப்பது எப்படி என்று [New sale](/help/orders/new-sale)-இல் உள்ளது.
 
@@ -50,7 +50,7 @@ keywords: கவுண்டர் விதிகள் கையால் ட�
 :::
 
 :::faq ஒரு சேல்ஸ்மேனால் டிஸ்கவுண்டே கொடுக்க முடியவில்லை
-அவருடைய ரோல் கையால் டிஸ்கவுண்ட் கொடுக்க அனுமதிக்கவில்லை. **Settings → Roles & Permissions**-இல் அந்த ரோலுக்கு **Take money off at the till, with a reason** கொடுங்கள், அல்லது டிஸ்கவுண்ட் கொடுக்க ஒரு மேலாளரிடம் கேளுங்கள்.
+அவருடைய ரோல் கையால் டிஸ்கவுண்ட் கொடுக்க அனுமதிக்கவில்லை. **Settings → Roles and permissions**-இல் அந்த ரோலுக்கு **Take money off at the till, with a reason** கொடுங்கள், அல்லது டிஸ்கவுண்ட் கொடுக்க ஒரு மேலாளரிடம் கேளுங்கள்.
 :::
 
 :::faq எனக்கு Till rules தெரியவில்லை

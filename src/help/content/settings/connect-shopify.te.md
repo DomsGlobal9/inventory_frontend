@@ -9,14 +9,14 @@ keywords: Shopify షాపిఫై కనెక్ట్ లింక్ ఆ�
 
 Shopify కనెక్ట్ అయితే, **ప్రతి Shopify సేల్ ScaleEzy లో ఒక ఆర్డర్‌గా వస్తుంది**. అది పనిచేయాలంటే, ప్రతి Shopify లొకేషన్ మీ స్టోర్‌లలో ఏది, ప్రతి Shopify ప్రొడక్ట్ మీ ప్రొడక్ట్‌లలో ఏది అని ScaleEzy కి తెలియాలి. ఎలాగో ఈ పేజీ చూపిస్తుంది.
 
-**Add and change shops and warehouses** అనుమతి ఉన్నవారికి మాత్రమే **Storefront** కనిపిస్తుంది. తయారుగా ఉన్న రోల్స్‌లో: యజమాని, **ADMIN**, **INVENTORY_MANAGER**.
+**Add and change shops and warehouses** అనుమతి ఉన్నవారికి మాత్రమే **Connected websites** కనిపిస్తుంది. తయారుగా ఉన్న రోల్స్‌లో: యజమాని, **ADMIN**, **INVENTORY_MANAGER**.
 
-## 1. Storefront తెరవండి
+## 1. Connected websites తెరవండి
 
-1. **Settings** తెరిచి [[1]] **Storefront** నొక్కండి.
+1. **Settings** తెరవండి. **Selling online** కింద **Connected websites** నొక్కండి. [[1]] మీరు ఎక్కడ ఉన్నారో పైన ఉన్న లైన్ చూపిస్తుంది: *Settings / Selling online / Connected websites*.
 2. [[2]] **Shopify** కార్డ్ పైన ఉంటుంది.
 
-![Storefront స్క్రీన్. Settings లిస్ట్‌లో Storefront 1 గా, Shopify కార్డ్ 2 గా గుర్తించబడ్డాయి.](1-open.webp "మీకు సొంత వెబ్‌సైట్ ఉంటే, అది ఇదే స్క్రీన్‌లో కింద కనెక్ట్ చేయబడుతుంది.")
+![Connected websites స్క్రీన్. Settings / Selling online / Connected websites లైన్ 1 గా, Shopify కార్డ్ 2 గా గుర్తించబడ్డాయి.](1-open.webp "మీకు సొంత వెబ్‌సైట్ ఉంటే, అది ఇదే స్క్రీన్‌లో కింద కనెక్ట్ చేయబడుతుంది.")
 
 ## 2. మీ స్టోర్ అడ్రస్ టైప్ చేసి కనెక్ట్ చేయండి
 
@@ -29,7 +29,7 @@ Shopify కనెక్ట్ అయితే, **ప్రతి Shopify సే�
 
 1. ScaleEzy, Shopify ని తెరుస్తుంది. అడిగితే Shopify లో సైన్ ఇన్ చేయండి.
 2. ScaleEzy ఏమి చదవగలదో, ఏమి మార్చగలదో Shopify లిస్ట్ చూపిస్తుంది. దాన్ని అప్రూవ్ చేయండి.
-3. Shopify మిమ్మల్ని మళ్లీ **Settings → Storefront** కు తీసుకొస్తుంది. మీ స్టోర్ **కనెక్ట్ అయింది** అని మెసేజ్ వస్తుంది.
+3. Shopify మిమ్మల్ని మళ్లీ **Settings → Connected websites** కు తీసుకొస్తుంది. మీ స్టోర్ **కనెక్ట్ అయింది** అని మెసేజ్ వస్తుంది.
 
 ఇప్పుడు Shopify కార్డ్‌లో మీ స్టోర్ అడ్రస్, **CONNECTED** కనిపిస్తాయి.
 

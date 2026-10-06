@@ -9,14 +9,14 @@ keywords: शॉपिफ़ाई Shopify जोड़ें कनेक्ट
 
 Shopify जुड़ने पर, **Shopify की हर बिक्री ScaleEzy में ऑर्डर बनकर आती है**। इसके लिए ScaleEzy को पता होना चाहिए कि Shopify की हर लोकेशन आपका कौन-सा स्टोर है, और Shopify का हर प्रोडक्ट आपका कौन-सा प्रोडक्ट है। यह पेज बताता है कैसे।
 
-**Storefront** सिर्फ़ उन लोगों को दिखता है जिनके पास **Add and change shops and warehouses** की इजाज़त है। पहले से बने रोल में: मालिक, **ADMIN** और **INVENTORY_MANAGER**।
+**Connected websites** सिर्फ़ उन लोगों को दिखता है जिनके पास **Add and change shops and warehouses** की इजाज़त है। पहले से बने रोल में: मालिक, **ADMIN** और **INVENTORY_MANAGER**।
 
-## 1. Storefront खोलें
+## 1. Connected websites खोलें
 
-1. **Settings** खोलें और [[1]] **Storefront** दबाएँ।
+1. **Settings** खोलें। **Selling online** के नीचे **Connected websites** दबाएँ। [[1]] सबसे ऊपर की लाइन बताती है कि आप कहाँ हैं: *Settings / Selling online / Connected websites*।
 2. [[2]] **Shopify** कार्ड सबसे ऊपर है।
 
-![Storefront स्क्रीन। Settings लिस्ट में Storefront पर 1 और Shopify कार्ड पर 2 का निशान है।](1-open.webp "अगर आपकी अपनी वेबसाइट है, तो वह इसी स्क्रीन पर नीचे जुड़ती है।")
+![Connected websites स्क्रीन। Settings / Selling online / Connected websites वाली लाइन पर 1 और Shopify कार्ड पर 2 का निशान है।](1-open.webp "अगर आपकी अपनी वेबसाइट है, तो वह इसी स्क्रीन पर नीचे जुड़ती है।")
 
 ## 2. स्टोर का पता टाइप करें और जोड़ें
 
@@ -29,7 +29,7 @@ Shopify जुड़ने पर, **Shopify की हर बिक्री Sc
 
 1. ScaleEzy, Shopify खोलता है। अगर Shopify पूछे, तो उसमें साइन इन करें।
 2. Shopify दिखाता है कि ScaleEzy क्या पढ़ और बदल सकता है। इसे मंज़ूरी दें।
-3. Shopify आपको वापस **Settings → Storefront** पर ले आता है। एक मैसेज बताता है कि आपका स्टोर **is connected**।
+3. Shopify आपको वापस **Settings → Connected websites** पर ले आता है। एक मैसेज बताता है कि आपका स्टोर **is connected**।
 
 अब Shopify कार्ड पर आपके स्टोर का पता और **CONNECTED** दिखता है।
 

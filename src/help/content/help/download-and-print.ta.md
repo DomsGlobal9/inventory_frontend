@@ -26,7 +26,7 @@ ScaleEzy-இல் "எல்லாவற்றையும் எக்ஸ்�
 | ஒருமுறை மட்டும் பயன்படுத்தக்கூடிய கோடுகள் உள்ள ஆஃபர் | **CSV**, **Copy unused** | எல்லாக் கோடுகளும் ஒரு ஸ்ப்ரெட்ஷீட்டில், அல்லது பயன்படுத்தாத கோடுகள் காப்பி ஆகும் | [ஆஃபர் கோடுகள்](/help/offers/offer-codes) |
 | **Shelves → Racks & shelves** | **Print all labels**, **Labels** | QR கோடுடன் ஷெல்ஃப் லேபிள்கள், உங்கள் பிரௌசரிலிருந்து பிரிண்ட் செய்யப்படும் | [ரேக் அமைத்தல்](/help/shelves/set-up-racks) |
 | **Import Products** விண்டோ | **Download template** | சரியான காலங்களுடன் ஒரு காலி ஸ்ப்ரெட்ஷீட் | [பொருட்களை இம்போர்ட் செய்தல்](/help/products/import-products) |
-| **Settings → Storefront** | **Save what we hold** | ஒரு Shopify வாடிக்கையாளர் கேட்ட தரவு | [Shopify-ஐ இணைத்தல்](/help/settings/connect-shopify) |
+| **Settings → Connected websites** | **Save what we hold** | ஒரு Shopify வாடிக்கையாளர் கேட்ட தரவு | [Shopify-ஐ இணைத்தல்](/help/settings/connect-shopify) |
 
 :::note இந்தத் திரைகளில் டவுன்லோட் இல்லை
 **Inventory**, லெட்ஜர் (**View Ledger**), **Orders**, **Returns**, **Customers**, **Purchase Orders** (லிஸ்ட்), **Suppliers**, **Transfers**, **Stock counts** மற்றும் **Dashboard** ஆகியவற்றில் இன்னும் Export பட்டன் இல்லை.
@@ -87,7 +87,7 @@ Products-இல் உள்ள **Import Updates**, **Quantity** காலத்
 
 ### பர்ச்சேஸ் ஆர்டர்கள் மற்றும் டெலிவரிகள்
 
-ஒரு பர்ச்சேஸ் ஆர்டரில், **Download PDF** ஆர்டரை அதன் நம்பருடன் சேமிக்கும், உதாரணமாக *PO-000003.pdf*. ஒரு டெலிவரிக்குப் பிறகு, **Download receipt PDF** (அல்லது *Deliveries received*-இன் கீழே உள்ள **Receipt PDF**) சரக்கு ரசீதைச் சேமிக்கும், உதாரணமாக *GRN-000001-PO-000003.pdf*. இரண்டிலும் **Settings → General Info**-இல் உள்ள உங்கள் லோகோவும் முகவரியும் இருக்கும்.
+ஒரு பர்ச்சேஸ் ஆர்டரில், **Download PDF** ஆர்டரை அதன் நம்பருடன் சேமிக்கும், உதாரணமாக *PO-000003.pdf*. ஒரு டெலிவரிக்குப் பிறகு, **Download receipt PDF** (அல்லது *Deliveries received*-இன் கீழே உள்ள **Receipt PDF**) சரக்கு ரசீதைச் சேமிக்கும், உதாரணமாக *GRN-000001-PO-000003.pdf*. இரண்டிலும் **Settings → Name, logo and bill details**-இல் உள்ள உங்கள் லோகோவும் முகவரியும் இருக்கும்.
 
 ### லேபிள்கள்
 

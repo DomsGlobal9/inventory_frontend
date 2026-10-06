@@ -23,7 +23,7 @@ Open the offer and click [[1]] **Shopify** at the top. In the **Offers** list th
 
 When no Shopify store is connected, the box says so [[1]]. Connect your store first.
 
-![The box Festive 10% off silk on Shopify, saying No Shopify store is connected to this workspace. Connect one in Settings, Storefront, to put offers on it. The message is marked 1.](2-not-connected.webp "Nothing is sent to Shopify from this box until you press a button.")
+![The box Festive 10% off silk on Shopify, saying No Shopify store is connected to this workspace. Connect one in Settings → Connected websites to put offers on it. The message is marked 1.](2-not-connected.webp "Nothing is sent to Shopify from this box until you press a button.")
 
 When a store is connected, the box shows your Shopify store's address and one of these:
 

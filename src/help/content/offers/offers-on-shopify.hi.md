@@ -9,7 +9,7 @@ keywords: शॉपिफ़ाई Shopify डिस्काउंट सिं
 
 आपका Shopify स्टोर अपने डिस्काउंट खुद लगाता है। Shopify के ग्राहकों को वही ऑफ़र देने के लिए, ScaleEzy से ऑफ़र की एक कॉपी Shopify पर डालें। फिर ScaleEzy बार-बार जाँचता रहता है कि दोनों एक जैसे हैं।
 
-- आपका Shopify स्टोर **Settings → Storefront** में जुड़ा होना चाहिए। [Shopify जोड़ें](/help/settings/connect-shopify) देखें।
+- आपका Shopify स्टोर **Settings → Connected websites** में जुड़ा होना चाहिए। [Shopify जोड़ें](/help/settings/connect-shopify) देखें।
 - सिर्फ़ मालिक या एडमिन ऑफ़र Shopify पर डाल सकते हैं।
 
 ## 1. Shopify बॉक्स खोलें
@@ -22,7 +22,7 @@ keywords: शॉपिफ़ाई Shopify डिस्काउंट सिं
 
 जब कोई Shopify स्टोर नहीं जुड़ा होता, तो बॉक्स में यही लिखा आता है [[1]]। पहले अपना स्टोर जोड़ें।
 
-![Festive 10% off silk on Shopify बॉक्स, जिसमें लिखा है No Shopify store is connected to this workspace. Connect one in Settings, Storefront, to put offers on it. इस मैसेज पर 1 का निशान है।](2-not-connected.webp "जब तक आप कोई बटन नहीं दबाते, इस बॉक्स से Shopify पर कुछ नहीं जाता।")
+![Festive 10% off silk on Shopify बॉक्स, जिसमें लिखा है No Shopify store is connected to this workspace. Connect one in Settings → Connected websites to put offers on it. इस मैसेज पर 1 का निशान है।](2-not-connected.webp "जब तक आप कोई बटन नहीं दबाते, इस बॉक्स से Shopify पर कुछ नहीं जाता।")
 
 जब स्टोर जुड़ा हो, तो बॉक्स में आपके Shopify स्टोर का पता और इनमें से कोई एक चीज़ दिखती है:
 
@@ -68,7 +68,7 @@ Shopify के डिस्काउंट ScaleEzy के ऑफ़र से �
 :::
 
 :::faq "Your Shopify store has not given this app permission to manage discounts." लिखा आ रहा है
-**Settings → Storefront** में अपना स्टोर फिर से जोड़ें, और जब Shopify पूछे तो डिस्काउंट की इजाज़त दें।
+**Settings → Connected websites** में अपना स्टोर फिर से जोड़ें, और जब Shopify पूछे तो डिस्काउंट की इजाज़त दें।
 :::
 
 :::faq Changed in Shopify लिखा आ रहा है

@@ -26,7 +26,7 @@ ScaleEzy ಯಲ್ಲಿ "ಎಲ್ಲವನ್ನೂ ಎಕ್ಸ್‌ಪೋ�
 | ಒಮ್ಮೆ ಮಾತ್ರ ಬಳಸುವ ಕೋಡ್‌ಗಳಿರುವ ಆಫರ್ | **CSV**, **Copy unused** | ಎಲ್ಲಾ ಕೋಡ್‌ಗಳ ಸ್ಪ್ರೆಡ್‌ಶೀಟ್, ಅಥವಾ ಬಳಸದ ಕೋಡ್‌ಗಳ ಕಾಪಿ | [ಆಫರ್ ಕೋಡ್‌ಗಳು](/help/offers/offer-codes) |
 | **Shelves → Racks & shelves** | **Print all labels**, **Labels** | ನಿಮ್ಮ ಬ್ರೌಸರ್‌ನಿಂದ ಪ್ರಿಂಟ್ ಆಗುವ, ಕ್ಯೂಆರ್ ಕೋಡ್ ಇರುವ ಶೆಲ್ಫ್ ಲೇಬಲ್‌ಗಳು | [ರ್ಯಾಕ್ ಸೆಟ್ ಮಾಡಿ](/help/shelves/set-up-racks) |
 | **Import Products** ವಿಂಡೋ | **Download template** | ಸರಿಯಾದ ಕಾಲಮ್‌ಗಳಿರುವ ಖಾಲಿ ಸ್ಪ್ರೆಡ್‌ಶೀಟ್ | [ಪ್ರಾಡಕ್ಟ್‌ಗಳನ್ನು ಇಂಪೋರ್ಟ್ ಮಾಡಿ](/help/products/import-products) |
-| **Settings → Storefront** | **Save what we hold** | Shopify ಗ್ರಾಹಕರೊಬ್ಬರು ಕೇಳಿದ ಅವರ ಡೇಟಾ | [Shopify ಕನೆಕ್ಟ್ ಮಾಡಿ](/help/settings/connect-shopify) |
+| **Settings → Connected websites** | **Save what we hold** | Shopify ಗ್ರಾಹಕರೊಬ್ಬರು ಕೇಳಿದ ಅವರ ಡೇಟಾ | [Shopify ಕನೆಕ್ಟ್ ಮಾಡಿ](/help/settings/connect-shopify) |
 
 :::note ಈ ಸ್ಕ್ರೀನ್‌ಗಳಲ್ಲಿ ಡೌನ್‌ಲೋಡ್ ಇಲ್ಲ
 **Inventory**, ಲೆಡ್ಜರ್ (**View Ledger**), **Orders**, **Returns**, **Customers**, **Purchase Orders** (ಪಟ್ಟಿ), **Suppliers**, **Transfers**, **Stock counts** ಮತ್ತು **Dashboard** ನಲ್ಲಿ ಇನ್ನೂ Export ಬಟನ್ ಇಲ್ಲ.
@@ -87,7 +87,7 @@ Products ನಲ್ಲಿರುವ **Import Updates** **Quantity** ಕಾಲಮ�
 
 ### ಖರೀದಿ ಆರ್ಡರ್‌ಗಳು ಮತ್ತು ಡೆಲಿವರಿಗಳು
 
-ಖರೀದಿ ಆರ್ಡರ್‌ನಲ್ಲಿ **Download PDF** ಆರ್ಡರ್ ಅನ್ನು ಅದರ ನಂಬರ್‌ನ ಹೆಸರಿನಲ್ಲಿ ಸೇವ್ ಮಾಡುತ್ತದೆ, ಉದಾಹರಣೆಗೆ *PO-000003.pdf*. ಡೆಲಿವರಿ ಬಂದ ನಂತರ, **Download receipt PDF** (ಅಥವಾ *Deliveries received* ಕೆಳಗಿನ **Receipt PDF**) ಗೂಡ್ಸ್ ರಸೀದಿಯನ್ನು ಸೇವ್ ಮಾಡುತ್ತದೆ, ಉದಾಹರಣೆಗೆ *GRN-000001-PO-000003.pdf*. ಎರಡರಲ್ಲೂ **Settings → General Info** ನಲ್ಲಿರುವ ನಿಮ್ಮ ಲೋಗೋ ಮತ್ತು ವಿಳಾಸ ಇರುತ್ತದೆ.
+ಖರೀದಿ ಆರ್ಡರ್‌ನಲ್ಲಿ **Download PDF** ಆರ್ಡರ್ ಅನ್ನು ಅದರ ನಂಬರ್‌ನ ಹೆಸರಿನಲ್ಲಿ ಸೇವ್ ಮಾಡುತ್ತದೆ, ಉದಾಹರಣೆಗೆ *PO-000003.pdf*. ಡೆಲಿವರಿ ಬಂದ ನಂತರ, **Download receipt PDF** (ಅಥವಾ *Deliveries received* ಕೆಳಗಿನ **Receipt PDF**) ಗೂಡ್ಸ್ ರಸೀದಿಯನ್ನು ಸೇವ್ ಮಾಡುತ್ತದೆ, ಉದಾಹರಣೆಗೆ *GRN-000001-PO-000003.pdf*. ಎರಡರಲ್ಲೂ **Settings → Name, logo and bill details** ನಲ್ಲಿರುವ ನಿಮ್ಮ ಲೋಗೋ ಮತ್ತು ವಿಳಾಸ ಇರುತ್ತದೆ.
 
 ### ಲೇಬಲ್‌ಗಳು
 

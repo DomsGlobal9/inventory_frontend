@@ -9,14 +9,14 @@ keywords: ಲೊಕೇಶನ್ ಲೊಕೇಶನ್‌ಗಳು ಸ್ಟೋ�
 
 **ಲೊಕೇಶನ್** ಎಂದರೆ ನೀವು ಸ್ಟಾಕ್ ಇಡುವ ಯಾವುದೇ ಜಾಗ: ಅಂಗಡಿ, ಗೋಡೌನ್, ಅಥವಾ ಆನ್‌ಲೈನ್ ಆರ್ಡರ್‌ಗಳಿಗಾಗಿ ಮಾತ್ರ ಇಟ್ಟ ಸ್ಟಾಕ್. ScaleEzy ಯಲ್ಲಿ ಪ್ರತಿ ಸ್ಟಾಕ್ ಸಂಖ್ಯೆಯೂ ಒಂದು ಲೊಕೇಶನ್‌ಗೆ ಸೇರಿರುತ್ತದೆ. ನಿಮ್ಮ ತಂಡ ತಾವು ಕೆಲಸ ಮಾಡುವ ಲೊಕೇಶನ್ ಅನ್ನು ಸ್ಕ್ರೀನ್‌ನ ಮೇಲ್ಭಾಗದಲ್ಲಿ ಆರಿಸುತ್ತದೆ.
 
-**Add and change shops and warehouses** ಅನುಮತಿ ಇರುವವರಿಗೆ ಮಾತ್ರ **Stock Locations** ಕಾಣುತ್ತದೆ. ಸಿದ್ಧ ರೋಲ್‌ಗಳಲ್ಲಿ ಇವರು: ಮಾಲೀಕರು, **ADMIN** ಮತ್ತು **INVENTORY_MANAGER**.
+**Add and change shops and warehouses** ಅನುಮತಿ ಇರುವವರಿಗೆ ಮಾತ್ರ **Stock locations** ಕಾಣುತ್ತದೆ. ಸಿದ್ಧ ರೋಲ್‌ಗಳಲ್ಲಿ ಇವರು: ಮಾಲೀಕರು, **ADMIN** ಮತ್ತು **INVENTORY_MANAGER**.
 
-## 1. Stock Locations ತೆರೆಯಿರಿ
+## 1. Stock locations ತೆರೆಯಿರಿ
 
-1. **Settings** ತೆರೆದು [[1]] **Stock Locations** ಒತ್ತಿರಿ.
+1. **Settings** ತೆರೆಯಿರಿ. **Your shop** ಕೆಳಗೆ **Stock locations** ಒತ್ತಿರಿ. [[1]] ಮೇಲಿನ ಸಾಲು ನೀವು ಎಲ್ಲಿದ್ದೀರಿ ಎಂದು ತೋರಿಸುತ್ತದೆ: *Settings / Your shop / Stock locations*.
 2. [[2]] **Add Location** ಒತ್ತಿರಿ.
 
-![ಪಟ್ಟಿಯಲ್ಲಿ Main Store ಮತ್ತು Godown ಇರುವ Stock Locations ಸ್ಕ್ರೀನ್. Stock Locations ಗೆ 1 ಮತ್ತು Add Location ಗೆ 2 ಎಂದು ಗುರುತಿಸಲಾಗಿದೆ.](1-open.webp "ನಿಮ್ಮ ಎಲ್ಲಾ ಲೊಕೇಶನ್‌ಗಳು ಇಲ್ಲಿ ಇವೆ, ಹಳೆಯದು ಮೊದಲು.")
+![ಪಟ್ಟಿಯಲ್ಲಿ Main Store ಮತ್ತು Godown ಇರುವ Stock locations ಸ್ಕ್ರೀನ್. Settings / Your shop / Stock locations ಸಾಲಿಗೆ 1 ಮತ್ತು Add Location ಗೆ 2 ಎಂದು ಗುರುತಿಸಲಾಗಿದೆ.](1-open.webp "ನಿಮ್ಮ ಎಲ್ಲಾ ಲೊಕೇಶನ್‌ಗಳು ಇಲ್ಲಿ ಇವೆ, ಹಳೆಯದು ಮೊದಲು.")
 
 ## 2. ಫಾರ್ಮ್ ತುಂಬಿರಿ
 
@@ -132,7 +132,7 @@ keywords: ಲೊಕೇಶನ್ ಲೊಕೇಶನ್‌ಗಳು ಸ್ಟೋ�
 
 ## ಸಾಮಾನ್ಯ ಸಮಸ್ಯೆಗಳು
 
-:::faq Settings ನಲ್ಲಿ ನನಗೆ Stock Locations ಕಾಣುತ್ತಿಲ್ಲ
+:::faq Settings ನಲ್ಲಿ ನನಗೆ Stock locations ಕಾಣುತ್ತಿಲ್ಲ
 ನಿಮ್ಮ ರೋಲ್‌ಗೆ ಲೊಕೇಶನ್‌ಗಳನ್ನು ಸೇರಿಸುವ ಅಥವಾ ಬದಲಿಸುವ ಅನುಮತಿ ಇಲ್ಲ. ನಿಮ್ಮ ಅಂಗಡಿಯ ಮಾಲೀಕರನ್ನು ಕೇಳಿ.
 :::
 

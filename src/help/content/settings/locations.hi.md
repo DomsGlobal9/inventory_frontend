@@ -9,14 +9,14 @@ keywords: लोकेशन स्टोर ब्रांच गोदाम 
 
 **लोकेशन** वह कोई भी जगह है जहाँ आप स्टॉक रखते हैं: दुकान, गोदाम, या सिर्फ़ ऑनलाइन ऑर्डर के लिए रखा स्टॉक। ScaleEzy में स्टॉक की हर गिनती किसी एक लोकेशन की होती है। आपकी टीम स्क्रीन के ऊपर वह लोकेशन चुनती है जिसमें वे काम करते हैं।
 
-**Stock Locations** सिर्फ़ उन लोगों को दिखता है जिनके पास **Add and change shops and warehouses** की इजाज़त है। पहले से बने रोल में, ये मालिक, **ADMIN** और **INVENTORY_MANAGER** हैं।
+**Stock locations** सिर्फ़ उन लोगों को दिखता है जिनके पास **Add and change shops and warehouses** की इजाज़त है। पहले से बने रोल में, ये मालिक, **ADMIN** और **INVENTORY_MANAGER** हैं।
 
-## 1. Stock Locations खोलें
+## 1. Stock locations खोलें
 
-1. **Settings** खोलें और [[1]] **Stock Locations** दबाएँ।
+1. **Settings** खोलें। **Your shop** के नीचे **Stock locations** दबाएँ। [[1]] सबसे ऊपर की लाइन बताती है कि आप कहाँ हैं: *Settings / Your shop / Stock locations*।
 2. [[2]] **Add Location** दबाएँ।
 
-![Stock Locations स्क्रीन, लिस्ट में Main Store और Godown। Stock Locations पर 1 और Add Location पर 2 का निशान है।](1-open.webp "आपकी सारी लोकेशन यहाँ दिखती हैं, सबसे पुरानी पहले।")
+![Stock locations स्क्रीन, लिस्ट में Main Store और Godown। Settings / Your shop / Stock locations वाली लाइन पर 1 और Add Location पर 2 का निशान है।](1-open.webp "आपकी सारी लोकेशन यहाँ दिखती हैं, सबसे पुरानी पहले।")
 
 ## 2. फ़ॉर्म भरें
 
@@ -132,7 +132,7 @@ keywords: लोकेशन स्टोर ब्रांच गोदाम 
 
 ## आम समस्याएँ
 
-:::faq मुझे Settings में Stock Locations नहीं दिख रहा
+:::faq मुझे Settings में Stock locations नहीं दिख रहा
 आपका रोल लोकेशन जोड़ या बदल नहीं सकता। अपनी दुकान के मालिक से पूछें।
 :::
 

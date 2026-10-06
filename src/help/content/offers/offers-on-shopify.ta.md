@@ -9,7 +9,7 @@ keywords: ஷாப்பிஃபை Shopify டிஸ்கவுண்ட் 
 
 உங்கள் Shopify ஸ்டோர் தன் சொந்த டிஸ்கவுண்ட்களைப் போடும். Shopify வாடிக்கையாளர்களுக்கும் அதே ஆஃபர் கொடுக்க, ScaleEzy-யிலிருந்து ஆஃபரின் ஒரு காப்பியை Shopify-இல் போடுங்கள். அதன் பிறகு இரண்டும் ஒன்றாக இருக்கிறதா என்று ScaleEzy தொடர்ந்து சரிபார்க்கும்.
 
-- **Settings → Storefront**-இல் ஒரு Shopify ஸ்டோர் இணைக்கப்பட்டிருக்க வேண்டும். [Shopify-ஐ இணைத்தல்](/help/settings/connect-shopify) பாருங்கள்.
+- **Settings → Connected websites**-இல் ஒரு Shopify ஸ்டோர் இணைக்கப்பட்டிருக்க வேண்டும். [Shopify-ஐ இணைத்தல்](/help/settings/connect-shopify) பாருங்கள்.
 - உரிமையாளர் அல்லது அட்மின் மட்டுமே ஆஃபர்களை Shopify-இல் போட முடியும்.
 
 ## 1. Shopify பெட்டியைத் திறங்கள்
@@ -22,7 +22,7 @@ keywords: ஷாப்பிஃபை Shopify டிஸ்கவுண்ட் 
 
 Shopify ஸ்டோர் இணைக்கப்படவில்லை என்றால், பெட்டி அதைச் சொல்லும் [[1]]. முதலில் உங்கள் ஸ்டோரை இணையுங்கள்.
 
-![Festive 10% off silk on Shopify பெட்டி. No Shopify store is connected to this workspace. Connect one in Settings, Storefront, to put offers on it என்று சொல்கிறது. அந்த மெசேஜ் 1 எனக் குறிக்கப்பட்டுள்ளது.](2-not-connected.webp "நீங்கள் ஒரு பட்டனை அழுத்தும் வரை இந்தப் பெட்டியிலிருந்து Shopify-க்கு எதுவும் அனுப்பப்படாது.")
+![Festive 10% off silk on Shopify பெட்டி. No Shopify store is connected to this workspace. Connect one in Settings → Connected websites to put offers on it என்று சொல்கிறது. அந்த மெசேஜ் 1 எனக் குறிக்கப்பட்டுள்ளது.](2-not-connected.webp "நீங்கள் ஒரு பட்டனை அழுத்தும் வரை இந்தப் பெட்டியிலிருந்து Shopify-க்கு எதுவும் அனுப்பப்படாது.")
 
 ஸ்டோர் இணைக்கப்பட்டிருந்தால், பெட்டி உங்கள் Shopify ஸ்டோரின் முகவரியையும் இவற்றில் ஒன்றையும் காட்டும்:
 
@@ -68,7 +68,7 @@ Shopify டிஸ்கவுண்ட்கள் ScaleEzy ஆஃபர்க�
 :::
 
 :::faq "Your Shopify store has not given this app permission to manage discounts." என்று வருகிறது
-**Settings → Storefront**-இல் உங்கள் ஸ்டோரை மீண்டும் இணையுங்கள், Shopify கேட்கும்போது டிஸ்கவுண்ட்களுக்கு அனுமதி கொடுங்கள்.
+**Settings → Connected websites**-இல் உங்கள் ஸ்டோரை மீண்டும் இணையுங்கள், Shopify கேட்கும்போது டிஸ்கவுண்ட்களுக்கு அனுமதி கொடுங்கள்.
 :::
 
 :::faq Changed in Shopify என்று வருகிறது

@@ -39,7 +39,7 @@ keywords: काउंटर नियम टिल रूल्स हाथ �
 
 अगर कैशियर सीमा से ज़्यादा कम करता है, तो बिक्री पूरी नहीं होती। उसे ऐसा मैसेज दिखता है: *Taking 1500 off … is 15% — more than the 10% the till may take off by hand. A manager has to take this one off.*
 
-मालिक और एडमिन हमेशा सीमा से ऊपर जा सकते हैं। किसी और रोल को यह ताकत देने के लिए **Settings → Roles & Permissions** में उसे **Take off more than the till limit by hand** वाली permission दें।
+मालिक और एडमिन हमेशा सीमा से ऊपर जा सकते हैं। किसी और रोल को यह ताकत देने के लिए **Settings → Roles and permissions** में उसे **Take off more than the till limit by hand** वाली permission दें।
 
 हाथ से पैसे कैसे कम करें, यह [काउंटर पर बिक्री करें](/help/orders/new-sale) में है।
 
@@ -50,7 +50,7 @@ keywords: काउंटर नियम टिल रूल्स हाथ �
 :::
 
 :::faq सेल्समैन कोई भी डिस्काउंट नहीं दे पा रहा
-उसका रोल हाथ से डिस्काउंट देने की इजाज़त नहीं देता। **Settings → Roles & Permissions** में उस रोल को **Take money off at the till, with a reason** दें, या मैनेजर से डिस्काउंट देने को कहें।
+उसका रोल हाथ से डिस्काउंट देने की इजाज़त नहीं देता। **Settings → Roles and permissions** में उस रोल को **Take money off at the till, with a reason** दें, या मैनेजर से डिस्काउंट देने को कहें।
 :::
 
 :::faq मुझे Till rules नहीं दिख रहा

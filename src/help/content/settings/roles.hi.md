@@ -9,16 +9,16 @@ keywords: रोल इजाज़त परमिशन एक्सेस अ
 
 **रोल** तय करता है कि कोई व्यक्ति क्या देख और कर सकता है। हर व्यक्ति का एक रोल होता है। जब आप कोई रोल बदलते हैं, तो वह उन **सभी** के लिए बदलता है जिनका वह रोल है।
 
-**Roles & Permissions** सिर्फ़ मालिक और वे लोग खोल सकते हैं जिनके पास **Manage the team and their roles** की इजाज़त है। पहले से बने रोल में, यह मालिक और **ADMIN** हैं। बाकी सबको *You need permission to manage the team before you can change what roles can do.* दिखता है।
+**Roles and permissions** सिर्फ़ मालिक और वे लोग खोल सकते हैं जिनके पास **Manage the team and their roles** की इजाज़त है। पहले से बने रोल में, यह मालिक और **ADMIN** हैं। बाकी सबको *You need permission to manage the team before you can change what roles can do.* दिखता है।
 
-## 1. Roles & Permissions खोलें
+## 1. Roles and permissions खोलें
 
-1. **Settings** खोलें और [[1]] **Roles & Permissions** दबाएँ।
+1. **Settings** खोलें। **Team and access** के नीचे **Roles and permissions** दबाएँ। [[1]] सबसे ऊपर की लाइन बताती है कि आप कहाँ हैं: *Settings / Team and access / Roles and permissions*।
 2. [[2]] **New role** से आप अपना रोल बनाते हैं।
 3. [[3]] **Owner — cannot be changed** मालिक के रोल पर लिखा होता है।
 4. [[4]] **Sees what you paid** हर उस रोल पर लिखा होता है जो आपकी खरीद की कीमत देख सकता है।
 
-![रोल की लिस्ट। Roles and Permissions पर 1, New role पर 2, Owner cannot be changed टैग पर 3 और Sees what you paid टैग पर 4 का निशान है।](1-open.webp "लोगों वाला निशान दिखाता है कि कितने लोगों का यह रोल है। Things दिखाता है कि यह कितनी इजाज़तें देता है।")
+![रोल की लिस्ट। Settings / Team and access / Roles and permissions वाली लाइन पर 1, New role पर 2, Owner cannot be changed टैग पर 3 और Sees what you paid टैग पर 4 का निशान है।](1-open.webp "लोगों वाला निशान दिखाता है कि कितने लोगों का यह रोल है। Things दिखाता है कि यह कितनी इजाज़तें देता है।")
 
 हर रोल कार्ड पर आप देखते हैं:
 
@@ -158,7 +158,7 @@ keywords: रोल इजाज़त परमिशन एक्सेस अ
 ![Delete SALES बॉक्स। इसमें लिखा है कि 1 व्यक्ति यह रोल इस्तेमाल कर रहा है, पहले उसे दूसरे रोल में डालें, यह डिलीट नहीं होगा। Delete role पर 1 का निशान है।](6-delete-role.webp "Cancel बिना डिलीट किए बॉक्स बंद कर देता है।")
 
 - अगर कोई यह रोल इस्तेमाल नहीं कर रहा, तो *Nobody is using this role, so nothing changes for anyone.* लिखा आता है। [[1]] **Delete role** दबाएँ।
-- अगर लोग इसे इस्तेमाल कर रहे हैं, तो डिलीट नहीं होगा। पहले **Team & Users** में उन लोगों को दूसरा रोल दें।
+- अगर लोग इसे इस्तेमाल कर रहे हैं, तो डिलीट नहीं होगा। पहले **Team members** में उन लोगों को दूसरा रोल दें।
 
 ## मालिक का रोल
 
@@ -167,7 +167,7 @@ keywords: रोल इजाज़त परमिशन एक्सेस अ
 ## आम समस्याएँ
 
 :::faq "1 person is using this role. Move them to another role first." लिखा आ रहा है
-**Team & Users** में उन लोगों को दूसरा रोल दें, फिर रोल डिलीट करें।
+**Team members** में उन लोगों को दूसरा रोल दें, फिर रोल डिलीट करें।
 :::
 
 :::faq "You already have a role called ..." लिखा आ रहा है

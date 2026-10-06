@@ -39,7 +39,7 @@ keywords: ಕೌಂಟರ್ ನಿಯಮ ಟಿಲ್ ರೂಲ್ಸ್ ಕೈ
 
 ಕ್ಯಾಶಿಯರ್ ಮಿತಿಗಿಂತ ಹೆಚ್ಚು ಕಡಿಮೆ ಮಾಡಿದರೆ, ಸೇಲ್ ಮುಗಿಯುವುದಿಲ್ಲ. ಅವರಿಗೆ ಹೀಗೆ ಒಂದು ಮೆಸೇಜ್ ಕಾಣುತ್ತದೆ: *Taking 1500 off … is 15% — more than the 10% the till may take off by hand. A manager has to take this one off.*
 
-ಮಾಲೀಕರು ಮತ್ತು ಅಡ್ಮಿನ್‌ಗಳು ಯಾವಾಗಲೂ ಮಿತಿ ದಾಟಬಹುದು. **Settings → Roles & Permissions** ನಲ್ಲಿ **Take off more than the till limit by hand** ಅನುಮತಿ ಕೊಟ್ಟು ಬೇರೆ ರೋಲ್‌ಗೂ ಆ ಅಧಿಕಾರ ಕೊಡಬಹುದು.
+ಮಾಲೀಕರು ಮತ್ತು ಅಡ್ಮಿನ್‌ಗಳು ಯಾವಾಗಲೂ ಮಿತಿ ದಾಟಬಹುದು. **Settings → Roles and permissions** ನಲ್ಲಿ **Take off more than the till limit by hand** ಅನುಮತಿ ಕೊಟ್ಟು ಬೇರೆ ರೋಲ್‌ಗೂ ಆ ಅಧಿಕಾರ ಕೊಡಬಹುದು.
 
 ಕೈಯಿಂದ ಹಣ ಕಡಿಮೆ ಮಾಡುವುದು ಹೇಗೆ ಎಂದು [ಹೊಸ ಸೇಲ್](/help/orders/new-sale) ನಲ್ಲಿದೆ.
 
@@ -50,7 +50,7 @@ keywords: ಕೌಂಟರ್ ನಿಯಮ ಟಿಲ್ ರೂಲ್ಸ್ ಕೈ
 :::
 
 :::faq ಸೇಲ್ಸ್‌ಪರ್ಸನ್ ಯಾವ ಡಿಸ್ಕೌಂಟ್ ಕೂಡ ಕೊಡಲು ಆಗುತ್ತಿಲ್ಲ
-ಅವರ ರೋಲ್‌ಗೆ ಕೈಯಿಂದ ಡಿಸ್ಕೌಂಟ್ ಕೊಡುವ ಅನುಮತಿ ಇಲ್ಲ. **Settings → Roles & Permissions** ನಲ್ಲಿ ರೋಲ್‌ಗೆ **Take money off at the till, with a reason** ಕೊಡಿ, ಅಥವಾ ಡಿಸ್ಕೌಂಟ್ ಕೊಡಲು ಮ್ಯಾನೇಜರ್‌ಗೆ ಹೇಳಿ.
+ಅವರ ರೋಲ್‌ಗೆ ಕೈಯಿಂದ ಡಿಸ್ಕೌಂಟ್ ಕೊಡುವ ಅನುಮತಿ ಇಲ್ಲ. **Settings → Roles and permissions** ನಲ್ಲಿ ರೋಲ್‌ಗೆ **Take money off at the till, with a reason** ಕೊಡಿ, ಅಥವಾ ಡಿಸ್ಕೌಂಟ್ ಕೊಡಲು ಮ್ಯಾನೇಜರ್‌ಗೆ ಹೇಳಿ.
 :::
 
 :::faq ನನಗೆ Till rules ಕಾಣುತ್ತಿಲ್ಲ

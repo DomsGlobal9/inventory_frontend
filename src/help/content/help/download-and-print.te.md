@@ -26,7 +26,7 @@ ScaleEzy లో "అన్నీ ఎక్స్‌పోర్ట్ చేయ�
 | సింగిల్-యూజ్ కోడ్‌లు ఉన్న ఆఫర్ | **CSV**, **Copy unused** | ప్రతి కోడ్ ఒక స్ప్రెడ్‌షీట్‌లో, లేదా వాడని కోడ్‌లు కాపీ | [ఆఫర్ కోడ్‌లు](/help/offers/offer-codes) |
 | **Shelves → Racks & shelves** | **Print all labels**, **Labels** | మీ బ్రౌజర్ నుండి ప్రింట్ చేసే QR కోడ్ షెల్ఫ్ లేబుల్స్ | [ర్యాక్‌లు సెటప్ చేయండి](/help/shelves/set-up-racks) |
 | **Import Products** విండో | **Download template** | సరైన కాలమ్‌లతో ఖాళీ స్ప్రెడ్‌షీట్ | [ప్రొడక్ట్‌లు ఇంపోర్ట్ చేయండి](/help/products/import-products) |
-| **Settings → Storefront** | **Save what we hold** | ఒక Shopify కస్టమర్ అడిగిన డేటా | [Shopify కనెక్ట్ చేయండి](/help/settings/connect-shopify) |
+| **Settings → Connected websites** | **Save what we hold** | ఒక Shopify కస్టమర్ అడిగిన డేటా | [Shopify కనెక్ట్ చేయండి](/help/settings/connect-shopify) |
 
 :::note ఈ స్క్రీన్‌లలో డౌన్‌లోడ్ లేదు
 **Inventory**, లెడ్జర్ (**View Ledger**), **Orders**, **Returns**, **Customers**, **Purchase Orders** (లిస్ట్), **Suppliers**, **Transfers**, **Stock counts**, **Dashboard** లకు ఇంకా Export బటన్ లేదు.
@@ -87,7 +87,7 @@ Products లోని **Import Updates** **Quantity** కాలమ్‌ను *
 
 ### పర్చేస్ ఆర్డర్లు, డెలివరీలు
 
-పర్చేస్ ఆర్డర్‌లో **Download PDF** ఆర్డర్‌ను దాని నంబర్ పేరుతో సేవ్ చేస్తుంది, ఉదాహరణకు *PO-000003.pdf*. డెలివరీ తర్వాత **Download receipt PDF** (లేదా *Deliveries received* కింద **Receipt PDF**) గూడ్స్ రసీదును సేవ్ చేస్తుంది, ఉదాహరణకు *GRN-000001-PO-000003.pdf*. రెండింటిలోనూ **Settings → General Info** లోని మీ లోగో, అడ్రస్ ఉంటాయి.
+పర్చేస్ ఆర్డర్‌లో **Download PDF** ఆర్డర్‌ను దాని నంబర్ పేరుతో సేవ్ చేస్తుంది, ఉదాహరణకు *PO-000003.pdf*. డెలివరీ తర్వాత **Download receipt PDF** (లేదా *Deliveries received* కింద **Receipt PDF**) గూడ్స్ రసీదును సేవ్ చేస్తుంది, ఉదాహరణకు *GRN-000001-PO-000003.pdf*. రెండింటిలోనూ **Settings → Name, logo and bill details** లోని మీ లోగో, అడ్రస్ ఉంటాయి.
 
 ### లేబుల్స్
 

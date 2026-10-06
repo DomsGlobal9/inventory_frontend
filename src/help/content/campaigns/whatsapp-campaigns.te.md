@@ -121,7 +121,7 @@ WhatsApp లో ఆఫర్లకు సరే అన్న కస్టమర�
 
 ## 7. Automatic messages
 
-**Settings** → **Loyalty & wishes** లో మీరు తమంతట తామే వెళ్లే మెసేజ్‌లు ఆన్ చేయవచ్చు, ఆ రోజు ఉదయం 10 నుండి:
+**Settings** → **Birthday and anniversary wishes** లో మీరు తమంతట తామే వెళ్లే మెసేజ్‌లు ఆన్ చేయవచ్చు, ఆ రోజు ఉదయం 10 నుండి:
 
 - **Birthday wishes**, **Anniversary wishes**, తమ పేజీలో తేదీ సేవ్ అయి ఉన్న కస్టమర్లకు (**Offers on WhatsApp** కార్డ్ మీద **Change dates**). ప్రతి దాని పైన ఒక ఫోటో పెట్టవచ్చు: **Picture above the wish**;
 - కస్టమర్ లాయల్టీ పాయింట్ల గడువు తీరడానికి ఒక వారం ముందు రిమైండర్;

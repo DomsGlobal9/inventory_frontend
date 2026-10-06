@@ -11,12 +11,12 @@ keywords: वेबसाइट ऑनलाइन दुकान स्टो�
 
 एक बार जुड़ने के बाद आपकी वेबसाइट अपने-आप अपडेट रहती है। न कुछ एक्सपोर्ट करना है, न बाद में कुछ दबाना है। दो चीज़ों के लिए आपको अपने डेवलपर की ज़रूरत होगी: वह **एड्रेस** जिस पर अपडेट आते हैं, और **की (key)** रखने की जगह।
 
-## 1. Storefront खोलें
+## 1. Connected websites खोलें
 
-1. **Settings** खोलें और [[1]] **Storefront** दबाएँ।
+1. **Settings** खोलें। **Selling online** के नीचे **Connected websites** दबाएँ। [[1]] सबसे ऊपर की लाइन बताती है कि आप कहाँ हैं: *Settings / Selling online / Connected websites*।
 2. Shopify कार्ड के नीचे [[2]] **Connect a storefront** दबाएँ। अगर पहले से एक जुड़ी है, तो बटन पर **Connect another storefront** लिखा होता है।
 
-![Storefront स्क्रीन। Storefront पर 1 और Connect a storefront पर 2 का निशान है।](1-open.webp "आप एक से ज़्यादा वेबसाइट जोड़ सकते हैं।")
+![Connected websites स्क्रीन। Settings / Selling online / Connected websites वाली लाइन पर 1 और Connect a storefront पर 2 का निशान है।](1-open.webp "आप एक से ज़्यादा वेबसाइट जोड़ सकते हैं।")
 
 ## 2. फ़ॉर्म भरें
 

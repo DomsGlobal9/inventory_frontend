@@ -11,12 +11,12 @@ keywords: ವೆಬ್‌ಸೈಟ್ ಸ್ಟೋರ್‌ಫ್ರಂಟ್ �
 
 ಜೋಡಿಸಿದ ಮೇಲೆ ನಿಮ್ಮ ವೆಬ್‌ಸೈಟ್ ತಾನಾಗಿಯೇ ಅಪ್‌ಡೇಟ್ ಆಗುತ್ತಿರುತ್ತದೆ. ಏನೂ ಎಕ್ಸ್‌ಪೋರ್ಟ್ ಮಾಡಬೇಕಿಲ್ಲ, ನಂತರ ಏನೂ ಒತ್ತಬೇಕಿಲ್ಲ. ಎರಡು ವಿಷಯಗಳಿಗೆ ನಿಮ್ಮ ಡೆವಲಪರ್ ಬೇಕು: ಅಪ್‌ಡೇಟ್‌ಗಳನ್ನು ಪಡೆಯುವ **ವಿಳಾಸ**, ಮತ್ತು **ಕೀ** ಇಡಲು ಒಂದು ಜಾಗ.
 
-## 1. Storefront ತೆರೆಯಿರಿ
+## 1. Connected websites ತೆರೆಯಿರಿ
 
-1. **Settings** ತೆರೆದು [[1]] **Storefront** ಒತ್ತಿರಿ.
+1. **Settings** ತೆರೆಯಿರಿ. **Selling online** ಕೆಳಗೆ **Connected websites** ಒತ್ತಿರಿ. [[1]] ಮೇಲಿನ ಸಾಲು ನೀವು ಎಲ್ಲಿದ್ದೀರಿ ಎಂದು ತೋರಿಸುತ್ತದೆ: *Settings / Selling online / Connected websites*.
 2. Shopify ಕಾರ್ಡ್‌ನ ಕೆಳಗೆ [[2]] **Connect a storefront** ಒತ್ತಿರಿ. ಈಗಾಗಲೇ ಒಂದು ಇದ್ದರೆ, ಬಟನ್‌ನಲ್ಲಿ **Connect another storefront** ಎಂದು ಇರುತ್ತದೆ.
 
-![Storefront ಸ್ಕ್ರೀನ್. Storefront 1 ಮತ್ತು Connect a storefront 2 ಎಂದು ಗುರುತಿಸಲಾಗಿದೆ.](1-open.webp "ನೀವು ಒಂದಕ್ಕಿಂತ ಹೆಚ್ಚು ವೆಬ್‌ಸೈಟ್ ಜೋಡಿಸಬಹುದು.")
+![Connected websites ಸ್ಕ್ರೀನ್. Settings / Selling online / Connected websites ಸಾಲು 1 ಮತ್ತು Connect a storefront 2 ಎಂದು ಗುರುತಿಸಲಾಗಿದೆ.](1-open.webp "ನೀವು ಒಂದಕ್ಕಿಂತ ಹೆಚ್ಚು ವೆಬ್‌ಸೈಟ್ ಜೋಡಿಸಬಹುದು.")
 
 ## 2. ಫಾರ್ಮ್ ತುಂಬಿರಿ
 

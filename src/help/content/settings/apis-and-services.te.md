@@ -9,13 +9,13 @@ keywords: ఏపీఐ ఏపీఐలు సర్వీసులు సర్�
 
 **4-View Catalog Try-On** లాంటి కొన్ని అదనపు సర్వీసులు ScaleEzy నుండి వస్తాయి. ScaleEzy వాటిని మీ షాప్ కోసం ఆన్ చేసి చూసుకుంటుంది. ఈ స్క్రీన్ వాటిని చూపిస్తుంది అంతే. **ఇక్కడ సెటప్ చేయాల్సింది కానీ, మార్చాల్సింది కానీ ఏమీ లేదు.**
 
-యజమాని, **Manage the team and their roles** పర్మిషన్ ఉన్నవారు మాత్రమే **APIs & Services** చూడగలరు.
+యజమాని, **Manage the team and their roles** పర్మిషన్ ఉన్నవారు మాత్రమే **APIs and services** చూడగలరు.
 
-## 1. APIs & Services తెరవండి
+## 1. APIs and services తెరవండి
 
-**Settings** తెరిచి [[1]] **APIs & Services** నొక్కండి.
+**Settings** తెరవండి. **Developers** కింద **APIs and services** నొక్కండి. [[1]] మీరు ఎక్కడ ఉన్నారో పైన ఉన్న లైన్ చూపిస్తుంది: *Settings / Developers / APIs and services*.
 
-![4-View Catalog Try-On, Try-On అనే రెండు సర్వీస్ కార్డ్‌లతో APIs and Services స్క్రీన్. APIs and Services 1 గా గుర్తించబడింది.](1-open.webp "ప్రతి సర్వీస్‌కు దాని సొంత కార్డ్ ఉంటుంది.")
+![4-View Catalog Try-On, Try-On అనే రెండు సర్వీస్ కార్డ్‌లతో APIs and services స్క్రీన్. Settings / Developers / APIs and services లైన్ 1 గా గుర్తించబడింది.](1-open.webp "ప్రతి సర్వీస్‌కు దాని సొంత కార్డ్ ఉంటుంది.")
 
 ఏ సర్వీస్ ఆన్‌లో లేకపోతే, స్క్రీన్ మీద *No platform services are switched on for this workspace yet.* అని ఉంటుంది.
 
@@ -41,13 +41,13 @@ keywords: ఏపీఐ ఏపీఐలు సర్వీసులు సర్�
 ## సాధారణ సమస్యలు
 
 :::faq నాకు కావాల్సిన సర్వీస్ NOT ACTIVE అని ఉంది, లేదా కనిపించడం లేదు
-సర్వీసులు ScaleEzy ఆన్ చేస్తుంది. **Help & Support** లో టికెట్ పెట్టి, మీకు ఏ సర్వీస్ కావాలో చెప్పండి.
+సర్వీసులు ScaleEzy ఆన్ చేస్తుంది. **Help and support** లో టికెట్ పెట్టి, మీకు ఏ సర్వీస్ కావాలో చెప్పండి.
 :::
 
 :::faq "You have used this month's allowance" అని వస్తోంది
 నెలవారీ లిమిట్ అయిపోయినప్పుడు కార్డ్ మీద ఇలా వస్తుంది. అప్పుడు కొత్త ట్రై-ఆన్ బొమ్మలు *This workspace has used its ... Ask Scaleezy to raise the limit to carry on.* అని చెప్పి ఆగిపోతాయి. లిమిట్ పెంచమని ScaleEzy ని అడగండి. వచ్చే నెల లెక్క మళ్లీ మొదలవుతుంది.
 :::
 
-:::faq నాకు Settings లో APIs & Services కనిపించడం లేదు
+:::faq నాకు Settings లో APIs and services కనిపించడం లేదు
 యజమాని, టీమ్‌ను నిర్వహించే పర్మిషన్ ఉన్నవారు మాత్రమే దీన్ని చూడగలరు.
 :::

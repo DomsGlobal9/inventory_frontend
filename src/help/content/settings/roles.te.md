@@ -9,16 +9,16 @@ keywords: రోల్ రోల్స్ పర్మిషన్ పర్మ�
 
 ఒక వ్యక్తి ఏమి చూడగలరో, ఏమి చేయగలరో **రోల్** నిర్ణయిస్తుంది. ప్రతి ఒక్కరికీ ఒక రోల్ ఉంటుంది. మీరు ఒక రోల్ మార్చితే, ఆ రోల్ ఉన్న **అందరికీ** అది మారుతుంది.
 
-యజమాని, **Manage the team and their roles** పర్మిషన్ ఉన్నవారు మాత్రమే **Roles & Permissions** తెరవగలరు. ముందే ఉన్న రోల్స్‌లో, అది యజమాని, **ADMIN**. మిగతా అందరికీ *You need permission to manage the team before you can change what roles can do.* అని కనిపిస్తుంది.
+యజమాని, **Manage the team and their roles** పర్మిషన్ ఉన్నవారు మాత్రమే **Roles and permissions** తెరవగలరు. ముందే ఉన్న రోల్స్‌లో, అది యజమాని, **ADMIN**. మిగతా అందరికీ *You need permission to manage the team before you can change what roles can do.* అని కనిపిస్తుంది.
 
-## 1. Roles & Permissions తెరవండి
+## 1. Roles and permissions తెరవండి
 
-1. **Settings** తెరిచి [[1]] **Roles & Permissions** నొక్కండి.
+1. **Settings** తెరవండి. **Team and access** కింద **Roles and permissions** నొక్కండి. [[1]] మీరు ఎక్కడ ఉన్నారో పైన ఉన్న లైన్ చూపిస్తుంది: *Settings / Team and access / Roles and permissions*.
 2. [[2]] **New role** మీ సొంత రోల్ తయారు చేస్తుంది.
 3. [[3]] **Owner — cannot be changed** యజమాని రోల్ మీద ఉంటుంది.
 4. [[4]] **Sees what you paid** మీ కొన్న ధరలు చూడగల ప్రతి రోల్ మీద ఉంటుంది.
 
-![Roles లిస్ట్. Roles and Permissions 1, New role 2, Owner cannot be changed ట్యాగ్ 3, Sees what you paid ట్యాగ్ 4 గా గుర్తించబడ్డాయి.](1-open.webp "మనుషుల గుర్తు ఆ రోల్ ఎంత మందికి ఉందో చూపిస్తుంది. Things అది ఎన్ని పర్మిషన్‌లు ఇస్తుందో చూపిస్తుంది.")
+![Roles లిస్ట్. Settings / Team and access / Roles and permissions లైన్ 1, New role 2, Owner cannot be changed ట్యాగ్ 3, Sees what you paid ట్యాగ్ 4 గా గుర్తించబడ్డాయి.](1-open.webp "మనుషుల గుర్తు ఆ రోల్ ఎంత మందికి ఉందో చూపిస్తుంది. Things అది ఎన్ని పర్మిషన్‌లు ఇస్తుందో చూపిస్తుంది.")
 
 ప్రతి రోల్ కార్డ్ మీద మీకు ఇవి కనిపిస్తాయి:
 
@@ -158,7 +158,7 @@ keywords: రోల్ రోల్స్ పర్మిషన్ పర్మ�
 ![Delete SALES బాక్స్. 1 person is using this role, move them to another role first, this will not go through అని చెబుతోంది. Delete role 1 గా గుర్తించబడింది.](6-delete-role.webp "Cancel డిలీట్ చేయకుండా బాక్స్ మూసేస్తుంది.")
 
 - ఆ రోల్ ఎవరూ వాడకపోతే, *Nobody is using this role, so nothing changes for anyone.* అని చెబుతుంది. [[1]] **Delete role** నొక్కండి.
-- ఎవరైనా వాడుతుంటే, డిలీట్ జరగదు. ముందు **Team & Users** లో వారికి వేరే రోల్ ఇవ్వండి.
+- ఎవరైనా వాడుతుంటే, డిలీట్ జరగదు. ముందు **Team members** లో వారికి వేరే రోల్ ఇవ్వండి.
 
 ## యజమాని రోల్
 
@@ -167,7 +167,7 @@ keywords: రోల్ రోల్స్ పర్మిషన్ పర్మ�
 ## సాధారణ సమస్యలు
 
 :::faq "1 person is using this role. Move them to another role first." అని వస్తోంది
-**Team & Users** లో ఆ వ్యక్తులకు వేరే రోల్ ఇచ్చి, తర్వాత రోల్ డిలీట్ చేయండి.
+**Team members** లో ఆ వ్యక్తులకు వేరే రోల్ ఇచ్చి, తర్వాత రోల్ డిలీట్ చేయండి.
 :::
 
 :::faq "You already have a role called ..." అని వస్తోంది

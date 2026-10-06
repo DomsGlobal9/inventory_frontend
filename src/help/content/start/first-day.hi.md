@@ -53,5 +53,5 @@ keywords: शुरुआत चेकलिस्ट नया स्टाफ�
 6. [स्टोरों के बीच स्टॉक भेजें](/help/transfers/transfers)
 
 :::tip अटक गए?
-**Ctrl K** से गाइड में सर्च करें, या [आम समस्याएँ](/help/help/common-problems) देखें। आप **Settings → Help & Support** से ScaleEzy को मैसेज भी भेज सकते हैं।
+**Ctrl K** से गाइड में सर्च करें, या [आम समस्याएँ](/help/help/common-problems) देखें। आप **Settings → Help and support** से ScaleEzy को मैसेज भी भेज सकते हैं।
 :::

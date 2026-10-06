@@ -9,13 +9,13 @@ keywords: ಎಪಿಐ ಸೇವೆಗಳು ಸರ್ವೀಸ್ ಕೀ ಟ್
 
 **4-View Catalog Try-On** ನಂತಹ ಕೆಲವು ಹೆಚ್ಚುವರಿ ಸೇವೆಗಳು ScaleEzy ಯಿಂದ ಬರುತ್ತವೆ. ScaleEzy ಅವನ್ನು ನಿಮ್ಮ ಅಂಗಡಿಗೆ ಆನ್ ಮಾಡಿ ನೋಡಿಕೊಳ್ಳುತ್ತದೆ. ಈ ಸ್ಕ್ರೀನ್ ಅವನ್ನು ತೋರಿಸುತ್ತದೆ ಅಷ್ಟೇ. **ಇಲ್ಲಿ ಸೆಟ್ ಮಾಡುವುದು ಅಥವಾ ಬದಲಿಸುವುದು ಏನೂ ಇಲ್ಲ.**
 
-ಮಾಲೀಕರು ಮತ್ತು **Manage the team and their roles** ಅನುಮತಿ ಇರುವವರಿಗೆ ಮಾತ್ರ **APIs & Services** ಕಾಣುತ್ತದೆ.
+ಮಾಲೀಕರು ಮತ್ತು **Manage the team and their roles** ಅನುಮತಿ ಇರುವವರಿಗೆ ಮಾತ್ರ **APIs and services** ಕಾಣುತ್ತದೆ.
 
-## 1. APIs & Services ತೆರೆಯಿರಿ
+## 1. APIs and services ತೆರೆಯಿರಿ
 
-**Settings** ತೆರೆದು [[1]] **APIs & Services** ಒತ್ತಿರಿ.
+**Settings** ತೆರೆಯಿರಿ. **Developers** ಕೆಳಗೆ **APIs and services** ಒತ್ತಿರಿ. [[1]] ಮೇಲಿನ ಸಾಲು ನೀವು ಎಲ್ಲಿದ್ದೀರಿ ಎಂದು ತೋರಿಸುತ್ತದೆ: *Settings / Developers / APIs and services*.
 
-![ಎರಡು ಸೇವೆ ಕಾರ್ಡ್‌ಗಳಿರುವ APIs and Services ಸ್ಕ್ರೀನ್, 4-View Catalog Try-On ಮತ್ತು Try-On. APIs and Services 1 ಎಂದು ಗುರುತಿಸಲಾಗಿದೆ.](1-open.webp "ಪ್ರತಿ ಸೇವೆಗೆ ತನ್ನದೇ ಕಾರ್ಡ್ ಇದೆ.")
+![ಎರಡು ಸೇವೆ ಕಾರ್ಡ್‌ಗಳಿರುವ APIs and services ಸ್ಕ್ರೀನ್, 4-View Catalog Try-On ಮತ್ತು Try-On. Settings / Developers / APIs and services ಸಾಲು 1 ಎಂದು ಗುರುತಿಸಲಾಗಿದೆ.](1-open.webp "ಪ್ರತಿ ಸೇವೆಗೆ ತನ್ನದೇ ಕಾರ್ಡ್ ಇದೆ.")
 
 ಯಾವ ಸೇವೆಯೂ ಆನ್ ಆಗಿಲ್ಲದಿದ್ದರೆ, ಸ್ಕ್ರೀನ್‌ನಲ್ಲಿ *No platform services are switched on for this workspace yet.* ಎಂದು ಬರುತ್ತದೆ.
 
@@ -41,13 +41,13 @@ keywords: ಎಪಿಐ ಸೇವೆಗಳು ಸರ್ವೀಸ್ ಕೀ ಟ್
 ## ಸಾಮಾನ್ಯ ಸಮಸ್ಯೆಗಳು
 
 :::faq ನನಗೆ ಬೇಕಾದ ಸೇವೆ NOT ACTIVE ಎಂದು ಇದೆ, ಅಥವಾ ಕಾಣುತ್ತಿಲ್ಲ
-ಸೇವೆಗಳನ್ನು ScaleEzy ಆನ್ ಮಾಡುತ್ತದೆ. **Help & Support** ನಲ್ಲಿ ಟಿಕೆಟ್ ಹಾಕಿ, ನಿಮಗೆ ಯಾವ ಸೇವೆ ಬೇಕು ಎಂದು ತಿಳಿಸಿ.
+ಸೇವೆಗಳನ್ನು ScaleEzy ಆನ್ ಮಾಡುತ್ತದೆ. **Help and support** ನಲ್ಲಿ ಟಿಕೆಟ್ ಹಾಕಿ, ನಿಮಗೆ ಯಾವ ಸೇವೆ ಬೇಕು ಎಂದು ತಿಳಿಸಿ.
 :::
 
 :::faq "You have used this month's allowance" ಎಂದು ಬರುತ್ತಿದೆ
 ತಿಂಗಳ ಮಿತಿ ಪೂರ್ತಿ ಬಳಸಿದಾಗ ಕಾರ್ಡ್ ಹೀಗೆ ಹೇಳುತ್ತದೆ. ಆಗ ಹೊಸ ಟ್ರೈ-ಆನ್ ಚಿತ್ರಗಳು *This workspace has used its ... Ask Scaleezy to raise the limit to carry on.* ಎಂದು ನಿರಾಕರಿಸಲ್ಪಡುತ್ತವೆ. ಮಿತಿ ಹೆಚ್ಚಿಸಲು ScaleEzy ಯನ್ನು ಕೇಳಿ. ಮುಂದಿನ ತಿಂಗಳು ಎಣಿಕೆ ಮತ್ತೆ ಶುರುವಾಗುತ್ತದೆ.
 :::
 
-:::faq Settings ನಲ್ಲಿ APIs & Services ಕಾಣುತ್ತಿಲ್ಲ
+:::faq Settings ನಲ್ಲಿ APIs and services ಕಾಣುತ್ತಿಲ್ಲ
 ಮಾಲೀಕರು ಮತ್ತು ತಂಡವನ್ನು ನಿರ್ವಹಿಸಬಲ್ಲವರಿಗೆ ಮಾತ್ರ ಇದು ಕಾಣುತ್ತದೆ.
 :::

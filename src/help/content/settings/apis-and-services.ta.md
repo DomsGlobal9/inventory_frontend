@@ -9,13 +9,13 @@ keywords: API சர்வீஸ் சேவைகள் கீ ட்ரை-�
 
 **4-View Catalog Try-On** போன்ற சில கூடுதல் சர்வீஸ்கள் ScaleEzy-இடமிருந்து வருகின்றன. உங்கள் கடைக்கு அவற்றை ScaleEzy ஆன் செய்து பார்த்துக்கொள்கிறது. இந்தத் திரை அவற்றைக் காட்ட மட்டுமே. **இங்கே அமைக்கவோ மாற்றவோ எதுவும் இல்லை.**
 
-உரிமையாளரும், **Manage the team and their roles** அனுமதி உள்ளவர்களும் மட்டுமே **APIs & Services** பார்க்க முடியும்.
+உரிமையாளரும், **Manage the team and their roles** அனுமதி உள்ளவர்களும் மட்டுமே **APIs and services** பார்க்க முடியும்.
 
-## 1. APIs & Services-ஐத் திறக்கவும்
+## 1. APIs and services-ஐத் திறக்கவும்
 
-**Settings** திறந்து [[1]] **APIs & Services** அழுத்துங்கள்.
+**Settings** திறங்கள். **Developers**-இன் கீழே, **APIs and services** அழுத்துங்கள். [[1]] நீங்கள் எங்கே இருக்கிறீர்கள் என்று மேலே உள்ள வரி காட்டும்: *Settings / Developers / APIs and services*.
 
-![4-View Catalog Try-On, Try-On என இரண்டு சர்வீஸ் கார்டுகளுடன் APIs and Services திரை. APIs and Services 1 எனக் குறிக்கப்பட்டுள்ளது.](1-open.webp "ஒவ்வொரு சர்வீஸுக்கும் தனி கார்டு உள்ளது.")
+![4-View Catalog Try-On, Try-On என இரண்டு சர்வீஸ் கார்டுகளுடன் APIs and services திரை. Settings / Developers / APIs and services என்ற வரி 1 எனக் குறிக்கப்பட்டுள்ளது.](1-open.webp "ஒவ்வொரு சர்வீஸுக்கும் தனி கார்டு உள்ளது.")
 
 எந்த சர்வீஸும் ஆன் ஆகவில்லை என்றால், திரையில் *No platform services are switched on for this workspace yet.* என்று வரும்.
 
@@ -41,13 +41,13 @@ keywords: API சர்வீஸ் சேவைகள் கீ ட்ரை-�
 ## பொதுவான பிரச்சினைகள்
 
 :::faq எனக்குத் தேவையான சர்வீஸ் NOT ACTIVE என்று இருக்கிறது, அல்லது காணவில்லை
-சர்வீஸ்களை ScaleEzy-தான் ஆன் செய்யும். **Help & Support**-இல் ஒரு டிக்கெட் போட்டு, உங்களுக்கு எந்த சர்வீஸ் வேண்டும் என்று சொல்லுங்கள்.
+சர்வீஸ்களை ScaleEzy-தான் ஆன் செய்யும். **Help and support**-இல் ஒரு டிக்கெட் போட்டு, உங்களுக்கு எந்த சர்வீஸ் வேண்டும் என்று சொல்லுங்கள்.
 :::
 
 :::faq "You have used this month's allowance" என்று வருகிறது
 மாத லிமிட் முழுவதும் பயன்படுத்தப்பட்டால் கார்டில் இப்படி வரும். அதன் பிறகு புதிய ட்ரை-ஆன் படங்கள் *This workspace has used its ... Ask Scaleezy to raise the limit to carry on.* என்ற மெசேஜுடன் மறுக்கப்படும். லிமிட்டை உயர்த்தச் சொல்லி ScaleEzy-இடம் கேளுங்கள். அடுத்த மாதம் எண்ணிக்கை மீண்டும் முதலிலிருந்து தொடங்கும்.
 :::
 
-:::faq Settings-இல் APIs & Services தெரியவில்லை
+:::faq Settings-இல் APIs and services தெரியவில்லை
 உரிமையாளரும், டீமை நிர்வகிக்க அனுமதி உள்ளவர்களும் மட்டுமே இதைப் பார்க்க முடியும்.
 :::

@@ -6,18 +6,18 @@ minutes: 5
 keywords: సమస్య ప్రాబ్లమ్ ఎర్రర్ పనిచేయడం లేదు కనిపించడం లేదు రావడం లేదు సహాయం హెల్ప్ ఇబ్బంది సరిచేయండి తప్పు బూడిద రంగు గ్రే బటన్ ప్రశ్నలు
 ---
 
-మీ సమస్య ఇక్కడ దొరకలేదా? **Ctrl K** తో గైడ్‌లో వెతకండి, లేదా [Settings → Help & Support](/help/settings/get-support) లో ScaleEzy ని అడగండి.
+మీ సమస్య ఇక్కడ దొరకలేదా? **Ctrl K** తో గైడ్‌లో వెతకండి, లేదా [Settings → Help and support](/help/settings/get-support) లో ScaleEzy ని అడగండి.
 
 :::note ముందు ఈ రెండు చెక్ చేయండి
 చాలా సమస్యలు వీటిలో ఒకటే:
 1. **స్క్రీన్ పైన తప్పు స్టోర్ ఎంచుకున్నారు.** స్టాక్, సేల్స్, షెల్ఫ్‌లు ఎప్పుడూ ఆ స్టోర్‌కే చెందుతాయి.
-2. **మీ రోల్‌లో అది లేదు.** మెనూలో ఏదైనా లేదా ఒక బటన్ కనిపించకపోతే, మీ షాప్ యజమానిని అడగండి. ప్రతి రోల్ ఏమి చేయగలదో వారు **Settings → Roles & Permissions** లో నిర్ణయిస్తారు.
+2. **మీ రోల్‌లో అది లేదు.** మెనూలో ఏదైనా లేదా ఒక బటన్ కనిపించకపోతే, మీ షాప్ యజమానిని అడగండి. ప్రతి రోల్ ఏమి చేయగలదో వారు **Settings → Roles and permissions** లో నిర్ణయిస్తారు.
 :::
 
 ## సైన్ ఇన్
 
 :::faq నేను నా పాస్‌వర్డ్ మర్చిపోయాను
-ScaleEzy పాస్‌వర్డ్ రీసెట్ ఈమెయిల్ పంపదు. మీ షాప్ యజమాని లేదా మేనేజర్ **Settings → Team & Users** లో మీకు కొత్త పాస్‌వర్డ్ పెడతారు. [పూర్తి జవాబు](/help/start/sign-in#forgot-your-password)
+ScaleEzy పాస్‌వర్డ్ రీసెట్ ఈమెయిల్ పంపదు. మీ షాప్ యజమాని లేదా మేనేజర్ **Settings → Team members** లో మీకు కొత్త పాస్‌వర్డ్ పెడతారు. [పూర్తి జవాబు](/help/start/sign-in#forgot-your-password)
 :::
 
 :::faq "Invalid credentials" అని వస్తోంది
@@ -31,7 +31,7 @@ ScaleEzy పాస్‌వర్డ్ రీసెట్ ఈమెయిల్
 ## మెనూలు, బటన్లు
 
 :::faq మెనూలో ఏదో లేదా ఒక బటన్ కనిపించడం లేదు
-ఆ వ్యక్తి రోల్‌లో అది లేదు. యజమాని **Settings → Roles & Permissions** లో రోల్ మార్చి, **Save role** నొక్కుతారు. తర్వాత ఆ వ్యక్తి ScaleEzy ని రిఫ్రెష్ చేయాలి. [పూర్తి జవాబు](/help/settings/roles#a-staff-member-says-a-menu-item-is-missing)
+ఆ వ్యక్తి రోల్‌లో అది లేదు. యజమాని **Settings → Roles and permissions** లో రోల్ మార్చి, **Save role** నొక్కుతారు. తర్వాత ఆ వ్యక్తి ScaleEzy ని రిఫ్రెష్ చేయాలి. [పూర్తి జవాబు](/help/settings/roles#a-staff-member-says-a-menu-item-is-missing)
 :::
 
 :::faq బటన్ బూడిద రంగులో ఉంది, నొక్కలేకపోతున్నాను
@@ -175,7 +175,7 @@ ScaleEzy పాస్‌వర్డ్ రీసెట్ ఈమెయిల్
 :::
 
 :::faq Shopify సేల్ ఆర్డర్‌గా రాలేదు
-**Settings → Storefront** లో **Waiting orders** తెరవండి. కారణం ఆర్డర్ మీదే రాసి ఉంటుంది. దాన్ని సరిచేసి, **Retry** నొక్కండి. [పూర్తి జవాబు](/help/settings/connect-shopify#a-shopify-sale-did-not-arrive-as-an-order)
+**Settings → Connected websites** లో **Waiting orders** తెరవండి. కారణం ఆర్డర్ మీదే రాసి ఉంటుంది. దాన్ని సరిచేసి, **Retry** నొక్కండి. [పూర్తి జవాబు](/help/settings/connect-shopify#a-shopify-sale-did-not-arrive-as-an-order)
 :::
 
 :::faq Day Book నంబర్లు తప్పు స్టోర్‌వి చూపిస్తున్నాయి

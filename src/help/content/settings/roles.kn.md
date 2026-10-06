@@ -9,16 +9,16 @@ keywords: ರೋಲ್ ರೋಲ್‌ಗಳು ಅನುಮತಿ ಪರ್ಮ�
 
 ಒಬ್ಬ ವ್ಯಕ್ತಿ ಏನು ನೋಡಬಹುದು ಮತ್ತು ಮಾಡಬಹುದು ಎಂದು **ರೋಲ್** ತೀರ್ಮಾನಿಸುತ್ತದೆ. ಪ್ರತಿಯೊಬ್ಬರಿಗೂ ಒಂದು ರೋಲ್ ಇರುತ್ತದೆ. ನೀವು ಒಂದು ರೋಲ್ ಬದಲಿಸಿದರೆ, ಆ ರೋಲ್ ಇರುವ **ಎಲ್ಲರಿಗೂ** ಅದು ಬದಲಾಗುತ್ತದೆ.
 
-ಮಾಲೀಕರು ಮತ್ತು **Manage the team and their roles** ಅನುಮತಿ ಇರುವವರು ಮಾತ್ರ **Roles & Permissions** ತೆರೆಯಬಹುದು. ಸಿದ್ಧ ರೋಲ್‌ಗಳಲ್ಲಿ, ಅದು ಮಾಲೀಕರು ಮತ್ತು **ADMIN**. ಬೇರೆ ಎಲ್ಲರಿಗೂ *You need permission to manage the team before you can change what roles can do.* ಎಂದು ಕಾಣುತ್ತದೆ.
+ಮಾಲೀಕರು ಮತ್ತು **Manage the team and their roles** ಅನುಮತಿ ಇರುವವರು ಮಾತ್ರ **Roles and permissions** ತೆರೆಯಬಹುದು. ಸಿದ್ಧ ರೋಲ್‌ಗಳಲ್ಲಿ, ಅದು ಮಾಲೀಕರು ಮತ್ತು **ADMIN**. ಬೇರೆ ಎಲ್ಲರಿಗೂ *You need permission to manage the team before you can change what roles can do.* ಎಂದು ಕಾಣುತ್ತದೆ.
 
-## 1. Roles & Permissions ತೆರೆಯಿರಿ
+## 1. Roles and permissions ತೆರೆಯಿರಿ
 
-1. **Settings** ತೆರೆದು [[1]] **Roles & Permissions** ಒತ್ತಿರಿ.
+1. **Settings** ತೆರೆಯಿರಿ. **Team and access** ಕೆಳಗೆ **Roles and permissions** ಒತ್ತಿರಿ. [[1]] ಮೇಲಿನ ಸಾಲು ನೀವು ಎಲ್ಲಿದ್ದೀರಿ ಎಂದು ತೋರಿಸುತ್ತದೆ: *Settings / Team and access / Roles and permissions*.
 2. [[2]] **New role** ನಿಮ್ಮದೇ ರೋಲ್ ಮಾಡುತ್ತದೆ.
 3. [[3]] **Owner — cannot be changed** ಮಾಲೀಕರ ರೋಲ್ ಮೇಲೆ ಇರುತ್ತದೆ.
 4. [[4]] **Sees what you paid** ನಿಮ್ಮ ಖರೀದಿ ಬೆಲೆಗಳನ್ನು ನೋಡಬಲ್ಲ ಪ್ರತಿ ರೋಲ್ ಮೇಲೆ ಇರುತ್ತದೆ.
 
-![Roles ಪಟ್ಟಿ. Roles and Permissions 1, New role 2, Owner cannot be changed ಟ್ಯಾಗ್ 3 ಮತ್ತು Sees what you paid ಟ್ಯಾಗ್ 4 ಎಂದು ಗುರುತಿಸಲಾಗಿದೆ.](1-open.webp "ಜನರ ಐಕಾನ್ ಆ ರೋಲ್ ಎಷ್ಟು ಜನರಿಗೆ ಇದೆ ಎಂದು ತೋರಿಸುತ್ತದೆ. Things ಅದು ಎಷ್ಟು ಅನುಮತಿಗಳನ್ನು ಕೊಡುತ್ತದೆ ಎಂದು ತೋರಿಸುತ್ತದೆ.")
+![Roles ಪಟ್ಟಿ. Settings / Team and access / Roles and permissions ಸಾಲು 1, New role 2, Owner cannot be changed ಟ್ಯಾಗ್ 3 ಮತ್ತು Sees what you paid ಟ್ಯಾಗ್ 4 ಎಂದು ಗುರುತಿಸಲಾಗಿದೆ.](1-open.webp "ಜನರ ಐಕಾನ್ ಆ ರೋಲ್ ಎಷ್ಟು ಜನರಿಗೆ ಇದೆ ಎಂದು ತೋರಿಸುತ್ತದೆ. Things ಅದು ಎಷ್ಟು ಅನುಮತಿಗಳನ್ನು ಕೊಡುತ್ತದೆ ಎಂದು ತೋರಿಸುತ್ತದೆ.")
 
 ಪ್ರತಿ ರೋಲ್ ಕಾರ್ಡ್‌ನಲ್ಲಿ ನಿಮಗೆ ಕಾಣುವುದು:
 
@@ -158,7 +158,7 @@ keywords: ರೋಲ್ ರೋಲ್‌ಗಳು ಅನುಮತಿ ಪರ್ಮ�
 ![Delete SALES ಬಾಕ್ಸ್. 1 person is using this role, move them to another role first, this will not go through ಎಂದು ಇದೆ. Delete role 1 ಎಂದು ಗುರುತಿಸಲಾಗಿದೆ.](6-delete-role.webp "Cancel ಡಿಲೀಟ್ ಮಾಡದೆ ಬಾಕ್ಸ್ ಮುಚ್ಚುತ್ತದೆ.")
 
 - ಯಾರೂ ಆ ರೋಲ್ ಬಳಸದಿದ್ದರೆ, *Nobody is using this role, so nothing changes for anyone.* ಎಂದು ಬರುತ್ತದೆ. [[1]] **Delete role** ಒತ್ತಿರಿ.
-- ಜನರು ಅದನ್ನು ಬಳಸುತ್ತಿದ್ದರೆ, ಡಿಲೀಟ್ ಆಗುವುದಿಲ್ಲ. ಮೊದಲು **Team & Users** ನಲ್ಲಿ ಅವರಿಗೆ ಬೇರೆ ರೋಲ್ ಕೊಡಿ.
+- ಜನರು ಅದನ್ನು ಬಳಸುತ್ತಿದ್ದರೆ, ಡಿಲೀಟ್ ಆಗುವುದಿಲ್ಲ. ಮೊದಲು **Team members** ನಲ್ಲಿ ಅವರಿಗೆ ಬೇರೆ ರೋಲ್ ಕೊಡಿ.
 
 ## ಮಾಲೀಕರ ರೋಲ್
 
@@ -167,7 +167,7 @@ keywords: ರೋಲ್ ರೋಲ್‌ಗಳು ಅನುಮತಿ ಪರ್ಮ�
 ## ಸಾಮಾನ್ಯ ಸಮಸ್ಯೆಗಳು
 
 :::faq "1 person is using this role. Move them to another role first." ಎಂದು ಬರುತ್ತಿದೆ
-**Team & Users** ನಲ್ಲಿ ಆ ಜನರಿಗೆ ಬೇರೆ ರೋಲ್ ಕೊಡಿ, ನಂತರ ರೋಲ್ ಡಿಲೀಟ್ ಮಾಡಿ.
+**Team members** ನಲ್ಲಿ ಆ ಜನರಿಗೆ ಬೇರೆ ರೋಲ್ ಕೊಡಿ, ನಂತರ ರೋಲ್ ಡಿಲೀಟ್ ಮಾಡಿ.
 :::
 
 :::faq "You already have a role called ..." ಎಂದು ಬರುತ್ತಿದೆ

@@ -11,12 +11,12 @@ keywords: వెబ్‌సైట్ స్టోర్‌ఫ్రంట్ �
 
 కనెక్ట్ అయిన తర్వాత, మీ వెబ్‌సైట్ తనంతట తానే అప్‌డేట్ అవుతుంది. ఏదీ ఎక్స్‌పోర్ట్ చేయాల్సిన పని లేదు, తర్వాత ఏదీ నొక్కాల్సిన పని లేదు. రెండు విషయాలకు మీకు మీ డెవలపర్ కావాలి: అప్‌డేట్‌లు అందుకునే **అడ్రస్**, **కీ** ని భద్రంగా ఉంచే చోటు.
 
-## 1. Storefront తెరవండి
+## 1. Connected websites తెరవండి
 
-1. **Settings** తెరిచి [[1]] **Storefront** నొక్కండి.
+1. **Settings** తెరవండి. **Selling online** కింద **Connected websites** నొక్కండి. [[1]] మీరు ఎక్కడ ఉన్నారో పైన ఉన్న లైన్ చూపిస్తుంది: *Settings / Selling online / Connected websites*.
 2. Shopify కార్డ్ కింద [[2]] **Connect a storefront** నొక్కండి. ఇప్పటికే ఒకటి ఉంటే, బటన్ మీద **Connect another storefront** అని ఉంటుంది.
 
-![Storefront స్క్రీన్. Storefront 1 గా, Connect a storefront 2 గా గుర్తించబడ్డాయి.](1-open.webp "మీరు ఒకటి కంటే ఎక్కువ వెబ్‌సైట్‌లు కనెక్ట్ చేయవచ్చు.")
+![Connected websites స్క్రీన్. Settings / Selling online / Connected websites లైన్ 1 గా, Connect a storefront 2 గా గుర్తించబడ్డాయి.](1-open.webp "మీరు ఒకటి కంటే ఎక్కువ వెబ్‌సైట్‌లు కనెక్ట్ చేయవచ్చు.")
 
 ## 2. ఫారమ్ నింపండి
 

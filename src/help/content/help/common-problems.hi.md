@@ -6,18 +6,18 @@ minutes: 5
 keywords: समस्या दिक्कत गड़बड़ एरर नहीं चल रहा नहीं दिख रहा गायब नहीं हो रहा मदद ठीक करें गलत ग्रे बटन सवाल जवाब FAQ
 ---
 
-आपकी समस्या यहाँ नहीं है? **Ctrl K** से गाइड में सर्च करें, या [Settings → Help & Support](/help/settings/get-support) में ScaleEzy से पूछें।
+आपकी समस्या यहाँ नहीं है? **Ctrl K** से गाइड में सर्च करें, या [Settings → Help and support](/help/settings/get-support) में ScaleEzy से पूछें।
 
 :::note पहले ये दो बातें जाँचें
 ज़्यादातर समस्याएँ इन्हीं में से एक होती हैं:
 1. स्क्रीन के ऊपर **गलत स्टोर चुना है**। स्टॉक, बिक्री और शेल्फ़ हमेशा उसी स्टोर के होते हैं।
-2. **आपके रोल में यह शामिल नहीं है।** अगर मेन्यू में कोई चीज़ या कोई बटन नहीं दिख रहा, तो अपनी दुकान के मालिक से पूछें। हर रोल क्या कर सकता है, यह वे **Settings → Roles & Permissions** में तय करते हैं।
+2. **आपके रोल में यह शामिल नहीं है।** अगर मेन्यू में कोई चीज़ या कोई बटन नहीं दिख रहा, तो अपनी दुकान के मालिक से पूछें। हर रोल क्या कर सकता है, यह वे **Settings → Roles and permissions** में तय करते हैं।
 :::
 
 ## साइन इन
 
 :::faq मैं अपना पासवर्ड भूल गया
-ScaleEzy पासवर्ड रीसेट का ईमेल नहीं भेजता। आपकी दुकान के मालिक या मैनेजर **Settings → Team & Users** में आपके लिए नया पासवर्ड सेट करते हैं। [पूरा जवाब](/help/start/sign-in#forgot-your-password)
+ScaleEzy पासवर्ड रीसेट का ईमेल नहीं भेजता। आपकी दुकान के मालिक या मैनेजर **Settings → Team members** में आपके लिए नया पासवर्ड सेट करते हैं। [पूरा जवाब](/help/start/sign-in#forgot-your-password)
 :::
 
 :::faq "Invalid credentials" लिखा आ रहा है
@@ -31,7 +31,7 @@ ScaleEzy पासवर्ड रीसेट का ईमेल नहीं 
 ## मेन्यू और बटन
 
 :::faq मेन्यू में कोई चीज़ या कोई बटन नहीं दिख रहा
-उस व्यक्ति के रोल में यह शामिल नहीं है। मालिक **Settings → Roles & Permissions** में रोल बदलें, **Save role** दबाएँ, और वह व्यक्ति ScaleEzy को रिफ़्रेश करे। [पूरा जवाब](/help/settings/roles#a-staff-member-says-a-menu-item-is-missing)
+उस व्यक्ति के रोल में यह शामिल नहीं है। मालिक **Settings → Roles and permissions** में रोल बदलें, **Save role** दबाएँ, और वह व्यक्ति ScaleEzy को रिफ़्रेश करे। [पूरा जवाब](/help/settings/roles#a-staff-member-says-a-menu-item-is-missing)
 :::
 
 :::faq बटन ग्रे है और दब नहीं रहा
@@ -175,7 +175,7 @@ ScaleEzy पासवर्ड रीसेट का ईमेल नहीं 
 :::
 
 :::faq Shopify की बिक्री ऑर्डर बनकर नहीं आई
-**Settings → Storefront** में **Waiting orders** खोलें। ऑर्डर पर वजह लिखी होती है। उसे ठीक करें, फिर **Retry** दबाएँ। [पूरा जवाब](/help/settings/connect-shopify#a-shopify-sale-did-not-arrive-as-an-order)
+**Settings → Connected websites** में **Waiting orders** खोलें। ऑर्डर पर वजह लिखी होती है। उसे ठीक करें, फिर **Retry** दबाएँ। [पूरा जवाब](/help/settings/connect-shopify#a-shopify-sale-did-not-arrive-as-an-order)
 :::
 
 :::faq Day Book की संख्याएँ गलत स्टोर की हैं

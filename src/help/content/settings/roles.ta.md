@@ -9,16 +9,16 @@ keywords: ரோல் ரோல்கள் அனுமதி பர்மி�
 
 ஒருவர் என்ன பார்க்கலாம், என்ன செய்யலாம் என்பதை **ரோல்** முடிவு செய்யும். ஒவ்வொருவருக்கும் ஒரு ரோல் இருக்கும். ஒரு ரோலை மாற்றினால், அந்த ரோல் உள்ள **எல்லோருக்கும்** அது மாறும்.
 
-உரிமையாளரும், **Manage the team and their roles** அனுமதி உள்ளவர்களும் மட்டுமே **Roles & Permissions** திறக்க முடியும். ரெடி ரோல்களில், அது உரிமையாளரும் **ADMIN**-உம். மற்ற எல்லோருக்கும் *You need permission to manage the team before you can change what roles can do.* என்று தெரியும்.
+உரிமையாளரும், **Manage the team and their roles** அனுமதி உள்ளவர்களும் மட்டுமே **Roles and permissions** திறக்க முடியும். ரெடி ரோல்களில், அது உரிமையாளரும் **ADMIN**-உம். மற்ற எல்லோருக்கும் *You need permission to manage the team before you can change what roles can do.* என்று தெரியும்.
 
-## 1. Roles & Permissions-ஐத் திறக்கவும்
+## 1. Roles and permissions-ஐத் திறக்கவும்
 
-1. **Settings** திறந்து [[1]] **Roles & Permissions** அழுத்துங்கள்.
+1. **Settings** திறங்கள். **Team and access**-இன் கீழே, **Roles and permissions** அழுத்துங்கள். [[1]] நீங்கள் எங்கே இருக்கிறீர்கள் என்று மேலே உள்ள வரி காட்டும்: *Settings / Team and access / Roles and permissions*.
 2. [[2]] **New role** உங்கள் சொந்த ரோலை உருவாக்கும்.
 3. [[3]] **Owner — cannot be changed** உரிமையாளரின் ரோலில் இருக்கும்.
 4. [[4]] **Sees what you paid** உங்கள் வாங்கிய விலைகளைப் பார்க்கக்கூடிய ஒவ்வொரு ரோலிலும் இருக்கும்.
 
-![ரோல்கள் லிஸ்ட். Roles and Permissions 1, New role 2, Owner cannot be changed டேக் 3, Sees what you paid டேக் 4 எனக் குறிக்கப்பட்டுள்ளன.](1-open.webp "ஆட்கள் ஐகான், எத்தனை பேருக்கு அந்த ரோல் உள்ளது என்று காட்டும். Things, அது எத்தனை அனுமதிகள் தருகிறது என்று காட்டும்.")
+![ரோல்கள் லிஸ்ட். Settings / Team and access / Roles and permissions என்ற வரி 1, New role 2, Owner cannot be changed டேக் 3, Sees what you paid டேக் 4 எனக் குறிக்கப்பட்டுள்ளன.](1-open.webp "ஆட்கள் ஐகான், எத்தனை பேருக்கு அந்த ரோல் உள்ளது என்று காட்டும். Things, அது எத்தனை அனுமதிகள் தருகிறது என்று காட்டும்.")
 
 ஒவ்வொரு ரோல் கார்டிலும் இவை தெரியும்:
 
@@ -158,7 +158,7 @@ keywords: ரோல் ரோல்கள் அனுமதி பர்மி�
 ![Delete SALES பெட்டி. 1 person is using this role, move them to another role first, this will not go through என்று உள்ளது. Delete role 1 எனக் குறிக்கப்பட்டுள்ளது.](6-delete-role.webp "Cancel டெலீட் செய்யாமல் பெட்டியை மூடும்.")
 
 - யாரும் ரோலைப் பயன்படுத்தவில்லை என்றால், *Nobody is using this role, so nothing changes for anyone.* என்று வரும். [[1]] **Delete role** அழுத்துங்கள்.
-- ஆட்கள் பயன்படுத்தினால், டெலீட் மறுக்கப்படும். முதலில் **Team & Users**-இல் அவர்களுக்கு வேறு ரோல் கொடுங்கள்.
+- ஆட்கள் பயன்படுத்தினால், டெலீட் மறுக்கப்படும். முதலில் **Team members**-இல் அவர்களுக்கு வேறு ரோல் கொடுங்கள்.
 
 ## உரிமையாளரின் ரோல்
 
@@ -167,7 +167,7 @@ keywords: ரோல் ரோல்கள் அனுமதி பர்மி�
 ## பொதுவான பிரச்சினைகள்
 
 :::faq "1 person is using this role. Move them to another role first." என்று வருகிறது
-**Team & Users**-இல் அவர்களுக்கு வேறு ரோல் கொடுத்து, பிறகு ரோலை டெலீட் செய்யுங்கள்.
+**Team members**-இல் அவர்களுக்கு வேறு ரோல் கொடுத்து, பிறகு ரோலை டெலீட் செய்யுங்கள்.
 :::
 
 :::faq "You already have a role called ..." என்று வருகிறது

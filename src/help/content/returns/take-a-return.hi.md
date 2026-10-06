@@ -58,14 +58,14 @@ keywords: रिटर्न वापसी काउंटर वापस ल
 
 ## 5. मैनेजर कब चाहिए
 
-मालिक **Settings** → [[1]] **Returns & exchanges** में दो लिमिट लगा सकता है, [[2]] दिन और [[3]] पैसे:
+मालिक **Settings** में, **Money** → **Returns and exchanges** के नीचे ([[1]] सबसे ऊपर की लाइन बताती है कि आप कहाँ हैं) दो लिमिट लगा सकता है, [[2]] दिन और [[3]] पैसे:
 
 | सेटिंग | यह क्या करती है |
 |---|---|
 | Take returns within | बिक्री के बाद कितने दिन तक सेल्सपर्सन रिटर्न ले सकता है |
 | A salesperson may pay back up to | एक रिटर्न पर सेल्सपर्सन ज़्यादा से ज़्यादा कितने पैसे लौटा सकता है |
 
-![Settings, Returns & exchanges। टैब पर 1, Take returns within पर 2 और A salesperson may pay back up to पर 3 लिखा है।](6-rules.webp "कोई लिमिट न चाहिए तो बॉक्स खाली छोड़ दें।")
+![Settings, Returns and exchanges। Settings / Money / Returns and exchanges वाली लाइन पर 1, Take returns within पर 2 और A salesperson may pay back up to पर 3 लिखा है।](6-rules.webp "कोई लिमिट न चाहिए तो बॉक्स खाली छोड़ दें।")
 
 कोई भी लिमिट पार होने पर स्क्रीन बताती है कि मैनेजर चाहिए, और क्यों। मैनेजर (जो भी रिटर्न पूरे कर सकता है) फिर भी इसे ले सकता है।
 

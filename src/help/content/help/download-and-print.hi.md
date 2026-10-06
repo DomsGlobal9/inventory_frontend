@@ -26,7 +26,7 @@ ScaleEzy में "सब कुछ एक्सपोर्ट करें" �
 | एक बार इस्तेमाल होने वाले कोड वाला ऑफ़र | **CSV**, **Copy unused** | सारे कोड एक स्प्रेडशीट में, या बिना इस्तेमाल हुए कोड कॉपी | [ऑफ़र कोड](/help/offers/offer-codes) |
 | **Shelves → Racks & shelves** | **Print all labels**, **Labels** | QR कोड वाले शेल्फ़ लेबल, आपके ब्राउज़र से प्रिंट होते हैं | [रैक सेट करें](/help/shelves/set-up-racks) |
 | **Import Products** विंडो | **Download template** | सही कॉलम वाली खाली स्प्रेडशीट | [प्रोडक्ट इम्पोर्ट करें](/help/products/import-products) |
-| **Settings → Storefront** | **Save what we hold** | वह डेटा जो किसी Shopify ग्राहक ने माँगा है | [Shopify जोड़ें](/help/settings/connect-shopify) |
+| **Settings → Connected websites** | **Save what we hold** | वह डेटा जो किसी Shopify ग्राहक ने माँगा है | [Shopify जोड़ें](/help/settings/connect-shopify) |
 
 :::note इन स्क्रीन पर कोई डाउनलोड नहीं
 **Inventory**, लेजर (**View Ledger**), **Orders**, **Returns**, **Customers**, **Purchase Orders** (लिस्ट), **Suppliers**, **Transfers**, **Stock counts** और **Dashboard** पर अभी Export बटन नहीं है।
@@ -87,7 +87,7 @@ Products पर **Import Updates** **Quantity** कॉलम को **ऊपर 
 
 ### परचेज़ ऑर्डर और डिलीवरी
 
-परचेज़ ऑर्डर पर **Download PDF** ऑर्डर को उसके नंबर के नाम से सेव करता है, जैसे *PO-000003.pdf*। डिलीवरी के बाद **Download receipt PDF** (या *Deliveries received* के नीचे **Receipt PDF**) माल रसीद सेव करता है, जैसे *GRN-000001-PO-000003.pdf*। दोनों पर **Settings → General Info** से आपका लोगो और पता आता है।
+परचेज़ ऑर्डर पर **Download PDF** ऑर्डर को उसके नंबर के नाम से सेव करता है, जैसे *PO-000003.pdf*। डिलीवरी के बाद **Download receipt PDF** (या *Deliveries received* के नीचे **Receipt PDF**) माल रसीद सेव करता है, जैसे *GRN-000001-PO-000003.pdf*। दोनों पर **Settings → Name, logo and bill details** से आपका लोगो और पता आता है।
 
 ### लेबल
 

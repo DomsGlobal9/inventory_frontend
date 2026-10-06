@@ -9,7 +9,7 @@ keywords: क़ानून उपभोक्ता संरक्षण ई�
 
 आपकी ऑनलाइन दुकान पर विक्रेता आप हैं, हम नहीं। इसलिए क़ानून हर पन्ने पर आपके विवरण और संपर्क के लिए एक व्यक्ति माँगता है — **Consumer Protection (E-Commerce) Rules 2020**। जब तक ये नहीं भरे जाते, आपकी दुकान नहीं खुलेगी।
 
-आपका **name, address and GSTIN** **Settings → General Info** से आता है। उसे यहाँ दोबारा नहीं लिखना पड़ता।
+आपका **name, address and GSTIN** **Settings → Name, logo and bill details** से आता है। उसे यहाँ दोबारा नहीं लिखना पड़ता।
 
 ## 1. ग्राहक किससे संपर्क करे
 
@@ -48,7 +48,7 @@ keywords: क़ानून उपभोक्ता संरक्षण ई�
 :::
 
 :::faq दुकान पर मेरा GSTIN ग़लत है
-वह इस कार्ड से नहीं, **Settings → General Info** से आता है। उसे वहीं बदलें। [आपकी दुकान का विवरण](/help/settings/shop-details) देखें।
+वह इस कार्ड से नहीं, **Settings → Name, logo and bill details** से आता है। उसे वहीं बदलें। [आपकी दुकान का विवरण](/help/settings/shop-details) देखें।
 :::
 
 :::faq क्या रिटर्न पॉलिसी ख़ाली छोड़ी जा सकती है?

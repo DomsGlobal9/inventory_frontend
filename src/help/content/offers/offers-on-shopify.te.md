@@ -9,7 +9,7 @@ keywords: షాపిఫై shopify డిస్కౌంట్ సింక్
 
 మీ Shopify స్టోర్ తన సొంత డిస్కౌంట్లు వేస్తుంది. Shopify కస్టమర్లకు కూడా అదే ఆఫర్ ఇవ్వాలంటే, ScaleEzy నుండి ఆఫర్ కాపీని Shopify లో పెట్టండి. తర్వాత రెండూ ఒకేలా ఉన్నాయో ScaleEzy చెక్ చేస్తూ ఉంటుంది.
 
-- **Settings → Storefront** లో Shopify స్టోర్ కనెక్ట్ అయి ఉండాలి. [Shopify కనెక్ట్ చేయండి](/help/settings/connect-shopify) చూడండి.
+- **Settings → Connected websites** లో Shopify స్టోర్ కనెక్ట్ అయి ఉండాలి. [Shopify కనెక్ట్ చేయండి](/help/settings/connect-shopify) చూడండి.
 - యజమాని లేదా అడ్మిన్ మాత్రమే ఆఫర్లను Shopify లో పెట్టగలరు.
 
 ## 1. Shopify బాక్స్ తెరవండి
@@ -22,7 +22,7 @@ keywords: షాపిఫై shopify డిస్కౌంట్ సింక్
 
 Shopify స్టోర్ కనెక్ట్ కాకపోతే, బాక్స్ ఆ విషయం చెబుతుంది [[1]]. ముందు మీ స్టోర్ కనెక్ట్ చేయండి.
 
-![Festive 10% off silk on Shopify బాక్స్, No Shopify store is connected to this workspace. Connect one in Settings, Storefront, to put offers on it. అని చెబుతోంది. ఆ మెసేజ్ 1 గా గుర్తించబడింది.](2-not-connected.webp "మీరు ఒక బటన్ నొక్కే వరకు ఈ బాక్స్ నుండి Shopify కి ఏమీ పంపదు.")
+![Festive 10% off silk on Shopify బాక్స్, No Shopify store is connected to this workspace. Connect one in Settings → Connected websites to put offers on it. అని చెబుతోంది. ఆ మెసేజ్ 1 గా గుర్తించబడింది.](2-not-connected.webp "మీరు ఒక బటన్ నొక్కే వరకు ఈ బాక్స్ నుండి Shopify కి ఏమీ పంపదు.")
 
 స్టోర్ కనెక్ట్ అయి ఉంటే, బాక్స్ మీ Shopify స్టోర్ అడ్రస్, ఇంకా వీటిలో ఒకటి చూపిస్తుంది:
 
@@ -68,7 +68,7 @@ Shopify డిస్కౌంట్లు ScaleEzy ఆఫర్ల కంటే 
 :::
 
 :::faq "Your Shopify store has not given this app permission to manage discounts." అని వస్తోంది
-**Settings → Storefront** లో మీ స్టోర్ మళ్లీ కనెక్ట్ చేసి, Shopify అడిగినప్పుడు డిస్కౌంట్లకు అనుమతి ఇవ్వండి.
+**Settings → Connected websites** లో మీ స్టోర్ మళ్లీ కనెక్ట్ చేసి, Shopify అడిగినప్పుడు డిస్కౌంట్లకు అనుమతి ఇవ్వండి.
 :::
 
 :::faq Changed in Shopify అని వస్తోంది

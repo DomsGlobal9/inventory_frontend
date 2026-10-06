@@ -53,5 +53,5 @@ keywords: ಆರಂಭ ಶುರು ಚೆಕ್‌ಲಿಸ್ಟ್ ಹೊಸ 
 6. [ಸ್ಟೋರ್‌ಗಳ ನಡುವೆ ಸ್ಟಾಕ್ ಸಾಗಿಸಿ](/help/transfers/transfers)
 
 :::tip ಸಿಕ್ಕಿಹಾಕಿಕೊಂಡಿರಾ?
-**Ctrl K** ಒತ್ತಿ ಗೈಡ್‌ನಲ್ಲಿ ಹುಡುಕಿ, ಅಥವಾ [ಸಾಮಾನ್ಯ ಸಮಸ್ಯೆಗಳು](/help/help/common-problems) ನೋಡಿ. **Settings → Help & Support** ನಿಂದ ScaleEzy ಗೆ ಮೆಸೇಜ್ ಕೂಡ ಮಾಡಬಹುದು.
+**Ctrl K** ಒತ್ತಿ ಗೈಡ್‌ನಲ್ಲಿ ಹುಡುಕಿ, ಅಥವಾ [ಸಾಮಾನ್ಯ ಸಮಸ್ಯೆಗಳು](/help/help/common-problems) ನೋಡಿ. **Settings → Help and support** ನಿಂದ ScaleEzy ಗೆ ಮೆಸೇಜ್ ಕೂಡ ಮಾಡಬಹುದು.
 :::

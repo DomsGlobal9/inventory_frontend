@@ -121,7 +121,7 @@ keywords: कैंपेन अभियान व्हाट्सएप व�
 
 ## 7. Automatic messages
 
-**Settings** → **Loyalty & wishes** में आप ऐसे मैसेज चालू कर सकते हैं जो अपने आप जाते हैं, उस दिन सुबह 10 बजे से:
+**Settings** → **Birthday and anniversary wishes** में आप ऐसे मैसेज चालू कर सकते हैं जो अपने आप जाते हैं, उस दिन सुबह 10 बजे से:
 
 - **Birthday wishes** और **Anniversary wishes**, उन ग्राहकों को जिनकी तारीख उनके पेज पर सेव है (**Offers on WhatsApp** कार्ड पर **Change dates**)। हर एक के ऊपर एक फ़ोटो लग सकती है: **Picture above the wish**;
 - ग्राहक के लॉयल्टी पॉइंट खत्म होने से एक हफ़्ता पहले रिमाइंडर;

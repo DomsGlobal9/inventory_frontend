@@ -9,14 +9,14 @@ keywords: లొకేషన్ లొకేషన్లు స్టోర్ �
 
 **లొకేషన్** అంటే మీరు స్టాక్ ఉంచే ఏ ప్రదేశమైనా: షాప్, గోడౌన్, లేదా ఆన్‌లైన్ ఆర్డర్ల కోసం మాత్రమే ఉంచే స్టాక్. ScaleEzy లో ప్రతి స్టాక్ నంబర్ ఒక లొకేషన్‌కు చెందుతుంది. మీ టీమ్ తాము పనిచేసే లొకేషన్‌ను స్క్రీన్ పైన ఎంచుకుంటారు.
 
-**Add and change shops and warehouses** అనుమతి ఉన్నవారికి మాత్రమే **Stock Locations** కనిపిస్తుంది. తయారుగా ఉన్న రోల్స్‌లో అది యజమాని, **ADMIN**, **INVENTORY_MANAGER**.
+**Add and change shops and warehouses** అనుమతి ఉన్నవారికి మాత్రమే **Stock locations** కనిపిస్తుంది. తయారుగా ఉన్న రోల్స్‌లో అది యజమాని, **ADMIN**, **INVENTORY_MANAGER**.
 
-## 1. Stock Locations తెరవండి
+## 1. Stock locations తెరవండి
 
-1. **Settings** తెరిచి [[1]] **Stock Locations** నొక్కండి.
+1. **Settings** తెరవండి. **Your shop** కింద **Stock locations** నొక్కండి. [[1]] మీరు ఎక్కడ ఉన్నారో పైన ఉన్న లైన్ చూపిస్తుంది: *Settings / Your shop / Stock locations*.
 2. [[2]] **Add Location** నొక్కండి.
 
-![లిస్ట్‌లో Main Store, Godown ఉన్న Stock Locations స్క్రీన్. Stock Locations 1 గా, Add Location 2 గా గుర్తించబడ్డాయి.](1-open.webp "మీ దగ్గర ఉన్న ప్రతి లొకేషన్ ఇక్కడ ఉంటుంది, పాతది ముందు.")
+![లిస్ట్‌లో Main Store, Godown ఉన్న Stock locations స్క్రీన్. Settings / Your shop / Stock locations లైన్ 1 గా, Add Location 2 గా గుర్తించబడ్డాయి.](1-open.webp "మీ దగ్గర ఉన్న ప్రతి లొకేషన్ ఇక్కడ ఉంటుంది, పాతది ముందు.")
 
 ## 2. ఫారమ్ నింపండి
 
@@ -132,7 +132,7 @@ keywords: లొకేషన్ లొకేషన్లు స్టోర్ �
 
 ## సాధారణ సమస్యలు
 
-:::faq నాకు Settings లో Stock Locations కనిపించడం లేదు
+:::faq నాకు Settings లో Stock locations కనిపించడం లేదు
 మీ రోల్ లొకేషన్లు యాడ్ చేయలేదు, మార్చలేదు. మీ షాప్ యజమానిని అడగండి.
 :::
 

@@ -90,7 +90,7 @@ export default function OfferShopifyPanel({ offer, onClose }) {
 
           {data && !data.connected && (
             <p style={{ margin: 0, color: 'var(--text-secondary)' }}>
-              No Shopify store is connected to this workspace. Connect one in Settings &gt; Storefront to put offers on it.
+              No Shopify store is connected to this workspace. Connect one in Settings → Connected websites to put offers on it.
             </p>
           )}
 
@@ -101,7 +101,7 @@ export default function OfferShopifyPanel({ offer, onClose }) {
               {!data.canWrite && (
                 <div role="note" style={warn}>
                   <AlertTriangle size={16} style={{ flexShrink: 0 }} />
-                  <span>Your Shopify store has not given this app permission to manage discounts. Reconnect it in Settings &gt; Storefront and approve discounts.</span>
+                  <span>Your Shopify store has not given this app permission to manage discounts. Reconnect it in Settings → Connected websites and approve discounts.</span>
                 </div>
               )}
 

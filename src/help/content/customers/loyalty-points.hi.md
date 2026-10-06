@@ -3,7 +3,7 @@ title: लॉयल्टी पॉइंट
 summary: हर काउंटर बिक्री पर ग्राहकों को पॉइंट मिलते हैं, और बाद के बिल का कुछ हिस्सा वे इनसे चुका सकते हैं। नियम एक बार सेट करें, बाकी काम टिल खुद करता है।
 for: मालिक, मैनेजर और सेल्स स्टाफ़
 minutes: 4
-appLabel: Loyalty & wishes
+appLabel: Loyalty points
 keywords: लॉयल्टी पॉइंट पॉइंट्स इनाम रिवॉर्ड कमाएँ इस्तेमाल पॉइंट से भुगतान कैशबैक पक्का ग्राहक जन्मदिन बर्थडे गिफ़्ट तोहफ़ा खत्म एक्सपायरी रिटर्न पॉइंट वापस loyalty points reward rewards earn redeem cashback birthday gift lapse expire expiry return
 ---
 
@@ -13,11 +13,11 @@ keywords: लॉयल्टी पॉइंट पॉइंट्स इना�
 
 ## 1. पॉइंट चालू करें
 
-1. बाईं तरफ़ के मेन्यू में **Settings** दबाएँ, फिर [[1]] **Loyalty & wishes**।
+1. बाईं तरफ़ के मेन्यू में **Settings** दबाएँ। **Customers** के नीचे **Loyalty points** दबाएँ। [[1]] सबसे ऊपर की लाइन में *Settings / Customers / Loyalty and wishes* दिखता है।
 2. [[2]] **Loyalty points** पर टिक करें।
 3. नियम चुनें, सबसे पहले [[3]] हर ₹100 पर कितने पॉइंट मिलें, फिर नीचे **Save** दबाएँ।
 
-![Settings, Loyalty & wishes। Loyalty & wishes टैब पर 1, Loyalty points टिक पर 2 और Points for every ₹100 पर 3 लिखा है।](1-switch-on.webp "नंबरों के नीचे की लाइन बताती है कि इन नियमों से ग्राहक को क्या मिलता है।")
+![Settings, Loyalty points। Settings / Customers / Loyalty and wishes वाली लाइन पर 1, Loyalty points टिक पर 2 और Points for every ₹100 पर 3 लिखा है।](1-switch-on.webp "नंबरों के नीचे की लाइन बताती है कि इन नियमों से ग्राहक को क्या मिलता है।")
 
 | नियम | इसका मतलब | आम तौर पर |
 |---|---|---|
@@ -70,7 +70,7 @@ keywords: लॉयल्टी पॉइंट पॉइंट्स इना�
 
 ## 5. जन्मदिन का तोहफ़ा और पॉइंट खत्म होना
 
-- **Birthday gift**: **Loyalty & wishes** में **Birthday wishes** पर टिक करें और टाइप करें कि कितने पॉइंट देने हैं। जिन ग्राहकों का जन्मदिन उनके पेज पर सेव है, उन्हें ये साल में एक बार, उसी दिन मिलते हैं।
+- **Birthday gift**: **Settings → Birthday and anniversary wishes** में **Birthday wishes** पर टिक करें और टाइप करें कि कितने पॉइंट देने हैं। जिन ग्राहकों का जन्मदिन उनके पेज पर सेव है, उन्हें ये साल में एक बार, उसी दिन मिलते हैं।
 - **पॉइंट खत्म होना**: अगर ग्राहक ने आपके चुने हुए महीनों तक कुछ नहीं खरीदा या पॉइंट इस्तेमाल नहीं किए, तो पॉइंट खत्म हो जाते हैं। एक हफ़्ता पहले WhatsApp भेजने के लिए **Remind customers before their points lapse** पर टिक करें।
 
 शुभकामनाओं और रिमाइंडर के लिए [WhatsApp कैंपेन](/help/campaigns/whatsapp-campaigns) देखें।

@@ -53,5 +53,5 @@ keywords: మొదలు చెక్‌లిస్ట్ కొత్త స�
 6. [స్టోర్‌ల మధ్య స్టాక్ మార్చండి](/help/transfers/transfers)
 
 :::tip ఎక్కడైనా ఆగిపోయారా?
-**Ctrl K** తో గైడ్‌లో వెతకండి, లేదా [సాధారణ సమస్యలు](/help/help/common-problems) చూడండి. **Settings → Help & Support** నుండి ScaleEzy కి మెసేజ్ కూడా పంపవచ్చు.
+**Ctrl K** తో గైడ్‌లో వెతకండి, లేదా [సాధారణ సమస్యలు](/help/help/common-problems) చూడండి. **Settings → Help and support** నుండి ScaleEzy కి మెసేజ్ కూడా పంపవచ్చు.
 :::

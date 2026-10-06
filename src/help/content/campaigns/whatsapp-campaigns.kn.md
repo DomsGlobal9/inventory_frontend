@@ -121,7 +121,7 @@ WhatsApp ನಲ್ಲಿ ಆಫರ್‌ಗಳಿಗೆ ಹೌದು ಎಂದ �
 
 ## 7. Automatic messages
 
-**Settings** → **Loyalty & wishes** ನಲ್ಲಿ ತಾನಾಗಿಯೇ ಹೋಗುವ ಮೆಸೇಜ್‌ಗಳನ್ನು ಆನ್ ಮಾಡಬಹುದು, ಆ ದಿನ ಬೆಳಿಗ್ಗೆ 10 ರಿಂದ:
+**Settings** → **Birthday and anniversary wishes** ನಲ್ಲಿ ತಾನಾಗಿಯೇ ಹೋಗುವ ಮೆಸೇಜ್‌ಗಳನ್ನು ಆನ್ ಮಾಡಬಹುದು, ಆ ದಿನ ಬೆಳಿಗ್ಗೆ 10 ರಿಂದ:
 
 - **Birthday wishes** ಮತ್ತು **Anniversary wishes**, ತಮ್ಮ ಪೇಜ್‌ನಲ್ಲಿ ದಿನಾಂಕ ಸೇವ್ ಆಗಿರುವ ಗ್ರಾಹಕರಿಗೆ (**Offers on WhatsApp** ಕಾರ್ಡ್‌ನಲ್ಲಿ **Change dates**). ಪ್ರತಿಯೊಂದರ ಮೇಲೆ ಒಂದು ಫೋಟೋ ಇಡಬಹುದು: **Picture above the wish**;
 - ಗ್ರಾಹಕರ ಲಾಯಲ್ಟಿ ಪಾಯಿಂಟ್‌ಗಳ ಅವಧಿ ಮುಗಿಯುವ ಒಂದು ವಾರ ಮೊದಲು ರಿಮೈಂಡರ್;

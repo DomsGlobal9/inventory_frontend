@@ -39,7 +39,7 @@ keywords: టిల్ రూల్స్ చేత్తో డిస్కౌ�
 
 క్యాషియర్ లిమిట్ కంటే ఎక్కువ తగ్గిస్తే, సేల్ పూర్తి కాదు. వారికి *Taking 1500 off … is 15% — more than the 10% the till may take off by hand. A manager has to take this one off.* లాంటి మెసేజ్ కనిపిస్తుంది.
 
-యజమాని, అడ్మిన్‌లు ఎప్పుడైనా లిమిట్ దాటవచ్చు. **Settings → Roles & Permissions** లో **Take off more than the till limit by hand** పర్మిషన్‌తో వేరే రోల్‌కు కూడా ఆ అధికారం ఇవ్వవచ్చు.
+యజమాని, అడ్మిన్‌లు ఎప్పుడైనా లిమిట్ దాటవచ్చు. **Settings → Roles and permissions** లో **Take off more than the till limit by hand** పర్మిషన్‌తో వేరే రోల్‌కు కూడా ఆ అధికారం ఇవ్వవచ్చు.
 
 చేత్తో డబ్బు ఎలా తగ్గించాలో [కౌంటర్ సేల్ చేయండి](/help/orders/new-sale) లో ఉంది.
 
@@ -50,7 +50,7 @@ keywords: టిల్ రూల్స్ చేత్తో డిస్కౌ�
 :::
 
 :::faq సేల్స్‌మ్యాన్ అసలు డిస్కౌంట్ ఇవ్వలేకపోతున్నారు
-వారి రోల్‌కు చేత్తో డిస్కౌంట్ ఇచ్చే అనుమతి లేదు. **Settings → Roles & Permissions** లో ఆ రోల్‌కు **Take money off at the till, with a reason** ఇవ్వండి, లేదా డిస్కౌంట్ ఇవ్వమని మేనేజర్‌ను అడగండి.
+వారి రోల్‌కు చేత్తో డిస్కౌంట్ ఇచ్చే అనుమతి లేదు. **Settings → Roles and permissions** లో ఆ రోల్‌కు **Take money off at the till, with a reason** ఇవ్వండి, లేదా డిస్కౌంట్ ఇవ్వమని మేనేజర్‌ను అడగండి.
 :::
 
 :::faq నాకు Till rules కనిపించడం లేదు

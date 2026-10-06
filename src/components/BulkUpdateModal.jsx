@@ -269,7 +269,7 @@ export default function BulkUpdateModal({ isOpen, onClose }) {
                   </p>
                   {locations.length === 0 && (
                     <p style={{ fontSize: '12px', color: 'var(--accent-danger)', marginTop: '8px', marginBottom: 0 }}>
-                      Create a stock location under Settings &rarr; Stock Locations before importing quantities.
+                      Create a stock location under Settings &rarr; Stock locations before importing quantities.
                     </p>
                   )}
                 </div>

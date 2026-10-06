@@ -168,7 +168,7 @@ export default function StockLocationsPage() {
             <div style={{ background: 'var(--bg-input)', padding: '8px', borderRadius: '8px', display: 'flex', color: 'var(--primary-color)' }}>
               <MapPin size={20} />
             </div>
-            Stock Locations
+            Stock locations
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '14px', maxWidth: '600px' }}>
             Manage your physical stores, warehouses, and virtual fulfillment centers.

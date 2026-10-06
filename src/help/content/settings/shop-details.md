@@ -10,12 +10,12 @@ keywords: shop details business name logo letterhead address phone email gst gst
 
 Your shop details appear on the papers you give to other people: counter receipts, purchase orders and goods receipts. Only the owner can change them.
 
-## 1. Open General Info
+## 1. Open your shop's details
 
 1. In the menu on the left, click [[1]] **Settings**.
-2. Click [[2]] **General Info**. It opens first by itself.
+2. Under **Your shop**, click [[2]] **Name, logo and bill details**. Only the owner sees this link.
 
-![The Settings screen. Settings is marked 1 in the left menu and General Info is marked 2.](1-open.webp "Your own name and email are at the top. Shop details are under them.")
+![The Settings page. Settings is marked 1 in the left menu and Name, logo and bill details, under Your shop, is marked 2.](1-open.webp "Your own profile is at the top of Settings. The shop's settings are in the cards under it.")
 
 ## 2. Shop name and logo
 
@@ -62,14 +62,14 @@ Changed your mind before saving? Press **Discard** to go back to the saved detai
 | Settings, for everyone | The logo in place of the letter in the round picture |
 
 :::note A store's own address comes first
-If a store has its own address or phone in **Stock Locations**, the receipt from that store prints the store's address and phone. The shop address is used when the store has none. See [Stores and godowns](/help/settings/locations).
+If a store has its own address or phone in **Stock locations**, the receipt from that store prints the store's address and phone. The shop address is used when the store has none. See [Stores and godowns](/help/settings/locations).
 :::
 
 ## What your team sees
 
-Your staff see the shop name and logo, but they cannot change them. In **General Info** they see this note instead of the form:
+Your staff see the shop's logo, name and shop ID in **Your profile**, at the top of their **Settings**. They do not get the **Name, logo and bill details** link, so they cannot change them.
 
-![A card titled Shop details and password. It says the shop name, logo and letterhead are set by the owner.](5-what-others-see.webp "Staff also cannot change their own password. See Your password.")
+![A team member's profile: the shop logo, their name and role, the shop name Lakshmi Silks and the shop ID. On the right, their login email, a password set by whoever manages the team, and Sign out of other devices.](5-what-others-see.webp "Staff also cannot change their own password. See Your password.")
 
 ## Common problems
 

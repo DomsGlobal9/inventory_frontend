@@ -10,14 +10,14 @@ keywords: staff employee user add new team member login account invite role pass
 
 Give every person their own login. Then each person sees only what their job needs, and the app records who did what.
 
-Only the owner and people who can **Manage the team and their roles** see **Team & Users**. In the ready roles, that is the owner and **ADMIN**.
+Only the owner and people who can **Manage the team and their roles** see **Team members**. In the ready roles, that is the owner and **ADMIN**.
 
-## 1. Open Team & Users
+## 1. Open Team members
 
-1. Open **Settings** and click [[1]] **Team & Users**.
+1. Open **Settings**. Under **Team and access**, click **Team members**. [[1]] The line at the top shows where you are: *Settings / Team and access / Team members*.
 2. Click [[2]] **Add Team Member**.
 
-![The Team and Users screen with the team list. Team and Users is marked 1 and Add Team Member is marked 2.](1-open.webp "Everyone who can sign in to your shop is listed here.")
+![The Team members screen with the team list. The line Settings / Team and access / Team members is marked 1 and Add Team Member is marked 2.](1-open.webp "Everyone who can sign in to your shop is listed here.")
 
 ## 2. Fill in the form
 
@@ -72,7 +72,7 @@ You can see it again later. See [Change a role, reset a password, switch someone
 Someone in your shop already uses this email. Use a different email, or find that person in the list.
 :::
 
-:::faq I don't see Team & Users
+:::faq I don't see Team members
 Only the owner and people who can manage the team see it. Ask your shop owner.
 :::
 

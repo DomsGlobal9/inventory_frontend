@@ -10,13 +10,13 @@ keywords: help support ticket contact scaleezy problem bug question issue compla
 
 Something not working, or a question this guide does not answer? Raise a **ticket**. The ScaleEzy support team reads it and replies inside ScaleEzy.
 
-## 1. Open Help & Support
+## 1. Open Help and support
 
 1. In the menu, click [[1]] **Settings**. On a phone, open the menu with **☰** first.
-2. Click [[2]] **Help & Support**. Everyone has it, whatever their role.
+2. Click the green **Help and support** button at the bottom right. Everyone has it, whatever their role. [[2]] The line at the top shows *Settings / Help and support*.
 3. Click [[3]] **New Ticket**.
 
-![Settings for a salesperson. Settings is marked 1 in the left menu, Help and Support 2 and New Ticket 3.](1-open.webp "Your tickets are listed here. The list is empty until you raise one.")
+![Help and support for a salesperson. Settings is marked 1 in the left menu, the line Settings / Help and support 2 and New Ticket 3.](1-open.webp "Your tickets are listed here. The list is empty until you raise one.")
 
 ## 2. Fill in the ticket
 
@@ -36,7 +36,7 @@ Write the order number, SKU or product name if the problem is about one of them.
 
 ## 3. Read the reply
 
-1. Open **Settings → Help & Support**. Your ticket is in the list with its status: **Open**, **In Progress**, **Resolved** or **Closed**.
+1. Open **Settings → Help and support**. Your ticket is in the list with its status: **Open**, **In Progress**, **Resolved** or **Closed**.
 2. Click the ticket to open the conversation. Replies from ScaleEzy show **Scaleezy Support** next to the name.
 3. To answer, type in **Type a reply...** at the bottom and press the send button.
 

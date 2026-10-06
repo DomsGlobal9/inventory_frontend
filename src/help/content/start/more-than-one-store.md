@@ -10,7 +10,7 @@ keywords: store switch change location branch godown warehouse picker top bar wr
 
 If your shop has more than one place that holds stock, for example a shop and a godown, each one is a **store** in ScaleEzy. Every store has its own stock. You work in one store at a time.
 
-The owner, an admin or an inventory manager adds stores and godowns in **Settings → Stock Locations**. See [Stores and godowns](/help/settings/locations).
+The owner, an admin or an inventory manager adds stores and godowns in **Settings → Stock locations**. See [Stores and godowns](/help/settings/locations).
 
 ## 1. Pick your store
 
@@ -84,5 +84,5 @@ A store that is switched off still shows in the store list. Do not pick it for w
 :::
 
 :::faq I only see one store
-The store list shows every store your shop has. If yours is missing, ask your owner or manager to add it in **Settings → Stock Locations**.
+The store list shows every store your shop has. If yours is missing, ask your owner or manager to add it in **Settings → Stock locations**.
 :::

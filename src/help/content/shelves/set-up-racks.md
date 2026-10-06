@@ -44,7 +44,7 @@ Then change the [[2]] **Levels** to match your shop. Each level has a kind (Area
 ![The bottom of Quick create. On the shop floor is marked 1, the preview of 21 new spots 2 and the Create 21 button 3.](3-check-and-create.webp "If an address already exists it is counted as already there, not made twice.")
 
 :::tip A godown in another building
-Make it a separate store in **Settings → Stock Locations** and move stock with a transfer. A store room in the same building is just a **back room** area in the same store.
+Make it a separate store in **Settings → Stock locations** and move stock with a transfer. A store room in the same building is just a **back room** area in the same store.
 :::
 
 ## 4. Change anything later
@@ -115,7 +115,7 @@ Like the rest of **Racks & shelves**, only the owner, an admin or an inventory m
 ## Common problems
 
 :::faq I don't see Racks & shelves
-Only the owner, an admin or an inventory manager can set up racks. Ask one of them, or ask for the permission in **Settings → Roles & Permissions**.
+Only the owner, an admin or an inventory manager can set up racks. Ask one of them, or ask for the permission in **Settings → Roles and permissions**.
 :::
 
 :::faq Remove or Switch off does not work

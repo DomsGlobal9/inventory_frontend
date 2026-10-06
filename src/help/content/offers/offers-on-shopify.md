@@ -10,7 +10,7 @@ keywords: shopify discount sync mirror put on shopify push ours accept theirs ch
 
 Your Shopify store charges its own discounts. To give Shopify customers the same offer, put a copy of the offer on Shopify from ScaleEzy. ScaleEzy then keeps checking that the two match.
 
-- You need a Shopify store connected in **Settings → Storefront**. See [Connect Shopify](/help/settings/connect-shopify).
+- You need a Shopify store connected in **Settings → Connected websites**. See [Connect Shopify](/help/settings/connect-shopify).
 - Only the owner or an admin can put offers on Shopify.
 
 ## 1. Open the Shopify box
@@ -69,7 +69,7 @@ Check that the offer is started (not a draft), that the box does not say it cann
 :::
 
 :::faq "Your Shopify store has not given this app permission to manage discounts."
-Reconnect your store in **Settings → Storefront** and approve discounts when Shopify asks.
+Reconnect your store in **Settings → Connected websites** and approve discounts when Shopify asks.
 :::
 
 :::faq It says Changed in Shopify

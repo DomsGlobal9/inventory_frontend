@@ -30,7 +30,7 @@ While the shop is open, the address cannot be changed, because customers may hav
 
 ## 3. Set the name and which stores sell online
 
-[[1]] **Shop name** is the name customers see at the top. Leave it empty to use your shop's name from **General Info**.
+[[1]] **Shop name** is the name customers see at the top. Leave it empty to use your shop's name from **Name, logo and bill details** in Settings.
 
 [[2]] **Which stores sell online** decides where the stock comes from. Tick the stores whose stock you are willing to send. A piece only appears if it has stock in one of the ticked stores.
 

@@ -57,7 +57,7 @@ Every change to your stock is saved as its own line, with who did it and when. Y
 | **Settings** | Your shop details, stores, team and roles |
 
 :::tip You only see what your job needs
-If a salesperson can't see **Purchase Orders**, that is on purpose. The shop owner decides who sees what in **Settings → Roles & Permissions**.
+If a salesperson can't see **Purchase Orders**, that is on purpose. The shop owner decides who sees what in **Settings → Roles and permissions**.
 :::
 
 ## Where to go next

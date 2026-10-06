@@ -94,7 +94,7 @@ export default function StorefrontManager() {
   return (
     <div>
       <div style={{ marginBottom: '24px' }}>
-        <h2 style={{ fontSize: '20px', margin: '0 0 6px', color: 'var(--text-primary)' }}>Storefront</h2>
+        <h2 style={{ fontSize: '20px', margin: '0 0 6px', color: 'var(--text-primary)' }}>Connected websites</h2>
         <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-secondary)' }}>
           Connect your website and it stays up to date on its own — products, prices, photos and
           stock. There is nothing to export and nothing to press afterwards.

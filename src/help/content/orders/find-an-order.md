@@ -8,7 +8,7 @@ appLabel: Orders
 keywords: order search look up find sale bill number phone status dispatched confirmed cancelled counter shopify online paid
 ---
 
-Every sale lives in **Orders**: sales at your counter, online orders and Shopify orders.
+Every sale lives in **Orders**: sales at your counter, bills from your POS till, online orders and Shopify orders.
 
 ## 1. Open Orders
 
@@ -18,7 +18,7 @@ In the menu on the left, click [[1]] **Orders**. The newest orders are at the to
 
 Each row shows:
 
-- **WHERE FROM**: *Counter*, *Shopify*, *Online*, *Marketplace* or *Order*, with the store and who made it.
+- **WHERE FROM**: *Counter*, *POS till*, *Shopify*, *Online*, *Marketplace* or *Order*, with the store and who made it.
 - **STATUS**: *Draft*, *Confirmed*, *Partly sent*, *Dispatched* or *Cancelled*.
 - **PAYMENT**: *Paid*, or how much is still due (for example *₹500 due*). An order with no payment taken in ScaleEzy, like a Shopify order, shows **—**.
 
@@ -26,7 +26,7 @@ Each row shows:
 
 1. [[1]] Type an **order number**, a **phone number** or a **name**. The list changes as you type.
 2. [[2]] Choose a **status** to see only those orders, for example only *Confirmed* orders still waiting to be sent.
-3. [[3]] Choose **where from**: *Counter*, *Shopify* or *Other*.
+3. [[3]] Choose **where from**: *Counter*, *POS till*, *Shopify* or *Other*.
 
 ![The search box with 98480 22338 typed is marked 1, the All statuses list 2 and the From anywhere list 3. Two orders for Lakshmi Narayanan are shown.](2-search-and-filters.webp "Searching by phone finds every order of that customer.")
 

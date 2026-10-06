@@ -10,13 +10,13 @@ keywords: api apis services key try-on catalog tryon allowance usage limit gener
 
 Some extra services, such as **4-View Catalog Try-On**, come from ScaleEzy. ScaleEzy switches them on and looks after them for your shop. This screen only shows them. **There is nothing to set up or change here.**
 
-Only the owner and people who can **Manage the team and their roles** see **APIs & Services**.
+Only the owner and people who can **Manage the team and their roles** see **APIs and services**.
 
-## 1. Open APIs & Services
+## 1. Open APIs and services
 
-Open **Settings** and click [[1]] **APIs & Services**.
+Open **Settings**. Under **Developers**, click **APIs and services**. [[1]] The line at the top shows where you are: *Settings / Developers / APIs and services*.
 
-![The APIs and Services screen with two service cards, 4-View Catalog Try-On and Try-On. APIs and Services is marked 1.](1-open.webp "Each service has its own card.")
+![The APIs and services screen with two service cards, 4-View Catalog Try-On and Try-On. The line Settings / Developers / APIs and services is marked 1.](1-open.webp "Each service has its own card.")
 
 If no service is on, the screen says *No platform services are switched on for this workspace yet.*
 
@@ -42,13 +42,13 @@ When you are close to the monthly limit, the card says how many are left. Ask Sc
 ## Common problems
 
 :::faq A service I need says NOT ACTIVE, or is missing
-ScaleEzy switches services on. Raise a ticket in **Help & Support** and say which service you need.
+ScaleEzy switches services on. Raise a ticket in **Help and support** and say which service you need.
 :::
 
 :::faq "You have used this month's allowance"
 The card says this when the monthly limit is used up. New try-on pictures are then refused with *This workspace has used its ... Ask Scaleezy to raise the limit to carry on.* Ask ScaleEzy to raise it. The count starts again next month.
 :::
 
-:::faq I don't see APIs & Services in Settings
+:::faq I don't see APIs and services in Settings
 Only the owner and people who can manage the team see it.
 :::

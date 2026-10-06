@@ -4,7 +4,7 @@ import { ChevronDown } from 'lucide-react';
 
 // Said instead of an empty grey strip when there is nothing to choose. A shop whose catalogue was
 // never set up opened Product Category onto nothing at all, with no hint where the choices come from.
-const NOTHING_SET_UP = 'Nothing set up yet — add them in Settings → Catalog Configuration.';
+const NOTHING_SET_UP = 'Nothing set up yet — add them in Settings → Catalogue.';
 
 export default function Dropdown({ value, onChange, options, placeholder, className = '', emptyText = NOTHING_SET_UP }) {
   const [isOpen, setIsOpen] = useState(false);

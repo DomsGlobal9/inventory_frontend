@@ -40,7 +40,7 @@ Sales staff see the same box with the limit, and [[1]] *Only the shop owner can 
 
 If a cashier takes off more than the limit, the sale is not completed. They see a message like *Taking 1500 off … is 15% — more than the 10% the till may take off by hand. A manager has to take this one off.*
 
-The owner and admins may always go over the limit. You can give another role that power with the permission **Take off more than the till limit by hand**, in **Settings → Roles & Permissions**.
+The owner and admins may always go over the limit. You can give another role that power with the permission **Take off more than the till limit by hand**, in **Settings → Roles and permissions**.
 
 How to take money off by hand is in [New sale](/help/orders/new-sale).
 
@@ -51,7 +51,7 @@ Type a number between 0 and 100, with at most two decimals, or clear the box.
 :::
 
 :::faq A salesperson cannot give a discount at all
-Their role does not allow discounts by hand. Give the role **Take money off at the till, with a reason** in **Settings → Roles & Permissions**, or ask a manager to give the discount.
+Their role does not allow discounts by hand. Give the role **Take money off at the till, with a reason** in **Settings → Roles and permissions**, or ask a manager to give the discount.
 :::
 
 :::faq I don't see Till rules

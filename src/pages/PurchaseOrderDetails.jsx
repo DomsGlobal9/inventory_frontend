@@ -1150,7 +1150,7 @@ function DeliverToAddress({ store, branding }) {
   const phone = store.phone || branding?.businessPhone;
   return (
     <div style={{ marginTop: '8px', fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.5, overflowWrap: 'anywhere' }}>
-      {address ? <div>{address}</div> : <div style={{ color: 'var(--text-muted)' }}>No address saved for this store. Add one in Settings, Stock Locations.</div>}
+      {address ? <div>{address}</div> : <div style={{ color: 'var(--text-muted)' }}>No address saved for this store. Add one in Settings → Stock locations.</div>}
       {phone && <div>Phone {phone}</div>}
       {!store.address && address && <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>The shop's address, as this store has none of its own.</div>}
     </div>

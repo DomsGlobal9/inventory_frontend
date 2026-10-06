@@ -10,14 +10,14 @@ keywords: shopify connect link online store website myshopify orders sync waitin
 
 When Shopify is connected, **every Shopify sale arrives in ScaleEzy as an order**. For that to work, ScaleEzy must know which of your stores each Shopify location is, and which of your products each Shopify product is. This page shows how.
 
-Only people who can **Add and change shops and warehouses** see **Storefront**. In the ready roles: the owner, **ADMIN** and **INVENTORY_MANAGER**.
+Only people who can **Add and change shops and warehouses** see **Connected websites**. In the ready roles: the owner, **ADMIN** and **INVENTORY_MANAGER**.
 
-## 1. Open Storefront
+## 1. Open Connected websites
 
-1. Open **Settings** and click [[1]] **Storefront**.
+1. Open **Settings**. Under **Selling online**, click **Connected websites**. [[1]] The line at the top shows where you are: *Settings / Selling online / Connected websites*.
 2. [[2]] The **Shopify** card is at the top.
 
-![The Storefront screen. Storefront is marked 1 in the Settings list and the Shopify card is marked 2.](1-open.webp "Your own website, if you have one, is connected lower on the same screen.")
+![The Connected websites screen. The line Settings / Selling online / Connected websites is marked 1 and the Shopify card is marked 2.](1-open.webp "Your own website, if you have one, is connected lower on the same screen.")
 
 ## 2. Type your store address and connect
 
@@ -30,12 +30,12 @@ Only people who can **Add and change shops and warehouses** see **Storefront**. 
 
 1. ScaleEzy opens Shopify. Sign in to Shopify if it asks.
 2. Shopify lists what ScaleEzy may read and change. Approve it.
-3. Shopify brings you back to **Settings → Storefront**. A message says your store **is connected**.
+3. Shopify brings you back to **Settings → Connected websites**. A message says your store **is connected**.
 
 The Shopify card now shows your store address and **CONNECTED**.
 
 :::warning Approve everything Shopify asks for
-If some permissions were not approved, a yellow message on the card names them. Those updates will not reach your store. The connected card has no button to connect again, so raise a ticket in [Help & Support](/help/settings/get-support).
+If some permissions were not approved, a yellow message on the card names them. Those updates will not reach your store. The connected card has no button to connect again, so raise a ticket in [Help and support](/help/settings/get-support).
 :::
 
 :::note Installed the app from the Shopify side?
@@ -113,7 +113,7 @@ Open **Waiting orders**. The reason is written on the order. Fix it (usually pai
 :::
 
 :::faq The card says NEEDS RECONNECTING
-The link with Shopify stopped working. The card has no button to connect again. Raise a ticket in [Help & Support](/help/settings/get-support) and give your store address.
+The link with Shopify stopped working. The card has no button to connect again. Raise a ticket in [Help and support](/help/settings/get-support) and give your store address.
 :::
 
 :::faq I don't see Storefront in Settings

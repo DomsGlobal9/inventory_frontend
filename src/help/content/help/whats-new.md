@@ -23,7 +23,7 @@ Know exactly which shelf every piece is on. Set up your racks, print shelf label
 - **Inventory** has new **Stock alerts** and **Stock counts** buttons, so both are one click away.
 - **Purchase Orders** can be filtered by status, for example *Open (waiting for delivery)*. The **Open PO Value** tile on the Dashboard now opens exactly those orders.
 - The Sign in screen explains what to do when you forget your password: press **Forgot your password?**.
-- Changing a password, or switching a team member off, now signs that person out on every device. You can also **Sign out other devices** yourself from **Settings → General Info**.
+- Changing a password, or switching a team member off, now signs that person out on every device. You can also **Sign out other devices** yourself from **Your profile**, at the top of **Settings**.
 
 ### New sale at the counter
 

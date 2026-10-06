@@ -122,7 +122,7 @@ To use a campaign again, click **Save as template** on its page, or at the botto
 
 ## 7. Automatic messages
 
-In **Settings** → **Loyalty & wishes** you can switch on messages that go by themselves, from 10 am on the day:
+In **Settings** → **Birthday and anniversary wishes** you can switch on messages that go by themselves, from 10 am on the day:
 
 - **Birthday wishes** and **Anniversary wishes**, for customers with the date saved on their page (**Change dates** on the **Offers on WhatsApp** card). Each can have a picture above it: **Picture above the wish**;
 - a reminder a week before a customer's loyalty points lapse;

@@ -28,7 +28,7 @@ Adding a product has three steps: **General Information**, **Measurements** (pri
 ![General Information. The name box is marked 1, the category 2, the dress type 3 and the CONTINUE button 4.](2-general-information.webp "Only the name and the category are needed to go on.")
 
 :::tip A category or dress type is missing?
-The lists come from **Settings → Catalog Configuration**. See [Catalog settings](/help/settings/catalog-settings).
+The lists come from **Settings → Catalogue**. See [Catalog settings](/help/settings/catalog-settings).
 :::
 
 ## 3. Set the price, sizes, colours and stock

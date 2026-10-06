@@ -139,7 +139,7 @@ export const SECTIONS = [
     },
     // The order somebody actually does it in: understand it, open it, dress it, share it, then
     // sell from it -- and the pages about what customers do come after the shop exists.
-    pages: ['how-your-shop-works', 'open-your-shop', 'what-customers-see', 'shop-banners', 'share-your-shop', 'taking-orders', 'your-details-and-returns', 'colour-photos', 'filters-customers-use', 'orders-and-alerts', 'who-is-waiting'] },
+    pages: ['how-your-shop-works', 'open-your-shop', 'what-customers-see', 'shop-banners', 'share-your-shop', 'taking-orders', 'take-payments-online', 'your-details-and-returns', 'colour-photos', 'filters-customers-use', 'orders-and-alerts', 'who-is-waiting'] },
   { id: 'settings', title: 'Settings', icon: 'Settings',
     blurb: 'Shop details, stores, catalog, Day Book, team, roles and connections.',
     titles: { te: 'Settings (సెట్టింగ్‌లు)', hi: 'Settings (सेटिंग्स)', ta: 'Settings (அமைப்புகள்)', kn: 'Settings (ಸೆಟ್ಟಿಂಗ್‌ಗಳು)' },
@@ -151,7 +151,7 @@ export const SECTIONS = [
     },
     // In the order of the Settings tabs: General Info, Catalog Configuration, Stock Locations, Day Book,
     // Storefront, APIs & Services, Team & Users, Roles & Permissions, Help & Support.
-    pages: ['shop-details', 'your-password', 'catalog-settings', 'locations', 'day-book', 'whatsapp', 'connect-shopify', 'connect-website', 'apis-and-services', 'add-team-member', 'manage-team', 'roles', 'get-support'] },
+    pages: ['shop-details', 'your-password', 'catalog-settings', 'locations', 'day-book', 'pos-billing-counter', 'whatsapp', 'connect-shopify', 'connect-website', 'apis-and-services', 'add-team-member', 'manage-team', 'roles', 'get-support'] },
   { id: 'help', title: 'Help', icon: 'LifeBuoy',
     blurb: 'Common problems, words we use, and what is new.',
     titles: { te: 'సహాయం', hi: 'सहायता', ta: 'உதவி', kn: 'ಸಹಾಯ' },

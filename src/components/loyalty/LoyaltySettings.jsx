@@ -100,7 +100,7 @@ export default function LoyaltySettings() {
   return (
     <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '760px' }}>
       <div>
-        <h2 style={{ fontSize: '24px', margin: '0 0 8px', color: 'var(--text-primary)' }}>Loyalty & wishes</h2>
+        <h2 style={{ fontSize: '24px', margin: '0 0 8px', color: 'var(--text-primary)' }}>Loyalty and wishes</h2>
         <p style={{ margin: 0, color: 'var(--text-secondary)' }}>Reward customers who come back, and remember their special days.</p>
       </div>
 

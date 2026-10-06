@@ -59,14 +59,14 @@ For "the same kurti in L instead of M":
 
 ## 5. When a manager is needed
 
-The owner can set two limits in **Settings** → [[1]] **Returns & exchanges**, [[2]] the days and [[3]] the money:
+The owner can set two limits in **Settings**, under **Money** → **Returns and exchanges** ([[1]] the line at the top shows where you are): [[2]] the days and [[3]] the money:
 
 | Setting | What it does |
 |---|---|
 | Take returns within | Days after the sale in which a salesperson can take a return |
 | A salesperson may pay back up to | The most a salesperson can pay back on one return |
 
-![Settings, Returns & exchanges. The tab is marked 1, Take returns within 2 and A salesperson may pay back up to 3.](6-rules.webp "Leave a box empty for no limit.")
+![Settings, Returns and exchanges. The line Settings / Money / Returns and exchanges is marked 1, Take returns within 2 and A salesperson may pay back up to 3.](6-rules.webp "Leave a box empty for no limit.")
 
 Past either limit, the screen says a manager is needed, and why. A manager (anyone who can finish returns) can still take it.
 

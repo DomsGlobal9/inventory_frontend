@@ -55,7 +55,7 @@ Owners, admins, managers and stock room staff. Salespeople cannot add stock.
 ## Common problems
 
 :::faq I do not see the + button
-Your role is not allowed to bring stock in. Ask your shop owner to give you **Bring stock in by hand** in **Settings → Roles & Permissions**.
+Your role is not allowed to bring stock in. Ask your shop owner to give you **Bring stock in by hand** in **Settings → Roles and permissions**.
 :::
 
 :::faq I added it to the wrong store

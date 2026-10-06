@@ -5,7 +5,7 @@ for: Owners and admins
 minutes: 4
 app: /settings
 appLabel: Online shop
-keywords: orders accept orders bag checkout pay on delivery cash upi pincode pin code deliver delivery charge free delivery minimum order stock held
+keywords: orders accept orders bag checkout pay on delivery pay online razorpay card cash upi pincode pin code deliver delivery charge free delivery minimum order stock held
 ---
 
 With **Taking orders** off, customers can look at your shop and ask you on WhatsApp — which is how many shops prefer to sell. With it on, they can put pieces in a bag and order them outright, and the order lands in **Orders** with the stock already held for it.
@@ -24,11 +24,13 @@ An order made on your shop holds the pieces for itself immediately, so the same 
 
 ## 2. How customers may pay
 
-[[1]] **When it arrives (cash or UPI)** is the only way to pay today. The customer pays you when the parcel reaches them.
+[[1]] **When it arrives (cash or UPI)**: the customer pays you when the parcel reaches them.
 
-[[2]] **Online (coming with payments)** is greyed out. Paying online needs your payment gateway set up first, and that is not built yet.
+[[2]] **Online (UPI, card — Razorpay)**: the customer pays at the checkout, straight into your own Razorpay account. You can tick it only after you connect Razorpay. Until then it is greyed out, as in the picture. See [Take payments online](/help/online-shop/take-payments-online).
 
-![How customers may pay, with When it arrives marked 1 and the greyed-out Online box marked 2.](2-how-they-pay.webp "Leave When it arrives ticked. With neither ticked, nobody can finish an order.")
+Tick one or both.
+
+![How customers may pay, with When it arrives marked 1 and the Online box marked 2. Under them: To take payment online, connect your Razorpay account in Settings → Payments.](2-how-they-pay.webp "With neither ticked, nobody can finish an order.")
 
 ## 3. Where you deliver
 

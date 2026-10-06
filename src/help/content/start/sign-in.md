@@ -30,7 +30,7 @@ Some people work for two shops with the same email. ScaleEzy then asks **which s
 
 ## Forgot your password?
 
-ScaleEzy does not send reset emails. Your **shop owner or manager** sets a new password for you in **Settings → Team & Users**. It takes them a few seconds.
+ScaleEzy does not send reset emails. Your **shop owner or manager** sets a new password for you in **Settings → Team members**. It takes them a few seconds.
 
 1. Press [[1]] **Forgot your password?** under the Sign in button to see this on the screen too.
 2. Ask your owner or manager for a new password.

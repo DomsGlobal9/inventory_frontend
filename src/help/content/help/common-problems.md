@@ -6,18 +6,18 @@ minutes: 5
 keywords: problem issue error not working missing cannot help trouble fix wrong greyed grey faq
 ---
 
-Can't find your problem here? Search the guide with **Ctrl K**, or ask ScaleEzy in [Settings → Help & Support](/help/settings/get-support).
+Can't find your problem here? Search the guide with **Ctrl K**, or ask ScaleEzy in [Settings → Help and support](/help/settings/get-support).
 
 :::note First check these two things
 Most problems are one of these:
 1. **The wrong store is picked** at the top of the screen. Stock, sales and shelves always belong to that store.
-2. **Your role doesn't include it.** If a menu item or button is missing, ask your shop owner. They decide what each role can do in **Settings → Roles & Permissions**.
+2. **Your role doesn't include it.** If a menu item or button is missing, ask your shop owner. They decide what each role can do in **Settings → Roles and permissions**.
 :::
 
 ## Signing in
 
 :::faq I forgot my password
-ScaleEzy doesn't send reset emails. Your shop owner or manager sets a new password for you in **Settings → Team & Users**. [Full answer](/help/start/sign-in#forgot-your-password)
+ScaleEzy doesn't send reset emails. Your shop owner or manager sets a new password for you in **Settings → Team members**. [Full answer](/help/start/sign-in#forgot-your-password)
 :::
 
 :::faq "Invalid credentials"
@@ -31,7 +31,7 @@ Your password was changed, your account was switched off, or someone chose **Sig
 ## Menus and buttons
 
 :::faq A menu item or button is missing
-The person's role doesn't include it. The owner edits the role in **Settings → Roles & Permissions**, presses **Save role**, and the person refreshes ScaleEzy. [Full answer](/help/settings/roles#a-staff-member-says-a-menu-item-is-missing)
+The person's role doesn't include it. The owner edits the role in **Settings → Roles and permissions**, presses **Save role**, and the person refreshes ScaleEzy. [Full answer](/help/settings/roles#a-staff-member-says-a-menu-item-is-missing)
 :::
 
 :::faq A button is grey and can't be pressed
@@ -175,7 +175,7 @@ The store still has stock or unfinished purchase orders, and the message says wh
 :::
 
 :::faq A Shopify sale did not arrive as an order
-Open **Waiting orders** in **Settings → Storefront**. The reason is written on the order. Fix it, then press **Retry**. [Full answer](/help/settings/connect-shopify#a-shopify-sale-did-not-arrive-as-an-order)
+Open **Waiting orders** in **Settings → Connected websites**. The reason is written on the order. Fix it, then press **Retry**. [Full answer](/help/settings/connect-shopify#a-shopify-sale-did-not-arrive-as-an-order)
 :::
 
 :::faq Day Book numbers are for the wrong store

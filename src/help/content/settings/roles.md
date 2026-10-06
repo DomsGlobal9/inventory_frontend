@@ -10,16 +10,16 @@ keywords: role roles permission permissions access rights job template new role 
 
 A **role** decides what a person can see and do. Every person has one role. When you change a role, it changes for **everyone** who has it.
 
-Only the owner and people who can **Manage the team and their roles** can open **Roles & Permissions**. In the ready roles, that is the owner and **ADMIN**. Everyone else sees *You need permission to manage the team before you can change what roles can do.*
+Only the owner and people who can **Manage the team and their roles** can open **Roles and permissions**. In the ready roles, that is the owner and **ADMIN**. Everyone else sees *You need permission to manage the team before you can change what roles can do.*
 
-## 1. Open Roles & Permissions
+## 1. Open Roles and permissions
 
-1. Open **Settings** and click [[1]] **Roles & Permissions**.
+1. Open **Settings**. Under **Team and access**, click **Roles and permissions**. [[1]] The line at the top shows where you are: *Settings / Team and access / Roles and permissions*.
 2. [[2]] **New role** makes your own role.
 3. [[3]] **Owner — cannot be changed** is on the owner's role.
 4. [[4]] **Sees what you paid** is on every role that can see your buying prices.
 
-![The Roles list. Roles and Permissions is marked 1, New role 2, the Owner cannot be changed tag 3 and the Sees what you paid tag 4.](1-open.webp "The people icon shows how many people have the role. Things shows how many permissions it gives.")
+![The Roles list. The line Settings / Team and access / Roles and permissions is marked 1, New role 2, the Owner cannot be changed tag 3 and the Sees what you paid tag 4.](1-open.webp "The people icon shows how many people have the role. Things shows how many permissions it gives.")
 
 On each role card you see:
 
@@ -159,7 +159,7 @@ Click the bin on the role card. The box tells you first whether anyone uses the 
 ![The Delete SALES box. It says 1 person is using this role, move them to another role first, this will not go through. Delete role is marked 1.](6-delete-role.webp "Cancel closes the box without deleting.")
 
 - If nobody uses the role, it says *Nobody is using this role, so nothing changes for anyone.* Press [[1]] **Delete role**.
-- If people use it, the delete is refused. Give those people another role in **Team & Users** first.
+- If people use it, the delete is refused. Give those people another role in **Team members** first.
 
 ## The owner's role
 
@@ -168,7 +168,7 @@ Click **View** on **SUPER_ADMIN** to see it. Every box is ticked and nothing can
 ## Common problems
 
 :::faq "1 person is using this role. Move them to another role first."
-Give those people another role in **Team & Users**, then delete the role.
+Give those people another role in **Team members**, then delete the role.
 :::
 
 :::faq "You already have a role called ..."

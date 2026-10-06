@@ -131,7 +131,7 @@ export default function Campaigns() {
           <p style={{ margin: '8px 0 0', fontSize: '14px' }}>
             {tab === 'MANUAL'
               ? 'Write one message, choose who gets it, and ScaleEzy sends it to each customer by name.'
-              : <>Birthday and anniversary wishes, and reminders before points lapse, appear here once you switch them on in <Link to="/settings?section=LOYALTY">Settings → Loyalty & wishes</Link>.</>}
+              : <>Birthday and anniversary wishes, and reminders before points lapse, appear here once you switch them on in <Link to="/settings?section=LOYALTY">Settings → Loyalty and wishes</Link>.</>}
           </p>
         </div>
       ) : (

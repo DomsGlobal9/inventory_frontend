@@ -10,12 +10,12 @@ keywords: catalog catalogue configuration sizes colours colors shades dress type
 
 When you add a product you choose its category, dress type, fabric, sizes and colours from lists. Your shop starts with ready-made lists. Here you can add your own entries, rename them, or switch off the ones you never use.
 
-## 1. Open Catalog Configuration
+## 1. Open the Catalogue
 
 1. In the menu on the left, click [[1]] **Settings**.
-2. Click [[2]] **Catalog Configuration**.
+2. Under **Catalogue**, click the list you want, for example [[2]] **Sizes**.
 
-![The Settings screen. Settings is marked 1 in the menu and Catalog Configuration is marked 2.](1-open.webp "Only roles that may manage the catalog see Catalog Configuration.")
+![The Settings page. Settings is marked 1 in the menu and Sizes, under Catalogue, is marked 2.](1-open.webp "Only roles that may manage the catalogue see the Catalogue card.")
 
 ## 2. Choose a list
 
@@ -23,7 +23,7 @@ When you add a product you choose its category, dress type, fabric, sizes and co
 2. [[2]] **Add New** adds an entry to this list.
 3. [[3]] Each entry is a button. Click it to rename, switch off or delete it.
 
-![Dress Types in Catalog Configuration. The list buttons are marked 1, Add New 2 and the Saree entry 3.](2-lists.webp "Dress types are grouped by Women, Men and Kids.")
+![Dress Types in the Catalogue. The row of list buttons is marked 1, Add New 2 and the Saree entry 3.](2-lists.webp "Dress types are grouped by Women, Men and Kids.")
 
 A small lock on an entry means it came with ScaleEzy. An entry with a line through it is switched off.
 
@@ -68,8 +68,8 @@ Products can only be saved in the categories **WOMEN**, **MEN**, **KIDS** and **
 
 ## Common problems
 
-:::faq I don't see Catalog Configuration
-Only the owner, an admin or an inventory manager can manage the catalog. Other roles do not see it in Settings.
+:::faq I don't see the Catalogue card
+Only the owner, an admin or an inventory manager can manage the catalogue. Other roles do not see it in Settings.
 :::
 
 :::faq "No shades yet — add them in Settings → Catalog."

@@ -56,7 +56,7 @@ Read more: [Low stock alerts](/help/inventory/low-stock-alerts).
 
 [[6]] At the bottom of the menu you see who is signed in. The arrow button **signs you out**. On a shared counter computer, always sign out at the end of your shift.
 
-Your own details and password are in **Settings → General Info**. See [Your profile, password and other devices](/help/settings/your-password).
+Your own details and password are in **Your profile**, at the top of **Settings**. See [Your profile, password and other devices](/help/settings/your-password).
 
 ## 7. Help for this screen
 

@@ -12,6 +12,10 @@ keywords: sell sale billing bill counter till pos walk-in customer cash upi card
 New sale works on the shop's computer or a tablet. It does not open on a phone.
 :::
 
+:::note Does your store bill on the ScaleEzy POS?
+Then **New sale** is not shown for that store. A note says the store bills at the POS: make the sale on the till, and it reaches Inventory by itself. See [Connect your POS till](/help/settings/pos-billing-counter).
+:::
+
 ## 1. Open New sale
 
 1. In the menu on the left, click [[1]] **Orders**.

@@ -67,5 +67,5 @@ Use [Move between shelves](/help/shelves/move). Nothing is lost and your stock d
 :::
 
 :::faq I don't see Put away
-Your role cannot put stock away. Ask your shop owner to give you the permission in **Settings → Roles & Permissions**.
+Your role cannot put stock away. Ask your shop owner to give you the permission in **Settings → Roles and permissions**.
 :::

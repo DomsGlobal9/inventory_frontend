@@ -194,7 +194,7 @@ export default function OnlineShopSettings() {
                 <span style={{ fontSize: '13px' }}>{l.name} <span style={{ color: 'var(--text-muted)' }}>({l.code})</span></span>
               </label>
             ))}
-            {sellable.length === 0 && <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Add a store in Stock Locations first.</span>}
+            {sellable.length === 0 && <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Add a store in Settings → Stock locations first.</span>}
           </div>
         </div>
 

@@ -29,7 +29,7 @@ See [Taking orders](/help/online-shop/taking-orders) for how to turn ordering on
 
 | On the shop page | Comes from |
 |---|---|
-| Shop name, logo, address, GSTIN | **Settings → General Info** |
+| Shop name, logo, address, GSTIN | **Settings → Name, logo and bill details** |
 | The pieces, their photos, colours and sizes | **Products** |
 | Prices and offers | The same ones your till uses |
 | Whether a piece shows at all | Whether it is published, and which stores you chose |
@@ -57,5 +57,5 @@ Only someone with the **Online shop** permission sees that tab. Ask your owner o
 :::
 
 :::faq Is this the same as connecting my own website?
-No. **Storefront** in Settings connects a website you already have, so it can be told about your stock. The online shop is a shop page we host for you, and you need no website of your own. See [Connect your website](/help/settings/connect-website).
+No. **Connected websites** in Settings connects a website you already have, so it can be told about your stock. The online shop is a shop page we host for you, and you need no website of your own. See [Connect your website](/help/settings/connect-website).
 :::

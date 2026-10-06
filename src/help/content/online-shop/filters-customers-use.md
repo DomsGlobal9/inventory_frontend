@@ -21,7 +21,7 @@ Nobody sets the filters on your shop. They are built from what is on your produc
 
 ![Add a product, with Design / Craft marked 1 and Material / Fabric marked 2.](1-product-fields.webp "These two boxes are the whole of what the Fabric and Made filters are made of.")
 
-The choices in those two boxes come from **Settings → Catalog Configuration** — **Design Types** and **Materials**. Keep that list tidy and your filters stay tidy.
+The choices in those two boxes come from **Settings → Catalogue** — **Design Types** and **Materials**. Keep that list tidy and your filters stay tidy.
 
 ## What a customer sees
 
@@ -38,13 +38,13 @@ If every product you sell is Silk, the **Fabric** group is hidden — there woul
 The same fields also show in **Details** on each piece — *Fabric: Cotton · Made: Embroidered* — which is often what a customer actually wants to know before asking you anything.
 
 :::tip Be consistent, not detailed
-`Chikankari` on forty products is worth far more than `Chikankari work`, `chikan`, and `Chikankari (Lucknow)` on thirteen each. Every spelling becomes its own filter with its own small count, and the list gets useless. Pick the word, add it once in **Catalog Configuration**, and always choose it from the list.
+`Chikankari` on forty products is worth far more than `Chikankari work`, `chikan`, and `Chikankari (Lucknow)` on thirteen each. Every spelling becomes its own filter with its own small count, and the list gets useless. Pick the word, add it once in **Settings → Catalogue**, and always choose it from the list.
 :::
 
 ## Common problems
 
 :::faq My new craft is not in the dropdown
-Add it in **Settings → Catalog Configuration → Design Types** and it appears in the box. See [Catalog settings](/help/settings/catalog-settings).
+Add it in **Settings → Catalogue → Design types** and it appears in the box. See [Catalog settings](/help/settings/catalog-settings).
 :::
 
 :::faq The Made filter is not on my shop

@@ -53,5 +53,5 @@ You look after products, stock levels and suppliers.
 6. [Move stock between stores](/help/transfers/transfers)
 
 :::tip Stuck?
-Search the guide with **Ctrl K**, or see [Common problems](/help/help/common-problems). You can also message ScaleEzy from **Settings → Help & Support**.
+Search the guide with **Ctrl K**, or see [Common problems](/help/help/common-problems). You can also message ScaleEzy from **Settings → Help and support**.
 :::

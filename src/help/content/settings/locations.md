@@ -10,14 +10,14 @@ keywords: location locations store branch godown warehouse online virtual add ne
 
 A **location** is any place where you keep stock: a shop, a godown, or stock kept only for online orders. Every stock number in ScaleEzy belongs to one location. Your team picks the location they work in at the top of the screen.
 
-Only people who can **Add and change shops and warehouses** see **Stock Locations**. In the ready roles, that is the owner, **ADMIN** and **INVENTORY_MANAGER**.
+Only people who can **Add and change shops and warehouses** see **Stock locations**. In the ready roles, that is the owner, **ADMIN** and **INVENTORY_MANAGER**.
 
-## 1. Open Stock Locations
+## 1. Open Stock locations
 
-1. Open **Settings** and click [[1]] **Stock Locations**.
+1. Open **Settings**. Under **Your shop**, click **Stock locations**. [[1]] The line at the top shows where you are: *Settings / Your shop / Stock locations*.
 2. Click [[2]] **Add Location**.
 
-![The Stock Locations screen with Main Store and Godown in the list. Stock Locations is marked 1 and Add Location is marked 2.](1-open.webp "Every location you have is listed here, oldest first.")
+![The Stock locations screen with Main Store and Godown in the list. The line Settings / Your shop / Stock locations is marked 1 and Add Location is marked 2.](1-open.webp "Every location you have is listed here, oldest first.")
 
 ## 2. Fill in the form
 
@@ -133,7 +133,7 @@ ScaleEzy **refuses** to delete a location, and nothing changes, when:
 
 ## Common problems
 
-:::faq I don't see Stock Locations in Settings
+:::faq I don't see Stock locations in Settings
 Your role cannot add or change locations. Ask your shop owner.
 :::
 

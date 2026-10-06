@@ -10,7 +10,7 @@ keywords: legal law consumer protection ecommerce rules 2020 grievance officer c
 
 You are the seller on your online shop, not us. So the law asks for your details and someone a customer can contact on every page — the **Consumer Protection (E-Commerce) Rules 2020**. Your shop will not open until these are filled in.
 
-Your **name, address and GSTIN** come from **Settings → General Info**. You do not type them again here.
+Your **name, address and GSTIN** come from **Settings → Name, logo and bill details**. You do not type them again here.
 
 ## 1. Who a customer contacts
 
@@ -49,7 +49,7 @@ The line under **Open your shop** names exactly what is missing. Fill it in, pre
 :::
 
 :::faq My GSTIN is wrong on the shop
-It comes from **Settings → General Info**, not from this card. Change it there. See [Your shop's details](/help/settings/shop-details).
+It comes from **Settings → Name, logo and bill details**, not from this card. Change it there. See [Your shop's details](/help/settings/shop-details).
 :::
 
 :::faq Can I leave the return policy empty?

@@ -1,6 +1,6 @@
 ---
 title: Use a barcode scanner
-summary: Which scanner works, how to test it, and every screen where you can scan instead of typing.
+summary: Which scanner works, how to test it, how to scan with a phone's camera instead, and every screen where you can scan instead of typing.
 for: Everyone
 minutes: 3
 app: /orders/new-sale
@@ -16,8 +16,8 @@ A barcode scanner saves typing. Point it at a price tag or a shelf label, and th
 - It must press **Enter** at the end of each scan. Most scanners do this already.
 - Price tags have an ordinary line barcode. **Shelf labels have a QR code**, so if you use shelves, buy a scanner that reads QR codes too (often called a *2D* scanner).
 
-:::note No phone camera scanning
-ScaleEzy cannot scan with a phone or tablet camera. Use a scanner, or type the code.
+:::tip No scanner?
+A phone or tablet can scan with its own camera. See [Scan with a phone or tablet camera](#scan-with-a-phone-or-tablet-camera) below.
 :::
 
 ## 1. Test your scanner
@@ -38,7 +38,7 @@ The scanner types wherever the cursor is. So the box must be **active** first: c
 
 | Screen | Box | What a scan does |
 |---|---|---|
-| **Top of every screen** | **Search products, SKU, barcode...** | Opens that item. Not shown on a phone. |
+| **Top of every screen** | **Search products, SKU, barcode...** | Opens that item. On a phone, tap the 🔍 at the top first. |
 | **New sale** | **Scan a barcode, or type a name, SKU or colour** | Adds the item to the bill. If several items match, pick one from the list. |
 | **Stock count** (while counting) | **Scan barcode or search SKU...** | Finds the item and puts the cursor in its count box. Type how many you counted. |
 | **Shelves → Where is it?** | **Scan a tag or shelf label, or type saree, SKU, colour…** | A price tag shows where that item is. A shelf label shows what is on that shelf. |
@@ -51,6 +51,25 @@ The picture below shows the search at the top of the screen, on a computer.
 
 ![The Dashboard. The search box at the top, Search products, SKU, barcode..., is marked 1.](2-top-search.webp "Nothing found shows a message and keeps the code in the box.")
 
+## Scan with a phone or tablet camera
+
+Any phone or tablet can scan barcodes and shelf QR codes with its camera, iPhone and Android alike. A laptop with a camera can too.
+
+1. At the top of the screen, tap [[1]] the 🔍 **Search or scan a barcode** button.
+
+![A phone. The search button at the top is marked 1.](3-phone-search-phone.webp "On a computer, the scan button is inside the search box instead.")
+
+2. [[1]] Type a name or code, or tap [[2]] **Scan**.
+
+![The search panel on a phone. The box is marked 1 and Scan is marked 2.](4-phone-scan-phone.webp "Close it with the cross.")
+
+3. The first time, your phone asks to use the camera. Tap **Allow**.
+4. Point the camera at the barcode or the shelf label. It finds the item by itself.
+
+On the **Shelves** screens, every scan box has its own camera button: tap [[1]] the 📷 at the end of the box.
+
+![A shelf scan box. The camera button at its right end is marked 1.](5-shelf-camera.webp "A scanner still works in the same box.")
+
 :::warning Two boxes that do not use Enter
 - The search on the **Inventory** screen only filters the list. Clear the box before the next scan, or the two codes join together.
 - **Add Item to PO** in a purchase order finds the item, but you still click it in the list.
@@ -62,6 +81,10 @@ The picture below shows the search at the top of the screen, on a computer.
 - **Shelf labels**: print them in **Shelves → Racks & shelves**. See [Set up racks and print labels](/help/shelves/set-up-racks).
 
 ## Common problems
+
+:::faq The camera does not open
+Your phone was told not to let ScaleEzy use the camera. Tap the **lock** next to the address at the top of the browser, then **Permissions** (or **Site settings**), set **Camera** to **Allow**, and open the page again. If the browser still cannot open the camera, type the code instead.
+:::
 
 :::faq I scan and nothing happens
 Click in the box first, then scan again. The scanner types where the cursor is. If you are in the **Inventory** search or **Add Item to PO**, that is normal: those boxes do not act on Enter.

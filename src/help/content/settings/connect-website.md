@@ -12,12 +12,12 @@ Use this for a website that **your own developer** built. For a Shopify store, s
 
 Once connected, your website stays up to date by itself. There is nothing to export and nothing to press later. You will need your developer for two things: the **address** that receives updates, and a place to keep the **key**.
 
-## 1. Open Storefront
+## 1. Open Connected websites
 
-1. Open **Settings** and click [[1]] **Storefront**.
+1. Open **Settings**. Under **Selling online**, click **Connected websites**. [[1]] The line at the top shows where you are: *Settings / Selling online / Connected websites*.
 2. Under the Shopify card, click [[2]] **Connect a storefront**. If you already have one, the button says **Connect another storefront**.
 
-![The Storefront screen. Storefront is marked 1 and Connect a storefront is marked 2.](1-open.webp "You can connect more than one website.")
+![The Connected websites screen. The line Settings / Selling online / Connected websites is marked 1 and Connect a storefront is marked 2.](1-open.webp "You can connect more than one website.")
 
 ## 2. Fill in the form
 

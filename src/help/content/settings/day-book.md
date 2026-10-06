@@ -15,9 +15,9 @@ At the end of the day, open the **Day Book**. It works like closing a cash book,
 ## 1. Open the Day Book
 
 1. In the menu on the left, click [[1]] **Settings**.
-2. Click [[2]] **Day Book**.
+2. Under **Money**, click [[2]] **Day Book**.
 
-![Settings with Day Book open. Settings is marked 1 in the menu and Day Book is marked 2.](1-open.webp "Only the owner, admins and inventory managers see Day Book.")
+![The Settings page of cards. Settings is marked 1 in the menu and Day Book, under Money, is marked 2.](1-open.webp "Only the owner, admins and inventory managers see Day Book.")
 
 :::tip A bigger page
 You can also open the Day Book on its own page at **inventory.scaleezy.com/reports/daybook**. Save it as a bookmark.
@@ -29,11 +29,11 @@ The Day Book opens on **today**. While the day is not over, it says **STILL RUNN
 
 1. [[1]] Pick another date, or
 2. click [[2]] **Previous day** to go back one day at a time.
-3. [[3]] Choose **All locations**, or one store or godown.
+3. [[3]] It opens on the store chosen at the top of the screen. Choose **All locations** for the whole shop, or another store or godown. One store shows only that store's sales.
 4. [[4]] **PDF** downloads the day as a PDF file.
 5. [[5]] **Send on WhatsApp** sends the day as a PDF to the owner's WhatsApp. See step 8 below.
 
-![The Day Book header. The date is marked 1, Previous day 2, All locations 3, PDF 4 and Send on WhatsApp 5.](2-choose-the-day.webp "Today is marked STILL RUNNING until the day is over.")
+![The Day Book header. The date is marked 1, Previous day 2, the store box 3, PDF 4 and Send on WhatsApp 5.](2-choose-the-day.webp "Today is marked STILL RUNNING until the day is over.")
 
 ## 3. Read the four numbers
 
@@ -45,7 +45,7 @@ Each box shows a number of pieces, and their value in rupees under it.
 - [[4]] **Closing stock**: what you have at the end. Opening + came in − went out.
 - [[5]] **The books balance for this day.** means every piece is accounted for.
 
-![The balance line. Opening stock 0 is marked 1, Came in 96 is marked 2, Went out 4 is marked 3, Closing stock 92 is marked 4 and The books balance for this day is marked 5.](3-the-balance.webp "Worked back from today means ScaleEzy calculated the opening stock from today's stock.")
+![The balance line. Opening stock 0 is marked 1, Came in 66 is marked 2, Went out 4 is marked 3, Closing stock 62 is marked 4 and The books balance for this day is marked 5.](3-the-balance.webp "Worked back from today means ScaleEzy calculated the opening stock from today's stock.")
 
 :::note When the line under the numbers is different
 - *Every piece is accounted for. The closing value is … lower (or higher) than what your stock is worth today…*: all pieces are there. The value moved because new stock came in at a different price. Nothing is missing.
@@ -55,9 +55,26 @@ Each box shows a number of pieces, and their value in rupees under it.
 
 ## 4. Sales and profit
 
-**Sales dispatched** shows the sales whose goods actually left the shop that day: how many dispatches, the units sent, the **Revenue**, **What it cost you** and your **Profit**. Below it is one line for each dispatch, with the order number and the customer.
+**Sales dispatched** shows the sales whose goods actually left the shop that day: how many dispatches and units, then the money.
 
-![Sales dispatched: 2 dispatches, 4 units sent, revenue 11,530, cost 7,180 and profit 4,350, with one line for each dispatch.](4-sales.webp "A sale counts on the day the goods left, not the day the order was written.")
+- **Billed**: what customers were charged, GST included.
+- **GST in it**: the GST inside that amount. You collect it for the government, so it is not your money.
+- **Returned**: what customers brought back that day. It shows only when something came back.
+- **Sales you keep**: billed, less the GST, less what was returned.
+- **What it cost you**: what you paid for the pieces that left. Pieces that came back to the shelf are taken off.
+- **Profit**: sales you keep, less what it cost you.
+
+A line under the numbers says how the profit was worked out. Below it is one line for each dispatch, with the order number and the customer.
+
+![Sales dispatched: 2 dispatches, 4 units sent, billed 11,530, GST in it 549.06, sales you keep 10,980.94, cost 7,180 and profit 3,800.94, with one line for each dispatch.](4-sales.webp "A sale counts on the day the goods left, not the day the order was written.")
+
+:::note No GST line?
+If your shop is not registered for GST and nothing came back that day, **GST in it**, **Returned** and **Sales you keep** do not appear. Profit is then simply **Billed** less **What it cost you**.
+:::
+
+:::note A return counts on the day it comes back
+A return lowers sales and profit on the day it is finished, not on the day of the sale.
+:::
 
 :::warning Profit looks too high?
 If some items sold had no cost recorded, a message says *This profit is higher than the real one.* Add what you paid for those items to see the true profit.

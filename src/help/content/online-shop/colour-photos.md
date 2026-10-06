@@ -63,5 +63,5 @@ Making colours uses the same allowance as try-on. Wait, or ask for more, and run
 :::
 
 :::faq The colour on the photograph is not quite my colour
-It uses the colour swatch set against that colour in **Settings → Catalog Configuration → Colors**. If the swatch is wrong, the photograph will be too. Check the swatch first.
+It uses the colour swatch set against that colour in **Settings → Catalogue → Colours**. If the swatch is wrong, the photograph will be too. Check the swatch first.
 :::

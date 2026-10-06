@@ -31,7 +31,7 @@ export default function ReturnRulesPanel() {
   return (
     <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '640px' }}>
       <div>
-        <h2 style={{ fontSize: '24px', margin: '0 0 8px', color: 'var(--text-primary)' }}>Returns & exchanges</h2>
+        <h2 style={{ fontSize: '24px', margin: '0 0 8px', color: 'var(--text-primary)' }}>Returns and exchanges</h2>
         <p style={{ margin: 0, color: 'var(--text-secondary)' }}>
           Salespeople take returns at the counter from <strong>Returns → Take a return</strong>. Past these limits, a manager takes the return instead. Leave a box empty for no limit.
         </p>

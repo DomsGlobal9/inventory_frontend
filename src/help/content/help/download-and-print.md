@@ -26,7 +26,7 @@ ScaleEzy doesn't have one big "export everything" button. Each screen that can g
 | An offer with single-use codes | **CSV**, **Copy unused** | Every code in a spreadsheet, or the unused codes copied | [Offer codes](/help/offers/offer-codes) |
 | **Shelves → Racks & shelves** | **Print all labels**, **Labels** | Shelf labels with QR codes, printed from your browser | [Set up racks](/help/shelves/set-up-racks) |
 | **Import Products** window | **Download template** | An empty spreadsheet with the right columns | [Import products](/help/products/import-products) |
-| **Settings → Storefront** | **Save what we hold** | The data a Shopify customer asked for | [Connect Shopify](/help/settings/connect-shopify) |
+| **Settings → Connected websites** | **Save what we hold** | The data a Shopify customer asked for | [Connect Shopify](/help/settings/connect-shopify) |
 
 :::note No download on these screens
 **Inventory**, the ledger (**View Ledger**), **Orders**, **Returns**, **Customers**, **Purchase Orders** (the list), **Suppliers**, **Transfers**, **Stock counts** and the **Dashboard** have no Export button yet.
@@ -87,7 +87,7 @@ In **Settings → Day Book**, choose the day and the location first. Then click 
 
 ### Purchase orders and deliveries
 
-On a purchase order, **Download PDF** saves the order, named with its number, for example *PO-000003.pdf*. After a delivery, **Download receipt PDF** (or **Receipt PDF** under *Deliveries received*) saves the goods receipt, for example *GRN-000001-PO-000003.pdf*. Both carry your logo and address from **Settings → General Info**.
+On a purchase order, **Download PDF** saves the order, named with its number, for example *PO-000003.pdf*. After a delivery, **Download receipt PDF** (or **Receipt PDF** under *Deliveries received*) saves the goods receipt, for example *GRN-000001-PO-000003.pdf*. Both carry your logo and address from **Settings → Name, logo and bill details**.
 
 ### Labels
 

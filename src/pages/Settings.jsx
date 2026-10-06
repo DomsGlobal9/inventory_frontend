@@ -23,10 +23,10 @@ import { usePermission } from '../hooks/usePermission';
 
 const SETTINGS_DOMAINS = [
   { id: 'GENERAL', label: 'Profile and shop details', icon: Store },
-  { id: 'CATALOG', label: 'Catalog Configuration', icon: Grid, permission: 'admin:catalog' },
-  { id: 'LOCATIONS', label: 'Stock Locations', icon: MapPin, permission: 'admin:locations' },
+  { id: 'CATALOG', label: 'Catalogue', icon: Grid, permission: 'admin:catalog' },
+  { id: 'LOCATIONS', label: 'Stock locations', icon: MapPin, permission: 'admin:locations' },
   { id: 'DAYBOOK', label: 'Day Book', icon: BookOpen, permission: 'report:financial' },
-  { id: 'STOREFRONT', label: 'Storefront', icon: Globe, permission: 'admin:locations' },
+  { id: 'STOREFRONT', label: 'Connected websites', icon: Globe, permission: 'admin:locations' },
   { id: 'ONLINE_SHOP', label: 'Online shop', icon: Globe, permission: 'admin:online_shop' },
   // Its own place: the shop's Razorpay account, what has been paid online and money back. The
   // server guards all of it with admin:online_shop, so the menu does too.
@@ -34,12 +34,12 @@ const SETTINGS_DOMAINS = [
   // The till's key. Same guard as Connected websites on the server (admin:locations).
   { id: 'POS', label: 'POS (billing counter)', icon: Monitor, permission: 'admin:locations' },
   { id: 'WHATSAPP', label: 'WhatsApp', icon: MessageCircle, permission: 'whatsapp:manage' },
-  { id: 'LOYALTY', label: 'Loyalty & wishes', icon: Gift, permission: 'loyalty:manage' },
-  { id: 'RETURNS', label: 'Returns & exchanges', icon: Undo2, permission: 'return:complete' },
-  { id: 'SERVICES', label: 'APIs & Services', icon: Key, permission: 'admin:users' },
-  { id: 'USERS', label: 'Team & Users', icon: Users, permission: 'admin:users' },
-  { id: 'ROLES', label: 'Roles & Permissions', icon: Shield, permission: 'admin:users' },
-  { id: 'SUPPORT', label: 'Help & Support', icon: LifeBuoy },
+  { id: 'LOYALTY', label: 'Loyalty and wishes', icon: Gift, permission: 'loyalty:manage' },
+  { id: 'RETURNS', label: 'Returns and exchanges', icon: Undo2, permission: 'return:complete' },
+  { id: 'SERVICES', label: 'APIs and services', icon: Key, permission: 'admin:users' },
+  { id: 'USERS', label: 'Team members', icon: Users, permission: 'admin:users' },
+  { id: 'ROLES', label: 'Roles and permissions', icon: Shield, permission: 'admin:users' },
+  { id: 'SUPPORT', label: 'Help and support', icon: LifeBuoy },
   // BILLING and API were shipped as navigable tabs whose only content was "This section is
   // under construction", which reads to a paying customer as an unfinished product. Neither
   // has an implementation behind it, and billing belongs to the platform tier rather than
@@ -270,7 +270,7 @@ export default function Settings() {
           {activeDomain === 'USERS' && (
             <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '32px' }}>
               <div style={{ marginBottom: '24px' }}>
-                <h2 style={{ fontSize: '24px', marginBottom: '8px', color: 'var(--text-primary)' }}>Team & Users</h2>
+                <h2 style={{ fontSize: '24px', marginBottom: '8px', color: 'var(--text-primary)' }}>Team members</h2>
               </div>
               {canManageTeam ? (
                 <TeamManager />
@@ -299,7 +299,7 @@ export default function Settings() {
           {activeDomain === 'SUPPORT' && (
             <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '32px' }}>
               <div style={{ marginBottom: '24px' }}>
-                <h2 style={{ fontSize: '24px', marginBottom: '8px', color: 'var(--text-primary)' }}>Help & Support</h2>
+                <h2 style={{ fontSize: '24px', marginBottom: '8px', color: 'var(--text-primary)' }}>Help and support</h2>
               </div>
               <SupportPanel />
             </div>

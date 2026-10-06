@@ -11,7 +11,7 @@ keywords: return refund exchange send back bring back damaged faulty wrong size 
 Booking a return only records that pieces are coming back. **Nothing goes back into stock yet.** That happens when the return is checked. See [Receive, check and finish a return](/help/returns/finish-a-return).
 
 :::note Who can book a return
-You need to see customers and to log returns. With the standard roles, that is **admins and the owner**. Sales staff cannot log returns, and stock room staff cannot open Customers. Your owner can change this in **Settings → Roles & Permissions**.
+You need to see customers and to log returns. With the standard roles, that is **admins and the owner**. Sales staff cannot log returns, and stock room staff cannot open Customers. Your owner can change this in **Settings → Roles and permissions**.
 :::
 
 ## 1. Open the customer's Dispatches

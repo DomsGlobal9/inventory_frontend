@@ -106,7 +106,7 @@ export default function ServicesPanel() {
   return (
     <div>
       <div style={{ marginBottom: '24px' }}>
-        <h2 style={{ fontSize: '20px', margin: '0 0 6px', color: 'var(--text-primary)' }}>APIs & Services</h2>
+        <h2 style={{ fontSize: '20px', margin: '0 0 6px', color: 'var(--text-primary)' }}>APIs and services</h2>
         <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-secondary)' }}>
           Platform services switched on for this workspace. These are set up and looked after by
           Scaleezy — there is nothing to configure here.

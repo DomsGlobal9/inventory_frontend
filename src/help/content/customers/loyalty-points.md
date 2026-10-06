@@ -1,6 +1,6 @@
 ---
 title: Loyalty points
-summary: Customers earn points on every counter sale and use them to pay part of a later bill. Set the rules once; the till does the rest.
+summary: Customers earn points on what they pay, at the counter and if you choose on online orders, and use them to pay part of a later bill. Set the rules once; the till does the rest.
 for: Owners, managers and sales staff
 minutes: 4
 app: /settings?section=LOYALTY
@@ -10,7 +10,7 @@ keywords: loyalty points reward rewards points earn redeem use pay with points c
 
 Loyalty points are a thank-you to customers who come back. They earn points on what they pay, and later use those points to pay part of a bill.
 
-Points work only at the counter, in [New sale](/help/orders/new-sale).
+Points are used only at the counter, in [New sale](/help/orders/new-sale). They are earned at the counter, and on online shop and Shopify orders if you tick them.
 
 ## 1. Switch points on
 
@@ -33,6 +33,17 @@ The line under the rules shows what they give, for example *A ₹5,000 bill earn
 :::note
 Only owners, and roles with the loyalty permission, can change these rules. Everyone who takes sales can give and take points at the till.
 :::
+
+### Where customers earn points
+
+Under the rules, tick where customers earn:
+
+- [[1]] **Counter sales**: ticked unless you untick it.
+- [[2]] **Online shop orders** and [[3]] **Shopify orders**: not ticked until you tick them. The customer earns when the order is sent out, on what they paid. A cancelled order earns nothing. A returned one takes its points back.
+
+Points are always used at the counter only. Untick **Counter sales** and customers can still use their points there; they just stop earning them.
+
+![Where customers earn points. Counter sales is marked 1, Online shop orders 2 and Shopify orders 3.](1b-where-earned.webp "Click Save at the bottom after changing a tick.")
 
 ## 2. At the counter
 

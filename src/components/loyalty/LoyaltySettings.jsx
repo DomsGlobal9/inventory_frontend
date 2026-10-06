@@ -87,6 +87,9 @@ export default function LoyaltySettings() {
         anniversaryWish: f.anniversaryWish,
         anniversaryText: f.anniversaryText,
         expiryReminder: f.expiryReminder,
+        earnAtCounter: f.earnAtCounter,
+        earnOnlineShop: f.earnOnlineShop,
+        earnShopify: f.earnShopify,
         // Sent only by those who could change them, so nobody else clears a picture by saving.
         ...(pictures ? { birthdayMediaId: f.birthdayMedia?.id ?? null, anniversaryMediaId: f.anniversaryMedia?.id ?? null } : {})
       });
@@ -106,7 +109,7 @@ export default function LoyaltySettings() {
 
       <div style={section}>
         <Toggle id="l-enabled" name="Loyalty points" checked={f.enabled} onChange={set('enabled')}
-          hint="Customers earn points on every counter sale, and can use them to pay part of a later bill.">
+          hint="Off unless you switch it on. Customers earn points on what they pay, and can use them at the counter to pay part of a later bill.">
           <Gift size={16} style={{ verticalAlign: '-3px', marginRight: '6px' }} />Loyalty points
         </Toggle>
         {f.enabled && (
@@ -121,6 +124,16 @@ export default function LoyaltySettings() {
               <Num id="l-max" label="Points can pay up to" value={f.maxRedeemPercent} onChange={set('maxRedeemPercent')} suffix="% of a bill" min={1} max={100} />
               <Num id="l-expiry" label="Points lapse after" value={f.expiryMonths} onChange={set('expiryMonths')} suffix="months with no visit (0 = never)" max={120} />
             </div>
+            <fieldset style={{ border: '1px solid var(--border-light)', borderRadius: '10px', padding: '12px 16px', margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <legend style={{ fontWeight: 500, padding: '0 6px' }}>Where customers earn points</legend>
+              <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-secondary)' }}>Tick only the ones you want. Points can still be used only at the counter.</p>
+              <Toggle id="l-earn-counter" name="Counter sales" checked={f.earnAtCounter} onChange={set('earnAtCounter')}>Counter sales</Toggle>
+              <Toggle id="l-earn-shop" name="Online shop orders" checked={f.earnOnlineShop} onChange={set('earnOnlineShop')}
+                hint="When the order is sent out.">Online shop orders</Toggle>
+              <Toggle id="l-earn-shopify" name="Shopify orders" checked={f.earnShopify} onChange={set('earnShopify')}
+                hint="When the order is sent out.">Shopify orders</Toggle>
+              <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-secondary)' }}>A cancelled order earns nothing. A returned one takes its points back, the same as at the counter.</p>
+            </fieldset>
           </div>
         )}
       </div>

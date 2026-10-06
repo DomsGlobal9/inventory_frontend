@@ -12,7 +12,7 @@ Shelves are optional. A shop with no racks set up works exactly as before, and e
 
 ## Where to find it
 
-In the menu on the left, click [[1]] **Shelves**. The tabs along the top [[2]] hold every shelf job: **Where is it?**, **Put away**, **Move**, **Pick**, **Count**, **Map**, **Shelf issues** and **Racks & shelves**.
+In the menu on the left, click [[1]] **Shelves**. The tabs along the top [[2]] hold every shelf job: **Where is it?**, **Fill shelves**, **Put away**, **Move**, **Pick**, **Count**, **Map**, **Shelf issues** and **Racks & shelves**.
 
 ![The Shelves screen. Shelves in the left menu is marked 1 and the row of tabs is marked 2.](1-the-shelves-screens.webp "You only see the tabs your role allows.")
 
@@ -21,7 +21,7 @@ Who sees what:
 | Role | Can do |
 |---|---|
 | Owner, admin, inventory manager | Everything, including setting up racks, printing labels and marking shelf issues resolved |
-| Stock room (warehouse) | Find, put away, move, pick and count. Not set up racks |
+| Stock room (warehouse) | Find, fill shelves, put away, move, pick and count. Not set up racks |
 | Sales | Find stock with **Where is it?**, see the map and shelf issues. Not move anything |
 
 ## Every shelf has an address

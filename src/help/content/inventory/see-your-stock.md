@@ -61,6 +61,10 @@ The buttons at the end of each line are off to the right. Swipe the list sideway
 
 ## Common problems
 
+:::faq A cost says est.
+No cost was ever recorded for that item, so ScaleEzy estimated it from the selling price. That makes your stock value look **higher** than it really is. Point at the number to see how it was worked out, and enter what you paid on the product's **Variants** tab to fix it.
+:::
+
 :::faq An item is missing from the list
 Clear the search box and set the filter back to **All Inventory**. Archived products only show under **Archived**.
 :::

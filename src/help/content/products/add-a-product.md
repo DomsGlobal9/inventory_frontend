@@ -23,7 +23,8 @@ Adding a product has three steps: **General Information**, **Measurements** (pri
 2. [[2]] Choose the **Product Category**, for example WOMEN.
 3. [[3]] Choose the **Dress Type**, for example Saree. The list changes with the category.
 4. Design / Craft, Material / Fabric, Description, Product Type and Brand are optional. Fill them in if you want them on your website.
-5. Click [[4]] **CONTINUE**.
+5. If your shop charges GST, choose the **GST rate** and type the **HSN code**. Sarees and fabric are usually **5%**. For stitched clothes, tick **Priced by the piece — 5% up to ₹2,500, 18% above**. Not sure? Ask your accountant; you can change it later.
+6. Click [[4]] **CONTINUE**.
 
 ![General Information. The name box is marked 1, the category 2, the dress type 3 and the CONTINUE button 4.](2-general-information.webp "Only the name and the category are needed to go on.")
 
@@ -64,9 +65,11 @@ The photo appears with **Ready**. Click [[1]] **REVIEW & PUBLISH PRODUCT**.
 ![The saree photo is added and shows Ready. REVIEW & PUBLISH PRODUCT is marked 1.](4b-photo-added.webp "The red cross removes the photo if you chose the wrong one.")
 
 :::note What you see here depends on the dress type
-For sarees, lehengas, anarkalis, shararas and kurtis you get named photo boxes. For other items you get one **Add Photos** box where you can add many photos at once.
+For sarees, lehengas, anarkalis, shararas and kurtis you get named photo boxes. Under them, **Your own photos of the Red one** takes any other photos you want shoppers to see: press **CHOOSE**, and several at once is fine. For other items you get one **Add photos** box.
 
-The **GENERATE 4-VIEW CATALOG** button is optional. It makes model photos from your photo with an AI service. You do not need it to publish.
+Tick **Make the four catalog views for the Red one** if you want model photos made from your photo. They are made after you publish, so you do not wait here. It is optional. See [Product photos](/help/products/photos).
+
+A colour without a photo does not stop you: the product's **Images** tab can fill it in later.
 :::
 
 ## 7. Check where the stock goes
@@ -115,9 +118,11 @@ New variants warn at 5 pieces or fewer. With only a few pieces, the number shows
 :::
 
 :::faq Can I change a product's name or price after saving?
-The name and the Base Price, no. No screen changes a product's **name**, **Base Price**, **category** or **description** after it is saved, and importing a sheet with its product code does not change them either. Check them on the review page before you publish.
+Yes. Open the product, and on the **Overview** tab press **Edit details**. You can change the **Product name**, **Description**, **Brand**, **Category**, **Type**, **Dress style**, **Fabric**, **HSN code**, **GST rate** and **Global price (₹)**, then press **Save changes**. Changing the name also changes the product's web address.
 
-You can still change these:
+A new **Price** changes the colours and sizes that were simply following it. A colour or size you priced on its own keeps its price. Before you save, the screen says which ones will change.
+
+You can also change these elsewhere:
 
 - The selling price of each colour and size (**You sell at**) and what you pay (**You pay**), on the **Variants** tab. See [Sizes, colours and barcodes](/help/products/variants-and-barcodes).
 - A different price in one store. See [A different price in one store](/help/products/price-per-store).

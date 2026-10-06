@@ -17,15 +17,14 @@ A product can have general photos (the fabric, the border, the drape) and its ow
 
 ![The product page for Chanderi Dupatta. The Images tab is marked 1 and the red 1 variant has no image button is marked 2.](1-open.webp "The red button goes away when every colour has a photo.")
 
-## 2. Add a photo
+## 2. Add photos
 
-The tab has one part for **The product as a whole** and one part for each size and colour.
+The tab has one part for each size and colour, here **Peach · Free**.
 
-1. For a general photo, click [[1]] **Add photo** in **The product as a whole**.
-2. For a photo of one colour, click [[2]] **Add photo** next to that colour, here **Peach · Free**.
-3. Choose the photo on your computer or phone. It uploads straight away.
+1. Click [[1]] **Add photos** in that part.
+2. Choose the photos on your computer or phone. **Several at once is fine.** They upload straight away.
 
-![The Images tab. Add photo for the product as a whole is marked 1 and Add photo for Peach is marked 2.](2-images-tab.webp "No photo of Peach yet: a customer choosing it would see another colour.")
+![The Images tab. Add photos for Peach · Free is marked 1. Under it: No photo of Peach · Free yet.](2-images-tab.webp "No photo of Peach yet: a customer choosing it would see another colour.")
 
 :::note Photo size
 A photo can be up to 5 MB. Most phone photos are smaller than that.
@@ -45,16 +44,22 @@ The first photo in each part becomes the main photo.
 The photo is removed from the product and from storage. To get it back you must upload it again.
 :::
 
-## Make model photos with GENERATE 4-VIEW CATALOG
+## Make model photos (the four catalog views)
 
-ScaleEzy can turn your own photo of a garment into four catalogue pictures of a model wearing it: **Front**, **Sitting**, **Right** and **Back**.
+ScaleEzy can turn your own photo of a garment into four catalogue pictures of a model wearing it: **Front**, **Sitting**, **Right** and **Back**. Your own photo stays as it is.
 
-- It is only in **Add Product**, on the photo step. It is not on the **Images** tab of a product you already saved. See [Add a product](/help/products/add-a-product).
-- It is only for these dress types: saree, lehenga, anarkali, sharara and kurti (or kurta). For other dress types the photo step says *AI catalog generation isn't available for* that type.
-- First add the photos it needs. For a saree: the **Saree** photo (the **Blouse** photo is optional). For the others: **Full Dress**, **Top** and **Bottom**. Until then the button is grey.
-- Press **GENERATE 4-VIEW CATALOG**. A bar shows how far it is. The pictures appear one by one under **Generated Catalog Views**.
-- To stop, press the stop button next to it (*Stop Generation*). It says *Generation stopped.*
-- When you save the product, the four pictures become the product's photos. The first one is the main photo. Your own photos are kept with them.
+It works for sarees, lehengas, anarkalis, shararas and kurtis (or kurtas).
+
+**When you add a product:** on the photo step, tick **Make the four catalog views for the Red one** (the colour's name). They are made after you publish. You do not have to wait. See [Add a product](/help/products/add-a-product).
+
+**For a product you already have:** on its **Images** tab, in **Make the four catalog views**:
+
+1. Choose **Which colour to photograph**.
+2. Press **MAKE THE FOUR VIEWS**.
+
+You can carry on with other work. The card says how far it is, for example *Making the Red views… 1 of 4 done*, and ScaleEzy tells you when they are ready. When one colour is done, the other colours can be made from it.
+
+Not happy with a set? Under **Not happy with a set?**, choose **Which set to make again**. It uses one generation from your allowance.
 
 :::note Who can use it, and how many
 It uses the **4-View Catalog Try-On** service, which ScaleEzy switches on for your shop. Only people with the permission **Generate try-on images** can use it: the owner, an admin or an inventory manager. Each run that finishes, or fails, counts against your shop's monthly allowance. A run you stop is not counted. See [APIs and services](/help/settings/apis-and-services).

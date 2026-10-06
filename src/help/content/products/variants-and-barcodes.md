@@ -94,7 +94,7 @@ Only the owner, an admin or an inventory manager sees **You pay** and can change
 
 The truck button (*Who supplies this item*) lists every supplier of this colour and size, with their prices. See [The product page](/help/products/product-page#who-supplies-this-item).
 
-ScaleEzy downloads a PDF file, for example *Labels_Cotton Kurti.pdf*. Open it and print it on your label printer. Each label is 50 mm by 25 mm, one label per page, with the product name, the price, the SKU and the barcode.
+ScaleEzy downloads a PDF file, for example *Labels_Cotton Kurti.pdf*. Open it and print it on your label printer. Each label is 50 mm by 25 mm, one label per page, with the product name, the price, the SKU and the barcode. If your shop has a logo, it is printed across the top. You add the logo in **Settings → Name, logo and bill details**.
 
 ![One printed label: Cotton Kurti, Rs.1550.00, the SKU of the Blue XL variant and a barcode.](7-the-label.webp "Scan this barcode at the counter to sell the item.")
 
@@ -114,4 +114,8 @@ A variant can be deleted only if it never had any stock movement, is on no purch
 
 :::faq I don't see You pay or Your share %
 These show only for roles that may see what the shop paid, such as the owner, an admin or an inventory manager.
+:::
+
+:::faq Some variants were left out of the labels
+A variant with no barcode yet has nothing to scan, so it gets no label. ScaleEzy names the ones it left out. New variants always get a barcode, so this happens only with very old ones. Ask ScaleEzy support to add their barcodes.
 :::

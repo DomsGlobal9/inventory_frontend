@@ -97,7 +97,7 @@ export default function ProductOverviewEditor({ product, saving, onCancel, onSav
   const field = (label, key, extra = {}) => (
     <div>
       <label className="input-label">{label}</label>
-      <input className="input-field" value={form[key]} onChange={set(key)} {...extra} />
+      <input className="input-field" aria-label={label} value={form[key]} onChange={set(key)} {...extra} />
     </div>
   );
 
@@ -144,7 +144,7 @@ export default function ProductOverviewEditor({ product, saving, onCancel, onSav
         {field('HSN code', 'hsnCode', { placeholder: '4, 6 or 8 digits', inputMode: 'numeric' })}
         <div>
           <label className="input-label">GST rate</label>
-          <select className="input-field" value={form.taxRateBps} onChange={set('taxRateBps')}>
+          <select className="input-field" aria-label="GST rate" value={form.taxRateBps} onChange={set('taxRateBps')}>
             {RATES.map((r) => <option key={r.label} value={r.value}>{r.label}</option>)}
           </select>
         </div>

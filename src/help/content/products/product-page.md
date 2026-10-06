@@ -115,12 +115,23 @@ The message *Transaction recorded successfully* shows, and [[1]] the new movemen
 
 ![The Inventory Ledger with the new card at the top, marked 1: -1 MANUAL CORRECTION for SAR-KAN-MRN, running stock 5, note Torn border, kept aside.](9-new-line.webp "The Total Stock on the Variants tab changes too.")
 
+## Change the name, price or GST
+
+1. On the **Overview** tab, press **Edit details**.
+2. [[1]] Change the **Product name**. Under it you can also change the **Description**, **Brand**, **Category**, **Type**, **Dress style**, **Fabric** and **Craft / work**.
+3. [[2]] Under **Tax**, check the **HSN code** and choose the **GST rate**. For stitched clothes, tick **Priced by the piece** (5% up to ₹2,500, 18% above).
+4. [[3]] Change the **Global price (₹)**. Before you save, the form says which colours and sizes will take the new price: the ones that were simply following it. A colour or size you priced on its own keeps its price.
+5. Press [[4]] **Save changes**.
+
+![The Edit details form on the Overview tab. Product name is marked 1, GST rate 2, Global price 3 and Save changes 4.](10-edit-details.webp "Changing the name also changes the product's web address.")
+
 ## Who can do what
 
 | Part | Who |
 |---|---|
 | Open the product page, the Overview and the Variants tab | Everyone who can see products |
 | **Inventory History** | People who can see stock. Salespeople get *Could not load stock movements.* |
+| **Edit details** (name, GST, price) | People who can change product details and prices: the owner, an admin or an inventory manager |
 | Save a **Record Transaction** | People who can correct stock: the owner, an admin or an inventory manager |
 | The supplier list | People who can see suppliers: the owner, an admin or an inventory manager |
 | **Create PO**, the star and the bin in the supplier list | People who can raise orders and change suppliers |

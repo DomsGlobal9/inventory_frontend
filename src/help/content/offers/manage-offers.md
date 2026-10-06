@@ -70,6 +70,10 @@ A retired offer stays in the list under **Retired**, with all its results. To ru
 
 ## Common problems
 
+:::faq An offer says Applies to nothing
+The offer is on, but it is pointed at products your shop does not have, for example a dress type or a product that was removed. Nobody gets it. Open the offer with **Edit** and check what it applies to.
+:::
+
 :::faq "This offer has been archived. Copy it into a new one rather than changing it."
 Retired offers cannot be edited or started. Open it and press **Copy into a new draft**.
 :::

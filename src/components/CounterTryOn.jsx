@@ -92,7 +92,14 @@ export default function CounterTryOn({ product, onClose }) {
    * a caption promising the main photograph would be used -- the card contradicting itself.
    */
   const { data: imageRows } = useImages(product.id);
-  const productPhotos = (Array.isArray(imageRows) ? imageRows : []).filter(i => !i.variantId);
+  /*
+   * The SAME rule the server uses when no colour photo is sent (tryon-counter.routes.ts): the
+   * primary COVER/GALLERY photo of ANY colour, else the first. Filtering out colour photos here
+   * showed "No photo" on a tile while the server quietly dressed the customer in another colour's
+   * photograph -- so the tile now shows exactly what will be worn.
+   */
+  const productPhotos = (Array.isArray(imageRows) ? imageRows : [])
+    .filter(i => !i.imageType || i.imageType === 'COVER' || i.imageType === 'GALLERY');
   const cover = productPhotos.find(i => i.isPrimary)?.url ?? productPhotos[0]?.url ?? null;
 
   /*

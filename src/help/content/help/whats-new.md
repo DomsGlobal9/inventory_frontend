@@ -6,7 +6,30 @@ minutes: 2
 keywords: updates release changes new features announcements latest
 ---
 
+## October 2026
+
+### Connect your ScaleEzy POS till
+
+Bill at the counter on the ScaleEzy POS, and every bill takes the stock out here and reaches the Day Book by itself. Make a till key in **Settings → POS (billing counter)** and paste it into the till. A store with a connected till bills only on the till, so **New sale** steps aside there. See [Connect your POS till](/help/settings/pos-billing-counter).
+
+### Day Book: GST and returns
+
+The Day Book now shows what was **Billed**, the **GST in it**, what was **Returned**, and the **Sales you keep**. Profit no longer counts GST, and a return lowers the day it comes back. One store's Day Book shows only that store's sales. See [Day Book](/help/settings/day-book).
+
 ## September 2026
+
+### Take payments online
+
+Customers can pay by UPI or card at your online shop's checkout, straight into your own Razorpay account, and you can refund from ScaleEzy. See [Take payments online](/help/online-shop/take-payments-online).
+
+### Scan with your phone
+
+Any phone or tablet can now scan barcodes and shelf QR codes with its camera, iPhone and Android alike. Tap the 🔍 at the top, or the 📷 in any shelf scan box. See [Use a barcode scanner](/help/start/barcode-scanner).
+
+### Settings on one page
+
+**Settings** opens on one page: your profile at the top, then cards such as **Your shop**, **Team and access**, **Money** and **Customers**, each with its settings inside. See [Find your way around](/help/start/find-your-way).
+
 
 ### Help Center
 

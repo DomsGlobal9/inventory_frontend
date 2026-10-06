@@ -251,7 +251,7 @@ export default function DayBook() {
           )}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <MapPin size={15} color="var(--text-muted)" />
-            <Select className="input-field" value={locationId}
+            <Select className="input-field" aria-label="Store" value={locationId}
               onChange={(e) => setLocationId(e.target.value)}
               style={{ padding: '8px 10px', fontSize: '13px' }}>
               <option value="">All locations</option>

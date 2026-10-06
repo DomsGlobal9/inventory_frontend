@@ -425,7 +425,7 @@ export default function Measurements() {
                   // A colour the shop added itself starts with no shades. The drawer used to
                   // open empty, which reads as broken rather than as "there are none".
                   <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                    No shades yet — add them in Settings → Catalog.
+                    No shades yet — add them in Settings → Catalogue.
                   </span>
                 )}
               </div>

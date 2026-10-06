@@ -70,6 +70,25 @@ export const sectionBlurb = (section, lang = 'en') => section.blurbs?.[lang] || 
 
 const cache = new Map();
 
+const headingLabels = (body) => [...body.matchAll(/^#{2,3}\s+(.+)$/gm)]
+  .map(m => m[1].replace(/\[\[\d+\]\]/g, '').replace(/[*_`]/g, '').replace(/^\d{1,2}\.\s+/, '').trim());
+const faqTitles = (body) => [...body.matchAll(/^:::faq[ \t]+(.+)$/gm)].map(m => m[1].trim());
+
+/**
+ * A translated heading or question answers to its ENGLISH id. Links in every language are written
+ * #forgot-your-password, and a Telugu heading's own id is Telugu, so ~160 links in the translations
+ * jumped nowhere. check-translations already makes a translation keep the English page's headings
+ * and questions in the same order, so they pair up by position. A list whose count differs is left
+ * on its own ids rather than paired wrongly.
+ */
+function englishAnchors(body, englishBody) {
+  const map = new Map();
+  for (const [mine, theirs] of [[headingLabels(body), headingLabels(englishBody)], [faqTitles(body), faqTitles(englishBody)]]) {
+    if (mine.length === theirs.length) mine.forEach((m, i) => map.set(slugify(m), slugify(theirs[i])));
+  }
+  return map;
+}
+
 /** Every page, in menu order, in `lang` where translated and English otherwise. Pages with no English file are left out. */
 function build(lang) {
   if (cache.has(lang)) return cache.get(lang);
@@ -81,7 +100,8 @@ function build(lang) {
       if (!files?.en) continue;
       const pageLang = files[lang] ? lang : 'en';
       const { meta, body } = parseFrontmatter(files[pageLang]);
-      const english = pageLang === 'en' ? meta : parseFrontmatter(files.en).meta;
+      const en = pageLang === 'en' ? null : parseFrontmatter(files.en);
+      const english = en ? en.meta : meta;
       const page = {
         section: section.id,
         sectionTitle: sectionTitle(section, lang),
@@ -96,7 +116,8 @@ function build(lang) {
         app: english.app || '',
         appLabel: meta.appLabel || english.appLabel || '',
         keywords: `${meta.keywords || ''} ${pageLang === 'en' ? '' : english.keywords || ''}`.trim(),
-        body
+        body,
+        anchors: en ? englishAnchors(body, en.body) : null
       };
       pages.push(page);
       byPath.set(page.path, page);
@@ -151,7 +172,8 @@ export function renderPage(page) {
   const toc = [];
   const used = new Set();
   const uniqueId = (text) => {
-    const base = slugify(text) || 'section';
+    const own = slugify(text);
+    const base = page.anchors?.get(own) || own || 'section';
     let id = base;
     for (let n = 2; used.has(id); n++) id = `${base}-${n}`;
     used.add(id);
@@ -304,7 +326,8 @@ export function searchHelp(query, lang = 'en', limit = 8) {
       .map(h => ({ h, hits: words.filter(w => searchable(h).includes(w)).length }))
       .filter(x => x.hits > 0)
       .sort((a, b) => b.hits - a.hits)[0]?.h || null;
-    results.push({ page: entry.page, score, heading, anchor: heading ? slugify(heading) : null });
+    const own = heading ? slugify(heading) : null;
+    results.push({ page: entry.page, score, heading, anchor: own ? entry.page.anchors?.get(own) || own : null });
   }
   return results.sort((a, b) => b.score - a.score).slice(0, limit);
 }

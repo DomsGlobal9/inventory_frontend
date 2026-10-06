@@ -19,11 +19,11 @@ When you add a product you choose its category, dress type, fabric, sizes and co
 
 ## 2. Choose a list
 
-1. [[1]] Click the list you want: **Sizes**, **Colors**, **Dress Types**, **Materials**, **Design Types**, **Categories** or **Product Types**.
+1. [[1]] Click the list you want: **Sizes**, **Colours**, **Dress types**, **Materials**, **Design types**, **Categories** or **Product types**.
 2. [[2]] **Add New** adds an entry to this list.
 3. [[3]] Each entry is a button. Click it to rename, switch off or delete it.
 
-![Dress Types in the Catalogue. The row of list buttons is marked 1, Add New 2 and the Saree entry 3.](2-lists.webp "Dress types are grouped by Women, Men and Kids.")
+![Dress types in the Catalogue. The row of list buttons is marked 1, Add New 2 and the Saree entry 3.](2-lists.webp "Dress types are grouped by Women, Men and Kids.")
 
 A small lock on an entry means it came with ScaleEzy. An entry with a line through it is switched off.
 
@@ -38,7 +38,7 @@ A small lock on an entry means it came with ScaleEzy. An entry with a line throu
 
 ## 4. Add a colour with its shades
 
-1. Choose **Colors**, then click **Add New**.
+1. Choose **Colours**, then click **Add New**.
 2. [[1]] Type the **Label**, for example *Maroon*.
 3. [[2]] Type the **Hex Color**, a colour code such as *#800000*, or click the colour square to pick it.
 4. [[3]] Click **Add shade** for each shade. Click the small square to pick the shade's colour.

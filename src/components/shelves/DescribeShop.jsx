@@ -117,7 +117,7 @@ export default function DescribeShop({ locationId, locationName, onClose, onCrea
             <Info size={15} style={{ flexShrink: 0, marginTop: 2 }} />
             <span>
               A godown in <strong>another building</strong> is its own place in ScaleEzy, not part of this one.
-              Add it in <strong>Settings → Locations</strong>, then describe it there.
+              Add it in <strong>Settings → Stock locations</strong>, then describe it there.
               Do that if you write it down when stock goes from there to the shop; if staff simply carry
               things across, keep it here as a back room.
             </span>

@@ -728,7 +728,7 @@ export default function VariantTable({ productId, productName, productCode, prod
               {shadesOf(activeShadeColor).length === 0 && (
                 // A colour the shop added itself has no shades until it is given some.
                 <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                  No shades yet — add them in Settings → Catalog.
+                  No shades yet — add them in Settings → Catalogue.
                 </span>
               )}
             </div>

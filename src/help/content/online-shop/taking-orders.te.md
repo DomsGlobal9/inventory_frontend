@@ -29,7 +29,7 @@ keywords: ఆర్డర్‌లు బ్యాగ్ చెక్అవు�
 
 ఒకటి లేదా రెండూ టిక్ చేయండి.
 
-![How customers may pay, When it arrives 1 గా, Online బాక్స్ 2 గా గుర్తించబడ్డాయి. వాటి కింద: To take payment online, connect your Razorpay account in Settings → Payments.](2-how-they-pay.webp "రెండూ టిక్ లేకపోతే ఎవరూ ఆర్డర్ పూర్తి చేయలేరు.")
+![How customers may pay, When it arrives 1 గా, Online బాక్స్ 2 గా గుర్తించబడ్డాయి. వాటి కింద: To take payment online, connect your Razorpay account in Settings → Razorpay account.](2-how-they-pay.webp "రెండూ టిక్ లేకపోతే ఎవరూ ఆర్డర్ పూర్తి చేయలేరు.")
 
 ## 3. మీరు ఎక్కడ డెలివరీ చేస్తారు
 

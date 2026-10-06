@@ -30,7 +30,7 @@ An order made on your shop holds the pieces for itself immediately, so the same 
 
 Tick one or both.
 
-![How customers may pay, with When it arrives marked 1 and the Online box marked 2. Under them: To take payment online, connect your Razorpay account in Settings → Payments.](2-how-they-pay.webp "With neither ticked, nobody can finish an order.")
+![How customers may pay, with When it arrives marked 1 and the Online box marked 2. Under them: To take payment online, connect your Razorpay account in Settings → Razorpay account.](2-how-they-pay.webp "With neither ticked, nobody can finish an order.")
 
 ## 3. Where you deliver
 

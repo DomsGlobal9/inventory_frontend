@@ -29,7 +29,7 @@ keywords: ಆರ್ಡರ್‌ಗಳು ಬ್ಯಾಗ್ ಚೆಕ್‌ಔ�
 
 ಒಂದಕ್ಕೆ ಅಥವಾ ಎರಡಕ್ಕೂ ಟಿಕ್ ಮಾಡಿ.
 
-![How customers may pay, When it arrives 1 ಎಂದು ಮತ್ತು Online ಬಾಕ್ಸ್ 2 ಎಂದು ಗುರುತಿಸಲಾಗಿದೆ. ಅವುಗಳ ಕೆಳಗೆ: To take payment online, connect your Razorpay account in Settings → Payments.](2-how-they-pay.webp "ಎರಡಕ್ಕೂ ಟಿಕ್ ಇಲ್ಲದಿದ್ದರೆ ಯಾರೂ ಆರ್ಡರ್ ಪೂರ್ಣಗೊಳಿಸಲಾರರು.")
+![How customers may pay, When it arrives 1 ಎಂದು ಮತ್ತು Online ಬಾಕ್ಸ್ 2 ಎಂದು ಗುರುತಿಸಲಾಗಿದೆ. ಅವುಗಳ ಕೆಳಗೆ: To take payment online, connect your Razorpay account in Settings → Razorpay account.](2-how-they-pay.webp "ಎರಡಕ್ಕೂ ಟಿಕ್ ಇಲ್ಲದಿದ್ದರೆ ಯಾರೂ ಆರ್ಡರ್ ಪೂರ್ಣಗೊಳಿಸಲಾರರು.")
 
 ## 3. ನೀವು ಎಲ್ಲಿ ಡೆಲಿವರಿ ಮಾಡುತ್ತೀರಿ
 

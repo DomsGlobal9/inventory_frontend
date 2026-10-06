@@ -29,7 +29,7 @@ keywords: ऑर्डर बैग चेकआउट डिलीवरी प
 
 एक या दोनों पर टिक करें।
 
-![How customers may pay, When it arrives 1 और Online बॉक्स 2 से चिह्नित। उनके नीचे: To take payment online, connect your Razorpay account in Settings → Payments.](2-how-they-pay.webp "दोनों पर टिक न हो तो कोई ऑर्डर पूरा नहीं कर पाएगा।")
+![How customers may pay, When it arrives 1 और Online बॉक्स 2 से चिह्नित। उनके नीचे: To take payment online, connect your Razorpay account in Settings → Razorpay account.](2-how-they-pay.webp "दोनों पर टिक न हो तो कोई ऑर्डर पूरा नहीं कर पाएगा।")
 
 ## 3. आप कहाँ डिलीवरी करते हैं
 

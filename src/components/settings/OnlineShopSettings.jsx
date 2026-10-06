@@ -32,7 +32,7 @@ export default function OnlineShopSettings() {
   // a guess from what the keys look like. It decides whether "Online" can be switched on.
   const { data: payments } = useShopPayments();
   const payReady = !!payments?.readyForCustomers;
-  const toPayments = <Link to="/settings?section=PAYMENTS">Settings → Payments</Link>;
+  const toPayments = <Link to="/settings?section=PAYMENTS">Settings → Razorpay account</Link>;
   const setOpen = useSetShopOpen();
 
   const [slug, setSlug] = useState('');
@@ -303,7 +303,7 @@ export default function OnlineShopSettings() {
                 <span style={{ fontSize: '13px' }}>When it arrives <span style={{ color: 'var(--text-muted)' }}>(cash or UPI)</span></span>
               </label>
               {/*
-                Online, through the shop's own Razorpay account (Settings → Payments, its own section).
+                Online, through the shop's own Razorpay account (Settings → Razorpay account, its own section).
 
                 It can be switched ON only once that account can take real money -- working LIVE
                 keys -- because the server refuses otherwise and a switch that says yes and then
@@ -315,7 +315,7 @@ export default function OnlineShopSettings() {
                 background: form.payOnline ? 'var(--bg-hover)' : 'transparent',
                 opacity: payReady || form.payOnline ? 1 : 0.55,
                 cursor: payReady || form.payOnline ? 'pointer' : 'not-allowed'
-              }} title={payReady || form.payOnline ? '' : 'Connect your Razorpay account in Settings → Payments first.'}>
+              }} title={payReady || form.payOnline ? '' : 'Connect your Razorpay account in Settings → Razorpay account first.'}>
                 <input type="checkbox" checked={form.payOnline} disabled={!payReady && !form.payOnline}
                   onChange={(e) => set('payOnline', e.target.checked)} />
                 <span style={{ fontSize: '13px' }}>Online <span style={{ color: 'var(--text-muted)' }}>(UPI, card — Razorpay)</span></span>

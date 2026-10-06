@@ -29,7 +29,7 @@ keywords: ஆர்டர்கள் பை செக்அவுட் வந�
 
 ஒன்றையோ இரண்டையுமோ தேர்வு செய்யுங்கள்.
 
-![How customers may pay, When it arrives 1 ஆகவும், Online பெட்டி 2 ஆகவும் குறிக்கப்பட்டுள்ளன. அவற்றின் கீழே: To take payment online, connect your Razorpay account in Settings → Payments.](2-how-they-pay.webp "இரண்டும் தேர்வாகவில்லை என்றால் யாரும் ஆர்டரை முடிக்க முடியாது.")
+![How customers may pay, When it arrives 1 ஆகவும், Online பெட்டி 2 ஆகவும் குறிக்கப்பட்டுள்ளன. அவற்றின் கீழே: To take payment online, connect your Razorpay account in Settings → Razorpay account.](2-how-they-pay.webp "இரண்டும் தேர்வாகவில்லை என்றால் யாரும் ஆர்டரை முடிக்க முடியாது.")
 
 ## 3. நீங்கள் எங்கே அனுப்புகிறீர்கள்
 

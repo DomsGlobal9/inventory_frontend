@@ -21,7 +21,7 @@ Nobody sets the filters on your shop. They are built from what is on your produc
 
 ![Add a product, with Design / Craft marked 1 and Material / Fabric marked 2.](1-product-fields.webp "These two boxes are the whole of what the Fabric and Made filters are made of.")
 
-The choices in those two boxes come from **Settings → Catalogue** — **Design Types** and **Materials**. Keep that list tidy and your filters stay tidy.
+The choices in those two boxes come from **Settings → Catalogue** — **Design types** and **Materials**. Keep that list tidy and your filters stay tidy.
 
 ## What a customer sees
 

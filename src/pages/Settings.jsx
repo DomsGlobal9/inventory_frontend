@@ -59,12 +59,12 @@ const IMPLEMENTED_DOMAINS = new Set(['GENERAL', 'CATALOG', 'LOCATIONS', 'DAYBOOK
 
 const CATALOG_TABS = [
   { id: 'SIZE', label: 'Sizes', icon: Scissors, description: 'Manage available sizes across your products' },
-  { id: 'COLOR', label: 'Colors', icon: Palette, description: 'Define the color palette used in your boutique' },
-  { id: 'DRESS_TYPE', label: 'Dress Types', icon: Tag, description: 'Manage dress styles (e.g., Saree, Gown)' },
+  { id: 'COLOR', label: 'Colours', icon: Palette, description: 'Define the colour palette used in your boutique' },
+  { id: 'DRESS_TYPE', label: 'Dress types', icon: Tag, description: 'Manage dress styles (e.g., Saree, Gown)' },
   { id: 'MATERIAL', label: 'Materials', icon: Layers, description: 'List the fabrics and materials you offer' },
-  { id: 'DESIGN_TYPE', label: 'Design Types', icon: Hexagon, description: 'Manage design styles and patterns' },
+  { id: 'DESIGN_TYPE', label: 'Design types', icon: Hexagon, description: 'Manage design styles and patterns' },
   { id: 'CATEGORY', label: 'Categories', icon: Grid, description: 'High-level product categories (e.g., WOMEN)' },
-  { id: 'PRODUCT_TYPE', label: 'Product Types', icon: ShoppingBag, description: 'Types of products (e.g., READY_TO_WEAR)' },
+  { id: 'PRODUCT_TYPE', label: 'Product types', icon: ShoppingBag, description: 'Types of products (e.g., READY_TO_WEAR)' },
 ];
 
 export default function Settings() {

@@ -4,6 +4,8 @@ import toast from 'react-hot-toast';
 import { useBranding, useSetBusinessName, useUploadLogo, useRemoveLogo, useSetBrandingDetails } from '../hooks/useBranding';
 import { isImageFile } from '../utils/imageFile';
 import ConfirmModal from './ConfirmModal';
+import Select from './common/Select';
+import { GST_STATES, stateFromGstin } from '../utils/gstStates';
 
 const MAX_BYTES = 2 * 1024 * 1024;
 
@@ -13,6 +15,17 @@ const FIELDS = [
   { key: 'businessEmail', label: 'Email', placeholder: 'e.g. orders@yourshop.in', type: 'email', autoComplete: 'email' },
   { key: 'gstNumber', label: 'GSTIN', placeholder: 'e.g. 37ABCDE1234F1Z5' },
   { key: 'receiptFooter', label: 'Receipt footer', placeholder: 'e.g. Exchange within 7 days. No returns on sale items.', multiline: true, max: 160 }
+];
+
+/**
+ * How the shop is registered for GST. Not decoration: it decides whether a bill carries GST at all
+ * and what kind of document the customer gets (pricing/tax.ts). Until 6 Oct 2026 this could only
+ * be set behind the scenes, so a shop that typed a GSTIN was still "not registered".
+ */
+const REGISTRATIONS = [
+  { value: 'REGULAR', label: 'GST registered (Regular)', hint: 'Bills are tax invoices with GST on them.' },
+  { value: 'COMPOSITION', label: 'Composition scheme', hint: 'Bill of Supply, no GST charged to the customer.' },
+  { value: 'UNREGISTERED', label: 'Not registered', hint: 'A plain receipt, no GST.' }
 ];
 
 /**
@@ -45,9 +58,17 @@ export default function CompanyBrandingEditor() {
   const nameValue = nameDraft ?? savedName;
   const nameChanged = nameValue.trim() !== savedName;
 
-  const saved = Object.fromEntries(FIELDS.map(f => [f.key, branding?.[f.key] || '']));
+  const saved = {
+    ...Object.fromEntries(FIELDS.map(f => [f.key, branding?.[f.key] || ''])),
+    gstRegistration: branding?.gstRegistration || 'UNREGISTERED',
+    gstStateCode: branding?.gstStateCode || ''
+  };
   const values = draft ?? saved;
-  const detailsChanged = FIELDS.some(f => (values[f.key] || '').trim() !== saved[f.key]);
+  // The GSTIN's first two digits ARE the state, so the state follows it while one is typed.
+  const stateFromNumber = stateFromGstin(values.gstNumber);
+  const stateValue = stateFromNumber ?? values.gstStateCode;
+  const detailsChanged = FIELDS.some(f => (values[f.key] || '').trim() !== saved[f.key])
+    || values.gstRegistration !== saved.gstRegistration || stateValue !== saved.gstStateCode;
 
   const dirty = nameChanged || detailsChanged;
   const saving = setName.isPending || saveDetails.isPending;
@@ -79,7 +100,11 @@ export default function CompanyBrandingEditor() {
         setNameDraft(null);
       }
       if (detailsChanged) {
-        await saveDetails.mutateAsync(Object.fromEntries(FIELDS.map(f => [f.key, (values[f.key] || '').trim() || null])));
+        await saveDetails.mutateAsync({
+          ...Object.fromEntries(FIELDS.map(f => [f.key, (values[f.key] || '').trim() || null])),
+          gstRegistration: values.gstRegistration,
+          gstStateCode: stateValue || null
+        });
         setDraft(null);
       }
     } catch {
@@ -200,8 +225,41 @@ export default function CompanyBrandingEditor() {
               {field(byKey.businessPhone)}
               {field(byKey.businessEmail)}
             </div>
-            <div className="gi-pair">
-              {field(byKey.gstNumber)}
+            <div style={{ border: '1px solid var(--border-light)', borderRadius: '12px', padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div>
+                <div className="gi-eyebrow" style={{ marginBottom: '2px' }}>GST</div>
+                <p className="gi-hint" style={{ margin: 0 }}>This decides whether your bills carry GST and what kind of bill the customer gets.</p>
+              </div>
+              <div role="radiogroup" aria-label="Your shop is" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '8px' }}>
+                {REGISTRATIONS.map(r => {
+                  const on = values.gstRegistration === r.value;
+                  return (
+                    <label key={r.value} style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', padding: '10px', borderRadius: '10px', cursor: 'pointer', border: `1px solid ${on ? 'var(--accent-primary)' : 'var(--border-light)'}`, background: on ? 'var(--bg-hover)' : 'transparent' }}>
+                      {/* Choosing "not registered" clears the GSTIN too: a shop without one cannot hold one, and the box is hidden. */}
+                      <input type="radio" name="gst-registration" value={r.value} checked={on} style={{ marginTop: '3px' }}
+                        onChange={() => setDraft({ ...values, gstRegistration: r.value, ...(r.value === 'UNREGISTERED' ? { gstNumber: '', gstStateCode: '' } : {}) })} />
+                      <span><span style={{ fontWeight: 600, display: 'block' }}>{r.label}</span><span className="gi-hint">{r.hint}</span></span>
+                    </label>
+                  );
+                })}
+              </div>
+              {values.gstRegistration !== 'UNREGISTERED' && (
+                <div className="gi-pair">
+                  {field(byKey.gstNumber)}
+                  <div style={{ minWidth: 0 }}>
+                    <label className="gi-label" htmlFor="letterhead-gstStateCode">State</label>
+                    <Select id="letterhead-gstStateCode" className="input-field" value={stateValue} disabled={!!stateFromNumber}
+                      onChange={(e) => setDraft({ ...values, gstStateCode: e.target.value })} style={{ width: '100%' }}>
+                      <option value="">Choose the state</option>
+                      {GST_STATES.map(([code, name]) => <option key={code} value={code}>{code} — {name}</option>)}
+                    </Select>
+                    <p className="gi-hint" style={{ margin: '4px 0 0' }}>{stateFromNumber ? 'Filled in from the GSTIN.' : 'Decides CGST+SGST or IGST on a bill.'}</p>
+                  </div>
+                </div>
+              )}
+              {values.gstRegistration === 'REGULAR' && !(values.gstNumber || '').trim() && (
+                <p className="gi-hint" style={{ margin: 0 }}>Registered with no GSTIN saved: bills cannot be printed as tax invoices until it is filled in.</p>
+              )}
             </div>
             {/* Only on the counter receipt; the letterhead preview does not show it. */}
             {field(byKey.receiptFooter)}

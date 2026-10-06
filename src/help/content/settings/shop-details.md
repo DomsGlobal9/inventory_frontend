@@ -1,11 +1,11 @@
 ---
 title: Shop name, logo and letterhead
-summary: Set your shop's name, logo, address, phone, GSTIN and receipt footer. They print on receipts and purchase orders.
+summary: Set your shop's name, logo, address, phone, GST registration and GSTIN, and receipt footer. They decide what your bills carry and print on receipts and purchase orders.
 for: The shop owner
 minutes: 3
 app: /settings
 appLabel: Settings
-keywords: shop details business name logo letterhead address phone email gst gstin receipt footer brand branding company
+keywords: shop details business name logo letterhead address phone email gst gstin registered composition unregistered state receipt footer brand branding company
 ---
 
 Your shop details appear on the papers you give to other people: counter receipts, purchase orders and goods receipts. Only the owner can change them.
@@ -43,7 +43,23 @@ Fill in only what you want printed. An empty box is simply left off the paper.
 
 ![The Letterhead part of the form. Address is marked 1, GSTIN 2 and Receipt footer 3.](3-letterhead.webp "Use short lines. A receipt roll is narrow.")
 
-## 4. Check the preview and save
+## 4. Say how your shop is registered for GST
+
+Under **GST**, choose [[1]] what your shop is:
+
+- **GST registered (Regular)**: your bills are tax invoices with GST on them.
+- **Composition scheme**: your bills are a Bill of Supply, with no GST charged to the customer.
+- **Not registered**: a plain receipt, no GST.
+
+For a registered shop, type [[2]] the **GSTIN** and the [[3]] **State** fills in by itself from its first two digits. The state decides whether a bill carries CGST+SGST or IGST.
+
+![The GST part of the form. The three choices are marked 1, GSTIN 2 and State 3.](3b-gst.webp "A registered shop with no GSTIN saved cannot print tax invoices until it is filled in.")
+
+:::note Only the GST rate on each product is optional
+Whether the shop is registered is not: a shop that is not registered charges no GST on anything, whatever rate its products carry.
+:::
+
+## 5. Check the preview and save
 
 1. [[1]] The **Preview** shows the top of a purchase order with what you typed. It changes as you type.
 2. Press [[2]] **Save changes**.

@@ -212,7 +212,7 @@ export default function PosTills() {
           <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
             {leftOut.map((b) => (
               <li key={b.document} style={{ padding: '8px 0', borderTop: '1px solid var(--border-light)', fontSize: '13px', overflowWrap: 'anywhere' }}>
-                <strong>{b.document}</strong>{b.locationName ? ` · ${b.locationName}` : ''} · {when(b.skippedAt)}
+                <strong>{b.document}</strong>{b.shownAs ? ` (shown as ${b.shownAs} at the till)` : ''}{b.locationName ? ` · ${b.locationName}` : ''} · {when(b.skippedAt)}
                 {b.reason ? <span style={{ display: 'block', color: 'var(--text-secondary)' }}>“{b.reason}”{b.skippedBy ? ` (${b.skippedBy})` : ''}</span> : null}
               </li>
             ))}

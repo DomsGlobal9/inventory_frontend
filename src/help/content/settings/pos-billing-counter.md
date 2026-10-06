@@ -71,7 +71,9 @@ Very rarely, the till cannot send a bill, for example because its item was delet
 
 Those bills are listed here, with the store, the day, the reason and who did it. They stay listed even after the till is disconnected.
 
-![Bills not added to Inventory: INV/2026-27/0007 at Main Store, with the reason The saree on this bill was deleted in Inventory for good, by Priya Reddy.](5-left-out.webp "Count those pieces at your next stock check.")
+[[1]] An exchange is listed under its new bill number. Beside it, *shown as … at the till* is the number the till showed, usually the credit note, so you can find the same bill on the till.
+
+![Bills not added to Inventory. The exchange INV/2026-27/0009, shown as CN/2026-27/0002 at the till, is marked 1. Under it is INV/2026-27/0007 at Main Store, with the reason The saree on this bill was deleted in Inventory for good, by Priya Reddy.](5-left-out.webp "Count those pieces at your next stock check.")
 
 ## Common problems
 

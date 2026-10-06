@@ -70,7 +70,9 @@ keywords: పీఓఎస్ pos టిల్ till బిల్లింగ్ �
 
 ఆ బిల్లులు ఇక్కడ స్టోర్, రోజు, కారణం, ఎవరు చేశారు అనే వివరాలతో లిస్ట్‌లో ఉంటాయి. టిల్ డిస్‌కనెక్ట్ అయిన తర్వాత కూడా అవి లిస్ట్‌లో ఉంటాయి.
 
-![Bills not added to Inventory: Main Store లో INV/2026-27/0007, The saree on this bill was deleted in Inventory for good అనే కారణంతో, Priya Reddy చేశారు.](5-left-out.webp "మీ తర్వాతి స్టాక్ చెక్‌లో ఆ పీస్‌లు లెక్కపెట్టండి.")
+[[1]] ఎక్స్‌చేంజ్ దాని కొత్త బిల్ నంబర్‌తో లిస్ట్‌లో ఉంటుంది. దాని పక్కన *shown as … at the till* లో టిల్‌పై కనిపించిన నంబర్ ఉంటుంది, సాధారణంగా క్రెడిట్ నోట్, కాబట్టి టిల్‌లో అదే బిల్ వెతకొచ్చు.
+
+![Bills not added to Inventory: ఎక్స్‌చేంజ్ INV/2026-27/0009, shown as CN/2026-27/0002 at the till, 1 గా గుర్తు పెట్టబడింది. దాని కింద Main Store లో INV/2026-27/0007, The saree on this bill was deleted in Inventory for good అనే కారణంతో, Priya Reddy చేశారు.](5-left-out.webp "మీ తర్వాతి స్టాక్ చెక్‌లో ఆ పీస్‌లు లెక్కపెట్టండి.")
 
 ## సాధారణ సమస్యలు
 

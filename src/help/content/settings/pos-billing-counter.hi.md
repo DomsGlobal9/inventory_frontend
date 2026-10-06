@@ -70,7 +70,9 @@ keywords: पीओएस pos टिल till बिलिंग काउंट�
 
 ऐसे बिल यहाँ लिस्ट में दिखते हैं, स्टोर, दिन, वजह और किसने किया, इसके साथ। टिल का जुड़ाव हटने के बाद भी वे लिस्ट में रहते हैं।
 
-![Bills not added to Inventory: Main Store का INV/2026-27/0007, वजह The saree on this bill was deleted in Inventory for good, Priya Reddy ने किया।](5-left-out.webp "अपनी अगली स्टॉक गिनती में उन पीस को गिन लें।")
+[[1]] एक्सचेंज अपने नए बिल नंबर से लिस्ट में दिखता है। उसके साथ *shown as … at the till* में वह नंबर लिखा होता है जो टिल पर दिखा था, अक्सर क्रेडिट नोट, ताकि आप टिल पर वही बिल ढूँढ सकें।
+
+![Bills not added to Inventory: एक्सचेंज INV/2026-27/0009, shown as CN/2026-27/0002 at the till, पर 1 का निशान है। उसके नीचे Main Store का INV/2026-27/0007, वजह The saree on this bill was deleted in Inventory for good, Priya Reddy ने किया।](5-left-out.webp "अपनी अगली स्टॉक गिनती में उन पीस को गिन लें।")
 
 ## आम समस्याएँ
 

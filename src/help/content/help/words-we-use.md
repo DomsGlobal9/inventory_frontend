@@ -73,7 +73,7 @@ keywords: glossary meaning dictionary term definition what does mean sku variant
 | **Reserved (held)** | Pieces kept aside for a confirmed order. They are still in the store, but nobody else can sell them. |
 | **Dispatch / Send out** | Handing the pieces over or sending them. This is when stock goes down for an online order. |
 | **Return** | Pieces a customer brings back. They are checked, then go back into stock or are marked damaged. |
-| **Offer** | A discount you set up once in **Offers**. It comes off online and on Shopify; at the POS till it is coming. |
+| **Offer** | A discount you set up once in **Offers**. It comes off online, on Shopify and at the POS till. |
 | **Customer group** | A name like *VIP* or *Wholesale* that you give to some customers on their page. An offer can be only for some groups. |
 | **Discount by hand** | A discount the cashier gives on the POS till, up to the limit the owner set in **Till rules**. |
 | **Day Book** | One day's summary: what came in, what went out, sales and profit. |

@@ -42,7 +42,7 @@ The money is what the customer paid for those pieces after discounts, not the pr
 
 3. Give the money back as the screen says.
 
-**Store credit** keeps the money on the customer's page instead of handing it over. It needs a customer on the bill. A manager can pay it out in money later, from the customer's page.
+**Store credit** keeps the money on the customer's page instead of handing it over. It needs a customer on the bill. The customer can spend it on a later bill at the POS till, or a manager can pay it out in money later, from the customer's page.
 
 If part of the bill was paid with loyalty points, that part goes back as points, not money. The screen says how much.
 

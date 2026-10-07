@@ -80,7 +80,7 @@ A new offer is always saved as a [[1]] **Draft**, so nothing changes online by a
 
 ## 9. Check it is running
 
-The status changes to [[1]] **Running**. The offer now comes off online. Offers at the POS till are coming.
+The status changes to [[1]] **Running**. The offer now comes off online and at the POS till, wherever **Sells at** says.
 
 ![The same offer, now with the status Running marked 1.](9-running.webp "The Used column counts the orders that got it.")
 
@@ -91,7 +91,7 @@ Something is missing. Read the sentence at the bottom of the form, just above th
 :::
 
 :::faq The offer does not come off at the till
-Check that it says **Running**, not Draft, Paused or Starts later. Then check the minimum spend, the stores under **More options**, and whether another offer with a higher priority took that item.
+Check that it says **Running**, not Draft, Paused or Starts later, and that **Sells at** includes **Till**. Then check the minimum spend, the stores under **More options**, and whether another offer with a higher priority took that item. If the till says *Offers could not be checked*, it could not reach Inventory just then: the bill goes ahead at the full price, and the next bill tries again. An item whose price the cashier typed over by hand gets no offer.
 :::
 
 :::faq "This offer already ended. Change its dates before starting it."

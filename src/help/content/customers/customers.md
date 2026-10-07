@@ -60,7 +60,7 @@ It saves straight away. Read more in [How offers work](/help/offers/how-offers-w
 3. Under **Customers**, choose **Some groups**, then click the **VIP** group. The small number shows how many customers are in it.
 4. Save the offer.
 
-Online, the offer comes off only when the order has a customer from the VIP group on it. An order with no customer, or a customer who is not in the group, does not get it. At the POS till, offers are coming; until then the cashier gives VIP customers their discount by hand.
+Online, the offer comes off only when the order has a customer from the VIP group on it. An order with no customer, or a customer who is not in the group, does not get it. At the POS till it works the same way: the offer comes off when the bill has a VIP customer's phone number on it.
 
 ## Common problems
 

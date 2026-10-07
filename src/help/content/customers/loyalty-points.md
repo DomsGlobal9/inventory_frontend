@@ -1,6 +1,6 @@
 ---
 title: Loyalty points
-summary: Customers earn points on what they pay at the till, and if you choose on online orders. Set the rules once; every bill earns by itself. Spending points at the till is coming.
+summary: Customers earn points on what they pay at the till, and if you choose on online orders. Set the rules once; every bill earns by itself, and customers pay with their points at the till.
 for: Owners, managers and sales staff
 minutes: 4
 app: /settings?section=LOYALTY
@@ -10,7 +10,7 @@ keywords: loyalty points reward rewards points earn redeem use pay with points c
 
 Loyalty points are a thank-you to customers who come back. They earn points on what they pay, and the points add up on their customer page.
 
-Points are earned on bills made at the counter on the [ScaleEzy POS till](/help/settings/pos-billing-counter), and on online shop and Shopify orders if you tick them. Spending points, to pay part of a later bill, is coming to the till. Until then customers earn points and can see them, but cannot spend them yet.
+Points are earned on bills made at the counter on the [ScaleEzy POS till](/help/settings/pos-billing-counter), and on online shop and Shopify orders if you tick them. Customers spend their points at the POS till, to pay part of a later bill. Loyalty points are your choice: a shop that never switches them on has none of this.
 
 ## 1. Switch points on
 
@@ -30,7 +30,7 @@ Points are earned on bills made at the counter on the [ScaleEzy POS till](/help/
 
 The line under the rules shows what they give, for example *A ₹5,000 bill earns 50 points, worth ₹50 on a later bill — 1% back.*
 
-**Can use points from** and **Points can pay up to** are rules for spending points. The till will follow them once it can take points.
+**Can use points from** and **Points can pay up to** are rules for spending points. The till follows them on every bill.
 
 :::note
 Only owners, and roles with the loyalty permission, can change these rules. Points are earned on every bill by themselves; nobody at the counter has to add them.
@@ -43,17 +43,34 @@ Under the rules, tick where customers earn:
 - [[1]] **Counter sales**: bills made on the POS till. Ticked unless you untick it.
 - [[2]] **Online shop orders** and [[3]] **Shopify orders**: not ticked until you tick them. The customer earns when the order is sent out, on what they paid. A cancelled order earns nothing. A returned one takes its points back.
 
-The screen says points can be used only at the counter: that is the POS till, once it can take points. Untick **Counter sales** and customers stop earning points on till bills.
+The screen says points can be used only at the counter: that is the POS till. Untick **Counter sales** and customers stop earning points on till bills; they can still spend the points they have.
 
 ![Where customers earn points. Counter sales is marked 1, Online shop orders 2 and Shopify orders 3.](1b-where-earned.webp "Click Save at the bottom after changing a tick.")
 
 ## 2. At the counter
 
-Bills are made on the ScaleEzy POS till. The till sends each bill to Inventory, and when the bill has the customer's phone number on it, the points are earned here by themselves. They show on the customer's page as soon as the till has sent the bill.
+Bills are made on the ScaleEzy POS till. The till sends each bill to Inventory, and when the bill has the customer's phone number on it, the points are earned here by themselves. A customer who already exists here, for example one who first bought online, is the same customer at the till: the till finds them by their phone number. They show on the customer's page as soon as the till has sent the bill.
 
-Spending points at the till, to pay part of a bill, is coming. Until then a customer's points add up and show on their customer page.
+Points are earned only on what was paid in money, after discounts. Points or store credit spent on a bill earn nothing.
 
-Points are earned only on what was paid in money, after discounts.
+### Paying with points at the till
+
+1. The cashier types the customer's phone number on the bill.
+2. The till shows the customer's name and how many points they have, and how much of this bill the points can pay, under your rules. The cashier checks the name with the customer, so nobody spends someone else's points.
+3. The cashier types how many points to use. When the bill is completed, the till asks Inventory to set those points aside, so the same points cannot be spent twice, at another till or anywhere else.
+4. The bill completes. The points come off the customer's balance here, and the bill shows *Loyalty points* as one of the ways it was paid.
+
+Store credit works the same way: a customer with store credit (from an earlier return) can use it to pay part of a bill.
+
+Points and store credit cannot be used:
+
+- when the till has no internet, because the till must check the balance with Inventory first;
+- on a bill with no phone number on it;
+- on the balance of an order the customer will collect later. Ask them to pay that part another way.
+
+They can be used on the new bill of an exchange.
+
+If a bill is parked or cancelled before it completes, nothing is taken from the customer.
 
 ## 3. A customer's points
 
@@ -84,7 +101,7 @@ While the return is still open, its page already says how the refund splits, for
 See [WhatsApp campaigns](/help/campaigns/whatsapp-campaigns) for the wishes and reminders.
 
 :::faq Can a customer spend their points at the till?
-Not yet. The ScaleEzy POS till will take points soon, following **Can use points from** and **Points can pay up to**. Until then points are earned and shown on the customer's page.
+Yes. The cashier types their phone number on the bill, and the till shows their points and how much of this bill the points can pay, following **Can use points from** and **Points can pay up to**. See *Paying with points at the till* above.
 :::
 
 :::faq Can a balance go below zero?

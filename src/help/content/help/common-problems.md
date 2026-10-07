@@ -149,7 +149,7 @@ A saved purchase order can't be edited or cancelled yet. Raise a new, correct or
 ## Offers
 
 :::faq The offer does not come off
-At the POS till, offers are coming; today the cashier gives the discount by hand. Online, check it says **Running**, then the minimum spend, the stores it applies to, and whether a higher-priority offer took that item. [Full answer](/help/offers/create-an-offer#the-offer-does-not-come-off-at-the-till)
+Check it says **Running** and that **Sells at** includes where you are selling, then the minimum spend, the stores it applies to, and whether a higher-priority offer took that item. [Full answer](/help/offers/create-an-offer#the-offer-does-not-come-off-at-the-till)
 :::
 
 :::faq A salesperson cannot give a discount at all

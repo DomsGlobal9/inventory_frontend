@@ -8,7 +8,7 @@ appLabel: Offers
 keywords: code coupon voucher promo code single use unique codes shared code welcome gift csv copy print card
 ---
 
-A code offer only comes off when the customer enters the code at your online shop's checkout. Codes at the ScaleEzy POS till are coming. Only the owner or an admin can make code offers.
+A code offer only comes off when the code is entered: by the customer at your online shop's checkout, or by the cashier at the ScaleEzy POS till. Only the owner or an admin can make code offers.
 
 In this example we make **₹500 off the whole bill, for bills of ₹3,000 or more**. Fill in the offer as in [Create an offer](/help/offers/create-an-offer), then:
 
@@ -59,7 +59,7 @@ The offer is still a [[1]] **Draft**. At the top of its page press [[2]] **Start
 
 ![The offer page for Welcome gift 500 off, ₹500 off the whole bill with a single-use code when the bill is ₹3,000 or more. Draft is marked 1 and Start is marked 2.](5-start-the-offer.webp "It says Schedule instead of Start when the start date is still ahead.")
 
-Online, the customer types the code at checkout. Codes at the POS till are coming; see [Connect your POS till](/help/settings/pos-billing-counter).
+Online, the customer types the code at checkout. At the POS till, the cashier types it on the bill, and the till says at once if it was taken or why not, for example how much more the customer must spend. See [Connect your POS till](/help/settings/pos-billing-counter).
 
 ## Common problems
 

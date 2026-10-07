@@ -42,7 +42,7 @@ The ScaleEzy POS till follows this limit. A cashier can take money off by hand u
 
 In Inventory, the owner and admins may always go over the limit, and the permission **Take off more than the till limit by hand**, in **Settings → Roles and permissions**, gives another role that power.
 
-Offers that come off by themselves, and offer codes, are coming to the till. Until then every discount at the till is given by hand, within this limit. See [Connect your POS till](/help/settings/pos-billing-counter).
+Offers that come off by themselves, and offer codes, also work at the till, and they do not count towards this limit: only the part the cashier takes off by hand does. For example, under a 10% limit, a 10% offer plus ₹500 off by hand on a ₹10,000 bill is fine. See [Connect your POS till](/help/settings/pos-billing-counter).
 
 ## Common problems
 

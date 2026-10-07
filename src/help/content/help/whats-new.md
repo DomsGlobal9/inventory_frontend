@@ -8,6 +8,10 @@ keywords: updates release changes new features announcements latest
 
 ## October 2026
 
+### Offers, loyalty points and store credit at the POS till
+
+Offers now come off by themselves at the ScaleEzy POS till, and the cashier can type offer codes there. Customers can pay part of a bill with their loyalty points or store credit: the cashier types their phone number, checks their name, and the till sets the points aside with Inventory, so they are never spent twice. On a return, points spent on the returned items go back as points. See [Loyalty points](/help/customers/loyalty-points) and [How offers work](/help/offers/how-offers-work).
+
 ### New sale has moved to the POS till
 
 Inventory's own New sale screen is gone. Walk-in bills are now made on the ScaleEzy POS till, for every store: connect it in **Settings → POS (billing counter)**, and every bill it makes shows up in **Orders**, takes the stock out and reaches the Day Book by itself. Returns, receipts of older counter bills, loyalty points, till rules and offer codes stay in Inventory. See [Connect your POS till](/help/settings/pos-billing-counter).

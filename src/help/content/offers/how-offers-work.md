@@ -1,6 +1,6 @@
 ---
 title: How offers work
-summary: Write a discount once in Offers. It comes off by itself in your online store, and you can see what it gave away. Offers at the POS till are coming.
+summary: Write a discount once in Offers. It comes off by itself in your online store and at the POS till, and you can see what it gave away.
 for: Everyone
 minutes: 3
 app: /offers
@@ -8,7 +8,7 @@ appLabel: Offers
 keywords: offers discounts sale deal coupon code promotion festive percentage off price off automatic till online shopify overview status
 ---
 
-An **offer** is a discount rule, for example *10% off every saree until Deepavali*. You write it once. Online, ScaleEzy takes the money off for you. At the ScaleEzy POS till, offers are coming: today the cashier gives the discount by hand, within the limit set in **Till rules**.
+An **offer** is a discount rule, for example *10% off every saree until Deepavali*. You write it once. ScaleEzy takes the money off for you, online and at the ScaleEzy POS till. At the till, the offer shows on each item as it is scanned, and the cashier can type an offer code. A discount the cashier gives by hand on top stays within the limit set in **Till rules**.
 
 ## Where to find it
 
@@ -40,7 +40,7 @@ Every offer answers four questions:
 
 ## Where it comes off
 
-- **At the POS till.** Coming. Today the cashier takes money off by hand, within the limit in [Till rules](/help/offers/till-rules). Offers and codes that come off by themselves at the till are next; see [Connect your POS till](/help/settings/pos-billing-counter).
+- **At the POS till.** The offer shows on each item as it is scanned, and the cashier can type an offer code. Money the cashier takes off by hand on top stays within the limit in [Till rules](/help/offers/till-rules). See [Connect your POS till](/help/settings/pos-billing-counter).
 - **Online.** Orders from your online store get it too. Under **More options** you can make an offer till only or online only, or only for some stores.
 - **On Shopify.** Shopify charges its own discounts, so you can put a copy of the offer there. See [Offers on Shopify](/help/offers/offers-on-shopify).
 

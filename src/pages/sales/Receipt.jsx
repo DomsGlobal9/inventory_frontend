@@ -123,6 +123,13 @@ export default function Receipt() {
         <Row left={`Store ${sale.store?.name ?? ''}`} right="" small />
         {sale.soldBy && <Row left={`Sold by ${sale.soldBy}`} right="" small />}
         {sale.customer?.name && <Row left={`Customer ${sale.customer.name}`} right={sale.customer.phoneMasked || ''} small />}
+        {/* A B2B tax invoice only: the buyer as issued. GST is optional, so most bills have none. */}
+        {sale.buyer?.gstin && (
+          <div style={{ fontSize: 11, marginTop: 2 }}>
+            Bill to {sale.buyer.name || sale.customer?.name || ''} · GSTIN {sale.buyer.gstin}
+            {sale.buyer.address && <div style={{ whiteSpace: 'pre-line' }}>{sale.buyer.address}</div>}
+          </div>
+        )}
         <hr />
         {sale.items.map(item => (
           <div key={item.id} style={{ marginBottom: 4 }}>

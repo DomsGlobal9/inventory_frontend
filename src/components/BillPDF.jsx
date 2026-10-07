@@ -48,6 +48,14 @@ const BillPDF = ({ sale, logo = null }) => {
               <Text style={s.boxName}>{sale.customer.name}</Text>
               {sale.customer.phoneMasked ? <Text style={s.boxLine}>{sale.customer.phoneMasked}</Text> : null}
             </View>
+            {sale.buyer?.gstin ? (
+              <View style={s.box}>
+                <Text style={s.boxTitle}>Bill to</Text>
+                <Text style={s.boxName}>{sale.buyer.name || sale.customer.name}</Text>
+                <Text style={s.boxLine}>GSTIN {sale.buyer.gstin}</Text>
+                {sale.buyer.address ? <Text style={s.boxLine}>{sale.buyer.address}</Text> : null}
+              </View>
+            ) : null}
           </View>
         ) : null}
 

@@ -65,8 +65,10 @@ keywords: रिटर्न मिला आया जाँच चेक र�
 
 ![पूरा हुआ रिटर्न। 1 piece of this return is not on a shelf yet at Main Store लिखे पीले बॉक्स और Put away बटन पर 1 का निशान है। Refund owed to the customer, 980 रुपये, पर 2 का निशान है।](5-put-away.webp "रिफ़ंड वह रकम है जो ग्राहक ने दी थी, टैग पर लिखी कीमत नहीं।")
 
-:::warning ScaleEzy खुद पैसे नहीं भेजता
+:::warning ScaleEzy खुद पैसे नहीं भेजता, सिवाय ऑनलाइन भुगतान के
 पैसे वैसे ही लौटाएँ जैसे आपकी दुकान हमेशा लौटाती है, फिर जिस तरह लौटाए उसका बटन दबाएँ: **Cash**, **UPI**, **Card** या **Store credit**, और फिर **Paid back**। इससे यह बिल पर और Day Book में दर्ज हो जाता है, ताकि कैश ड्रॉअर का हिसाब मिल जाए। Shopify में रिफ़ंड किए गए Shopify ऑर्डर के लिए **Refunded through Shopify** लिखा आता है।
+
+भुगतान Razorpay से ऑनलाइन हुआ था? तब **Online (Razorpay)** पहले से चुना होता है। **Refund ₹… through Razorpay** दबाएँ, और पैसा अपने-आप उसी तरीके में वापस चला जाता है जिससे ग्राहक ने भुगतान किया था, 5–7 कामकाजी दिनों में। हाथ में कुछ नहीं देना। [ऑनलाइन भुगतान लें](/help/online-shop/take-payments-online) देखें।
 :::
 
 ## आम समस्याएँ

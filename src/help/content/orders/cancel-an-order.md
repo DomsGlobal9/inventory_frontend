@@ -5,7 +5,7 @@ for: Admins and owners
 minutes: 1
 app: /orders
 appLabel: Orders
-keywords: cancel order delete remove release stock reserved close rest refuse customer changed mind
+keywords: cancel order delete remove release stock reserved close rest refuse customer changed mind paid online razorpay refund money back
 ---
 
 Only admins and the owner can cancel an order.
@@ -30,9 +30,15 @@ The order now says [[1]] **Cancelled**. It holds no stock: [[2]] **RESERVED** is
 
 ![The cancelled order. The Cancelled label is marked 1 and the RESERVED column, showing 0, is marked 2.](3-cancelled.webp "The order stays in your list with the Cancelled status.")
 
+## If the customer paid online
+
+When the order was paid online through Razorpay, cancelling it sends the whole amount back to the customer by itself, through Razorpay, to however they paid. It reaches them in 5–7 working days. You do not hand over any money. You can follow it in **Settings → Money → Online payments and refunds**. See [Take payments online](/help/online-shop/take-payments-online).
+
+If the refund could not even be started, you get a red alert at the bell saying the customer has NOT been refunded. Refund them from that list, or from your Razorpay Dashboard.
+
 ## Part of it was already sent
 
-If some pieces have gone out, the button says **Close rest of order** instead. What was sent stays a sale. Only the pieces not sent go back on sale. See step 5 of [Send out an online order](/help/orders/send-online-orders).
+If some pieces have gone out, the button says **Close rest of order** instead. What was sent stays a sale. Only the pieces not sent go back on sale. If the order was paid online, nothing goes back by itself here: give back what you choose with **Refund** in **Online payments and refunds**. See step 5 of [Send out an online order](/help/orders/send-online-orders).
 
 ## Common problems
 

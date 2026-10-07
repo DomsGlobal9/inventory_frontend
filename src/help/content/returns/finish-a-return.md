@@ -66,8 +66,10 @@ The status changes to **Completed**. Pieces marked Restock are added back to the
 
 ![The completed return. The yellow box with 1 piece of this return is not on a shelf yet at Main Store and a Put away button is marked 1. Refund owed to the customer, 980 rupees, is marked 2.](5-put-away.webp "The refund is what the customer paid, not the price on the tag.")
 
-:::warning ScaleEzy does not move the money itself
+:::warning ScaleEzy does not move the money itself, except for online payments
 Give it back the way your shop always does, then press the button for how you did it: **Cash**, **UPI**, **Card** or **Store credit**, and **Paid back**. That records it on the bill and in the Day Book, so the cash drawer adds up. For a Shopify order refunded in Shopify, it says **Refunded through Shopify**.
+
+Paid online through Razorpay? Then **Online (Razorpay)** is chosen first. Press **Refund ₹… through Razorpay** and the money goes back by itself to however the customer paid, in 5–7 working days. Nothing to hand over. See [Take payments online](/help/online-shop/take-payments-online).
 :::
 
 ## Common problems

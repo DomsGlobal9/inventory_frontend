@@ -35,7 +35,7 @@ The money is what the customer paid for those pieces after discounts, not the pr
 
 ## 3. Give the money back
 
-1. Choose how: [[1]] **Cash**, **UPI**, **Card** or **Store credit**. For UPI or card you can type the reference.
+1. Choose how: [[1]] **Cash**, **UPI**, **Card** or **Store credit**. For UPI or card you can type the reference. If the bill was paid online through Razorpay, there is also **Online**: the money goes back through Razorpay to however the customer paid, in 5–7 working days, and there is nothing to hand over.
 2. Click [[2]] the button, for example *Take back · give ₹900 in cash*.
 
 ![Money back. Cash is marked 1 and Take back · give ₹1,450 in cash 2.](4-give-the-money-back.webp "Points earned on these pieces are taken back, and the screen says so.")

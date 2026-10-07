@@ -5,7 +5,7 @@ for: Owners, admins and anyone who packs orders
 minutes: 3
 app: /orders
 appLabel: Orders
-keywords: notification bell alert online shop new order cancelled order alert centre your shop tab stock held pack send
+keywords: notification bell alert online shop new order cancelled order alert centre your shop tab stock held pack send online payment returned needs looking at not refunded razorpay
 ---
 
 You do not have to keep the shop page open and watch it. Every online order announces itself inside ScaleEzy.
@@ -39,6 +39,14 @@ A customer can call off their own order from the shop. When they do, you get a s
 > **Order ORD-1043 was cancelled** — Priya called off their online order for ₹6,400. Do not send it. The stock is back on the shelf.
 
 The original **New online order** alert is closed at the same time, so the Alert Centre stops asking someone to pack an order that no longer exists. This matters most when the parcel is half wrapped.
+
+## 5. Alerts about online payments
+
+If your shop takes payment online (see [Take payments online](/help/online-shop/take-payments-online)), three more alerts can appear under **Your shop**:
+
+- **An online payment was returned** (orange): a customer paid, but no order could be made (a piece sold out meanwhile, a second payment for the same bag, or a payment that came too late). The money is going back to them by itself. Nothing to do.
+- **An online payment needs looking at** (red): the amount Razorpay took did not match the order. No order was made. The alert says what happened and whether the money is going back.
+- **A cancelled order was not refunded** (red): an order paid online was cancelled, but the refund could not be started. The customer has not been refunded. Refund them from **Settings → Money → Online payments and refunds**, or from your Razorpay Dashboard.
 
 :::note Nothing is sent to your customers by us
 These alerts are for you, inside the app. The customer gets their own confirmation on the shop. Nothing here messages anybody on your behalf.

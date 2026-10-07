@@ -75,6 +75,7 @@ Changed your mind before saving? Press **Discard** to go back to the saved detai
 | Counter receipt | Logo, shop name, address, phone, GSTIN and the receipt footer |
 | Purchase order PDF | Logo, shop name, address, phone, email and GSTIN |
 | Goods receipt PDF | Logo, shop name, address, phone, email and GSTIN |
+| Bills from the ScaleEzy POS till | The logo. A connected till always takes it from here, so change it here, not on the till |
 | Settings, for everyone | The logo in place of the letter in the round picture |
 
 :::note A store's own address comes first

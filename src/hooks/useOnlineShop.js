@@ -155,6 +155,11 @@ export const useNewWebhookSecret = () => usePaymentMutation(
   async () => (await api.post('/online-shop/payments/webhook-secret', {})).data
 );
 
+/** UPI QR at the POS till: the owner's on/off (Razorpay charges the shop per payment). */
+export const useSetUpiQr = () => usePaymentMutation(
+  async (enabled) => (await api.put('/online-shop/payments/upi-qr', { enabled })).data
+);
+
 /**
  * What has been paid online lately, and what has gone back. Re-asked every half minute while the
  * card is open: a refund Razorpay is still processing turns into "refunded" on its own.

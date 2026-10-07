@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { CreditCard, Check, AlertTriangle, Copy, ExternalLink, Loader2, KeyRound, RefreshCw, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import {
-  useShopPayments, useSavePaymentKeys, useCheckPayments, useNewWebhookSecret, useDisconnectPayments,
+  useShopPayments, useSavePaymentKeys, useCheckPayments, useNewWebhookSecret, useDisconnectPayments, useSetUpiQr,
   useOnlinePaymentActivity, useRefundOnline, useOnlineShop
 } from '../../hooks/useOnlineShop';
 import { usePermission } from '../../hooks/usePermission';
@@ -270,7 +270,57 @@ export default function ShopPayments() {
                 : 'Customers pay when the order arrives until this shows Connected.'}
           </p>
 
+          <UpiQrSwitch account={account} isOwner={isOwner} />
+
           <PaymentActivity />
+        </>
+      )}
+    </div>
+  );
+}
+
+/**
+ * UPI QR at the POS till: the till shows a QR for the exact bill and the bill marks itself paid.
+ * Opt-in, because Razorpay charges the shop for every payment; only the owner turns it on.
+ */
+function UpiQrSwitch({ account, isOwner }) {
+  const setUpiQr = useSetUpiQr();
+  const on = !!account.upiQrEnabled;
+  const flip = () => setUpiQr.mutate(!on, {
+    onSuccess: () => toast.success(on ? 'UPI QR at the till is off. Your tills use your bank QR.' : 'UPI QR at the till is on.')
+  });
+  return (
+    <div style={{ marginTop: '16px', paddingTop: '14px', borderTop: '1px solid var(--border-light)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
+        <div>
+          <div style={{ fontSize: '14px', fontWeight: 600 }}>UPI QR at the POS till</div>
+          <p style={{ ...hint, margin: '2px 0 0' }}>
+            The till shows a QR for the exact bill amount. When the customer pays, the bill marks itself paid. No checking phones.
+          </p>
+          <p style={{ ...hint, margin: '4px 0 0' }}>
+            Razorpay charges about 0.99% of each payment to your Razorpay account. Your free bank QR still works when this is off.
+          </p>
+        </div>
+        {isOwner ? (
+          <button type="button" role="switch" aria-checked={on} aria-label="UPI QR at the POS till" disabled={setUpiQr.isPending} onClick={flip}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', color: on ? 'var(--accent-success, #16a34a)' : 'var(--text-secondary)' }}>
+            {on ? 'On' : 'Off'}
+            <span aria-hidden="true" style={{ width: '36px', height: '20px', borderRadius: '10px', position: 'relative', background: on ? 'var(--accent-success, #16a34a)' : 'var(--border-light)', transition: 'background .15s' }}>
+              <span style={{ position: 'absolute', top: '2px', left: on ? '18px' : '2px', width: '16px', height: '16px', borderRadius: '50%', background: '#fff', transition: 'left .15s' }} />
+            </span>
+          </button>
+        ) : (
+          <span style={{ fontSize: '13px', color: 'var(--text-secondary)', flexShrink: 0 }}>{on ? 'On' : 'Off'}</span>
+        )}
+      </div>
+      {on && (
+        <>
+          <p style={{ ...hint, margin: '8px 0 0' }}>
+            Your tills show a self-confirming UPI QR. One more tick in Razorpay: add <span style={mono}>qr_code.credited</span> to your webhook's events (Account &amp; Settings → Webhooks → your webhook → Edit).
+          </p>
+          <p style={{ margin: '8px 0 0', padding: '8px 12px', borderRadius: '8px', background: 'var(--bg-hover)', fontSize: '12.5px', color: 'var(--accent-warning)' }}>
+            If Razorpay hasn't turned on QR Codes for your account, the till says so and uses your bank QR instead.
+          </p>
         </>
       )}
     </div>

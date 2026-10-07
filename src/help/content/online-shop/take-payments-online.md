@@ -51,7 +51,7 @@ Right after the keys are saved, a yellow box appears: **Last step: tell Razorpay
 1. In Razorpay, go to **Account & Settings → Webhooks → Add New Webhook**.
 2. Click **Copy** next to the **Webhook URL** in ScaleEzy, and paste it into Razorpay's **Webhook URL** box.
 3. Click **Copy** next to the **Secret** in ScaleEzy, and paste it into Razorpay's **Secret** box. This secret is shown only now. Copy it before you leave the page.
-4. In Razorpay, tick these five events: `payment.captured`, `payment.failed`, `order.paid`, `refund.processed` and `refund.failed`. Then press **Create Webhook** in Razorpay.
+4. In Razorpay, tick these six events: `payment.captured`, `payment.failed`, `order.paid`, `refund.processed`, `refund.failed` and `qr_code.credited`. Then press **Create Webhook** in Razorpay. (`qr_code.credited` is for UPI QR at the till, step 12. If your webhook was made before it was listed, add it: **Account & Settings → Webhooks →** your webhook **→ Edit**.)
 5. Back in ScaleEzy, press **I have added it in Razorpay**. The yellow box closes.
 
 The Webhook URL stays on the card afterwards, so you can copy it again any time. The secret does not. If you lost it before pasting it in Razorpay, make a new one with **New webhook secret** (see *Change or remove your Razorpay account* below).
@@ -153,6 +153,26 @@ A refund here gives money only. When the customer sends pieces back, use Returns
 You can still choose cash, UPI or store credit instead, if the customer asks.
 :::
 
+## 12. UPI QR at the POS till (optional)
+
+With this on, the ScaleEzy POS till shows a QR for the exact bill amount. The customer scans it with any UPI app, and when they pay, the bill marks itself paid. The cashier does not have to look at the customer's phone.
+
+It is off until you turn it on, because Razorpay charges about 0.99% of each payment to your Razorpay account. Your free bank QR keeps working whether it is on or off.
+
+1. Open **Settings → Razorpay account**.
+2. Under **UPI QR at the POS till**, click the switch so it says **On**. Only the owner can do this.
+3. In Razorpay, add `qr_code.credited` to your webhook's events (step 4).
+
+Razorpay must also have **QR Codes** switched on for your account. If it has not, the till says so and uses your bank QR instead. Ask Razorpay to activate QR Codes.
+
+At the till:
+
+- The cashier chooses UPI QR. The QR is for this bill only, and stops working after 15 minutes.
+- When the customer has paid, the till shows it as paid by itself, with the UPI reference number from the customer's bank.
+- If the cashier changes to another way of paying, the QR is closed. If the customer had already paid, the till keeps that payment, so the money is never lost.
+
+The payment shows on the bill as UPI, with the bank's reference number. The money reaches your bank from Razorpay, on Razorpay's settlement schedule.
+
 ## Change or remove your Razorpay account
 
 Under the connected account (owner only):
@@ -178,7 +198,7 @@ Each shop needs its own Razorpay account. Use the Razorpay account that belongs 
 :::
 
 :::faq A customer paid, but the order does not say paid
-Check the webhook in Razorpay (step 4): the address, the secret and the five ticked events. ScaleEzy also asks Razorpay by itself every minute, for two days, so the order catches up shortly. If the payment arrived but the order could not be made, it shows as **Returned** in the list and the money goes back by itself.
+Check the webhook in Razorpay (step 4): the address, the secret and the six ticked events. ScaleEzy also asks Razorpay by itself every minute, for two days, so the order catches up shortly. If the payment arrived but the order could not be made, it shows as **Returned** in the list and the money goes back by itself.
 :::
 
 :::faq The customer says they paid twice
@@ -203,6 +223,10 @@ Some of it already went back, through Razorpay or at the counter. You cannot giv
 
 :::faq I don't see Razorpay account in Settings
 Only people who manage the online shop see it, and only the owner can connect an account.
+:::
+
+:::faq The till says QR Codes is not switched on for this Razorpay account
+Razorpay has not activated QR Codes for your account yet. Ask Razorpay to activate it. Until then the till shows your free bank QR, and the cashier checks the payment as before.
 :::
 
 :::faq I don't see the Refund button

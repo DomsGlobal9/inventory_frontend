@@ -16,7 +16,9 @@ import BillsAtPosNote from '../../components/sales/BillsAtPosNote';
 const PAYMENT = {
   PAID: { label: 'Paid', color: '16, 185, 129' },
   PART_PAID: { label: 'Part paid', color: '245, 158, 11' },
-  REFUNDED: { label: 'Refunded', color: '107, 114, 128' }
+  REFUNDED: { label: 'Refunded', color: '107, 114, 128' },
+  // Udhaar the shop gave up on at the till: nothing due, but not paid either.
+  WRITTEN_OFF: { label: 'Written off', color: '220, 38, 38' }
 };
 
 const Pill = ({ label, color }) => (
@@ -32,9 +34,9 @@ const whereFrom = (order) => order.atCounter ? 'Counter'
   : order.channel === 'MARKETPLACE' ? 'Marketplace'
   : 'Order';
 
-/** Paid / ₹X due -- only for orders that take money here. A Shopify order was paid on Shopify. */
+/** Paid / ₹X due -- only for orders that take money here or at the POS till. A Shopify order was paid on Shopify. */
 const paymentPill = (order) => {
-  if (!order.atCounter && !(order.payment?.paid > 0)) return null;
+  if (!order.atCounter && order.sourceSystem !== 'SCALEEZY_POS' && !(order.payment?.paid > 0)) return null;
   if (order.payment?.status === 'PART_PAID' || order.payment?.status === 'UNPAID') {
     return <Pill label={`${formatINRExact(order.payment.due)} due`} color="245, 158, 11" />;
   }

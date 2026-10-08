@@ -88,6 +88,15 @@ GST is optional. The till takes everything about it from Inventory, so you set i
 
 Each bill keeps the kind it was printed as. Changing your GST settings later does not change bills already made.
 
+## Credit (udhaar) bills
+
+A customer can take the goods and pay later. The till sends the bill with what was paid at the counter, and the order in **Orders** shows the rest as **₹… due**.
+
+- **Paid later**: when the balance is collected on the till, it reaches the order by itself, with its UPI or card reference. The due goes down, and at ₹0 the order reads **Paid**.
+- Loyalty points are earned on what is paid, as it is paid. See [Loyalty points](/help/customers/loyalty-points).
+- **Written off**: if the customer never pays, a manager can write the balance off on the till, with a reason. The order then shows **Written off**, with the amount, the reason, who approved it and when, and nothing is due. No money came in, so takings and the Day Book do not change, and the GST bill stays as it was issued.
+- **Paid after all**: if a written-off customer pays later, the money is recorded as usual and the written-off amount goes down by the same sum.
+
 ## Bills not added to Inventory
 
 Very rarely, the till cannot send a bill, for example because its item was deleted here for good. The person at the till can then choose to **leave that bill out**, with a reason. Its pieces are **not** taken off your stock here, and its money is **not** in your Day Book.

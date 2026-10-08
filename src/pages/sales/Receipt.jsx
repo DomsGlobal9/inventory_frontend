@@ -177,6 +177,7 @@ export default function Receipt() {
         {refunds.map(p => (
           <Row key={p.id} left={`Paid back (return) ${METHOD[p.method]}`} right={`-${money(p.amount)}`} small />
         ))}
+        {sale.payment.writtenOff > 0 && <Row left="Written off" right={money(sale.payment.writtenOff)} small />}
         {sale.payment.due > 0 && <Row left="Due" right={money(sale.payment.due)} bold />}
         <hr />
         <div style={{ textAlign: 'center', fontSize: 11, display: 'grid', gap: 2 }}>

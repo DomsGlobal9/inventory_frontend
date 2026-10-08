@@ -133,6 +133,9 @@ const BillPDF = ({ sale, logo = null }) => {
               <Text>-{rupees(p.amount)}</Text>
             </View>
           ))}
+          {sale.payment?.writtenOff > 0 ? (
+            <View style={s.totalRow}><Text style={{ color: '#6b7280' }}>Written off</Text><Text>{rupees(sale.payment.writtenOff)}</Text></View>
+          ) : null}
           {sale.payment?.due > 0 ? (
             <View style={s.totalRow}><Text style={{ fontFamily: 'Helvetica-Bold' }}>Still to pay</Text><Text style={{ fontFamily: 'Helvetica-Bold' }}>{rupees(sale.payment.due)}</Text></View>
           ) : null}

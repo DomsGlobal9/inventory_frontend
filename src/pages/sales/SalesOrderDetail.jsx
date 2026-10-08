@@ -489,14 +489,27 @@ export default function SalesOrderDetail() {
           </div>
 
           {/* Money taken for this order, and paid back. Worked out from the rows, never stored twice. */}
-          {(order.atCounter || order.payments?.length > 0) && (
+          {(order.atCounter || order.payments?.length > 0 || order.payment?.writtenOff > 0) && (
             <div className="card" style={{ padding: '24px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '16px' }}>
                 <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>Payments</h3>
-                <span style={{ fontSize: '13px', fontWeight: 600, color: order.payment?.due > 0 ? 'var(--accent-warning)' : 'var(--accent-success)' }}>
-                  {order.payment?.due > 0 ? `${formatINRExact(order.payment.due)} due` : order.payment?.status === 'REFUNDED' ? 'Refunded' : 'Paid'}
+                <span style={{ fontSize: '13px', fontWeight: 600, color: order.payment?.due > 0 ? 'var(--accent-warning)' : order.payment?.status === 'WRITTEN_OFF' ? 'var(--accent-danger)' : 'var(--accent-success)' }}>
+                  {order.payment?.due > 0 ? `${formatINRExact(order.payment.due)} due` : order.payment?.status === 'REFUNDED' ? 'Refunded' : order.payment?.status === 'WRITTEN_OFF' ? 'Written off' : 'Paid'}
                 </span>
               </div>
+              {/* Udhaar written off at the POS till: not money, so it is not a payment row. */}
+              {order.payment?.writtenOff > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '8px 0', fontSize: '14px' }}>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontWeight: 500, color: 'var(--accent-danger)' }}>Written off{order.writtenOffReason ? <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}> · “{order.writtenOffReason}”</span> : null}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                      {order.writtenOffAt ? new Date(order.writtenOffAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) : ''}
+                      {order.writtenOffBy ? ` · ${order.writtenOffBy}` : ''} · on the POS till, no money received
+                    </div>
+                  </div>
+                  <span style={{ fontWeight: 600, whiteSpace: 'nowrap', color: 'var(--accent-danger)' }}>{formatINRExact(order.payment.writtenOff)}</span>
+                </div>
+              )}
               {order.payments?.length === 0 ? (
                 <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>No payment recorded.</div>
               ) : order.payments.map(p => (

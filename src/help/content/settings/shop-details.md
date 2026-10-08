@@ -55,8 +55,8 @@ For a registered shop, type [[2]] the **GSTIN** and the [[3]] **State** fills in
 
 ![The GST part of the form. The three choices are marked 1, GSTIN 2 and State 3.](3b-gst.webp "A registered shop with no GSTIN saved cannot print tax invoices until it is filled in.")
 
-:::note Only the GST rate on each product is optional
-Whether the shop is registered is not: a shop that is not registered charges no GST on anything, whatever rate its products carry.
+:::note GST is optional
+You do not have to fill in anything about GST. A shop with no GSTIN saved prints plain receipts with no GST, whatever it chose above and whatever rate its products carry. Choose a registration and save your GSTIN only if your shop is GST registered. The ScaleEzy POS till follows exactly what you save here. See [Connect your POS till](/help/settings/pos-billing-counter).
 :::
 
 ## 5. Check the preview and save

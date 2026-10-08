@@ -75,6 +75,9 @@ const BillPDF = ({ sale, logo = null }) => {
                 <Text style={[s.td, { width: COLS.n }]}>{index + 1}</Text>
                 <View style={{ width: COLS.item, paddingRight: 6 }}>
                   <Text style={s.td}>{item.title}{variant ? ` — ${variant}` : ''}</Text>
+                  {(sale.gst || []).length > 0 && item.taxRateBps != null ? (
+                    <Text style={{ fontSize: 8, color: '#6b7280' }}>{item.hsnCode ? `HSN ${item.hsnCode} · ` : ''}GST {item.taxRateBps / 100}%</Text>
+                  ) : null}
                   {(item.discounts || []).filter(d => d.amount > 0).map((d, i) => (
                     <Text key={i} style={s.sub}>{d.title}: -{rupees(d.amount)}</Text>
                   ))}
@@ -94,11 +97,22 @@ const BillPDF = ({ sale, logo = null }) => {
               <Text>-{rupees(sale.discountAmount)}</Text>
             </View>
           ) : null}
-          {sale.taxAmount > 0 ? (
+          {sale.taxAmount > 0 && !((sale.gst || []).length > 0) ? (
             <View style={s.totalRow}><Text style={{ color: '#6b7280' }}>Tax</Text><Text>{rupees(sale.taxAmount)}</Text></View>
           ) : null}
           {sale.shippingAmount > 0 ? (
             <View style={s.totalRow}><Text style={{ color: '#6b7280' }}>Shipping</Text><Text>{rupees(sale.shippingAmount)}</Text></View>
+          ) : null}
+          {(sale.gst || []).length > 0 ? (
+            <View style={s.totalRow}><Text style={{ color: '#6b7280' }}>Taxable value</Text><Text>{rupees(sale.gst.reduce((a, g) => a + g.taxable, 0))}</Text></View>
+          ) : null}
+          {(sale.gst || []).flatMap(g => [
+            g.cgst > 0 ? <View style={s.totalRow} key={`c${g.rateBps}`}><Text style={{ color: '#6b7280' }}>CGST {g.rateBps / 200}%</Text><Text>{rupees(g.cgst)}</Text></View> : null,
+            g.sgst > 0 ? <View style={s.totalRow} key={`s${g.rateBps}`}><Text style={{ color: '#6b7280' }}>SGST {g.rateBps / 200}%</Text><Text>{rupees(g.sgst)}</Text></View> : null,
+            g.igst > 0 ? <View style={s.totalRow} key={`i${g.rateBps}`}><Text style={{ color: '#6b7280' }}>IGST {g.rateBps / 100}%</Text><Text>{rupees(g.igst)}</Text></View> : null
+          ])}
+          {sale.roundOff ? (
+            <View style={s.totalRow}><Text style={{ color: '#6b7280' }}>Round off</Text><Text>{sale.roundOff > 0 ? '+' : '-'}{rupees(Math.abs(sale.roundOff))}</Text></View>
           ) : null}
           <View style={s.grandRow}>
             <Text style={s.grand}>Total</Text>

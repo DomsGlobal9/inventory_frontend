@@ -8,6 +8,10 @@ keywords: updates release changes new features announcements latest
 
 ## October 2026
 
+### GST at the POS till, from one place
+
+The till now takes everything about GST from Inventory: whether its bills are tax invoices, Bills of Supply or plain receipts, your GSTIN, and each item's rate. GST stays optional: a shop with no GSTIN prints plain receipts. Business customers with a GSTIN, and bills of ₹50,000 or more, can show *Bill to*. See [Connect your POS till](/help/settings/pos-billing-counter).
+
 ### Offers, loyalty points and store credit at the POS till
 
 Offers now come off by themselves at the ScaleEzy POS till, and the cashier can type offer codes there. Customers can pay part of a bill with their loyalty points or store credit: the cashier types their phone number, checks their name, and the till sets the points aside with Inventory, so they are never spent twice. On a return, points spent on the returned items go back as points. See [Loyalty points](/help/customers/loyalty-points) and [How offers work](/help/offers/how-offers-work).

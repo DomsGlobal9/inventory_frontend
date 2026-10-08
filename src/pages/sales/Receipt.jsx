@@ -134,6 +134,9 @@ export default function Receipt() {
         {sale.items.map(item => (
           <div key={item.id} style={{ marginBottom: 4 }}>
             <div style={{ fontSize: 12 }}>{[item.title, item.colorName, item.size].filter(Boolean).join(', ')}</div>
+            {sale.gst?.length > 0 && item.taxRateBps != null && (
+              <div style={{ fontSize: 10.5, color: '#555' }}>{item.hsnCode ? `HSN ${item.hsnCode} · ` : ''}GST {item.taxRateBps / 100}%</div>
+            )}
             <Row left={`  ${item.quantity} × ${money(item.listUnitPrice)}`} right={money(item.listUnitPrice * item.quantity)} />
             {item.discounts.filter(d => d.amount > 0).map((d, i) => (
               <Row key={i} left={`  ${d.title}`} right={`-${money(d.amount)}`} small />
@@ -143,13 +146,29 @@ export default function Receipt() {
         <hr />
         {/* An order with tax or shipping on top (Shopify, online) has to show them, or its lines do
             not add up to its total. A counter sale has neither: its shelf prices include GST. */}
-        {(sale.taxAmount > 0 || sale.shippingAmount > 0) && (
+        {/* With the GST breakdown below, a bare "Tax" line would read as added on top of prices that
+            already include it, so it shows only when there is no breakdown. */}
+        {((sale.taxAmount > 0 && !(sale.gst?.length > 0)) || sale.shippingAmount > 0) && (
           <>
             <Row left="Items" right={money(sale.subtotal - (sale.discountAmount || 0))} small />
-            {sale.taxAmount > 0 && <Row left="Tax" right={money(sale.taxAmount)} small />}
+            {sale.taxAmount > 0 && !(sale.gst?.length > 0) && <Row left="Tax" right={money(sale.taxAmount)} small />}
             {sale.shippingAmount > 0 && <Row left="Shipping" right={money(sale.shippingAmount)} small />}
           </>
         )}
+        {/* Rule 46: taxable value and each tax with its rate, as charged. Only when GST was charged. */}
+        {sale.gst?.length > 0 && (
+          <>
+            <Row left="Taxable value" right={money(sale.gst.reduce((a, g) => a + g.taxable, 0))} small />
+            {sale.gst.map(g => (
+              <React.Fragment key={g.rateBps}>
+                {g.cgst > 0 && <Row left={`CGST ${g.rateBps / 200}%`} right={money(g.cgst)} small />}
+                {g.sgst > 0 && <Row left={`SGST ${g.rateBps / 200}%`} right={money(g.sgst)} small />}
+                {g.igst > 0 && <Row left={`IGST ${g.rateBps / 100}%`} right={money(g.igst)} small />}
+              </React.Fragment>
+            ))}
+          </>
+        )}
+        {sale.roundOff ? <Row left="Round off" right={`${sale.roundOff > 0 ? '+' : '-'}${money(Math.abs(sale.roundOff))}`} small /> : null}
         <Row left="Total" right={`₹${money(sale.total)}`} bold />
         {payments.map(p => (
           <Row key={p.id} left={`${p.kind === 'REFUND' ? 'Paid back' : 'Paid'} ${METHOD[p.method]}${p.cashReceived ? ` (got ${money(p.cashReceived)})` : ''}${p.reference && p.method !== 'CASH' ? ` ${p.method === 'CARD' ? '••' : ''}${p.reference}` : ''}`} right={p.kind === 'REFUND' ? `-${money(p.amount)}` : money(p.amount)} small />

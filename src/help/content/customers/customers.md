@@ -24,7 +24,7 @@ You do not have to add every customer here by hand. A bill made on the [ScaleEzy
 
 1. [[1]] Type the **Phone** number. A green line shows how it will be saved, for example *Saved as +91 99123 45678*.
 2. [[2]] Type the **Name**.
-3. Email, Company and GSTIN are optional. A GSTIN is only for a business customer: when the ScaleEzy POS till makes a tax invoice to them, the bill shows *Bill to* with their name, GSTIN and address, and so does its receipt here. If the till's bill carries a GSTIN and the customer has none saved, it is saved here for you. GST is optional: leave it empty for everyone else.
+3. Email, Company and GSTIN are optional. A GSTIN is only for a business customer: when the ScaleEzy POS till makes a tax invoice to them, the bill shows *Bill to* with their name, GSTIN and address, and so does its receipt here. If the till's bill carries a GSTIN and the customer has none saved, it is saved here for you. GST is optional: leave it empty for everyone else. A bill of ₹50,000 or more to a customer without a GSTIN also shows *Bill to*, with their name and address, when the cashier types them in at the till.
 4. Click [[3]] **Add customer**.
 
 ![The Add customer form. Phone with 99123 45678 is marked 1, Name with Kavya Menon is marked 2 and the Add customer button is marked 3.](2-add-customer.webp "The customer page opens once they are saved.")

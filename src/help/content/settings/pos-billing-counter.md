@@ -72,6 +72,22 @@ What stays in Inventory:
 
 To see only the till's bills in **Orders**, choose **POS till** in the **Where from** box.
 
+## GST on the till's bills
+
+GST is optional. The till takes everything about it from Inventory, so you set it in one place:
+
+- **What kind of bill it prints** follows **Settings → Name, logo and bill details** (see [Shop details](/help/settings/shop-details)):
+  - GST registered (Regular) with a GSTIN saved: a **tax invoice**, with CGST and SGST.
+  - Composition scheme with a GSTIN saved: a **Bill of Supply**, with no GST on it.
+  - No GSTIN saved, or not registered: a **plain receipt**, with no GST. This is fine; nothing is held up.
+- **The GST rate of each item** comes from the product in Inventory when the till refreshes its items. An item with no rate still sells. In a GST registered shop it is billed at 0% and the till shows a quiet note, so you can add the rate later.
+- **The shop's name, address, phone, GSTIN and logo** on the bill come from the same settings page.
+- **A business customer with a GSTIN**: the bill shows *Bill to* with their name, GSTIN and address. Inventory keeps those on the order and on the customer, if the customer has none saved.
+- **A bill of ₹50,000 or more to a customer without a GSTIN**: the till asks for their name and address. It never stops the sale if they are not given. When they are, the bill shows *Bill to* with them, and so does its receipt in Inventory.
+- **Rounding**: the till rounds the bill to the nearest rupee. Inventory keeps the round-off with the bill, so it reads as fully paid.
+
+Each bill keeps the kind it was printed as. Changing your GST settings later does not change bills already made.
+
 ## Bills not added to Inventory
 
 Very rarely, the till cannot send a bill, for example because its item was deleted here for good. The person at the till can then choose to **leave that bill out**, with a reason. Its pieces are **not** taken off your stock here, and its money is **not** in your Day Book.

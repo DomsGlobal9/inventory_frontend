@@ -51,7 +51,7 @@ The screen says points can be used only at the counter: that is the POS till. Un
 
 Bills are made on the ScaleEzy POS till. The till sends each bill to Inventory, and when the bill has the customer's phone number on it, the points are earned here by themselves. A customer who already exists here, for example one who first bought online, is the same customer at the till: the till finds them by their phone number. They show on the customer's page as soon as the till has sent the bill.
 
-Points are earned only on what was paid in money, after discounts. Points or store credit spent on a bill earn nothing.
+Points are earned only on what was paid in money, after discounts. Points or store credit spent on a bill earn nothing. On a bill bought on credit (udhaar), the customer earns on what they paid at the counter, and the rest as they pay off the balance: a ₹3,000 bill with ₹700 paid earns 7 points, and 30 in all once it is paid in full.
 
 ### Paying with points at the till
 

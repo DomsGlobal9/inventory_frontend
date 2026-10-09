@@ -72,6 +72,8 @@ What stays in Inventory:
 
 To see only the till's bills in **Orders**, choose **POS till** in the **Where from** box.
 
+Each bill is dated by when the till made it, not when it reached Inventory. A bill made just before midnight, or by a till that was offline and sends its bills the next morning, still counts on the day it was made, in **Orders** and in the [Day Book](/help/settings/day-book). Only the Day Book's stock movements list its pieces on the day the bill reached Inventory.
+
 ## GST on the till's bills
 
 GST is optional. The till takes everything about it from Inventory, so you set it in one place:

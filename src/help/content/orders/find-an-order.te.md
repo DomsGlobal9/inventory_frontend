@@ -19,7 +19,7 @@ keywords: ఆర్డర్ వెతుకు సెర్చ్ సేల్ 
 
 - **WHERE FROM**: *Counter*, *POS till*, *Shopify*, *Online*, *Marketplace* లేదా *Order*, స్టోర్, ఎవరు చేశారు అనే వివరాలతో.
 - **STATUS**: *Draft*, *Confirmed*, *Partly sent*, *Dispatched* లేదా *Cancelled*.
-- **PAYMENT**: *Paid*, లేదా ఇంకా ఎంత బాకీ ఉంది (ఉదాహరణకు *₹500 due*). ScaleEzy లో పేమెంట్ తీసుకోని ఆర్డర్, Shopify ఆర్డర్ లాంటిది, **—** చూపిస్తుంది.
+- **PAYMENT**: *Paid*, లేదా ఇంకా ఎంత బాకీ ఉంది (ఉదాహరణకు *₹500 due*). ScaleEzy లో పేమెంట్ తీసుకోని ఆర్డర్, Shopify ఆర్డర్ లాంటిది, **—** చూపిస్తుంది. *Written off* అంటే అప్పు బిల్ బాకీని POS టిల్‌లో వదిలేశారు: బాకీ ఏమీ లేదు, డబ్బు ఏమీ రాలేదు.
 
 ## 2. వెతకండి, ఫిల్టర్ చేయండి
 

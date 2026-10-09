@@ -8,6 +8,10 @@ keywords: updates release changes new features announcements latest
 
 ## October 2026
 
+### Credit (udhaar) bills from the POS till
+
+A customer can take the goods and pay later. In **Orders** the bill shows what is still due, and money collected later on the till reaches it by itself. Loyalty points come as the money is paid. If the customer never pays, a manager can write the balance off on the till: the order then shows **Written off**, with the reason, and nothing is due. Every till bill also counts on the day it was made, even when it reaches Inventory later. See [Connect your POS till](/help/settings/pos-billing-counter).
+
 ### GST at the POS till, from one place
 
 The till now takes everything about GST from Inventory: whether its bills are tax invoices, Bills of Supply or plain receipts, your GSTIN, and each item's rate. GST stays optional: a shop with no GSTIN prints plain receipts. Business customers with a GSTIN, and bills of ₹50,000 or more, can show *Bill to*. See [Connect your POS till](/help/settings/pos-billing-counter).

@@ -80,6 +80,8 @@ A return lowers sales and profit on the day it is finished, not on the day of th
 If some items sold had no cost recorded, a message says *This profit is higher than the real one.* Add what you paid for those items to see the true profit.
 :::
 
+A bill from the POS till counts on the day it was made, even if it reached Inventory later. Money collected later on a credit (udhaar) bill counts on the day it was collected. A balance written off on the till is not money, so it never shows in what was taken.
+
 ## 5. What came in and what went out
 
 **Stock that came in** and **Stock that went out** list the reasons, with pieces and value. For example *Purchase received*, *Opening stock added*, *Customer returns*, *Sold and dispatched*, *Damaged or written off* or *Manual corrections*.

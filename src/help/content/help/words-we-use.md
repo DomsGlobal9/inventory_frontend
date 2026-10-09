@@ -76,6 +76,8 @@ keywords: glossary meaning dictionary term definition what does mean sku variant
 | **Offer** | A discount you set up once in **Offers**. It comes off online, on Shopify and at the POS till. |
 | **Customer group** | A name like *VIP* or *Wholesale* that you give to some customers on their page. An offer can be only for some groups. |
 | **Discount by hand** | A discount the cashier gives on the POS till, up to the limit the owner set in **Till rules**. |
+| **Udhaar (credit bill)** | A bill the customer takes home and pays for later. **Orders** shows how much is still due until it is paid. |
+| **Written off** | The balance of a credit bill that the shop gave up on, on the POS till, with a reason. Nothing is due, and no money came in. |
 | **Day Book** | One day's summary: what came in, what went out, sales and profit. |
 
 ## Your team

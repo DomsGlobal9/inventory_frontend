@@ -19,7 +19,7 @@ keywords: ऑर्डर सर्च ढूँढें बिक्री ब
 
 - **WHERE FROM**: *Counter*, *POS till*, *Shopify*, *Online*, *Marketplace* या *Order*, साथ में स्टोर और किसने बनाया।
 - **STATUS**: *Draft*, *Confirmed*, *Partly sent*, *Dispatched* या *Cancelled*।
-- **PAYMENT**: *Paid*, या कितना बाकी है (जैसे *₹500 due*)। जिस ऑर्डर का पेमेंट ScaleEzy में नहीं लिया गया, जैसे Shopify ऑर्डर, उस पर **—** दिखता है।
+- **PAYMENT**: *Paid*, या कितना बाकी है (जैसे *₹500 due*)। जिस ऑर्डर का पेमेंट ScaleEzy में नहीं लिया गया, जैसे Shopify ऑर्डर, उस पर **—** दिखता है। *Written off* का मतलब है कि उधार के बिल का बकाया POS टिल पर बट्टे खाते में डाला गया: कुछ बकाया नहीं, और कोई पैसा नहीं आया।
 
 ## 2. सर्च और फ़िल्टर करें
 

@@ -79,6 +79,8 @@ Day Book **आज** के दिन पर खुलता है। जब त
 अगर बिके हुए कुछ आइटम की लागत दर्ज नहीं थी, तो मैसेज आता है *This profit is higher than the real one.* सही मुनाफ़ा देखने के लिए उन आइटम पर आपने जो पैसे दिए, वह जोड़ें।
 :::
 
+POS टिल का बिल उसी दिन गिना जाता है जिस दिन बना था, चाहे Inventory तक बाद में पहुँचा हो। उधार के बिल पर बाद में लिया गया पैसा उस दिन गिना जाता है जिस दिन लिया गया। टिल पर बट्टे खाते में डाला गया बकाया पैसा नहीं है, इसलिए वह आई रकम में कभी नहीं दिखता।
+
 ## 5. क्या आया और क्या गया
 
 **Stock that came in** और **Stock that went out** में वजहें दिखती हैं, पीस और कीमत के साथ। जैसे *Purchase received*, *Opening stock added*, *Customer returns*, *Sold and dispatched*, *Damaged or written off* या *Manual corrections*।

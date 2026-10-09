@@ -20,7 +20,7 @@ Each row shows:
 
 - **WHERE FROM**: *Counter*, *POS till*, *Shopify*, *Online*, *Marketplace* or *Order*, with the store and who made it.
 - **STATUS**: *Draft*, *Confirmed*, *Partly sent*, *Dispatched* or *Cancelled*.
-- **PAYMENT**: *Paid*, or how much is still due (for example *₹500 due*). An order with no payment taken in ScaleEzy, like a Shopify order, shows **—**.
+- **PAYMENT**: *Paid*, or how much is still due (for example *₹500 due*). An order with no payment taken in ScaleEzy, like a Shopify order, shows **—**. *Written off* means the balance of a credit (udhaar) bill was written off on the POS till: nothing is due, and no money came in.
 
 ## 2. Search and filter
 

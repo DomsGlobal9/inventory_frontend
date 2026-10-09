@@ -16,6 +16,10 @@ The **ScaleEzy POS** is the till at your billing counter. Every walk-in bill is 
 
 You make a **key** here and paste it into the till. Only people who can add and change stores see this. In the ready roles, that is the owner, **ADMIN** and **INVENTORY_MANAGER**.
 
+:::tip How to use the till itself
+The till has its own guide, for cashiers, managers and owners: [ScaleEzy POS Help](https://pos-frontend-gamma-amber.vercel.app/help). This page is about connecting the till to Inventory.
+:::
+
 ## 1. Open POS (billing counter)
 
 1. In the menu on the left, click [[1]] **Settings**.
@@ -73,6 +77,8 @@ What stays in Inventory:
 To see only the till's bills in **Orders**, choose **POS till** in the **Where from** box.
 
 Each bill is dated by when the till made it, not when it reached Inventory. A bill made just before midnight, or by a till that was offline and sends its bills the next morning, still counts on the day it was made, in **Orders** and in the [Day Book](/help/settings/day-book). Only the Day Book's stock movements list its pieces on the day the bill reached Inventory.
+
+Returns on the till follow your rule in **Settings → Returns and exchanges** here. A bill older than the days in **Take returns within** needs a manager's PIN on the till; it is never refused. Leave the box empty for no limit.
 
 ## GST on the till's bills
 

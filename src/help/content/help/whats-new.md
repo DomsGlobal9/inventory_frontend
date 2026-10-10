@@ -8,6 +8,10 @@ keywords: updates release changes new features announcements latest
 
 ## October 2026
 
+### Services at the POS till
+
+Charge for fall & pico, blouse stitching or alterations at the till. Add the service as a product with its price, tick **This is a service (no stock)**, and type its SAC code in the HSN box. The till sells it like any item, and no stock is counted for it. Services are sold at the till only, not in the online shop. See [Add a product](/help/products/add-a-product).
+
 ### Credit (udhaar) bills from the POS till
 
 A customer can take the goods and pay later. In **Orders** the bill shows what is still due, and money collected later on the till reaches it by itself. Loyalty points come as the money is paid. If the customer never pays, a manager can write the balance off on the till: the order then shows **Written off**, with the reason, and nothing is due. Every till bill also counts on the day it was made, even when it reaches Inventory later. See [Connect your POS till](/help/settings/pos-billing-counter).

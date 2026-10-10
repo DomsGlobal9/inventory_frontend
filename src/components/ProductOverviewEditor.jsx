@@ -42,6 +42,7 @@ export default function ProductOverviewEditor({ product, saving, onCancel, onSav
     hsnCode: product.hsnCode ?? '',
     taxRateBps: product.taxRateBps == null ? '' : String(product.taxRateBps),
     taxSlabbed: Boolean(product.taxSlabbed),
+    isService: Boolean(product.isService),
     basePrice: product.basePrice == null ? '' : String(product.basePrice)
   });
   const [impact, setImpact] = useState(null);
@@ -87,7 +88,8 @@ export default function ProductOverviewEditor({ product, saving, onCancel, onSav
       craft: form.craft.trim(),
       // An emptied box means "not set". The server turns '' into null for exactly this reason.
       hsnCode: form.hsnCode.trim(),
-      taxSlabbed: form.taxSlabbed
+      taxSlabbed: form.taxSlabbed,
+      isService: form.isService
     };
     if (form.taxRateBps !== '') out.taxRateBps = Number(form.taxRateBps);
     if (form.basePrice !== '') out.basePrice = Number(form.basePrice);
@@ -154,6 +156,14 @@ export default function ProductOverviewEditor({ product, saving, onCancel, onSav
             <input type="checkbox" checked={form.taxSlabbed}
               onChange={(e) => setForm((f) => ({ ...f, taxSlabbed: e.target.checked }))} />
             5% up to ₹2,500, 18% above
+          </label>
+        </div>
+        <div>
+          <label className="input-label">Service</label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px', fontSize: '13px', color: 'var(--text-secondary)' }}>
+            <input type="checkbox" checked={form.isService}
+              onChange={(e) => setForm((f) => ({ ...f, isService: e.target.checked }))} />
+            This is a service (no stock)
           </label>
         </div>
       </div>

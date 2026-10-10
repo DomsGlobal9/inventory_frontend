@@ -237,6 +237,18 @@ export default function GeneralInfo() {
               Priced by the piece — 5% up to ₹2,500, 18% above
             </label>
           </div>
+
+          <div>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-secondary)' }}>
+            <input
+                type="checkbox"
+                checked={productData.isService}
+                onChange={(e) => updateProductData('isService', e.target.checked)}
+              />
+              This is a service (no stock)
+            </label>
+            <p style={{ margin: '4px 0 0 24px', fontSize: '12px', color: 'var(--text-muted)' }}>A service such as fall &amp; pico or stitching: sold at the till for its price, with no stock counted. Put its SAC code in the HSN box.</p>
+          </div>
         </div>
       </div>
       

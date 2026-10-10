@@ -23,7 +23,7 @@ Adding a product has three steps: **General Information**, **Measurements** (pri
 2. [[2]] Choose the **Product Category**, for example WOMEN.
 3. [[3]] Choose the **Dress Type**, for example Saree. The list changes with the category.
 4. Design / Craft, Material / Fabric, Description, Product Type and Brand are optional. Fill them in if you want them on your website.
-5. If your shop charges GST, choose the **GST rate** and type the **HSN code**. Sarees and fabric are usually **5%**. For stitched clothes, tick **Priced by the piece — 5% up to ₹2,500, 18% above**. Not sure? Ask your accountant; you can change it later.
+5. If your shop charges GST, choose the **GST rate** and type the **HSN code**. Sarees and fabric are usually **5%**. For stitched clothes, tick **Priced by the piece — 5% up to ₹2,500, 18% above**. Not sure? Ask your accountant; you can change it later. For a service such as fall & pico, blouse stitching or alteration, also tick **This is a service (no stock)** and type its SAC code in the HSN box. It sells at the POS till for its price, and no stock is ever counted for it, so it never shows as out of stock.
 6. Click [[4]] **CONTINUE**.
 
 ![General Information. The name box is marked 1, the category 2, the dress type 3 and the CONTINUE button 4.](2-general-information.webp "Only the name and the category are needed to go on.")

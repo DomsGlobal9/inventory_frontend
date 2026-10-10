@@ -58,6 +58,7 @@ export const ProductProvider = ({ children }) => {
     hsnCode: '',
     taxRateBps: '',
     taxSlabbed: false,
+    isService: false,
 
 
     // Measurements / Pricing

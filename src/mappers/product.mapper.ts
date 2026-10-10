@@ -69,6 +69,7 @@ export const mapProductFormToApiPayload = (formData: any) => {
     brand: formData.brand,
     basePrice: Number(formData.price) || 0,
     ...tax,
+    isService: Boolean(formData.isService),
     status: formData.isPublished ? 'ACTIVE' : 'DRAFT'
   };
 };
@@ -82,6 +83,7 @@ export const mapApiProductToForm = (apiData: any) => {
     hsnCode: apiData.hsnCode ?? '',
     taxRateBps: apiData.taxRateBps == null ? '' : String(apiData.taxRateBps),
     taxSlabbed: Boolean(apiData.taxSlabbed),
+    isService: Boolean(apiData.isService),
     isPublished: apiData.status === 'ACTIVE'
   };
 };

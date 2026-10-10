@@ -8,6 +8,10 @@ keywords: updates release changes new features announcements latest
 
 ## October 2026
 
+### Bank transfer and cheque at the POS till
+
+Big bills paid by NEFT, IMPS, RTGS or cheque can now be taken on the till. The payment waits as *to check* until the money arrives or the cheque clears, then reaches the order and the Day Book as **Bank transfer** or **Cheque**, with its reference. A bounced cheque is never counted. See [Connect your POS till](/help/settings/pos-billing-counter).
+
 ### Services at the POS till
 
 Charge for fall & pico, blouse stitching or alterations at the till. Add the service as a product with its price, tick **This is a service (no stock)**, and type its SAC code in the HSN box. The till sells it like any item, and no stock is counted for it. Services are sold at the till only, not in the online shop. See [Add a product](/help/products/add-a-product).

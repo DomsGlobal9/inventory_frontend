@@ -101,6 +101,7 @@ Each bill keeps the kind it was printed as. Changing your GST settings later doe
 A customer can take the goods and pay later. The till sends the bill with what was paid at the counter, and the order in **Orders** shows the rest as **₹… due**.
 
 - **Paid later**: when the balance is collected on the till, it reaches the order by itself, with its UPI or card reference. The due goes down, and at ₹0 the order reads **Paid**.
+- **Bank transfer and cheque**: for big bills paid by NEFT, IMPS, RTGS or cheque, the till keeps the payment as *to check* until the owner sees the money arrive or the cheque clear. Only then does it reach the order, as **Bank transfer** (with the bank's UTR) or **Cheque** (with the cheque number and bank). A cheque that bounces is never counted, so the bill still shows it as due.
 - Loyalty points are earned on what is paid, as it is paid. See [Loyalty points](/help/customers/loyalty-points).
 - **Written off**: if the customer never pays, a manager can write the balance off on the till, with a reason. The order then shows **Written off**, with the amount, the reason, who approved it and when, and nothing is due. No money came in, so takings and the Day Book do not change, and the GST bill stays as it was issued.
 - **Paid after all**: if a written-off customer pays later, the money is recorded as usual and the written-off amount goes down by the same sum.

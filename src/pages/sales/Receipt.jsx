@@ -135,7 +135,7 @@ export default function Receipt() {
           <div key={item.id} style={{ marginBottom: 4 }}>
             <div style={{ fontSize: 12 }}>{[item.title, item.colorName, item.size].filter(Boolean).join(', ')}</div>
             {sale.gst?.length > 0 && item.taxRateBps != null && (
-              <div style={{ fontSize: 10.5, color: '#555' }}>{item.hsnCode ? `HSN ${item.hsnCode} · ` : ''}GST {item.taxRateBps / 100}%</div>
+              <div style={{ fontSize: 10.5, color: '#555' }}>{item.hsnCode ? `${String(item.hsnCode).startsWith("99") ? "SAC" : "HSN"} ${item.hsnCode} · ` : ''}GST {item.taxRateBps / 100}%</div>
             )}
             <Row left={`  ${item.quantity} × ${money(item.listUnitPrice)}`} right={money(item.listUnitPrice * item.quantity)} />
             {item.discounts.filter(d => d.amount > 0).map((d, i) => (

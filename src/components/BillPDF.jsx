@@ -76,7 +76,7 @@ const BillPDF = ({ sale, logo = null }) => {
                 <View style={{ width: COLS.item, paddingRight: 6 }}>
                   <Text style={s.td}>{item.title}{variant ? ` — ${variant}` : ''}</Text>
                   {(sale.gst || []).length > 0 && item.taxRateBps != null ? (
-                    <Text style={{ fontSize: 8, color: '#6b7280' }}>{item.hsnCode ? `HSN ${item.hsnCode} · ` : ''}GST {item.taxRateBps / 100}%</Text>
+                    <Text style={{ fontSize: 8, color: '#6b7280' }}>{item.hsnCode ? `${String(item.hsnCode).startsWith("99") ? "SAC" : "HSN"} ${item.hsnCode} · ` : ''}GST {item.taxRateBps / 100}%</Text>
                   ) : null}
                   {(item.discounts || []).filter(d => d.amount > 0).map((d, i) => (
                     <Text key={i} style={s.sub}>{d.title}: -{rupees(d.amount)}</Text>

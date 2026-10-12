@@ -122,7 +122,7 @@ For a week, a month, or any days you choose (up to **31 days**):
 **Send on WhatsApp** sends what is on the page, one day or several days, for the location you chose, as a PDF.
 
 - It always goes to the WhatsApp number the owner saved for the Day Book, in **Settings → WhatsApp**. Hold the mouse over the button to see the last four digits. You cannot type another number, because the Day Book shows your profit.
-- It comes from **ScaleEzy's WhatsApp number**, like the Day Book every night. Your shop's own WhatsApp does not need to be linked.
+- It comes from ScaleEzy's WhatsApp number, like the Day Book every night. Your shop's own WhatsApp does not need to be linked.
 - Under the button you see **Waiting to send**, **Sent**, **Delivered** or **Read**.
 - A shop can send **10 Day Books a day** this way. The Day Book that comes by itself every night is not counted.
 

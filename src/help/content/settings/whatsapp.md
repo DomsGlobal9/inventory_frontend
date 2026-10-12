@@ -85,6 +85,10 @@ The number saved for that supplier or customer has no WhatsApp. Check the number
 They asked not to get WhatsApp messages from your shop, so none are sent to them. Contact them another way.
 :::
 
+:::faq "This person has already been sent 5 WhatsApp messages from this number today"
+To keep your number safe and your customers happy, one person gets at most 5 WhatsApp messages a day from your number, whatever they are. Send it tomorrow, or use **Download PDF** and send it another way.
+:::
+
 :::faq It went to the wrong person
 It goes to the number saved on the supplier's or customer's page. Correct the number there, then send it again. Pointing at the button shows who it goes to.
 :::

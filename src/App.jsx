@@ -23,6 +23,7 @@ import InventoryHealthPage from './pages/admin/InventoryHealthPage';
 import OffersHealthPage from './pages/admin/OffersHealthPage';
 import AuditLogPage from './pages/admin/AuditLogPage';
 import ShortLinksPage from './pages/admin/ShortLinksPage';
+import WhatsAppPage from './pages/admin/WhatsAppPage';
 import ClientErrorsPage from './pages/admin/ClientErrorsPage';
 import SupportTicketsPage from './pages/admin/SupportTicketsPage';
 import MainLayout from './layouts/MainLayout';
@@ -111,6 +112,7 @@ function App() {
               <Route path="errors" element={<ClientErrorsPage />} />
               <Route path="support" element={<SupportTicketsPage />} />
               <Route path="short-links" element={<ShortLinksPage />} />
+              <Route path="whatsapp" element={<WhatsAppPage />} />
               <Route path="audit-log" element={<AuditLogPage />} />
               <Route path="platform-admins" element={<PlatformAdminsPage />} />
             </Route>

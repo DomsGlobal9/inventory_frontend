@@ -435,3 +435,34 @@ export const useSetShortLinkBlocked = () => {
     onError: (error) => toast.error(error?.message || 'Could not change that link')
   });
 };
+
+// ── WhatsApp: ScaleEzy's own number and every shop's ─────────────────────────────────────────
+export const useAdminWhatsApp = ({ poll = false } = {}) => {
+  return useQuery({
+    queryKey: ['admin', 'whatsapp'],
+    queryFn: async () => (await api.get('/admin/whatsapp')).data,
+    // While linking, notice the scan by itself.
+    refetchInterval: poll ? 3000 : false
+  });
+};
+
+export const useLinkScaleezyWhatsApp = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ method, phone }) => (await api.post('/admin/whatsapp/scaleezy/link', { method, phone })).data,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'whatsapp'] }),
+    onError: (e) => toast.error(e?.response?.data?.message || 'Could not start linking. Try again in a minute.')
+  });
+};
+
+export const useReconnectScaleezyWhatsApp = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => (await api.post('/admin/whatsapp/scaleezy/reconnect')).data,
+    onSuccess: (r) => {
+      toast.success(r?.status === 'CONNECTED' ? 'Connected.' : 'Asked WhatsApp to reconnect. If it stays disconnected, use Link again.');
+      queryClient.invalidateQueries({ queryKey: ['admin', 'whatsapp'] });
+    },
+    onError: (e) => toast.error(e?.response?.data?.message || 'Could not reconnect just now.')
+  });
+};

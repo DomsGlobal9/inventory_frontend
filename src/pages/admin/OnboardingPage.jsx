@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { GST_STATES } from '../../utils/gstStates';
 import { firstMissingField, missingFieldMessage } from '../../lib/formGuard';
 import toast from 'react-hot-toast';
 import { Loader2, UserPlus, Mail, Copy, CheckCircle2, Building2, User, KeyRound, AlertTriangle } from 'lucide-react';
@@ -10,6 +11,21 @@ const STEPS = [
   { key: 'IN_PROGRESS', label: 'In Progress', hint: 'Products exist, none published yet', color: 'var(--accent-gold)' },
   { key: 'ACTIVE', label: 'Active', hint: 'At least one product published', color: 'var(--accent-success)' },
 ];
+
+
+const EMPTY_FORM = { companyName: '', adminName: '', adminEmail: '', ownerPhone: '', shopPhone: '', address: '', city: '', stateCode: '', pin: '', storeName: '', gstin: '' };
+const INPUT = { width: '100%', padding: '12px 14px', borderRadius: '8px', border: '1px solid var(--border-light)', fontSize: '14px' };
+function Field({ label, hint, children }) {
+  // The label names its box (screen readers, and a click on the label focuses the box).
+  const id = React.useId();
+  return (
+    <div>
+      <label htmlFor={id} style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '8px' }}>{label}</label>
+      {React.cloneElement(children, { id })}
+      {hint && <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '6px' }}>{hint}</p>}
+    </div>
+  );
+}
 
 function buildOnboardingMailto({ clientId, adminName, adminEmail, tempPassword }) {
   const loginUrl = `${window.location.origin}/login`;
@@ -36,7 +52,8 @@ export default function OnboardingPage() {
   const { data, isLoading } = useAdminClients();
   const onboardMutation = useOnboardClient();
 
-  const [form, setForm] = useState({ companyName: '', adminName: '', adminEmail: '' });
+  const [form, setForm] = useState(EMPTY_FORM);
+  const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
   const [result, setResult] = useState(null);
   const [copied, setCopied] = useState(false);
 
@@ -51,7 +68,7 @@ export default function OnboardingPage() {
     try {
       const created = await onboardMutation.mutateAsync(form);
       setResult(created);
-      setForm({ companyName: '', adminName: '', adminEmail: '' });
+      setForm(EMPTY_FORM);
     } catch (error) {
       // handled by hook's onError toast
     }
@@ -97,40 +114,41 @@ export default function OnboardingPage() {
           
           <div style={{ padding: '24px' }}>
             <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }} noValidate>
-              <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '8px' }}>Company Name</label>
-                <input
-                  type="text" required value={form.companyName}
-                  onChange={e => setForm({ ...form, companyName: e.target.value })}
-                  placeholder="e.g. Acme Boutique"
-                  className="input-field"
-                  style={{ width: '100%', padding: '12px 14px', borderRadius: '8px', border: '1px solid var(--border-light)', fontSize: '14px' }}
-                />
-                <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>This generates the permanent Workspace ID (e.g. "acme-boutique").</p>
+              <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.06em' }}>SHOP</div>
+              <Field label="Shop name *" hint={'This generates the permanent Workspace ID (e.g. "lakshmi-silks").'}>
+                <input type="text" required value={form.companyName} onChange={set('companyName')} placeholder="e.g. Lakshmi Silks" className="input-field" style={INPUT} />
+              </Field>
+              <Field label="Shop phone" hint="Printed on bills and purchase orders. Blank = the owner's mobile.">
+                <input type="tel" value={form.shopPhone} onChange={set('shopPhone')} placeholder="040 2345 6789" className="input-field" style={INPUT} />
+              </Field>
+              <Field label="Address">
+                <input type="text" value={form.address} onChange={set('address')} placeholder="12-4-56, Main Bazaar" className="input-field" style={INPUT} />
+              </Field>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '16px' }}>
+                <Field label="City"><input type="text" value={form.city} onChange={set('city')} placeholder="Vijayawada" className="input-field" style={INPUT} /></Field>
+                <Field label="State">
+                  <select value={form.stateCode} onChange={set('stateCode')} className="input-field" style={INPUT}>
+                    <option value="">Choose…</option>
+                    {GST_STATES.map(([code, name]) => <option key={code} value={code}>{name}</option>)}
+                  </select>
+                </Field>
+                <Field label="PIN"><input type="text" inputMode="numeric" maxLength={6} value={form.pin} onChange={set('pin')} placeholder="520001" className="input-field" style={INPUT} /></Field>
               </div>
-              
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '8px' }}>Admin Name</label>
-                  <input
-                    type="text" required value={form.adminName}
-                    onChange={e => setForm({ ...form, adminName: e.target.value })}
-                    placeholder="Jane Doe"
-                    className="input-field"
-                    style={{ width: '100%', padding: '12px 14px', borderRadius: '8px', border: '1px solid var(--border-light)', fontSize: '14px' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '8px' }}>Admin Email</label>
-                  <input
-                    type="email" required value={form.adminEmail}
-                    onChange={e => setForm({ ...form, adminEmail: e.target.value })}
-                    placeholder="jane@example.com"
-                    className="input-field"
-                    style={{ width: '100%', padding: '12px 14px', borderRadius: '8px', border: '1px solid var(--border-light)', fontSize: '14px' }}
-                  />
-                </div>
+              <Field label="First store name" hint="Blank = Main Store. More stores can be added in Settings.">
+                <input type="text" value={form.storeName} onChange={set('storeName')} placeholder="Main Store" className="input-field" style={INPUT} />
+              </Field>
+              <Field label="GSTIN (optional)" hint="GST is optional. Leave blank if the shop is not GST registered.">
+                <input type="text" value={form.gstin} onChange={set('gstin')} placeholder="37ABCDE1234F1Z5" maxLength={15} className="input-field" style={{ ...INPUT, textTransform: 'uppercase' }} />
+              </Field>
+
+              <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.06em', marginTop: '4px' }}>OWNER (LOGS IN FIRST)</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
+                <Field label="Name *"><input type="text" required value={form.adminName} onChange={set('adminName')} placeholder="Lakshmi Narayanan" className="input-field" style={INPUT} /></Field>
+                <Field label="Email *"><input type="email" required value={form.adminEmail} onChange={set('adminEmail')} placeholder="owner@lakshmisilks.in" className="input-field" style={INPUT} /></Field>
               </div>
+              <Field label="Mobile (WhatsApp) *" hint="For login help and the nightly Day Book on WhatsApp.">
+                <input type="tel" required value={form.ownerPhone} onChange={set('ownerPhone')} placeholder="98480 22338" className="input-field" style={INPUT} />
+              </Field>
               
               <button
                 type="submit" disabled={onboardMutation.isPending}

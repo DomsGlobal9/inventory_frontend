@@ -132,6 +132,10 @@ The SKU in your file doesn't match any item. Check the spelling, or copy the exa
 A store price only applies in the store the till sells from. Check that you pressed **Save** in the right store's box, then press **Refresh items from Inventory** on the till. [Full answer](/help/products/price-per-store#the-counter-still-shows-the-old-price)
 :::
 
+:::faq My model photos did not come, or say "did not finish"
+A notice at the bottom left says when a set is ready or did not finish, and why. Open the product's **Images** tab to see each colour's result. [Full answer](/help/products/photos#when-the-photos-are-ready)
+:::
+
 ## Purchase orders
 
 :::faq There is no Receive Now column

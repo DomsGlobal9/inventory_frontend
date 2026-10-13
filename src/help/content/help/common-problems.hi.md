@@ -132,6 +132,10 @@ ScaleEzy POS टिल पर, Inventory में नहीं। **Settings �
 स्टोर की कीमत सिर्फ़ उसी स्टोर में लगती है जहाँ से टिल बेचता है। देखें कि आपने सही स्टोर के बॉक्स में **Save** दबाया था, फिर टिल पर **Refresh items from Inventory** दबाएँ। [पूरा जवाब](/help/products/price-per-store#the-counter-still-shows-the-old-price)
 :::
 
+:::faq मॉडल फ़ोटो नहीं आईं, या "did not finish" लिखा आया
+नीचे बाईं ओर की सूचना बताती है कि सेट तैयार है या पूरा नहीं हुआ, और क्यों। हर रंग का नतीजा देखने के लिए प्रोडक्ट का **Images** टैब खोलें। [पूरा जवाब](/help/products/photos#when-the-photos-are-ready)
+:::
+
 ## परचेज़ ऑर्डर
 
 :::faq Receive Now कॉलम नहीं है

@@ -42,6 +42,14 @@ export const useAdminOffersHealth = () => {
   });
 };
 
+export const useAdminTillHealth = () => {
+  return useQuery({
+    queryKey: ['admin', 'till-health'],
+    queryFn: async () => (await api.get('/admin/till-health')).data,
+    refetchInterval: 60000
+  });
+};
+
 export const useAdminClientErrors = () => {
   return useQuery({
     queryKey: ['admin', 'client-errors'],

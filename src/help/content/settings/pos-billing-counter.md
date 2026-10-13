@@ -5,7 +5,7 @@ for: The owner, admins and inventory managers
 minutes: 3
 app: /settings?section=POS
 appLabel: POS (billing counter)
-keywords: pos till billing counter point of sale connect till key till key paste inventory link replace key disconnect new sale moved walk-in bills bills at the pos left out bill not added scaleezy pos counter
+keywords: pos till billing counter point of sale connect till key till key paste inventory link replace key disconnect new sale moved walk-in bills bills at the pos left out bill not added scaleezy pos counter sending to inventory has stopped refused bill
 ---
 
 The **ScaleEzy POS** is the till at your billing counter. Every walk-in bill is made on it, not in Inventory. Connect it once, and from then on every bill made on the till:
@@ -131,7 +131,13 @@ Inventory no longer makes walk-in bills; the ScaleEzy POS till does, for every s
 :::
 
 :::faq A bill from the till is not in Orders yet
-The till sends bills by itself, a few seconds after each one. If the internet is down at the counter, it keeps them and sends them when the line is back. The till's own **Inventory link** screen says what is waiting.
+The till sends bills by itself, a few seconds after each one. If the internet is down at the counter, it keeps them and sends them when the line is back. The till's own **Inventory link** screen says what is waiting. If it says **Sending to Inventory has stopped**, see [below](#the-till-says-sending-to-inventory-has-stopped).
+:::
+
+:::faq The till says "Sending to Inventory has stopped"
+Inventory could not take one bill, for example because an item on it is not in this shop. The till holds that bill and every bill after it, safely. Nothing is lost.
+
+The owner opens **More → Inventory link** on the till, which says which bill and why. Fix the cause here in Inventory, then press **I've fixed it — try again** on the till. If the bill should not be in Inventory, press **Leave … out of Inventory?** and give a reason. Cashiers see the message, but only the owner can fix it.
 :::
 
 :::faq I don't see POS (billing counter) in Settings

@@ -24,6 +24,7 @@ import OffersHealthPage from './pages/admin/OffersHealthPage';
 import AuditLogPage from './pages/admin/AuditLogPage';
 import ShortLinksPage from './pages/admin/ShortLinksPage';
 import WhatsAppPage from './pages/admin/WhatsAppPage';
+import TillHealthPage from './pages/admin/TillHealthPage';
 import ClientErrorsPage from './pages/admin/ClientErrorsPage';
 import SupportTicketsPage from './pages/admin/SupportTicketsPage';
 import MainLayout from './layouts/MainLayout';
@@ -109,6 +110,7 @@ function App() {
               <Route path="onboarding" element={<OnboardingPage />} />
               <Route path="health" element={<InventoryHealthPage />} />
               <Route path="offers-health" element={<OffersHealthPage />} />
+              <Route path="till-health" element={<TillHealthPage />} />
               <Route path="errors" element={<ClientErrorsPage />} />
               <Route path="support" element={<SupportTicketsPage />} />
               <Route path="short-links" element={<ShortLinksPage />} />

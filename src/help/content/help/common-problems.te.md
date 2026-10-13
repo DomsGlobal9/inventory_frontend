@@ -132,6 +132,10 @@ ScaleEzy POS టిల్ మీద, Inventory లో కాదు. **Settings �
 స్టోర్ ధర టిల్ అమ్మే స్టోర్‌లో మాత్రమే పనిచేస్తుంది. సరైన స్టోర్ బాక్స్‌లో **Save** నొక్కారో లేదో చూడండి, తర్వాత టిల్‌లో **Refresh items from Inventory** నొక్కండి. [పూర్తి జవాబు](/help/products/price-per-store#the-counter-still-shows-the-old-price)
 :::
 
+:::faq మోడల్ ఫోటోలు రాలేదు, లేదా "did not finish" అని వచ్చింది
+కింద ఎడమ వైపు సూచన సెట్ సిద్ధమైందా లేదా పూర్తి కాలేదా, ఎందుకు అని చెబుతుంది. ప్రతి రంగు ఫలితం చూడటానికి ప్రొడక్ట్ **Images** ట్యాబ్ తెరవండి. [పూర్తి జవాబు](/help/products/photos#when-the-photos-are-ready)
+:::
+
 ## పర్చేస్ ఆర్డర్లు
 
 :::faq Receive Now కాలమ్ లేదు

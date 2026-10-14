@@ -154,7 +154,8 @@ function GroupDetail({ group: g, groups, canEdit, onGone, onMoved }) {
   });
   const add = useMutation({
     mutationFn: async (id) => (await api.post('/customer-groups/members', { group: g.name, customerIds: [id] })).data,
-    onSuccess: refresh, onError: fail('That customer could not be added.')
+    onSuccess: (r) => { refresh(); if (r?.full) toast.error('That customer is already in 20 groups, the most a customer can have.'); },
+    onError: fail('That customer could not be added.')
   });
   const drop = useMutation({
     mutationFn: async (id) => (await api.delete(`/customer-groups/${enc(g.key)}/members/${id}`)).data,

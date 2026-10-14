@@ -51,7 +51,12 @@ export default function Customers() {
   const addToGroup = useMutation({
     mutationFn: async () => (await api.post('/customer-groups/members', { group: target, customerIds: [...picked] })).data,
     onSuccess: (r) => {
-      toast.success(`${r.added} added to ${r.name}${r.added < picked.size ? ` (${picked.size - r.added} already in it)` : ''}.`);
+      const rest = [
+        r.alreadyIn && `${r.alreadyIn} already in it`,
+        r.full && `${r.full} already in 20 groups, the most a customer can have`,
+        r.notFound && `${r.notFound} no longer here`
+      ].filter(Boolean);
+      toast.success(`${r.added} added to ${r.name}${rest.length ? ` (${rest.join(', ')})` : ''}.`);
       setPicked(new Set()); setTarget('');
       queryClient.invalidateQueries({ queryKey: ['customer-groups'] });
       queryClient.invalidateQueries({ queryKey: ['customers'] });

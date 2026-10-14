@@ -5,9 +5,11 @@ import { AlertTriangle, AlertCircle, ArrowLeft, Download, Pin, X } from 'lucide-
 import { useAlerts, useTogglePinAlert, useDeleteAlert, useMarkAlertRead } from '../hooks/useAlerts';
 import PageLoader from '../components/PageLoader';
 import { exportToCSV } from '../utils/csvUtils';
+import { usePermission } from '../hooks/usePermission';
 
 export default function AlertCenter() {
   const navigate = useNavigate();
+  const { can } = usePermission();
   const { data, isLoading } = useAlerts();
   const togglePinAlert = useTogglePinAlert();
   const deleteAlert = useDeleteAlert();
@@ -240,7 +242,7 @@ export default function AlertCenter() {
                     >
                       View
                     </button>
-                    <button
+                    {can('purchase_order:create') && <button
                       className="btn-primary"
                       onClick={() => {
                         if (!v.isRead) markAlertRead.mutate(v.id);
@@ -262,7 +264,7 @@ export default function AlertCenter() {
                       }}
                     >
                       Create PO
-                    </button>
+                    </button>}
                   </div>
                 </td>
               </tr>

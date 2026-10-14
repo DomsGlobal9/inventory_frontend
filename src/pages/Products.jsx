@@ -14,11 +14,14 @@ import Select from '../components/common/Select';
 import ConfirmModal from '../components/ConfirmModal';
 import { formatRupees } from '../utils/money';
 import ProductGrid from '../components/ProductGrid';
+import { usePermission } from '../hooks/usePermission';
 
 
 export default function Products() {
   const navigate = useNavigate();
   const { resumePath } = useProduct();
+  const { can } = usePermission();
+  const canEdit = can('product:update');
   const [statusFilter, setStatusFilter] = React.useState(''); // Empty means default (ACTIVE, DRAFT)
 
   /*
@@ -196,6 +199,7 @@ export default function Products() {
             <Download size={16} />
             Export
           </button>
+          {can('inventory:adjust') && (
           <button 
             className="btn-secondary" 
             style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
@@ -204,10 +208,12 @@ export default function Products() {
             <Upload size={16} />
             Import Updates
           </button>
+          )}
           {/* Two imports, deliberately separate. "Import Updates" edits stock and prices on
               variants that already exist, matched on SKU. "Import Products" creates and
               updates whole products from one file. Merging them would mean one screen whose
               behaviour depends on which columns happen to be present. */}
+          {(can('product:create') || canEdit) && (
           <button 
             className="btn-secondary" 
             style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
@@ -216,6 +222,8 @@ export default function Products() {
             <FileSpreadsheet size={16} />
             Import Products
           </button>
+          )}
+          {can('product:create') && (
           <button 
             className="btn-primary" 
             style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
@@ -224,12 +232,13 @@ export default function Products() {
             <Plus size={16} />
             Add Product
           </button>
+          )}
         </div>
       </div>
 
       {/* Appears only when something is chosen, and says what it will do to what. A bar that
           is always there with "0 selected" is a bar that is always in the way. */}
-      {selected.size > 0 && (
+      {canEdit && selected.size > 0 && (
         <div style={{
           display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', flexShrink: 0,
           padding: '12px 16px', borderRadius: '10px',
@@ -288,7 +297,7 @@ export default function Products() {
           <ProductGrid
             products={products}
             selected={selected}
-            onToggle={toggleOne}
+            onToggle={canEdit ? toggleOne : undefined}
             onOpen={(id) => navigate(`/products/${id}`)}
           />
         </div>
@@ -304,7 +313,8 @@ export default function Products() {
           <motion.table variants={container} initial="hidden" animate="show" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr>
-                <th style={{ width: '44px' }}>
+                {/* Selecting is only for publishing in bulk, so it goes when publishing does. */}
+                {canEdit && <th style={{ width: '44px' }}>
                   <input
                     type="checkbox"
                     checked={allOnPageSelected}
@@ -313,7 +323,7 @@ export default function Products() {
                     title="Select every product on this page"
                     style={{ cursor: 'pointer', width: '16px', height: '16px' }}
                   />
-                </th>
+                </th>}
                 <th>Product</th>
                 <th>Category</th>
                 <th>Variants</th>
@@ -334,7 +344,7 @@ export default function Products() {
                 >
                   {/* stopPropagation: the whole row opens the product, and a tick that also
                       navigated away would make selecting more than one impossible. */}
-                  <td onClick={(e) => e.stopPropagation()} style={{ width: '44px' }}>
+                  {canEdit && <td onClick={(e) => e.stopPropagation()} style={{ width: '44px' }}>
                     <input
                       type="checkbox"
                       checked={selected.has(product.id)}
@@ -342,7 +352,7 @@ export default function Products() {
                       aria-label={`Select ${product.title}`}
                       style={{ cursor: 'pointer', width: '16px', height: '16px' }}
                     />
-                  </td>
+                  </td>}
                   <td>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <div style={{ width: '40px', height: '40px', background: 'var(--bg-input)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

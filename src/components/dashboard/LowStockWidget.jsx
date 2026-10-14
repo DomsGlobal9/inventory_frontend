@@ -56,7 +56,7 @@ export default function LowStockWidget() {
                 background: item.quantity <= 0 ? 'rgba(239, 68, 68, 0.05)' : 'transparent',
                 border: item.quantity <= 0 ? '1px solid rgba(239, 68, 68, 0.2)' : '1px solid var(--border-light)'
               }}
-              onClick={() => navigate(`/inventory/products/${item.productId}`)}
+              onClick={() => navigate(`/products/${item.productId}`)}
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = item.quantity <= 0 ? 'rgba(239, 68, 68, 0.05)' : 'transparent'}
             >

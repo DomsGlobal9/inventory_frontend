@@ -60,6 +60,9 @@ import Login from './pages/Login';
 import Unauthorized from './pages/Unauthorized';
 import ProtectedRoute from './components/ProtectedRoute';
 import Guard from './components/Guard';
+import NoAccess from './components/NoAccess';
+import { usePermission, canTakeReturn } from './hooks/usePermission';
+import { noAccessTitle, noAccessMessage } from './lib/permissionText';
 import WhereIsIt from './pages/shelves/WhereIsIt';
 import PutAway from './pages/shelves/PutAway';
 import MoveStock from './pages/shelves/MoveStock';
@@ -75,6 +78,13 @@ import RackMap from './pages/shelves/RackMap';
 const HelpLayout = lazy(() => import('./pages/help/HelpLayout'));
 const HelpHome = lazy(() => import('./pages/help/HelpHome'));
 const HelpArticle = lazy(() => import('./pages/help/HelpArticle'));
+
+// Taking a return is "counter, or create with complete" -- an OR of an AND, which Guard's props do not say.
+function TakeReturnGuard({ children }) {
+  const { can } = usePermission();
+  if (canTakeReturn(can)) return children;
+  return <NoAccess variant="page" title={noAccessTitle('take returns')} message={noAccessMessage('return:counter')} />;
+}
 
 function App() {
   return (
@@ -138,7 +148,7 @@ function App() {
           <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="/dashboard" element={<Guard permission="dashboard:view"><Dashboard /></Guard>} />
           
-          <Route path="/add" element={<WizardLayout title="Add Your Product" subtitle="Create a new product and configure its details before publishing." />}>
+          <Route path="/add" element={<Guard permission="product:create" what="add products"><WizardLayout title="Add Your Product" subtitle="Create a new product and configure its details before publishing." /></Guard>}>
             {/* Without this, a bare /add matched the layout with no child to fill its
                 outlet: the wizard chrome rendered with an empty body and no way forward.
                 Reachable by refreshing or bookmarking on /add, since the "Add Product"
@@ -148,11 +158,12 @@ function App() {
             <Route path="measurements" element={<Measurements />} />
           </Route>
           
-          <Route path="/add" element={<WizardLayout title="Upload Photo" subtitle="Capture the detail, texture, and silhouette of your garment for the boutique gallery." />}>
+          <Route path="/add" element={<Guard permission="product:create" what="add products"><WizardLayout title="Upload Photo" subtitle="Capture the detail, texture, and silhouette of your garment for the boutique gallery." /></Guard>}>
              <Route path="upload" element={<UploadPhotos />} />
           </Route>
 
-          <Route path="/preview" element={
+          {/* Also the editor for an existing product, so either permission opens it. */}
+          <Route path="/preview" element={<Guard anyOf={['product:create', 'product:update']} what="add or edit products">
             <div style={{ maxWidth: '1400px', margin: '0 auto', paddingTop: '24px', flex: 1, minHeight: 0, overflowY: 'auto', paddingBottom: '64px', width: '100%', display: 'flex', flexDirection: 'column' }}>
               <header style={{ marginBottom: '32px' }}>
                 <h1 style={{ fontSize: '32px', marginBottom: '8px' }}>Product Preview</h1>
@@ -160,7 +171,7 @@ function App() {
               </header>
               <ProductPreview />
             </div>
-          } />
+          </Guard>} />
           
           <Route path="/products/:id" element={<Guard permission="product:view"><ProductDetails /></Guard>} />
           <Route path="/products" element={<Guard permission="product:view"><Products /></Guard>} />
@@ -169,7 +180,7 @@ function App() {
           <Route path="/orders/new-sale" element={<Navigate to="/orders" replace />} />
           <Route path="/orders/:id" element={<Guard permission="sales_order:view"><SalesOrderDetail /></Guard>} />
           <Route path="/returns" element={<Guard permission="return:view"><ReturnsList /></Guard>} />
-          <Route path="/returns/new" element={<Guard permission="return:view"><CounterReturn /></Guard>} />
+          <Route path="/returns/new" element={<Guard permission="return:view"><TakeReturnGuard><CounterReturn /></TakeReturnGuard></Guard>} />
           <Route path="/returns/:id" element={<Guard permission="return:view"><ReturnDetail /></Guard>} />
           <Route path="/inventory/alerts" element={<Guard permission="inventory:view"><AlertCenter /></Guard>} />
           <Route path="/inventory/audits" element={<Guard permission="stock_count:view" what="work with stock counts"><AuditList /></Guard>} />
@@ -179,8 +190,10 @@ function App() {
           <Route path="/inventory/purchase-orders" element={<Guard permission="purchase_order:view"><PurchaseOrders /></Guard>} />
           {/* Rendered by PurchaseOrders, which picks its tab from the path -- same pattern
               as /inventory/suppliers. */}
-          <Route path="/inventory/reorder" element={<Guard permission="purchase_order:view"><PurchaseOrders /></Guard>} />
+          <Route path="/inventory/reorder" element={<Guard allOf={['purchase_order:view', 'inventory:view']}><PurchaseOrders /></Guard>} />
           <Route path="/inventory/purchase-orders/:id" element={<Guard permission="purchase_order:view"><PurchaseOrderDetails /></Guard>} />
+          {/* The same page in its "new" mode; a literal path outranks :id. */}
+          <Route path="/inventory/purchase-orders/new" element={<Guard allOf={['purchase_order:view', 'purchase_order:create']} what="raise purchase orders"><PurchaseOrderDetails /></Guard>} />
           <Route path="/inventory/ledger" element={<Guard permission="inventory:view"><InventoryLedger /></Guard>} />
           <Route path="/inventory/transfers" element={<Guard permission="inventory:transfer" what="move stock between stores"><TransfersPage /></Guard>} />
           <Route path="/inventory" element={<Guard permission="inventory:view"><InventoryOverview /></Guard>} />

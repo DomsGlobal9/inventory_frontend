@@ -20,3 +20,6 @@ export function usePermission() {
 
   return { can, canAny, permissions };
 }
+
+// The server's rule for taking a return at the counter: return:counter alone, or create + complete.
+export const canTakeReturn = (can) => can('return:counter') || (can('return:create') && can('return:complete'));

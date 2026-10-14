@@ -6,6 +6,7 @@ import {
 } from '../lib/photoSets';
 import { usePhotoJobs, useStartPhotoJobs, useCancelPhotoJob } from '../hooks/usePhotoJobs';
 import PhotoJobOutcome from './PhotoJobOutcome';
+import { usePermission } from '../hooks/usePermission';
 
 /**
  * The other colours, on a product that is already published.
@@ -31,6 +32,8 @@ import PhotoJobOutcome from './PhotoJobOutcome';
  */
 export default function ColourVariantsPanel({ productId, dressType, variants, images, onChanged }) {
   const category = useMemo(() => resolveTryOnCategory(dressType), [dressType]);
+  // Progress and outcomes are for everyone; starting and stopping need the permission.
+  const canMake = usePermission().can('tryon:generate');
 
   const { data: jobs } = usePhotoJobs(productId);
   const start = useStartPhotoJobs(productId);
@@ -125,7 +128,7 @@ export default function ColourVariantsPanel({ productId, dressType, variants, im
         </p>
       )}
 
-      {mine.length === 0 && targets.length > 0 && (
+      {canMake && mine.length === 0 && targets.length > 0 && (
         <button type="button" className="btn btn-primary" onClick={run} disabled={start.isPending}
           style={{ padding: '9px 16px', borderRadius: '8px' }}>
           {start.isPending
@@ -145,10 +148,10 @@ export default function ColourVariantsPanel({ productId, dressType, variants, im
               <b>You can leave this page</b> &mdash; we will tell you when they are ready.
             </span>
           </p>
-          <button type="button" className="btn" onClick={stopAll} disabled={cancel.isPending}
+          {canMake && <button type="button" className="btn" onClick={stopAll} disabled={cancel.isPending}
             style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px' }}>
             <StopCircle size={16} /> Stop
-          </button>
+          </button>}
         </div>
       )}
 

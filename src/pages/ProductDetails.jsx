@@ -22,10 +22,15 @@ import StockMovementModal from '../components/StockMovementModal';
 import PageLoader from '../components/PageLoader';
 import ConfirmModal from '../components/ConfirmModal';
 import CounterTryOn from '../components/CounterTryOn';
+import { usePermission } from '../hooks/usePermission';
 
 export default function ProductDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { can } = usePermission();
+  const canEdit = can('product:update');
+  const canRemove = can('product:delete');
+  const canSeeStock = can('inventory:view');
   // A barcode scan deep-links here as /products/:id?tab=variants&variant=<id>, so the tab
   // opens on the scanned variant instead of dumping the user on Overview to hunt for it.
   const [searchParams] = useSearchParams();
@@ -93,8 +98,8 @@ export default function ProductDetails() {
     { id: 'overview', label: 'Overview', icon: Package },
     { id: 'variants', label: 'Variants', icon: Box },
     { id: 'images', label: 'Images', icon: ImageIcon },
-    { id: 'inventory', label: 'Inventory History', icon: History }
-  ];
+    canSeeStock && { id: 'inventory', label: 'Inventory History', icon: History }
+  ].filter(Boolean);
 
   const handleAction = (type) => {
     switch (type) {
@@ -292,7 +297,7 @@ export default function ProductDetails() {
             Archive, Restore and Trash and nothing else. A shop could import two hundred sarees
             and sell none of them. The backend already accepted it; only the button was missing.
           */}
-          {product.status === 'DRAFT' && (
+          {canEdit && product.status === 'DRAFT' && (
             <button
               className="btn-primary"
               disabled={updateMutation.isPending}
@@ -301,7 +306,7 @@ export default function ProductDetails() {
               {updateMutation.isPending ? 'Publishing…' : 'Publish'}
             </button>
           )}
-          {product.status === 'ACTIVE' && (
+          {canEdit && product.status === 'ACTIVE' && (
             <button
               className="btn-secondary"
               disabled={updateMutation.isPending}
@@ -311,27 +316,27 @@ export default function ProductDetails() {
               {updateMutation.isPending ? 'Working…' : 'Unpublish'}
             </button>
           )}
-          {(product.status === 'ACTIVE' || product.status === 'DRAFT') && (
+          {canRemove && (product.status === 'ACTIVE' || product.status === 'DRAFT') && (
             <button className="btn-secondary" onClick={() => handleAction('archive')}>
               Archive
             </button>
           )}
-          {(product.status === 'ARCHIVED' || product.status === 'TRASHED') && (
+          {canRemove && (product.status === 'ARCHIVED' || product.status === 'TRASHED') && (
             <button className="btn-secondary" onClick={() => handleAction('restore')}>
               Restore
             </button>
           )}
-          {product.status !== 'TRASHED' && (
+          {canRemove && product.status !== 'TRASHED' && (
             <button className="btn-secondary" style={{ color: 'var(--accent-warning)', borderColor: 'var(--accent-warning)' }} onClick={() => handleAction('trash')}>
               Move to Trash
             </button>
           )}
-          {product.canHardDelete && product.status === 'TRASHED' && (
+          {canRemove && product.canHardDelete && product.status === 'TRASHED' && (
             <button className="btn-danger" onClick={() => handleAction('hardDelete')}>
               Permanently Delete
             </button>
           )}
-          {!product.canHardDelete && product.status === 'TRASHED' && (
+          {canRemove && !product.canHardDelete && product.status === 'TRASHED' && (
             // Grey and really disabled, with the reason written under it -- and, while it is only
             // the seven days in the Trash, the date it can go. It used to be pressable and answer
             // with a toast, which made it look like a button that works and then refuses.
@@ -433,7 +438,7 @@ export default function ProductDetails() {
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '16px' }}>
                       <h3 style={{ margin: 0 }}>Product Overview</h3>
-                      {!editing && (
+                      {canEdit && !editing && (
                         <button className="btn-secondary" onClick={startEditing} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <Pencil size={14} /> Edit details
                         </button>
@@ -633,8 +638,8 @@ export default function ProductDetails() {
               <ImageGallery productId={product.id} dressType={product.dressType} />
             )}
 
-            {activeTab === 'inventory' && (
-              <TransactionHistory productId={product.id} onNewTransaction={() => setIsStockModalOpen(true)} />
+            {activeTab === 'inventory' && canSeeStock && (
+              <TransactionHistory productId={product.id} onNewTransaction={can('inventory:adjust') ? () => setIsStockModalOpen(true) : undefined} />
             )}
           </motion.div>
       </motion.div>

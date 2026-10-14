@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useSalesOrderDetails, useConfirmOrder, useCancelOrder } from '../../hooks/useSalesOrders';
 import { useCreateDispatch } from '../../hooks/useDispatches';
 import { ArrowLeft, Loader2, CheckCircle, XCircle, Truck, Printer, Undo2 } from 'lucide-react';
-import { usePermission } from '../../hooks/usePermission';
+import { usePermission, canTakeReturn } from '../../hooks/usePermission';
 /*
  * Exact throughout this page, not rounded.
  *
@@ -213,7 +213,7 @@ export default function SalesOrderDetail() {
           </p>
         </div>
         {/* A customer bringing something from this bill back: straight to Take a return, bill chosen. */}
-        {['DISPATCHED', 'PARTIALLY_DISPATCHED'].includes(order.status) && (can('return:counter') || (can('return:create') && can('return:complete'))) && (
+        {['DISPATCHED', 'PARTIALLY_DISPATCHED'].includes(order.status) && canTakeReturn(can) && (
           <button className="btn-secondary" onClick={() => navigate(`/returns/new?order=${order.id}`)}
             style={{ marginLeft: order.atCounter ? 0 : 'auto', display: 'inline-flex', alignItems: 'center', gap: '6px', alignSelf: 'flex-start', order: order.atCounter ? 1 : 0 }}>
             <Undo2 size={15} /> Take a return

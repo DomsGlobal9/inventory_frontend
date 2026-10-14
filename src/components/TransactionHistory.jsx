@@ -63,6 +63,8 @@ export default function TransactionHistory({ productId, onNewTransaction }) {
             <Download size={16} />
             Export
           </button>
+          {/* The parent leaves this out for someone who cannot change stock. */}
+          {onNewTransaction && (
           <button 
             className="btn-primary" 
             onClick={onNewTransaction}
@@ -71,6 +73,7 @@ export default function TransactionHistory({ productId, onNewTransaction }) {
             <Plus size={16} />
             Record Transaction
           </button>
+          )}
         </div>
       </div>
 

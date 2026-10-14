@@ -2,7 +2,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Undo2 } from 'lucide-react';
-import { usePermission } from '../../hooks/usePermission';
+import { usePermission, canTakeReturn } from '../../hooks/usePermission';
 import { api } from '../../lib/api';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { RETURN_STATUS, StatusPill, returnReasonLabel } from '../../components/sales/labels';
@@ -40,7 +40,7 @@ export default function ReturnsList() {
           <h1 style={{ fontSize: '32px', marginBottom: '8px', color: 'var(--text-primary)' }}>Customer Returns</h1>
           <p style={{ color: 'var(--text-secondary)' }}>Take back what customers bring to the counter, and check returned parcels.</p>
         </div>
-        {(can('return:counter') || (can('return:create') && can('return:complete'))) && (
+        {canTakeReturn(can) && (
           <button className="btn-primary" onClick={() => navigate('/returns/new')} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap' }}>
             <Undo2 size={17} /> Take a return
           </button>

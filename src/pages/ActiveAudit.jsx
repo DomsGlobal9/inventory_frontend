@@ -9,6 +9,7 @@ import ConfirmModal from '../components/ConfirmModal';
 import { useAuth } from '../context/AuthContext';
 import { holdsEverything } from '../lib/authority';
 import StatusPill from '../components/StockCountStatus';
+import { usePermission } from '../hooks/usePermission';
 
 export default function ActiveAudit() {
   const { id } = useParams();
@@ -22,6 +23,8 @@ export default function ActiveAudit() {
   // Cancelling is the shop's super admin's alone -- the server enforces it; this only avoids
   // offering a button that would be refused.
   const canCancel = holdsEverything(user);
+  const { can } = usePermission();
+  const canCount = can('stock_count:update');
 
   const [searchQuery, setSearchQuery] = useState('');
   // One <input> per audit row, so a scan can drop the cursor straight into the count box.
@@ -256,12 +259,12 @@ export default function ActiveAudit() {
               <XCircle size={16} /> Cancel count
             </button>
           )}
-          {audit.status === 'DRAFT' && (
+          {can('stock_count:create') && audit.status === 'DRAFT' && (
             <button className="btn-primary" onClick={handleStart} disabled={startMutation.isLoading}>
               Start Counting
             </button>
           )}
-          {audit.status === 'IN_PROGRESS' && (
+          {can('stock_count:complete') && audit.status === 'IN_PROGRESS' && (
             <button 
               className="btn-primary" 
               onClick={handleComplete}
@@ -371,6 +374,7 @@ export default function ActiveAudit() {
                         const borderColor = (rowState === 'error' || problem)
                           ? 'var(--accent-danger, #ef4444)'
                           : (unsaved ? 'var(--accent-gold, #f59e0b)' : 'var(--border-light)');
+                        if (!canCount) return <span style={{ fontWeight: '600', fontSize: '16px' }}>{counted === '' ? '—' : counted}</span>;
                         return (
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
                             <input

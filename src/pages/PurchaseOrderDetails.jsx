@@ -488,7 +488,10 @@ The stock will go into ${chosen?.name || 'that store'}. ${orderedFor.name} stays
     );
   }
 
-  const isReceivable = po && (po.status === 'SENT' || po.status === 'PARTIALLY_RECEIVED');
+  // Without purchase_order:receive the Receive Now column and the GRN panel go; Received stays.
+  const isReceivable = po && (po.status === 'SENT' || po.status === 'PARTIALLY_RECEIVED') && can('purchase_order:receive');
+  const canUpdate = can('purchase_order:update');
+  const canCreate = can('purchase_order:create');
   const canChangeDeliverTo = !isNew && po && po.status !== 'RECEIVED' && po.status !== 'CANCELLED' && can('purchase_order:update');
 
   const saveDeliverTo = async (locationId) => {
@@ -572,7 +575,7 @@ Change it to ${chosen.name}? The order will say ${chosen.name} from now on, but 
                   because unlike the two beside it, it needs no second step from the user.
                   Disabled rather than hidden when the supplier has no email, so the reason is
                   readable instead of the button simply not being there. */}
-              {po.status === 'DRAFT' && (
+              {canUpdate && po.status === 'DRAFT' && (
                 <button
                   onClick={handleEmailSupplier}
                   disabled={!supplierEmail || !deliverTo || emailPO.isPending}
@@ -613,7 +616,7 @@ Change it to ${chosen.name}? The order will say ${chosen.name} from now on, but 
                     fallbackHref={whatsAppUrl}
                     recipientLabel={po.supplier?.name}
                   />
-                ) : (
+                ) : canUpdate && (
                   <button
                     className="btn-secondary"
                     disabled
@@ -632,7 +635,7 @@ Change it to ${chosen.name}? The order will say ${chosen.name} from now on, but 
                 )
               )}
 
-              {po.status === 'DRAFT' && (
+              {canUpdate && po.status === 'DRAFT' && (
                 <button
                   onClick={handleMarkSent}
                   className="btn-primary"
@@ -780,7 +783,7 @@ Change it to ${chosen.name}? The order will say ${chosen.name} from now on, but 
                 <Box size={18} style={{ color: 'var(--text-secondary)' }} />
                 Line Items
               </h2>
-              {isNew && (
+              {isNew && canCreate && (
                 <button
                   onClick={() => setShowVariantModal(true)}
                   style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', fontWeight: '500', color: 'var(--text-primary)', background: 'var(--bg-input)', padding: '6px 12px', borderRadius: '6px' }}
@@ -976,7 +979,7 @@ Change it to ${chosen.name}? The order will say ${chosen.name} from now on, but 
 
         {/* Right Column (Actions) */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', minWidth: 0 }}>
-          {isNew && (
+          {isNew && canCreate && (
             <div className="glass-panel" style={{ padding: '24px' }}>
               <button
                 onClick={handleCreate}

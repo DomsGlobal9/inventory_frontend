@@ -12,10 +12,12 @@ import SupplierProductsPanel from '../components/SupplierProductsPanel';
 import { api } from '../lib/api';
 import PageLoader from '../components/PageLoader';
 import { rowLink } from '../components/common/rowLink';
+import { usePermission } from '../hooks/usePermission';
 
 export default function SupplierDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { can } = usePermission();
   const updateSupplier = useUpdateSupplier();
 
   const [showEditModal, setShowEditModal] = useState(false);
@@ -100,9 +102,11 @@ export default function SupplierDetails() {
           </p>
         </div>
         <div style={{ marginLeft: 'auto' }}>
+          {can('supplier:update') && (
           <button className="btn-secondary" onClick={() => setShowEditModal(true)} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Edit size={16} /> Edit Supplier
           </button>
+          )}
         </div>
       </motion.div>
 
@@ -188,9 +192,11 @@ export default function SupplierDetails() {
       <motion.div variants={item} className="glass-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '400px' }}>
         <div style={{ padding: '24px', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h3 style={{ margin: 0, fontSize: '16px' }}>Recent Purchase Orders</h3>
+          {can('purchase_order:create') && (
           <button className="btn-primary" onClick={() => navigate('/inventory/purchase-orders')} style={{ padding: '6px 12px', fontSize: '13px' }}>
             New PO
           </button>
+          )}
         </div>
         
         <div className="table-container mobile-no-scroll" style={{ flex: 1, overflowY: 'auto' }}>

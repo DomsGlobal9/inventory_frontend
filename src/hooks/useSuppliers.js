@@ -1,10 +1,15 @@
+import { usePermission } from './usePermission';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { api } from '../lib/api';
 import { optimisticRowPatch, restoreRows } from '../lib/invalidate';
 
 export const useSuppliers = () => {
+  // Several screens borrow this list (a purchase order, the variant table); somebody who may not
+  // see suppliers gets an empty list instead of a refused request.
+  const { can } = usePermission();
   return useQuery({
+    enabled: can('supplier:view'),
     queryKey: ['suppliers'],
     queryFn: async () => {
       const response = await api.get('/suppliers');

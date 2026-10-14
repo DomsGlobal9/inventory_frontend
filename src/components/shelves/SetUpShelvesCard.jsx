@@ -18,7 +18,8 @@ export default function SetUpShelvesCard() {
   const { currentLocation } = useLocationContext();
   const { can } = usePermission();
   const locationId = currentLocation?.id;
-  const allowed = can('shelf:manage') || can('shelf:putaway');
+  // Every step it lists (describe, print labels) needs shelf:manage, so put-away alone is not enough.
+  const allowed = can('shelf:manage');
   const [hidden, setHidden] = React.useState(() => {
     try { return localStorage.getItem(HIDDEN) === '1'; } catch { return false; }
   });

@@ -53,6 +53,8 @@ export default function VariantTable({ productId, productName, productCode, prod
   // drawn, showing an empty cost box to type into and "No cost data yet" as everyone's margin.
   const { can } = usePermission();
   const showCost = can('cost:view');
+  const canEditPrice = can('product:update');
+  const canEditCost = canEditPrice && can('cost:manage');
   // Lets the expanded supplier row size itself to the part of the table you can see.
   const scrollRef = useVisibleRowWidth();
   // Only read while the generator is open; the list is small and cached by the hook.
@@ -631,6 +633,8 @@ export default function VariantTable({ productId, productName, productCode, prod
             </button>
           )}
 
+          {/* Without this button the generator, and its Confirm, never open. */}
+          {can('product:create') && (
           <button
             className="btn-primary"
             onClick={() => {
@@ -642,6 +646,7 @@ export default function VariantTable({ productId, productName, productCode, prod
             <Plus size={16} />
             {showGenerator ? 'Cancel' : 'Generate Variants'}
           </button>
+          )}
         </div>
       </div>
 
@@ -1064,6 +1069,7 @@ export default function VariantTable({ productId, productName, productCode, prod
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                               <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>₹</span>
+                              {canEditCost ? <>
                               <input
                                 type="number"
                                 className="input-field"
@@ -1091,6 +1097,7 @@ export default function VariantTable({ productId, productName, productCode, prod
                                   </button>
                                 </>
                               )}
+                              </> : <span style={{ fontSize: '13px' }}>{shownCost || '—'}</span>}
                             </div>
                             <CellNote>
                               {cost.value > 0 ? `based on ₹${cost.value.toFixed(2)} — ${cost.source}` : ''}
@@ -1106,7 +1113,8 @@ export default function VariantTable({ productId, productName, productCode, prod
                         return (
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-                              <input
+                              {/* It only fills in the price box, so without that box it shows the markup instead. */}
+                              {canEditPrice ? <input
                                 type="number"
                                 className="input-field"
                                 value={pctValue}
@@ -1122,7 +1130,7 @@ export default function VariantTable({ productId, productName, productCode, prod
                                       ? `You are adding ${currentMarkupOf(v)}% on top of what you paid. Type a new number to work out a new selling price -- it still needs confirming.`
                                       : 'Profit on top of what you paid. Type 40 to sell at what you paid plus 40%. Fills in what you sell at -- still needs confirming.')
                                   : 'Enter a cost first (or receive stock through a Purchase Order) so profit can be calculated on it.'}
-                              />
+                              /> : <span style={{ fontSize: '13px' }}>{currentMarkupOf(v) || '—'}</span>}
                               <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>%</span>
                             </div>
                             <CellNote>{cost.value <= 0 ? 'needs what you paid' : ''}</CellNote>
@@ -1137,6 +1145,7 @@ export default function VariantTable({ productId, productName, productCode, prod
                         return (
                           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                             <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>₹</span>
+                            {canEditPrice ? <>
                             <input
                               type="number"
                               className="input-field"
@@ -1180,6 +1189,7 @@ export default function VariantTable({ productId, productName, productCode, prod
                                 </button>
                               </>
                             )}
+                            </> : <span style={{ fontSize: '13px' }}>{shownValue || (productBasePrice ? Number(productBasePrice).toFixed(2) : '—')}</span>}
                           </div>
                         );
                       })()}
@@ -1241,27 +1251,27 @@ export default function VariantTable({ productId, productName, productCode, prod
                         >
                           <Printer size={16} />
                         </button>
-                        <button 
+                        {can('supplier:view') && <button
                           onClick={() => setSuppliersOpenFor(suppliersOpenFor === v.id ? null : v.id)}
                           style={{ color: suppliersOpenFor === v.id ? 'var(--accent-gold)' : 'var(--text-secondary)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px' }}
                           title="Who supplies this item"
                         >
                           <Truck size={16} />
-                        </button>
-                        <button 
+                        </button>}
+                        {canEditPrice && <button
                           onClick={() => setLocationSettingsVariant(v)}
                           style={{ color: 'var(--text-secondary)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px' }}
                           title="Location Settings"
                         >
                           <Settings size={16} />
-                        </button>
-                        <button 
+                        </button>}
+                        {can('product:delete') && <button
                           onClick={() => setDeleteTarget({ id: v.id, sku: v.sku })}
                           style={{ color: 'var(--accent-danger)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px' }}
                           title="Delete Variant"
                         >
                           <Trash2 size={16} />
-                        </button>
+                        </button>}
                       </div>
                     </td>
                   </motion.tr>

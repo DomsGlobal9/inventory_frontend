@@ -35,7 +35,7 @@ export default function DeadStockWidget() {
                 borderRadius: '8px', cursor: 'pointer', transition: 'background-color 0.2s',
                 border: '1px solid var(--border-light)'
               }}
-              onClick={() => navigate(`/inventory/products/${item.productId || item.productTitle}`)} // Navigating might need productId
+              onClick={() => item.productId && navigate(`/products/${item.productId}`)}
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >

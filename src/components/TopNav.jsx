@@ -10,6 +10,7 @@ import { MapPin } from 'lucide-react';
 import { useAlerts, useMarkAlertRead, useMarkAllAlertsRead, useTogglePinAlert, useDeleteAlert } from '../hooks/useAlerts';
 import Select from './common/Select';
 import BarcodeScanner, { scanningSupported } from './BarcodeScanner';
+import { usePermission } from '../hooks/usePermission';
 
 
 /**
@@ -39,6 +40,7 @@ const ALERT_TONE = {
 export default function TopNav({ onMenuClick }) {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { can } = usePermission();
   const [query, setQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   // The phone's search: the bar has no room for a box, so a button opens one over the page.
@@ -475,12 +477,12 @@ export default function TopNav({ onMenuClick }) {
                   </div>
                 )}
               </div>
-              <div 
+              {can('inventory:view') && <div 
                 onClick={() => { setIsAlertMenuOpen(false); navigate('/inventory/alerts'); }}
                 style={{ padding: '12px', textAlign: 'center', background: 'var(--bg-input)', color: 'var(--text-primary)', fontSize: '13px', fontWeight: 500, cursor: 'pointer', borderTop: '1px solid var(--border-light)' }}
               >
                 View All Alerts
-              </div>
+              </div>}
             </div>
           )}
         </div>

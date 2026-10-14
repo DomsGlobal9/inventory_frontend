@@ -25,6 +25,7 @@ export default function VariantSuppliersPanel({ variantId, sku, variant, product
   const navigate = useNavigate();
   const { can } = usePermission();
   const canOrder = can('purchase_order:create');
+  const canEditLinks = can('supplier:update');
   const { data: links = [], isLoading } = useVariantSuppliers(variantId);
   const setPreferred = useSetPreferredSupplier();
   const unlink = useUnlinkSupplierProduct();
@@ -183,7 +184,7 @@ export default function VariantSuppliersPanel({ variantId, sku, variant, product
                   <Phone size={14} />
                 </a>
               )}
-              {!link.isPreferred && (
+              {canEditLinks && !link.isPreferred && (
                 <button
                   className="btn-icon"
                   title="Make this the preferred supplier for this item"
@@ -193,7 +194,7 @@ export default function VariantSuppliersPanel({ variantId, sku, variant, product
                   <Star size={14} />
                 </button>
               )}
-              <button
+              {canEditLinks && <button
                 className="btn-icon"
                 title={`Remove ${link.supplier?.name} as a supplier of this item`}
                 disabled={unlink.isPending}
@@ -203,7 +204,7 @@ export default function VariantSuppliersPanel({ variantId, sku, variant, product
                 style={{ color: 'var(--accent-danger)' }}
               >
                 <Trash2 size={14} />
-              </button>
+              </button>}
             </div>
           </div>
         );

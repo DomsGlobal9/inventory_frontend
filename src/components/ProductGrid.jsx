@@ -315,13 +315,16 @@ function ProductCard({ product, stagger, reduceMotion, isSelected, onToggle, onO
 
         {/* stopPropagation: the card opens the product, and a tick that navigated away
             would make selecting more than one impossible. */}
-        <div onClick={(e) => e.stopPropagation()} style={{ position: 'absolute', top: '8px', left: '8px' }}>
-          <SelectBox
-            checked={isSelected}
-            onChange={() => onToggle(product.id)}
-            label={`Select ${product.title}`}
-          />
-        </div>
+        {/* No onToggle: the viewer cannot publish, so there is nothing to select for. */}
+        {onToggle && (
+          <div onClick={(e) => e.stopPropagation()} style={{ position: 'absolute', top: '8px', left: '8px' }}>
+            <SelectBox
+              checked={isSelected}
+              onChange={() => onToggle(product.id)}
+              label={`Select ${product.title}`}
+            />
+          </div>
+        )}
 
         {/*
           * Stacked, because a product can be a draft AND have its photographs being made -- the

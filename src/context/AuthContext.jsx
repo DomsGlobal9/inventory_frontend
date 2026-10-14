@@ -45,6 +45,42 @@ export function AuthProvider({ children }) {
     checkSession();
   }, [checkSession]);
 
+  /*
+   * Permissions change while people work: the owner edits a role, or moves someone to another one.
+   * Read them again when the tab comes back into view, every five minutes while it is open, and at
+   * once when the server refuses something for a missing permission -- so the screen shows what the
+   * person may do NOW. Quiet: a failed refresh changes nothing (a real sign-out arrives as a 401,
+   * which the api client already handles), and an unchanged answer does not re-render the app.
+   */
+  useEffect(() => {
+    let busy = false;
+    const refresh = async () => {
+      if (busy || !readStoredUser()) return;
+      busy = true;
+      try {
+        const res = await api.get('/auth/session');
+        if (res?.authenticated && res.user) {
+          const hydrated = { ...res.user, clientId: res.user.clientId ?? res.client?.id ?? null };
+          setUser(prev => {
+            const same = prev && JSON.stringify([prev.permissions, prev.roles]) === JSON.stringify([hydrated.permissions, hydrated.roles]);
+            if (same) return prev;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(hydrated));
+            return hydrated;
+          });
+        }
+      } catch { /* offline or slow: keep what we have */ } finally { busy = false; }
+    };
+    const onVisible = () => { if (document.visibilityState === 'visible') refresh(); };
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('scaleezy:permissions-stale', refresh);
+    const timer = setInterval(() => { if (document.visibilityState === 'visible') refresh(); }, 5 * 60 * 1000);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('scaleezy:permissions-stale', refresh);
+      clearInterval(timer);
+    };
+  }, []);
+
   const login = useCallback(async (email, password, clientId) => {
     // Just like any normal SaaS login: email + password, no workspace ID needed from
     // the visitor. `clientId` is only ever passed on the rare retry where the backend

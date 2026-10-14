@@ -8,6 +8,7 @@ import {
 } from '../lib/photoSets';
 import { usePhotoJobs, useStartPhotoJobs, useCancelPhotoJob } from '../hooks/usePhotoJobs';
 import PhotoJobOutcome from './PhotoJobOutcome';
+import { usePermission } from '../hooks/usePermission';
 
 /**
  * The four catalog views, made from a photograph the shop already has.
@@ -39,6 +40,8 @@ import PhotoJobOutcome from './PhotoJobOutcome';
  */
 export default function CatalogViewsPanel({ productId, dressType, variants, images, onChanged }) {
   const category = useMemo(() => resolveTryOnCategory(dressType), [dressType]);
+  // Progress and outcomes are for everyone; starting, redoing and stopping need the permission.
+  const canMake = usePermission().can('tryon:generate');
 
   const { data: jobs } = usePhotoJobs(productId);
   const start = useStartPhotoJobs(productId);
@@ -174,7 +177,9 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
 
   // Still shown when there is nothing left to photograph but something that can be made again --
   // which is the whole product, once every colour is finished.
-  if (!category || (!target && !redoTarget)) return null;
+  // Someone who cannot make them again still sees a recent outcome, but not an empty card.
+  const keepFor = canMake ? redoTarget : (jobs?.recent ?? []).some(j => j.kind === 'VIEWS');
+  if (!category || (!target && !keepFor)) return null;
 
   return (
     <div style={{
@@ -228,7 +233,7 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
         )}
       </p>
 
-      {candidates.length > 1 && !job && (
+      {canMake && candidates.length > 1 && !job && (
         <div style={{ marginBottom: '12px' }}>
           <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>
             Which colour to photograph
@@ -244,7 +249,7 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
         </div>
       )}
 
-      {!job && (
+      {canMake && !job && (
         <>
           <input ref={flatLayRef} type="file" accept="image/png,image/jpeg,image/webp"
             onChange={chooseFlatLay} style={{ display: 'none' }} />
@@ -276,11 +281,11 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
               will tell you when they are ready.
             </span>
           </p>
-          <button type="button" className="btn" onClick={() => cancel.mutate(job.id)}
+          {canMake && <button type="button" className="btn" onClick={() => cancel.mutate(job.id)}
             disabled={cancel.isPending}
             style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px' }}>
             <StopCircle size={16} /> Stop
-          </button>
+          </button>}
         </div>
       )}
 
@@ -295,7 +300,7 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
         * shop already has. Separated from the panel above by a rule for the same reason -- it
         * must never be the button somebody presses while meaning the other one.
         */}
-      {redoTarget && !job && (
+      {canMake && redoTarget && !job && (
         <div style={{
           borderTop: target ? '1px solid var(--border-light)' : 'none',
           marginTop: target ? '16px' : 0,

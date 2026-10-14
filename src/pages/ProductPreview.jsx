@@ -17,6 +17,7 @@ import { colorInfoFor } from '../utils/colorOptions';
 import { useLocationContext } from '../contexts/LocationContext';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import ImageLightbox from '../components/ImageLightbox';
+import { usePermission } from '../hooks/usePermission';
 
 const VIEW_ORDER = ['front', 'left', 'right', 'back'];
 
@@ -25,6 +26,7 @@ export default function ProductPreview() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { colors } = useCatalogData();
+  const { can } = usePermission();
   /*
    * Once the three columns stack, their widths are no longer a column width -- they are the
    * width of a card on a phone, and three different ones read as a ragged edge rather than
@@ -425,7 +427,8 @@ export default function ProductPreview() {
        * A colour with no code is a product with no colours at all -- there is no variant for the
        * photographs to belong to, so there is nothing to generate against either.
        */
-      const asked = photoPayload.colours.filter(c => c.wantViews && c.code);
+      // can(): a tick saved in a draft by someone who could make them must not fire for someone who cannot.
+      const asked = can('tryon:generate') ? photoPayload.colours.filter(c => c.wantViews && c.code) : [];
       const askFor = asked.filter(c => photographed.has(c.code)).map(c => c.name);
 
       /*

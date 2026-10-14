@@ -206,15 +206,17 @@ export default function ReorderSuggestions() {
             <div style={{ fontSize: '24px', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--text-primary)', lineHeight: '1.2' }}>{money(selectedTotal)}</div>
             <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>{selectedCount} item{selectedCount === 1 ? '' : 's'} selected</div>
           </div>
+          {canOrder && (
           <button
             className="btn-primary"
-            disabled={createDrafts.isPending || selectedCount === 0 || !canOrder}
+            disabled={createDrafts.isPending || selectedCount === 0}
             onClick={handleCreate}
             style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', fontSize: '14px' }}
           >
             {createDrafts.isPending ? <Loader2 size={18} className="animate-spin" /> : <ShoppingCart size={18} />}
             {createDrafts.isPending ? 'Generating...' : 'Create Draft Orders'}
           </button>
+          )}
         </div>
       </div>
 
@@ -357,7 +359,7 @@ export default function ReorderSuggestions() {
                     </div>
                   </td>
                   <td style={{ textAlign: 'right', paddingRight: '24px' }}>
-                    <button
+                    {canOrder && <button
                       className="btn-secondary"
                       style={{ fontSize: '13px', padding: '8px 16px' }}
                       onClick={() => navigate('/inventory/purchase-orders/new', {
@@ -369,7 +371,7 @@ export default function ReorderSuggestions() {
                       })}
                     >
                       Create Manual Order
-                    </button>
+                    </button>}
                   </td>
                 </tr>
               ))}

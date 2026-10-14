@@ -20,10 +20,15 @@ import { noAccessTitle, noAccessMessage } from '../lib/permissionText';
  * It is here so the screen tells the truth.
  */
 /** @param what what the person came here to do, e.g. "pick orders": the screen says that back. */
-export default function Guard({ permission, what, children }) {
+/** anyOf: allowed with any one of them. allOf: needs every one (the page's data calls need them all). */
+export default function Guard({ permission, anyOf, allOf, what, children }) {
   const { can } = usePermission();
-  if (permission && !can(permission)) {
-    return <NoAccess variant="page" title={noAccessTitle(what)} message={noAccessMessage(permission)} />;
+  const missing =
+    (permission && !can(permission) && permission) ||
+    (anyOf && !anyOf.some(can) && anyOf[0]) ||
+    (allOf && allOf.find((p) => !can(p)));
+  if (missing) {
+    return <NoAccess variant="page" title={noAccessTitle(what)} message={noAccessMessage(missing)} />;
   }
   return children;
 }

@@ -6,6 +6,7 @@ import WhatsAppSendButton from '../../components/whatsapp/WhatsAppSendButton';
 import BillPDF from '../../components/BillPDF';
 import { makePdf } from '../../components/pdf/downloadPdf';
 import { logoAsPng } from '../../components/pdf/pdfLogo';
+import { usePermission, canTakeReturn } from '../../hooks/usePermission';
 
 /**
  * The 80 mm receipt.
@@ -27,6 +28,7 @@ export default function Receipt() {
   const { id } = useParams();
   const [params] = useSearchParams();
   const navigate = useNavigate();
+  const { can } = usePermission();
   const { data: sale, isLoading, isError, error } = useReceipt(id);
   const printed = useRef(false);
 
@@ -95,7 +97,7 @@ export default function Receipt() {
 
       <div className="receipt-actions">
         <button className="btn-secondary" onClick={() => navigate(`/orders/${sale.id}`)} style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}><ArrowLeft size={15} /> Order</button>
-        <button className="btn-secondary" onClick={() => navigate(`/returns/new?order=${sale.id}`)} style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}>Take a return</button>
+        {canTakeReturn(can) && <button className="btn-secondary" onClick={() => navigate(`/returns/new?order=${sale.id}`)} style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}>Take a return</button>}
         <button className="btn-primary" onClick={() => window.print()} style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}><Printer size={15} /> Print</button>
         {/* The bill as a PDF, straight to the customer from the shop's WhatsApp. */}
         <WhatsAppSendButton

@@ -10,6 +10,7 @@ import ConfirmModal from './ConfirmModal';
 import PageLoader from './PageLoader';
 import ColourVariantsPanel from './ColourVariantsPanel';
 import CatalogViewsPanel from './CatalogViewsPanel';
+import { usePermission } from '../hooks/usePermission';
 
 /**
  * Photographs, arranged by the thing they are photographs OF.
@@ -29,6 +30,7 @@ const describeVariant = (v) =>
   [v.colorName, v.size].filter(Boolean).join(' · ') || v.sku;
 
 export default function ImageGallery({ productId, dressType }) {
+  const canEdit = usePermission().can('product:update');
   const fileInputRef = useRef(null);
   // How far a multi-photo upload has got, so the button can say so.
   const [batch, setBatch] = useState(null);
@@ -270,7 +272,7 @@ export default function ImageGallery({ productId, dressType }) {
             title="This is the photo Try-On generated the others from. Customers do not see it.">
             NOT IN YOUR SHOP
           </span>
-          <button
+          {canEdit && <button
             onClick={() => showInShop(image.id)}
             disabled={updateMutation.isPending}
             style={{
@@ -280,7 +282,7 @@ export default function ImageGallery({ productId, dressType }) {
             title="Show this photo in your online shop too"
           >
             Show it
-          </button>
+          </button>}
         </div>
       )}
       <div style={{
@@ -296,7 +298,7 @@ export default function ImageGallery({ productId, dressType }) {
           }}>
             PRIMARY
           </span>
-        ) : (
+        ) : canEdit ? (
           <button
             onClick={() => setPrimary(image.id)}
             disabled={updateMutation.isPending}
@@ -305,7 +307,7 @@ export default function ImageGallery({ productId, dressType }) {
           >
             <Star size={14} />
           </button>
-        )}
+        ) : <span />}
         <div style={{ display: 'flex', gap: '6px', alignSelf: 'flex-start' }}>
           {/* Deliberately worded "View larger", because the crossed-out eye beside it means
               something else entirely -- hide this from the shop -- and two eyes a few pixels
@@ -321,7 +323,7 @@ export default function ImageGallery({ productId, dressType }) {
           </button>
           {/* Only on a photo customers can see, and never on the main one: hiding the picture a
               product leads with would empty its place in the shop. */}
-          {!isReference(image) && !image.isPrimary && (
+          {canEdit && !isReference(image) && !image.isPrimary && (
             <button
               onClick={() => hideFromShop(image.id)}
               disabled={updateMutation.isPending}
@@ -331,14 +333,14 @@ export default function ImageGallery({ productId, dressType }) {
               <EyeOff size={14} />
             </button>
           )}
-          <button
+          {canEdit && <button
             onClick={() => handleDelete(image.id)}
             disabled={deleteMutation.isPending}
             style={{ color: '#fff', background: 'rgba(239, 68, 68, 0.8)', padding: '6px', borderRadius: '4px', display: 'flex' }}
             title="Delete this photo"
           >
             <X size={14} />
-          </button>
+          </button>}
         </div>
       </div>
     </motion.div>
@@ -447,7 +449,7 @@ export default function ImageGallery({ productId, dressType }) {
               </div>
               {/* No Add on the loose section: there is nothing left that a photograph of the
                   product as a whole is the right answer to. */}
-              {!group.readOnly && (
+              {canEdit && !group.readOnly && (
                 <button
                   className="btn-secondary"
                   onClick={() => openPicker(group.variantId)}

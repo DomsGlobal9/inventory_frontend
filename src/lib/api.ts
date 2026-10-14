@@ -116,6 +116,11 @@ api.interceptors.response.use(
     // fault, so deleting a shelf showed "That shelf was not found." in red right after the green
     // "removed" -- the list simply asking again for the thing that had just gone.
     const body = error.response?.data;
+    // Refused for a permission this screen thought the person had: their role was changed while
+    // they worked. Ask AuthContext to read the permissions again so the button goes away.
+    if (error.response?.status === 403 && body && typeof body === 'object' && (body as any).requiredPermission) {
+      window.dispatchEvent(new Event('scaleezy:permissions-stale'));
+    }
     if (body && typeof body === 'object' && !Array.isArray(body)) {
       return Promise.reject(Object.assign(body, { statusCode: (body as any).statusCode ?? error.response?.status }));
     }

@@ -12,6 +12,8 @@ import {
 import { useDialog } from '../hooks/useDialog';
 import { buildCredentialWhatsapp } from '../lib/credentialShare';
 import Select from './common/Select';
+import { usePermission } from '../hooks/usePermission';
+import { holdsEverything } from '../lib/authority';
 
 
 function RecentActivity({ onClose }) {
@@ -350,7 +352,9 @@ function ShareRow({ recipientName, email, password, userId }) {
 
 function PasswordManager({ member, onClose }) {
   const [revealed, setRevealed] = useState(null);
-  const [mode, setMode] = useState('view'); // view | set
+  // Without team:view_password only Set New is offered; the password it makes is still shown once.
+  const canView = usePermission().can('team:view_password');
+  const [mode, setMode] = useState(canView ? 'view' : 'set'); // view | set
   const [customPassword, setCustomPassword] = useState('');
   const viewMutation = useViewTeamMemberPassword();
   const setMutation = useSetTeamMemberPassword();
@@ -388,7 +392,7 @@ function PasswordManager({ member, onClose }) {
         </div>
 
         <div style={{ display: 'flex', gap: '6px', marginBottom: '16px' }}>
-          <button onClick={() => { setMode('view'); setRevealed(null); }} style={{ flex: 1, padding: '6px', fontSize: '12px', fontWeight: 600, borderRadius: '6px', cursor: 'pointer', border: `1px solid ${mode === 'view' ? 'var(--accent-gold)' : 'var(--border-light)'}`, background: mode === 'view' ? 'rgba(226, 193, 113, 0.1)' : 'transparent', color: mode === 'view' ? 'var(--accent-gold)' : 'var(--text-secondary)' }}>View Current</button>
+          {canView && <button onClick={() => { setMode('view'); setRevealed(null); }} style={{ flex: 1, padding: '6px', fontSize: '12px', fontWeight: 600, borderRadius: '6px', cursor: 'pointer', border: `1px solid ${mode === 'view' ? 'var(--accent-gold)' : 'var(--border-light)'}`, background: mode === 'view' ? 'rgba(226, 193, 113, 0.1)' : 'transparent', color: mode === 'view' ? 'var(--accent-gold)' : 'var(--text-secondary)' }}>View Current</button>}
           <button onClick={() => { setMode('set'); setRevealed(null); }} style={{ flex: 1, padding: '6px', fontSize: '12px', fontWeight: 600, borderRadius: '6px', cursor: 'pointer', border: `1px solid ${mode === 'set' ? 'var(--accent-gold)' : 'var(--border-light)'}`, background: mode === 'set' ? 'rgba(226, 193, 113, 0.1)' : 'transparent', color: mode === 'set' ? 'var(--accent-gold)' : 'var(--text-secondary)' }}>Set New</button>
         </div>
 
@@ -401,7 +405,7 @@ function PasswordManager({ member, onClose }) {
                 </div>
                 <ShareRow recipientName={member.name} email={member.email} password={revealed} userId={member.id} />
               </>
-            ) : (
+            ) : canView && (
               <button onClick={handleView} disabled={viewMutation.isPending} className="btn-secondary" style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px' }}>
                 {viewMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Eye size={16} />} Reveal Password
               </button>
@@ -443,7 +447,7 @@ export default function TeamManager() {
   const updateRoleMutation = useUpdateTeamMemberRole();
   const setStatusMutation = useSetTeamMemberStatus();
 
-  const currentUserIsSuperAdmin = user?.roles?.includes('SUPER_ADMIN');
+  const currentUserIsSuperAdmin = holdsEverything(user);
 
   return (
     <div className="team-panel">

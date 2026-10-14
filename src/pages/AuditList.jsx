@@ -9,9 +9,11 @@ import PageLoader from '../components/PageLoader';
 import { useAuth } from '../context/AuthContext';
 import StatusPill from '../components/StockCountStatus';
 import { rowLink } from '../components/common/rowLink';
+import { usePermission } from '../hooks/usePermission';
 
 export default function AuditList() {
   const navigate = useNavigate();
+  const { can } = usePermission();
   const { user } = useAuth();
   const { data, isLoading, isError, error, refetch } = useStockCounts();
   const createMutation = useCreateStockCount();
@@ -56,7 +58,7 @@ export default function AuditList() {
           <h1 style={{ fontSize: '24px', margin: 0, color: 'var(--text-primary)' }}>Inventory Audits</h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '14px', margin: '4px 0 0' }}>Reconcile system inventory with physical stock.</p>
         </div>
-        <button 
+        {can('stock_count:create') && <button 
           className="btn-primary" 
           onClick={handleCreate}
           disabled={isCreating}
@@ -64,7 +66,7 @@ export default function AuditList() {
         >
           {isCreating ? <Clock size={16} className="animate-spin" /> : <Plus size={16} />} 
           New Audit
-        </button>
+        </button>}
       </motion.div>
 
       {/* List */}

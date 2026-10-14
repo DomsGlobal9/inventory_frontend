@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useDashboardSummary } from '../hooks/useDashboardSummary';
 import PageLoader from '../components/PageLoader';
 import SummaryCards from '../components/dashboard/SummaryCards';
+import MyDayCards from '../components/dashboard/MyDayCards';
 import SetUpShelvesCard from '../components/shelves/SetUpShelvesCard';
 import RecentTransactions from '../components/dashboard/RecentTransactions';
 import LowStockWidget from '../components/dashboard/LowStockWidget';
@@ -91,10 +92,16 @@ export default function Dashboard() {
           itself once the work is done, and for good if they say they do not use shelves. */}
       <SetUpShelvesCard />
 
-      {/* Global Section: KPIs & Quick Actions */}
-      <motion.div variants={item}>
-        <SummaryCards data={data} isLoading={isLoading} isError={isError} error={error} noAccess={!canSeeMoney} />
-      </motion.div>
+      {/* The day's work, one tile per permission held (see MyDayCards). */}
+      <motion.div variants={item}><MyDayCards /></motion.div>
+
+      {/* The shop's money: only for somebody allowed it. Not a "not part of your role" box --
+          a tile nobody can open is noise on the first screen they see. */}
+      {canSeeMoney && (
+        <motion.div variants={item}>
+          <SummaryCards data={data} isLoading={isLoading} isError={isError} error={error} />
+        </motion.div>
+      )}
 
       {/* Only the shortcuts this person can actually walk through.
           Offering "+ Purchase Order" to somebody who cannot raise one is worse than offering
@@ -115,9 +122,20 @@ export default function Dashboard() {
             <Plus size={16} /> Purchase Order
           </button>
         )}
-        {can('supplier:view') && (
+        {can('supplier:create') && (
           <button className="btn btn-secondary" onClick={() => navigate('/inventory/suppliers')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px' }}>
             <Plus size={16} /> Supplier
+          </button>
+        )}
+        {/* The same rule the server uses for a counter return: return:counter, or create AND complete. */}
+        {(can('return:counter') || (can('return:create') && can('return:complete'))) && (
+          <button className="btn btn-secondary" onClick={() => navigate('/returns/new')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px' }}>
+            <Plus size={16} /> Take a return
+          </button>
+        )}
+        {can('customer:create') && (
+          <button className="btn btn-secondary" onClick={() => navigate('/customers')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px' }}>
+            <Plus size={16} /> Customer
           </button>
         )}
       </motion.div>

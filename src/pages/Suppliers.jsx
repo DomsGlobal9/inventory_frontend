@@ -9,9 +9,11 @@ import { Truck, Plus, Search, ChevronRight, Building2, Phone, Mail, X } from 'lu
 import { typedPhone } from '../utils/phone';
 import { useSuppliers, useCreateSupplier } from '../hooks/useSuppliers';
 import PageLoader from '../components/PageLoader';
+import { usePermission } from '../hooks/usePermission';
 
 export default function Suppliers() {
   const navigate = useNavigate();
+  const { can } = usePermission();
   const { data: suppliers = [], isLoading, isError, error, refetch } = useSuppliers();
   const createSupplier = useCreateSupplier();
   
@@ -64,15 +66,15 @@ export default function Suppliers() {
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '14px', margin: '4px 0 0' }}>Manage vendors and purchase order destinations</p>
         </div>
-        
-        <button 
+
+        {can('supplier:create') && <button
           onClick={() => setShowAddModal(true)}
           className="btn-primary"
           style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
         >
           <Plus size={16} />
           Add Supplier
-        </button>
+        </button>}
       </motion.div>
 
       {/* Toolbar */}

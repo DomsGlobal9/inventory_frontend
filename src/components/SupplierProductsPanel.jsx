@@ -35,6 +35,7 @@ export default function SupplierProductsPanel({ supplierId, supplierName, suppli
   const { can } = usePermission();
   const { currentLocation } = useLocationContext();
   const canOrder = can('purchase_order:create');
+  const canEditLinks = can('supplier:update');
 
   /**
    * What this item actually sells for at the location currently selected.
@@ -209,7 +210,7 @@ export default function SupplierProductsPanel({ supplierId, supplierName, suppli
                             <FileText size={14} />
                           </button>
                         )}
-                        {!link.isPreferred && (
+                        {canEditLinks && !link.isPreferred && (
                           <button
                             className="btn-icon"
                             title="Make this our preferred supplier for this item"
@@ -219,7 +220,7 @@ export default function SupplierProductsPanel({ supplierId, supplierName, suppli
                             <Star size={14} />
                           </button>
                         )}
-                        <button
+                        {canEditLinks && <button
                           className="btn-icon"
                           title="Remove this item from the supplier"
                           disabled={unlink.isPending}
@@ -227,7 +228,7 @@ export default function SupplierProductsPanel({ supplierId, supplierName, suppli
                           onClick={() => setLinkToRemove({ id: link.id, sku: variant.sku })}
                         >
                           <Trash2 size={14} />
-                        </button>
+                        </button>}
                       </div>
                     </td>
                   </tr>

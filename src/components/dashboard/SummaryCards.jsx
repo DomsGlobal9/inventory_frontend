@@ -9,20 +9,12 @@ import { useLocationContext } from '../../contexts/LocationContext';
 import NoAccess from '../NoAccess';
 import { isPermissionError } from '../../lib/access';
 
-export default function SummaryCards({ data, isLoading, isError, error, noAccess }) {
+export default function SummaryCards({ data, isLoading, isError, error }) {
   const { currentLocation } = useLocationContext();
 
-  // Known before asking, so the panel is there immediately rather than after a refused
-  // round trip. The 403 path below still exists for the case this cannot see coming: a role
-  // changed while the person had the page open.
-  if (noAccess) {
-    return (
-      <NoAccess
-        height="122px"
-        message="Stock value, open orders and dead stock aren't part of your role. Ask whoever manages your team."
-      />
-    );
-  }
+  // Only mounted for somebody allowed the figures (Dashboard checks report:financial). The 403
+  // path below is for a role changed while the page was open: the app then re-reads permissions
+  // (AuthContext) and this panel goes away.
   if (isLoading) {
     return (
       <div className="dashboard-grid">

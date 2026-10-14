@@ -5,6 +5,7 @@ import { AlertCircle, CheckCircle, X, Image as ImageIcon, Eye, Camera } from "lu
 import { useProduct } from "../context/ProductContext";
 import ImageLightbox from "./ImageLightbox";
 import { resolveTryOnCategory } from '../lib/photoSets';
+import { usePermission } from '../hooks/usePermission';
 
 /**
  * A grid of photographs with one box on the end that adds more.
@@ -116,6 +117,7 @@ function PhotoGrid({ photos, previews, onAdd, onRemove, onView, isTouch, disable
  */
 export default function GarmentPhotoshootUploader({ colorCode = '', colorLabel }) {
   const { productData, photosFor, setPhotosFor } = useProduct();
+  const { can } = usePermission();
   const mine = photosFor(colorCode);
 
   /*
@@ -638,7 +640,7 @@ export default function GarmentPhotoshootUploader({ colorCode = '', colorLabel }
         they are not liked. That is the trade: a minute of waiting, per colour, for a set of
         photographs nobody was going to reject anyway.
       */}
-      <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '32px' }}>
+      {can('tryon:generate') && <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '32px' }}>
         <label
           style={{
             display: 'flex', alignItems: 'flex-start', gap: '12px', cursor: 'pointer',
@@ -682,7 +684,7 @@ export default function GarmentPhotoshootUploader({ colorCode = '', colorLabel }
             )}
           </span>
         </label>
-      </div>
+      </div>}
 
       {/* Error */}
       {error && (

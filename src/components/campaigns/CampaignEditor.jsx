@@ -316,7 +316,8 @@ export function LeftOut({ bd }) {
   const rows = [
     [bd.notAgreed, 'have not agreed to offers'],
     [bd.stopped, 'replied STOP'],
-    [bd.noPhone, 'have no phone number']
+    [bd.noPhone, 'have no phone number'],
+    [bd.inQuietGroup ?? 0, 'are in a group that gets no offer messages']
   ].filter(([n]) => n > 0);
   if (!rows.length) return null;
   return (

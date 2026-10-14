@@ -8,6 +8,7 @@ export const useCustomers = (filters = {}) => {
       const params = {};
       if (filters.search) params.search = filters.search;
       if (filters.status) params.status = filters.status;
+      if (filters.group) params.group = filters.group;
 
       return api.get('/customers', { params });
     }

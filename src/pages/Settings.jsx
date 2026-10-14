@@ -17,6 +17,7 @@ import ShopPayments from '../components/settings/ShopPayments';
 import PosTills from '../components/settings/PosTills';
 import SettingsHub, { groupOf } from '../components/settings/SettingsHub';
 import ReturnRulesPanel from '../components/sales/ReturnRulesPanel';
+import CustomerGroupsPanel from '../components/settings/CustomerGroupsPanel';
 import { holdsEverything } from '../lib/authority';
 import { useAuth } from '../context/AuthContext';
 import { usePermission } from '../hooks/usePermission';
@@ -35,6 +36,7 @@ const SETTINGS_DOMAINS = [
   { id: 'POS', label: 'POS (billing counter)', icon: Monitor, permission: 'admin:locations' },
   { id: 'WHATSAPP', label: 'WhatsApp', icon: MessageCircle, permission: 'whatsapp:manage' },
   { id: 'LOYALTY', label: 'Loyalty and wishes', icon: Gift, permission: 'loyalty:manage' },
+  { id: 'GROUPS', label: 'Customer groups', icon: Users, permission: 'customer:view' },
   { id: 'RETURNS', label: 'Returns and exchanges', icon: Undo2, permission: 'return:complete' },
   { id: 'SERVICES', label: 'APIs and services', icon: Key, permission: 'admin:users' },
   { id: 'USERS', label: 'Team members', icon: Users, permission: 'admin:users' },
@@ -55,7 +57,7 @@ const SETTINGS_DOMAINS = [
  * chain had to be extended by hand every time a domain gained content -- and when Day Book was
  * added it was not, so the page rendered the day book AND the placeholder underneath it.
  */
-const IMPLEMENTED_DOMAINS = new Set(['GENERAL', 'CATALOG', 'LOCATIONS', 'DAYBOOK', 'STOREFRONT', 'ONLINE_SHOP', 'PAYMENTS', 'POS', 'WHATSAPP', 'LOYALTY', 'RETURNS', 'SERVICES', 'USERS', 'ROLES', 'SUPPORT']);
+const IMPLEMENTED_DOMAINS = new Set(['GENERAL', 'CATALOG', 'LOCATIONS', 'DAYBOOK', 'STOREFRONT', 'ONLINE_SHOP', 'PAYMENTS', 'POS', 'WHATSAPP', 'LOYALTY', 'GROUPS', 'RETURNS', 'SERVICES', 'USERS', 'ROLES', 'SUPPORT']);
 
 const CATALOG_TABS = [
   { id: 'SIZE', label: 'Sizes', icon: Scissors, description: 'Manage available sizes across your products' },
@@ -252,6 +254,12 @@ export default function Settings() {
           {activeDomain === 'POS' && (
             <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '32px' }}>
               <PosTills />
+            </div>
+          )}
+
+          {activeDomain === 'GROUPS' && (
+            <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '32px' }}>
+              <CustomerGroupsPanel />
             </div>
           )}
 

@@ -43,7 +43,7 @@ Every message ends with *Reply STOP to stop these messages.* You cannot remove t
 | Points worth ₹ | What those points are worth |
 | Link | The customer's own short link (only when you choose a link, step 3) |
 
-5. [[3]] Choose who gets it: **Everyone who agreed**, **Bought recently** or **Haven't bought for a while**. You can narrow it further by customer group (for example VIP), by how much they have spent, or by points.
+5. [[3]] Choose who gets it: **Everyone who agreed**, **Bought recently** or **Haven't bought for a while**. You can narrow it further by customer group (for example VIP), by how much they have spent, or by points. Customers in a group with **No offer messages** switched on are always left out. See [Customer groups](/help/customers/customers#manage-all-your-groups).
 6. [[4]] The count under the choices shows how many it reaches right now, with a few names. Under it, the page says who is left out and why: customers who have not agreed to offers, who replied STOP, or who have no phone number.
 7. On the right is exactly what the customer will see. Click **Send me a test** to get it on your own shop's WhatsApp first.
 8. Click **Save draft**.

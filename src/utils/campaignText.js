@@ -99,6 +99,7 @@ export const RECIPIENT_LABEL = {
 /** Why customers were not sent it, as the campaign page counts it. */
 export const NOT_SENT_LABEL = {
   RECENT_OFFER: 'Had an offer from you in the last 3 days',
+  QUIET_GROUP: 'In a group that gets no messages of this kind',
   OPTED_OUT: 'Replied STOP',
   NO_CONSENT: 'No longer agree to offers',
   NO_PHONE: 'No phone number',

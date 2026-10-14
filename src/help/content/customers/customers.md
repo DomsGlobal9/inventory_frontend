@@ -5,7 +5,7 @@ for: Sales staff, admins and owners
 minutes: 2
 app: /customers
 appLabel: Customers
-keywords: customer client buyer phone number add new edit vip group tag wholesale staff history orders gst gstin company offer discount loyal
+keywords: customer client buyer phone number add new edit vip group tag wholesale staff history orders gst gstin company offer discount loyal groups settings merge rename no offer messages auto join spend bulk
 ---
 
 Customers are found by their **phone number**. One number belongs to one customer.
@@ -53,6 +53,20 @@ Offers can be made only for a group, for example *VIP*. Everyone in the group ge
 
 It saves straight away. Read more in [How offers work](/help/offers/how-offers-work).
 
+## 5. Manage all your groups
+
+**Settings → Customer groups** lists every group and how many customers are in it. Click a group to open it.
+
+- **Add customers**: type a name or phone, then press **Add**. **Remove** takes someone out.
+- **No offer messages**: WhatsApp campaigns and the points-expiry reminder skip everyone in the group. Use it for customers you would rather call yourself.
+- **No birthday or anniversary wishes**: the daily wishes skip them too.
+- **Join by spending**: for example ₹50,000 in the last 365 days. Customers who reach it are added by themselves, checked every hour. The rule never takes anyone out.
+- **Rename**, **Merge into** another group, or **Delete group**. A group that a running offer is only for cannot be merged or deleted. Change that offer first.
+
+Bills sent from the till are not affected by any of these.
+
+To put many customers in a group at once, open **Customers**, tick them, type the group name and press **Add to group**. The **All groups** box above the list shows one group's customers.
+
 ## Example: an offer only for VIP customers
 
 1. Open each VIP customer's page and add them to the group **VIP**, as in step 4.
@@ -78,4 +92,12 @@ Your role cannot see customers. Stock room staff and inventory managers do not h
 
 :::faq I can't add or edit a customer
 Your role can see customers but not change them. Ask your shop owner.
+:::
+
+:::faq A VIP customer did not get my campaign
+Their group may have **No offer messages** switched on, in **Settings → Customer groups**. Before you start a campaign, it says how many customers are left out because of their group.
+:::
+
+:::faq "An offer is only for …" when merging or deleting a group
+A running offer is only for that group. Change the offer to the other group, or archive it, then try again.
 :::

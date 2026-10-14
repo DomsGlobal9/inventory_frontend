@@ -177,9 +177,10 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
 
   // Still shown when there is nothing left to photograph but something that can be made again --
   // which is the whole product, once every colour is finished.
-  // Someone who cannot make them again still sees a recent outcome, but not an empty card.
-  const keepFor = canMake ? redoTarget : (jobs?.recent ?? []).some(j => j.kind === 'VIEWS');
-  if (!category || (!target && !keepFor)) return null;
+  // Someone who may not make photos sees the card only while a set is being made or with a recent
+  // outcome -- never the "give us a flat-lay" invitation they have no button for.
+  const news = mine.length > 0 || (jobs?.recent ?? []).some(j => j.kind === 'VIEWS');
+  if (!category || (canMake ? (!target && !redoTarget) : !news)) return null;
 
   return (
     <div style={{

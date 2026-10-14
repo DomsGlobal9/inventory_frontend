@@ -70,7 +70,8 @@ export default function ColourVariantsPanel({ productId, dressType, variants, im
   }, [mine, onChanged]);
 
   const nothingToOffer = !category || !source || targets.length === 0;
-  if (nothingToOffer && mine.length === 0 && !(jobs?.recent ?? []).some(j => j.kind === 'COLOUR')) return null;
+  const news = mine.length > 0 || (jobs?.recent ?? []).some(j => j.kind === 'COLOUR');
+  if ((nothingToOffer || !canMake) && !news) return null;
 
   /** Stops the lot: the one being made and everything still queued behind it. */
   const stopAll = async () => {

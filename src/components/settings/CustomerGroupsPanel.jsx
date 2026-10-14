@@ -194,7 +194,7 @@ function GroupDetail({ group: g, groups, canEdit, canManage, onGone, onMoved }) 
       <div style={box}>
         <h3 style={{ fontSize: '15px', margin: '0 0 8px' }}>Join by spending</h3>
         <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 10px' }}>
-          Customers who spend this much are added by themselves, checked every hour. Nobody is taken out by the rule.
+          Customers who spend this much are added by themselves, checked every hour. The rule never takes anyone out, and someone you take out by hand stays out.
         </p>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
           <div>

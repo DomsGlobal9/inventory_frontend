@@ -60,12 +60,14 @@ It saves straight away. Read more in [How offers work](/help/offers/how-offers-w
 - **Add customers**: type a name or phone, then press **Add**. **Remove** takes someone out.
 - **No offer messages**: WhatsApp campaigns and the points-expiry reminder skip everyone in the group. Use it for customers you would rather call yourself.
 - **No birthday or anniversary wishes**: the daily wishes skip them too.
-- **Join by spending**: for example ₹50,000 in the last 365 days. Customers who reach it are added by themselves, checked every hour. The rule never takes anyone out.
+- **Join by spending**: for example ₹50,000 in the last 365 days. Customers who reach it are added by themselves, checked every hour. The rule never takes anyone out. Someone you take out by hand stays out.
 - **Rename**, **Merge into** another group, or **Delete group**. A group that a running offer is only for cannot be merged or deleted. Change that offer first.
 
 Bills sent from the till are not affected by any of these.
 
 To put many customers in a group at once, open **Customers**, tick them, type the group name and press **Add to group**. The **All groups** box above the list shows one group's customers.
+
+Changing a group's rules, renaming, merging or deleting it needs the permission **Manage customer groups**. The owner and **ADMIN** have it. Putting customers in or out of a group needs only **Change a customer**.
 
 ## Example: an offer only for VIP customers
 

@@ -28,6 +28,8 @@ keywords: स्टाफ़ कर्मचारी नौकर यूज़�
 
 ![Suresh Babu के लिए Add Team Member फ़ॉर्म। Name पर 1, Email पर 2, Role पर 3, Auto-generate पर 4 और Create Account पर 5 का निशान है।](2-fill-in.webp "फ़ॉर्म खुलने पर Auto-generate चुना हुआ होता है।")
 
+**Mobile number** भरना ज़रूरी नहीं है। भरने पर उनका लॉगिन आपकी दुकान के अपने WhatsApp नंबर से उन्हें भेजा जा सकता है।
+
 ## 3. सही रोल चुनें
 
 ![Role की लिस्ट खुली है, जिसमें ADMIN, INVENTORY MANAGER, SALES, SUPER ADMIN और WAREHOUSE दिख रहे हैं।](3-roles.webp "Roles and Permissions में बनाए आपके अपने रोल भी इसी लिस्ट में आते हैं।")
@@ -52,7 +54,7 @@ keywords: स्टाफ़ कर्मचारी नौकर यूज़�
 
 1. [[1]] ईमेल और पासवर्ड। जब तक व्यक्ति को लॉगिन न मिल जाए, यह बॉक्स खुला रखें।
 2. अगर आपकी दुकान के लिए ईमेल चालू है, तो ScaleEzy **उन्हें लॉगिन पहले ही ईमेल कर चुका है**। तब बॉक्स में **Sent to** और उनका ईमेल लिखा होता है। [[2]] **Send again** वही ईमेल एक बार और भेजता है।
-3. [[3]] **WhatsApp** लॉगिन मैसेज तैयार करके WhatsApp खोलता है। आप कॉन्टैक्ट चुनें और भेजें।
+3. [[3]] **WhatsApp** लॉगिन को आपकी दुकान के अपने WhatsApp नंबर से उनके मोबाइल पर भेजता है। अगर आपने मोबाइल नंबर नहीं दिया, तो पहले नंबर पूछता है। अगर आपकी दुकान का WhatsApp जुड़ा नहीं है, तो यह बता देता है: तब **Open in my own WhatsApp instead** या **Copy** इस्तेमाल करें।
 4. [[4]] **Copy** ईमेल और पासवर्ड कॉपी करता है, ताकि आप उन्हें कहीं भी पेस्ट कर सकें।
 
 ![Suresh Babu का Credentials बॉक्स। ईमेल और पासवर्ड पर 1, Send again पर 2, WhatsApp पर 3 और Copy पर 4 का निशान है।](4-share-login.webp "जब तक आप पासवर्ड नहीं बदलते, वह वही रहता है।")
@@ -81,4 +83,8 @@ keywords: स्टाफ़ कर्मचारी नौकर यूज़�
 
 :::faq Custom पासवर्ड के साथ Create Account दबाने पर कुछ नहीं होता
 Custom पासवर्ड में कम से कम 6 अक्षर होने चाहिए।
+:::
+
+:::faq "Your shop's WhatsApp is not connected, so nothing was sent" लिखा आया
+**Settings → WhatsApp** में अपनी दुकान का नंबर जोड़ें, फिर दोबारा **WhatsApp** दबाएँ। या अपने फ़ोन से भेजने के लिए **Open in my own WhatsApp instead** दबाएँ। देखें [WhatsApp](/help/settings/whatsapp)।
 :::

@@ -5,7 +5,7 @@ for: Owners and admins
 minutes: 3
 app: /settings
 appLabel: Settings
-keywords: staff employee user add new team member login account invite role password whatsapp email create
+keywords: staff employee user add new team member login account invite role password whatsapp email create mobile phone number shop whatsapp number
 ---
 
 Give every person their own login. Then each person sees only what their job needs, and the app records who did what.
@@ -28,6 +28,8 @@ Only the owner and people who can **Manage the team and their roles** see **Team
 5. Press [[5]] **Create Account**.
 
 ![The Add Team Member form for Suresh Babu. Name is marked 1, Email 2, Role 3, Auto-generate 4 and Create Account 5.](2-fill-in.webp "Auto-generate is chosen when the form opens.")
+
+**Mobile number** is optional. With it, their login can be sent to them on WhatsApp from your shop's own number.
 
 ## 3. Choose the right role
 
@@ -53,7 +55,7 @@ After **Create Account**, a box shows the new login.
 
 1. [[1]] The email and password. Keep this box open until the person has the login.
 2. If email works for your shop, ScaleEzy **has already emailed the login** to them. The box then says **Sent to** and their email. [[2]] **Send again** sends the same email once more.
-3. [[3]] **WhatsApp** opens WhatsApp with the login message ready. You choose the contact and send it.
+3. [[3]] **WhatsApp** sends the login to their mobile from your shop's own WhatsApp number. If you did not give a mobile number, it asks for one first. If your shop's WhatsApp is not connected, it says so: use **Open in my own WhatsApp instead** or **Copy**.
 4. [[4]] **Copy** copies the email and password, so you can paste them anywhere.
 
 ![The Credentials for Suresh Babu box. The email and password are marked 1, Send again 2, WhatsApp 3 and Copy 4.](4-share-login.webp "The password stays the same until you change it.")
@@ -82,4 +84,8 @@ Ask them to check their spam folder. Or open their **Password** in the team list
 
 :::faq Create Account does nothing with a Custom password
 A custom password needs at least 6 characters.
+:::
+
+:::faq "Your shop's WhatsApp is not connected, so nothing was sent"
+Connect your shop's number in **Settings → WhatsApp**, then press **WhatsApp** again. Or press **Open in my own WhatsApp instead** to send it from your own phone. See [WhatsApp](/help/settings/whatsapp).
 :::

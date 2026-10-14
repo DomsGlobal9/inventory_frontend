@@ -29,6 +29,8 @@ function rulesText(g) {
 export default function CustomerGroupsPanel() {
   const { can } = usePermission();
   const canEdit = can('customer:update');
+  // Members are customer:update; what a group means (rules, name, merge, delete) is manage_groups.
+  const canManage = can('customer:manage_groups');
   const qc = useQueryClient();
   const [open, setOpen] = useState(null);
   const [newName, setNewName] = useState('');
@@ -48,7 +50,7 @@ export default function CustomerGroupsPanel() {
         and a group can be kept out of offer messages on WhatsApp.
       </p>
 
-      {canEdit && (
+      {canManage && (
         <form onSubmit={(e) => { e.preventDefault(); if (newName.trim()) create.mutate(newName.trim()); }}
           style={{ display: 'flex', gap: '8px', alignItems: 'flex-end', flexWrap: 'wrap', marginBottom: '16px' }}>
           <div style={{ flex: '1 1 220px', maxWidth: '320px' }}>
@@ -91,7 +93,7 @@ export default function CustomerGroupsPanel() {
                     </tr>
                     {open === g.key && (
                       <tr><td colSpan={3} style={{ padding: '4px 14px 18px', background: 'var(--bg-input)' }}>
-                        <GroupDetail group={g} groups={groups} canEdit={canEdit} onGone={() => setOpen(null)} onMoved={(key) => setOpen(key)} />
+                        <GroupDetail group={g} groups={groups} canEdit={canEdit} canManage={canManage} onGone={() => setOpen(null)} onMoved={(key) => setOpen(key)} />
                       </td></tr>
                     )}
                   </React.Fragment>
@@ -104,7 +106,7 @@ export default function CustomerGroupsPanel() {
   );
 }
 
-function GroupDetail({ group: g, groups, canEdit, onGone, onMoved }) {
+function GroupDetail({ group: g, groups, canEdit, canManage, onGone, onMoved }) {
   const qc = useQueryClient();
   const refresh = () => { qc.invalidateQueries({ queryKey: LIST }); qc.invalidateQueries({ queryKey: ['customer-groups', g.key] }); qc.invalidateQueries({ queryKey: ['customers'] }); };
   const fail = (fallback) => (e) => toast.error(e?.message || fallback);
@@ -173,15 +175,16 @@ function GroupDetail({ group: g, groups, canEdit, onGone, onMoved }) {
         </p>
       )}
 
+      {canManage && (<>
       <div style={box}>
         <h3 style={{ fontSize: '15px', margin: '0 0 8px' }}>WhatsApp</h3>
         <label style={{ display: 'flex', gap: '8px', alignItems: 'center', fontSize: '14px', marginBottom: '6px' }}>
-          <input type="checkbox" checked={!!g.noOfferMessages} disabled={!canEdit || rules.isPending}
+          <input type="checkbox" checked={!!g.noOfferMessages} disabled={rules.isPending}
             onChange={e => rules.mutate({ noOfferMessages: e.target.checked })} />
           No offer messages <span style={{ color: 'var(--text-muted)' }}>(campaigns and the points-expiry reminder)</span>
         </label>
         <label style={{ display: 'flex', gap: '8px', alignItems: 'center', fontSize: '14px' }}>
-          <input type="checkbox" checked={!!g.noWishes} disabled={!canEdit || rules.isPending}
+          <input type="checkbox" checked={!!g.noWishes} disabled={rules.isPending}
             onChange={e => rules.mutate({ noWishes: e.target.checked })} />
           No birthday or anniversary wishes
         </label>
@@ -196,24 +199,22 @@ function GroupDetail({ group: g, groups, canEdit, onGone, onMoved }) {
         <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
           <div>
             <label className="input-label" htmlFor={`cg-spend-${g.key}`}>Spent at least (₹)</label>
-            <input id={`cg-spend-${g.key}`} className="input-field" type="number" min="1" value={spend} disabled={!canEdit} onChange={e => setSpend(e.target.value)} style={{ width: '160px' }} />
+            <input id={`cg-spend-${g.key}`} className="input-field" type="number" min="1" value={spend} onChange={e => setSpend(e.target.value)} style={{ width: '160px' }} />
           </div>
           <div>
             <label className="input-label" htmlFor={`cg-days-${g.key}`}>In the last (days)</label>
-            <input id={`cg-days-${g.key}`} className="input-field" type="number" min="1" max="3650" value={days} disabled={!canEdit} onChange={e => setDays(e.target.value)} style={{ width: '120px' }} />
+            <input id={`cg-days-${g.key}`} className="input-field" type="number" min="1" max="3650" value={days} onChange={e => setDays(e.target.value)} style={{ width: '120px' }} />
           </div>
-          {canEdit && (
-            <>
-              <button type="button" className="btn-primary" disabled={rules.isPending || !spend}
-                onClick={() => rules.mutate({ autoMinSpend: Number(spend), autoDays: Number(days) })}>Save rule</button>
-              {g.autoMinSpend && (
-                <button type="button" className="btn-secondary" disabled={rules.isPending}
-                  onClick={() => { setSpend(''); rules.mutate({ autoMinSpend: null, autoDays: null }); }}>Switch off</button>
-              )}
-            </>
+          <button type="button" className="btn-primary" disabled={rules.isPending || !spend}
+            onClick={() => rules.mutate({ autoMinSpend: Number(spend), autoDays: Number(days) })}>Save rule</button>
+          {g.autoMinSpend && (
+            <button type="button" className="btn-secondary" disabled={rules.isPending}
+              onClick={() => { setSpend(''); rules.mutate({ autoMinSpend: null, autoDays: null }); }}>Switch off</button>
           )}
         </div>
       </div>
+
+      </>)}
 
       <div style={box}>
         <h3 style={{ fontSize: '15px', margin: '0 0 8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -248,7 +249,7 @@ function GroupDetail({ group: g, groups, canEdit, onGone, onMoved }) {
         )}
       </div>
 
-      {canEdit && (
+      {canManage && (
         <div style={{ ...box, display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
             <div>

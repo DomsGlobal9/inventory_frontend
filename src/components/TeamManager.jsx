@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import {
   useTeamMembers, useTeamRoles, useTeamActivity, useInviteTeamMember, useUpdateTeamMemberRole,
   useSetTeamMemberStatus, useViewTeamMemberPassword, useSetTeamMemberPassword,
-  useResendTeamMemberCredentials, useSecurityLog
+  useResendTeamMemberCredentials, useSendTeamCredentialsWhatsApp, useSecurityLog
 } from '../hooks/useTeam';
 import { useDialog } from '../hooks/useDialog';
 import { buildCredentialWhatsapp } from '../lib/credentialShare';
@@ -145,7 +145,7 @@ function SecurityLog({ onClose }) {
   );
 }
 
-function CredentialsPanel({ recipientName, email, password, roleLabel, emailed, emailReason, userId, onDone }) {
+function CredentialsPanel({ recipientName, email, password, roleLabel, emailed, emailReason, userId, phone, onDone }) {
   const [copied, setCopied] = useState(false);
   const resend = useResendTeamMemberCredentials();
 
@@ -214,9 +214,7 @@ function CredentialsPanel({ recipientName, email, password, roleLabel, emailed, 
             through the shop's own mail server, which works the same on every machine and can
             actually report whether it arrived. WhatsApp stays because it is a genuinely
             different channel, not a second way to do the same thing. */}
-        <a href={buildCredentialWhatsapp({ recipientName, email, tempPassword: password, roleLabel })} target="_blank" rel="noopener noreferrer" className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', textDecoration: 'none' }}>
-          <MessageCircle size={14} /> WhatsApp
-        </a>
+        <WhatsAppLoginButton userId={userId} phone={phone} recipientName={recipientName} email={email} password={password} roleLabel={roleLabel} />
         <button onClick={handleCopy} className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px' }}>
           {copied ? <Check size={14} /> : <Copy size={14} />} {copied ? 'Copied' : 'Copy'}
         </button>
@@ -226,9 +224,63 @@ function CredentialsPanel({ recipientName, email, password, roleLabel, emailed, 
   );
 }
 
+/**
+ * "WhatsApp": sends the login from the SHOP'S OWN NUMBER to the person's mobile.
+ *
+ * No number on file yet: asks for it first (it is saved on the person). The shop's WhatsApp not
+ * connected: says so, and offers the old way -- the admin's own WhatsApp with the message ready.
+ */
+function WhatsAppLoginButton({ userId, phone, recipientName, email, password, roleLabel, compact }) {
+  const send = useSendTeamCredentialsWhatsApp();
+  const [asking, setAsking] = useState(false);
+  const [typed, setTyped] = useState('');
+  const [sentTo, setSentTo] = useState(null);
+  const [problem, setProblem] = useState(null);
+  const go = (number) => {
+    setProblem(null);
+    send.mutate({ userId, phone: number, nonce: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}` }, {
+      onSuccess: (r) => { setSentTo(r?.to ?? number); setAsking(false); toast.success('Sent on WhatsApp from your shop\u2019s number.'); },
+      onError: (e) => setProblem(e?.message || 'The login could not be sent on WhatsApp.')
+    });
+  };
+  const size = compact ? { flex: 1, padding: '8px', fontSize: '12px' } : { padding: '8px 14px' };
+  if (asking) {
+    return (
+      <form onSubmit={(e) => { e.preventDefault(); if (typed.trim()) go(typed.trim()); }} style={{ display: 'flex', gap: '6px', flexBasis: '100%', alignItems: 'center' }}>
+        <input type="tel" className="input-field" autoFocus value={typed} onChange={e => setTyped(e.target.value)}
+          placeholder="Their mobile number" aria-label={`${recipientName}'s mobile number`} style={{ flex: 1, minWidth: 0 }} />
+        <button type="submit" className="btn-primary" disabled={send.isPending || !typed.trim()} style={{ padding: '8px 12px' }}>
+          {send.isPending ? <Loader2 size={14} className="animate-spin" /> : 'Send'}
+        </button>
+        <button type="button" className="btn-secondary" onClick={() => setAsking(false)} style={{ padding: '8px 12px' }}>Cancel</button>
+      </form>
+    );
+  }
+  return (
+    <>
+      <button type="button" className="btn-secondary" disabled={send.isPending}
+        onClick={() => (phone ? go(null) : setAsking(true))}
+        title={phone ? `Send to ${phone} from your shop's WhatsApp` : undefined}
+        style={{ ...size, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+        {send.isPending ? <Loader2 size={14} className="animate-spin" /> : sentTo ? <Check size={14} /> : <MessageCircle size={14} />}
+        {send.isPending ? 'Sending…' : sentTo ? 'Sent' : 'WhatsApp'}
+      </button>
+      {problem && (
+        <p role="alert" style={{ flexBasis: '100%', margin: '4px 0 0', fontSize: '12px', color: 'var(--accent-danger)' }}>
+          {problem}{' '}
+          <a href={buildCredentialWhatsapp({ recipientName, email, tempPassword: password, roleLabel, phone: phone || typed })} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline', fontWeight: 600 }}>
+            Open in my own WhatsApp instead
+          </a>
+        </p>
+      )}
+    </>
+  );
+}
+
 function InviteForm({ roles, onDone }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   // ADMIN sorts first alphabetically, so "the first role" meant every new person arrived with
   // almost every power in the shop. The quietest role is the safe default; the owner can raise it.
   const leastPowerful = ['SALES', 'WAREHOUSE', 'INVENTORY_MANAGER', 'ADMIN']
@@ -252,7 +304,8 @@ function InviteForm({ roles, onDone }) {
     }
     try {
       const result = await inviteMutation.mutateAsync({
-        name, email, roleId, customPassword: passwordMode === 'custom' ? customPassword : undefined
+        name, email, roleId, customPassword: passwordMode === 'custom' ? customPassword : undefined,
+        phone: phone.trim() || undefined
       });
       setCredentials(result);
     } catch {
@@ -270,6 +323,7 @@ function InviteForm({ roles, onDone }) {
         emailed={credentials.emailed}
         emailReason={credentials.emailReason}
         userId={credentials.id}
+        phone={credentials.phone}
         onDone={onDone}
       />
     );
@@ -289,6 +343,11 @@ function InviteForm({ roles, onDone }) {
       <div>
         <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '4px' }} htmlFor="team-email">Email</label>
         <input id="team-email" type="email" className="input-field" value={email} onChange={e => setEmail(e.target.value)} required />
+      </div>
+      <div>
+        <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '4px' }} htmlFor="team-phone">Mobile number</label>
+        <input id="team-phone" type="tel" className="input-field" value={phone} onChange={e => setPhone(e.target.value)} placeholder="98480 22338" />
+        <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '4px 0 0' }}>Their login is sent here on WhatsApp, from your shop's number.</p>
       </div>
       <div>
         <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Role</label>
@@ -319,7 +378,7 @@ function InviteForm({ roles, onDone }) {
   );
 }
 
-function ShareRow({ recipientName, email, password, userId }) {
+function ShareRow({ recipientName, email, password, userId, phone }) {
   const resend = useResendTeamMemberCredentials();
   const [copied, setCopied] = useState(false);
   const handleCopy = async () => {
@@ -340,9 +399,7 @@ function ShareRow({ recipientName, email, password, userId }) {
         {resend.isPending ? <Loader2 size={13} className="animate-spin" /> : <Mail size={13} />}
         {resend.isPending ? 'Sending…' : 'Email'}
       </button>
-      <a href={buildCredentialWhatsapp({ recipientName, email, tempPassword: password })} target="_blank" rel="noopener noreferrer" className="btn-secondary" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '8px', textDecoration: 'none', fontSize: '12px' }}>
-        <MessageCircle size={13} /> WhatsApp
-      </a>
+      <WhatsAppLoginButton compact userId={userId} phone={phone} recipientName={recipientName} email={email} password={password} />
       <button onClick={handleCopy} className="btn-secondary" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '8px', fontSize: '12px' }}>
         {copied ? <Check size={13} /> : <Copy size={13} />} {copied ? 'Copied' : 'Copy'}
       </button>
@@ -386,7 +443,7 @@ function PasswordManager({ member, onClose }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
           <div>
             <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>{member.name}'s Password</h3>
-            <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '2px 0 0 0' }}>{member.email}</p>
+            <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '2px 0 0 0' }}>{member.email}{member.phone ? ` · ${member.phone}` : ''}</p>
           </div>
           <button onClick={onClose} style={{ background: 'var(--bg-input)', border: '1px solid var(--border-light)', cursor: 'pointer', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', borderRadius: '8px', flexShrink: 0 }}><X size={14} /></button>
         </div>
@@ -403,7 +460,7 @@ function PasswordManager({ member, onClose }) {
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: '14px', background: 'var(--bg-input)', borderRadius: '8px', padding: '12px', textAlign: 'center', border: '1px solid var(--border-light)' }}>
                   {revealed}
                 </div>
-                <ShareRow recipientName={member.name} email={member.email} password={revealed} userId={member.id} />
+                <ShareRow recipientName={member.name} email={member.email} password={revealed} userId={member.id} phone={member.phone} />
               </>
             ) : canView && (
               <button onClick={handleView} disabled={viewMutation.isPending} className="btn-secondary" style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px' }}>
@@ -425,7 +482,7 @@ function PasswordManager({ member, onClose }) {
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', background: 'var(--bg-input)', borderRadius: '8px', padding: '10px', textAlign: 'center', border: '1px solid var(--accent-gold)' }}>
                   New password: {revealed}
                 </div>
-                <ShareRow recipientName={member.name} email={member.email} password={revealed} userId={member.id} />
+                <ShareRow recipientName={member.name} email={member.email} password={revealed} userId={member.id} phone={member.phone} />
               </>
             )}
           </div>

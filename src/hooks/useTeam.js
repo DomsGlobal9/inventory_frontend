@@ -101,6 +101,19 @@ export const useResendTeamMemberCredentials = () => {
   });
 };
 
+/**
+ * Sends the login from the shop's own WhatsApp number. Errors are left to the caller: "not
+ * connected" is answered with a fallback on screen, not only a toast.
+ */
+export const useSendTeamCredentialsWhatsApp = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ userId, phone, nonce }) =>
+      (await api.post(`/team/members/${userId}/credentials/whatsapp`, { phone: phone || undefined, nonce })).data,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['team'] })
+  });
+};
+
 export const useSetTeamMemberPassword = () => {
   return useMutation({
     mutationFn: async ({ userId, customPassword }) => (await api.post(`/team/members/${userId}/password`, { customPassword })).data,

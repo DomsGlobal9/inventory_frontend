@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { Search, Loader2, ArrowLeft, Shirt, Palette, Tags, IndianRupee, MapPin, StickyNote, UserPlus, ExternalLink } from 'lucide-react';
+import { Search, Loader2, ArrowLeft, Shirt, Palette, Tags, IndianRupee, MapPin, StickyNote, UserPlus, ExternalLink, DoorOpen, QrCode } from 'lucide-react';
 import { api } from '../../lib/api';
 import { normalisePhone, typedPhone } from '../../utils/phone';
 import { usePermission } from '../../hooks/usePermission';
@@ -23,6 +23,7 @@ const ago = (at) => {
   const when = new Date(at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
   return days <= 0 ? 'Last visit today' : days === 1 ? 'Last visit yesterday' : `Last visit ${when} (${days} days ago)`;
 };
+const minutesAgo = (at) => { const m = Math.max(0, Math.round((Date.now() - new Date(at).getTime()) / 60000)); return m === 0 ? 'just now' : m === 1 ? '1 min ago' : ` min ago`; };
 const box = { background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '14px', padding: '16px' };
 const label = { fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' };
 
@@ -41,6 +42,18 @@ export default function CustomerCard() {
     queryKey: ['customer-card', phone, currentLocation?.id],
     queryFn: async () => (await api.get('/customers/card', { params: { phone, locationId: currentLocation?.id } })).data,
     enabled: !!phone
+  });
+  // Who scanned the door QR in the last two hours. Polled: a phone at the door has no other way to hear.
+  const arrivals = useQuery({
+    queryKey: ['checkins', currentLocation?.id],
+    queryFn: async () => (await api.get('/customers/checkins', { params: { locationId: currentLocation?.id } })).data,
+    enabled: !!currentLocation?.id, refetchInterval: 15000
+  });
+  const open = (e164) => { setTyped(e164.replace(/^\+91/, '')); setProblem(null); setPhone(e164); };
+  const take = useMutation({
+    mutationFn: async (id) => (await api.post(`/customers/checkins/${id}/take`)).data,
+    onSuccess: (r) => { open(r.phone); arrivals.refetch(); },
+    onError: (e) => { toast.error(e?.message || 'That did not work. Try again.'); arrivals.refetch(); }
   });
   const addNote = useMutation({
     mutationFn: async ({ id, text }) => (await api.post(`/customers/${id}/notes`, { note: text })).data,
@@ -68,6 +81,33 @@ export default function CustomerCard() {
       <p style={{ color: 'var(--text-secondary)', margin: '0 0 20px' }}>
         Type the number when they walk in. See their sizes, colours and what fits them in {currentLocation?.name ?? 'this store'} today.
       </p>
+
+      <div style={{ ...box, marginBottom: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+          <span style={{ fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}><DoorOpen size={16} /> In the store now</span>
+          <Link to="/customers/door-qr" className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', textDecoration: 'none', fontSize: '13px' }}><QrCode size={14} /> Door QR</Link>
+        </div>
+        {(arrivals.data ?? []).length === 0 ? (
+          <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '13.5px' }}>When a customer scans the QR at the door, they show here.</p>
+        ) : (
+          <div style={{ display: 'grid', gap: '6px' }}>
+            {arrivals.data.map(a => (
+              <div key={a.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', padding: '8px 10px', borderRadius: '10px', background: 'var(--bg-input)' }}>
+                <span style={{ minWidth: 0 }}>
+                  <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{a.customer ? a.customer.name : 'New customer'}</span>
+                  {a.customer?.groups.map(g => <span key={g} style={{ marginLeft: '6px', fontSize: '11px', fontWeight: 600, padding: '1px 7px', borderRadius: '999px', background: 'var(--accent-gold)', color: '#1a1a1a' }}>{g}</span>)}
+                  <span style={{ display: 'block', fontSize: '12.5px', color: 'var(--text-secondary)' }}>
+                    {!a.customer && `${a.maskedPhone} · `}{minutesAgo(a.at)}{a.takenBy && ` · ${a.takenBy} is with them`}
+                  </span>
+                </span>
+                {a.takenBy
+                  ? <button type="button" className="btn-secondary" style={{ fontSize: '13px', whiteSpace: 'nowrap' }} onClick={() => open(a.phone)}>Open card</button>
+                  : <button type="button" className="btn-primary" style={{ fontSize: '13px', whiteSpace: 'nowrap' }} disabled={take.isPending} onClick={() => take.mutate(a.id)}>I'll take them</button>}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       <form onSubmit={lookUp} noValidate style={{ display: 'flex', gap: '8px', marginBottom: '6px' }}>
         <input className="input-field" name="phone" aria-label="Customer's phone number" inputMode="tel" autoComplete="off" placeholder="98480 22338"

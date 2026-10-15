@@ -5,7 +5,7 @@ for: Owners, managers and sales staff
 minutes: 2
 app: /customers/card
 appLabel: Customer card
-keywords: customer card walk in door greet regular returning customer know customer size colour colours preference taste usual spend budget picks suggestions what to show notes phone lookup design dna
+keywords: customer card door qr check in check-in scan whatsapp standee in the store now take them walk in door greet regular returning customer know customer size colour colours preference taste usual spend budget picks suggestions what to show notes phone lookup design dna
 ---
 
 When a customer walks in, ask "Have you shopped with us before?" and type their number. The card shows who they are and what to show them first.
@@ -30,6 +30,14 @@ Everything they bought counts: at the till, in your online shop and on Shopify. 
 - **In this store today, in their size**: up to six items you have here now, in their size, their colours first. Items they already bought are left out. The shelf is shown when the store uses [shelves](/help/shelves/where-is-it).
 
 The card reads the store chosen at the top of the screen. Change the store to see what fits them there.
+
+## Customers who scan at the door
+
+Press **Door QR** on the Customer card page, print it and stand it at the door. A customer scans it with their phone camera, WhatsApp opens with a message ready, and they press send. They get a short welcome from your shop's number, and they show under **In the store now** on every salesperson's Customer card for two hours.
+
+Press **I'll take them** and their card opens. Everyone else sees who is with them, so two people never walk up to the same customer.
+
+The QR works once your shop's WhatsApp number is linked in **Settings → WhatsApp**. Each store has its own QR: print one for each store's door.
 
 ## Notes
 

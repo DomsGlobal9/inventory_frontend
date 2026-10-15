@@ -55,3 +55,7 @@ Each colour shows its own photographs. If a colour has none, it falls back to th
 :::faq See it on you is not appearing on a piece
 It only appears on pieces that have at least one photograph.
 :::
+
+:::faq A customer says See it on you did not work
+The try-on service had a problem. Ask them to try again in a minute. If several customers say so, contact ScaleEzy support. ScaleEzy sees the exact reason for every try-on that fails.
+:::

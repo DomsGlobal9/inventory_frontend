@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import LoadFailed from '../../components/LoadFailed';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Loader2, Bug, Building2, ChevronDown, ChevronRight } from 'lucide-react';
 import { useAdminClientErrors } from '../../hooks/admin/useAdminConsole';
 import PageGuide from '../../components/admin/PageGuide';
@@ -15,7 +15,8 @@ const SOURCE_STYLE = {
 const TABS = [{ id: 'app', label: 'App errors' }, { id: 'tryon', label: 'Try-on' }];
 
 export default function ClientErrorsPage() {
-  const [tab, setTab] = useState('app');
+  const [params] = useSearchParams();
+  const [tab, setTab] = useState(params.get('tab') === 'tryon' ? 'tryon' : 'app');
   return (
     <div>
       <h1 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '10px' }}>

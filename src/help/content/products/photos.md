@@ -96,7 +96,7 @@ The photo studio stopped part-way. The views it made are kept. To make the rest,
 :::
 
 :::faq "The photo studio could not be reached just now" or "stopped responding"
-The service that makes the photos had a problem. Your photos are safe. Try again in a few minutes. If it keeps happening, contact ScaleEzy support.
+The service that makes the photos had a problem. Your photos are safe. Try again in a few minutes. If it keeps happening, contact ScaleEzy support. Tell them the product and roughly when it happened. ScaleEzy sees the exact reason for every set that fails.
 :::
 
 :::faq "This workspace has used its …"

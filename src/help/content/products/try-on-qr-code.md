@@ -79,3 +79,7 @@ Try-On is not switched on for your shop. The box then says so in words. Contact 
 :::faq See it on the customer is greyed out
 The product has no photo yet. Add one on the **Images** tab.
 :::
+
+:::faq "The try-on took too long" or "could not complete this request"
+The try-on service had a problem, so no picture was made. Press **See it on them** again in a minute. If it keeps happening, contact ScaleEzy support with the product and the time. ScaleEzy sees the exact reason for every try-on that fails.
+:::

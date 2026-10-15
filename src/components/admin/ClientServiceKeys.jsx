@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { firstMissingField, missingFieldMessage } from '../../lib/formGuard';
 import toast from 'react-hot-toast';
+import { Link } from 'react-router-dom';
 import { KeyRound, Loader2, Check, Plug, Unplug } from 'lucide-react';
 import {
   useClientServiceKeys, useSetClientServiceKey, useRevokeClientServiceKey,
@@ -80,7 +81,7 @@ function UsageAndLimit({ clientId, service }) {
           {u.monthlyLimit === null ? ` ${unit}` : ` of ${u.monthlyLimit}`} this month
           <span style={{ color: 'var(--text-muted)' }}>
             {' · '}{u.viewsGenerated} views
-            {u.failed > 0 ? ` · ${u.failed} failed` : ''}
+            {u.failed > 0 && <>{' · '}<Link to={`/platformconsole/errors?tab=tryon&shop=${encodeURIComponent(clientId)}&service=${service}&days=30`} style={{ color: 'var(--accent-danger)' }}>{u.failed} failed — see why</Link></>}
             {u.cancelled > 0 ? ` · ${u.cancelled} cancelled` : ''}
           </span>
         </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Loader2, AlertTriangle, ChevronDown, ChevronRight } from 'lucide-react';
 import LoadFailed from '../LoadFailed';
 import { useAdminTryOnFailures } from '../../hooks/admin/useAdminConsole';
@@ -18,9 +18,11 @@ const when = (at) => new Date(at).toLocaleString('en-IN', { day: 'numeric', mont
 const cell = { padding: '10px 14px', verticalAlign: 'top' };
 
 export default function TryOnFailures() {
-  const [service, setService] = useState('');
-  const [clientId, setClientId] = useState('');
-  const [days, setDays] = useState(7);
+  // A shop's console page links here with ?shop=&service= already chosen.
+  const [params] = useSearchParams();
+  const [service, setService] = useState(params.get('service') ?? '');
+  const [clientId, setClientId] = useState(params.get('shop') ?? '');
+  const [days, setDays] = useState([1, 7, 30, 90].includes(Number(params.get('days'))) ? Number(params.get('days')) : 7);
   const [open, setOpen] = useState(null);
   const { data, isLoading, isError, error, refetch } = useAdminTryOnFailures({ service: service || undefined, clientId: clientId.trim() || undefined, days });
   const rows = data?.rows ?? [];
@@ -68,7 +70,7 @@ export default function TryOnFailures() {
       ) : isError ? (
         <LoadFailed what="try-on failures" error={error} onRetry={refetch} />
       ) : rows.length === 0 ? (
-        <p style={{ color: 'var(--text-muted)', fontSize: '14px', padding: '24px 0' }}>No try-on failed in this period.</p>
+        <p style={{ color: 'var(--text-muted)', fontSize: '14px', padding: '24px 0' }}>No try-on failed in this period. Failures are recorded from 15 Oct 2026; earlier ones were not kept.</p>
       ) : (
         <div className="table-container" style={{ border: '1px solid var(--border-light)', borderRadius: '12px', overflow: 'auto hidden', background: 'var(--bg-card)' }}>
           <table style={{ width: '100%', minWidth: '760px', borderCollapse: 'collapse', fontSize: '13px' }}>
@@ -93,7 +95,7 @@ export default function TryOnFailures() {
                       </td>
                       <td style={{ ...cell, whiteSpace: 'nowrap', color: 'var(--text-secondary)' }}>{when(f.createdAt)}</td>
                       <td style={{ ...cell, fontFamily: 'monospace', color: 'var(--accent-gold)' }}>{f.clientId}</td>
-                      <td style={cell}>{SERVICE[f.service] ?? f.service}</td>
+                      <td style={cell}>{f.jobKind === 'COLOUR' ? 'Colour photos' : SERVICE[f.service] ?? f.service}</td>
                       <td style={{ ...cell, color: 'var(--text-secondary)' }}>{PLACE[f.place] ?? f.place}</td>
                       <td style={{ ...cell, maxWidth: '360px' }}>
                         {(f.httpStatus || f.code) && <span style={{ fontWeight: 600 }}>{[f.httpStatus, f.code].filter(Boolean).join(' · ')} </span>}

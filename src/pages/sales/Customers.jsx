@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import LoadFailed from '../../components/LoadFailed';
 import { useCustomers } from '../../hooks/useCustomers';
-import { Search, Plus } from 'lucide-react';
+import { Search, Plus, IdCard } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import CustomerModal from '../../components/sales/CustomerModal';
 import { usePermission } from '../../hooks/usePermission';
@@ -74,11 +74,16 @@ export default function Customers() {
           <h1 style={{ fontSize: '32px', marginBottom: '8px', color: 'var(--text-primary)' }}>Customers</h1>
           <p style={{ color: 'var(--text-secondary)' }}>Manage your customer database and view order history.</p>
         </div>
-        {can('customer:create') && (
-          <button className="btn-primary" onClick={() => setAdding(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-            <Plus size={16} /> Add customer
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <button className="btn-secondary" onClick={() => navigate('/customers/card')} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+            <IdCard size={16} /> Customer card
           </button>
-        )}
+          {can('customer:create') && (
+            <button className="btn-primary" onClick={() => setAdding(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+              <Plus size={16} /> Add customer
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Filters section */}

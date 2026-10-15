@@ -33,7 +33,7 @@ function emailProblem(value) {
  *
  * `onSaved(customer)` is called with the saved customer, for screens that go on to use it.
  */
-const CustomerModal = ({ isOpen, onClose, customer, onSaved }) => {
+const CustomerModal = ({ isOpen, onClose, customer, onSaved, initialPhone }) => {
   const isEditing = !!customer;
   const navigate = useNavigate();
   const createMutation = useCreateCustomer();
@@ -59,13 +59,13 @@ const CustomerModal = ({ isOpen, onClose, customer, onSaved }) => {
       companyName: customer.companyName || '',
       gstNumber: customer.gstNumber || '',
       status: customer.status || 'ACTIVE'
-    } : EMPTY);
+    } : { ...EMPTY, phone: initialPhone || '' });
     setSaveError(null);
     setExisting(null);
     setPhoneTouched(false);
     setEmailTouched(false);
     setEmailRefused(null);
-  }, [customer, isOpen]);
+  }, [customer, isOpen, initialPhone]);
 
   if (!isOpen) return null;
 

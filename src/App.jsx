@@ -51,6 +51,7 @@ import PurchaseOrders from './pages/PurchaseOrders';
 import PurchaseOrderDetails from './pages/PurchaseOrderDetails';
 import Customers from './pages/sales/Customers';
 import CustomerDetail from './pages/sales/CustomerDetail';
+import CustomerCard from './pages/sales/CustomerCard';
 import SalesOrders from './pages/sales/SalesOrders';
 import SalesOrderDetail from './pages/sales/SalesOrderDetail';
 import Receipt from './pages/sales/Receipt';
@@ -214,7 +215,8 @@ function App() {
           <Route path="/campaigns/:id" element={<Guard permission="campaign:view"><CampaignDetail /></Guard>} />
           <Route path="/reports/daybook" element={<Guard permission="report:financial"><DayBook /></Guard>} />
           <Route path="/customers" element={<Guard permission="customer:view"><Customers /></Guard>} />
-          <Route path="/customers/:id" element={<Guard permission="customer:view"><CustomerDetail /></Guard>} />
+          <Route path="/customers/card" element={<Guard permission="customer:view"><CustomerCard /></Guard>} />
+              <Route path="/customers/:id" element={<Guard permission="customer:view"><CustomerDetail /></Guard>} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/settings/locations" element={<Guard permission="admin:locations" what="set up stores and godowns"><StockLocationsPage /></Guard>} />
 

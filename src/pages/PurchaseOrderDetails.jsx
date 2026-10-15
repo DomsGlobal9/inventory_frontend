@@ -873,7 +873,7 @@ Change it to ${chosen.name}? The order will say ${chosen.name} from now on, but 
                         )}
                       </td>
                       <td style={{ padding: '16px 0', textAlign: 'right', fontWeight: '500', color: 'var(--text-primary)' }}>
-                        {rupees((Number(item.orderedQty) || 0) * (Number(item.unitPrice) || 0))}
+                        {rupees((Number(item.orderedQty) || 0) + (Number(item.unitPrice) || 0))}
                       </td>
                       {!isNew && (
                         <td style={{ padding: '16px 0', textAlign: 'right', color: 'var(--text-secondary)' }}>

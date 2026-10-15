@@ -23,7 +23,7 @@ export default function AlertCenter() {
 
   const allAlerts = data?.alerts || [];
   const outOfStock = allAlerts.filter(a => a.type === 'OUT_OF_STOCK');
-  const lowStock = allAlerts.filter(a => a.type === 'LOW_STOCK');
+  const lowStock = allAlerts.filter(a => a.type === 'LOW');
   /*
    * Everything that is not about stock levels -- today that is the online shop's own alerts,
    * a new order and a cancellation.

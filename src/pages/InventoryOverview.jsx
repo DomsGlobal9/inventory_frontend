@@ -147,7 +147,7 @@ export default function InventoryOverview() {
         <Select className="input-field" style={{ width: '160px' }} value={filters.status} onChange={(e) => updateFilter('status', e.target.value)}>
           <option value="">All Inventory</option>
           <option value="HEALTHY">🟢 Healthy</option>
-          <option value="LOW_STOCK">🟡 Low Stock</option>
+          <option value="LOW">🟡 Low Stock</option>
           <option value="OUT_OF_STOCK">🔴 Out of Stock</option>
           <option value="ARCHIVED">⚫ Archived</option>
         </Select>
@@ -220,7 +220,7 @@ export default function InventoryOverview() {
                   )}
                   {showCost && (
                     <td style={{ textAlign: 'right', fontWeight: '500' }} title={costNote(variant)}>
-                      {formatRupees(variant.inventoryValue ?? 0)}
+                      {formatRupees(variant.averageCost ?? 0)}
                       {variant.costIsEstimate && <Est />}
                     </td>
                   )}

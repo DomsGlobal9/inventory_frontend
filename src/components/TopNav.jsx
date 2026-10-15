@@ -169,7 +169,7 @@ export default function TopNav({ onMenuClick }) {
     {
       setIsSearching(true);
       try {
-        const response = await api.get(`/search?q=${encodeURIComponent(scanned)}`);
+        const response = await api.get(`/search?query=${encodeURIComponent(scanned)}`);
         const data = response.data;
 
         // If we found a variant, jump straight to it on the Variants tab

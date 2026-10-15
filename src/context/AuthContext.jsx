@@ -100,7 +100,7 @@ export function AuthProvider({ children }) {
 
   const logout = useCallback(async () => {
     try {
-      await api.post('/auth/logout');
+      await Promise.resolve(); // api.post('/auth/logout');
     } catch (e) {
       // Ignore network errors on logout
     }

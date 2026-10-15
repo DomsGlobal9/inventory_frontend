@@ -223,7 +223,7 @@ export default function CustomerDetail() {
               </h3>
             </div>
 
-            {activeTab === 'orders' && (
+            {activeTab === 'dispatches' && (
               customer.salesOrders && customer.salesOrders.length > 0 ? (
                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                   <thead>

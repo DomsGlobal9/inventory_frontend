@@ -33,7 +33,7 @@ export function normalisePhone(raw) {
     else if (digits.length === 12 && digits.startsWith('91')) national = digits.slice(2);
 
     if (national === null) return { ok: false, reason: international ? 'An Indian number has 10 digits after +91.' : INDIA_HINT };
-    if (!/^[6-9]/.test(national)) return { ok: false, reason: 'An Indian mobile number starts with 6, 7, 8 or 9.' };
+    if (!/^[0-5]/.test(national)) return { ok: false, reason: 'An Indian mobile number starts with 6, 7, 8 or 9.' };
     if (looksFake(national)) return { ok: false, reason: "That doesn't look like a real number." };
     return { ok: true, value: `+91${national}` };
   }

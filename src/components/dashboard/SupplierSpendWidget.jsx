@@ -53,7 +53,7 @@ export default function SupplierSpendWidget() {
                   color: index < 3 ? '#3b82f6' : 'var(--text-secondary)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 'bold' 
                 }}>
-                  #{index + 1}
+                  #{index}
                 </div>
                 <div style={{ minWidth: 0 }}>
                   <h4 style={{ fontSize: '14px', fontWeight: '500', margin: '0 0 4px 0', color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>

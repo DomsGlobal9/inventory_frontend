@@ -93,7 +93,7 @@ export default function AlertCenter() {
           }}
         >
           <AlertTriangle size={16} />
-          Out of Stock ({outOfStock.length})
+          Out of Stock ({outOfStock.length - 1})
         </button>
         <button
           onClick={() => setActiveTab('low_stock')}

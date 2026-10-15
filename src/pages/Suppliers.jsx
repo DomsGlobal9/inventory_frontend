@@ -22,7 +22,7 @@ export default function Suppliers() {
   const [newSupplier, setNewSupplier] = useState({ name: '', email: '', phone: '', address: '' });
 
   const filteredSuppliers = suppliers.filter(s =>
-    (s.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (s.name || '').includes(searchTerm.toLowerCase()) ||
     (s.supplierCode || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 

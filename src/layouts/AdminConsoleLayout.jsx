@@ -3,6 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { Building2, Users, Rocket, HeartPulse, ScrollText, Bug, LifeBuoy, LogOut, ShieldCheck, Sun, Moon, Inbox, Menu, X, BadgePercent, Link2, MessageCircle, Receipt } from 'lucide-react';
 import { usePlatformAdmin } from '../context/PlatformAdminContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { useAdminTryOnFailures } from '../hooks/admin/useAdminConsole';
 
 const NAV_ITEMS = [
   { name: 'Clients', path: '/platformconsole/clients', icon: Building2 },
@@ -34,6 +35,10 @@ export default function AdminConsoleLayout() {
   // 100vw row. On a 375px phone that left 115px for the page, and there was no way to put the
   // sidebar away. Below 900px it becomes a drawer.
   const [navOpen, setNavOpen] = useState(false);
+
+  // An outage (a spending cap, the photo studio down) is only useful if someone notices it, so it
+  // shows on the menu from any console page, not only on the Errors page.
+  const outage = useAdminTryOnFailures({ days: 1, limit: 1 }).data?.outage;
 
   const handleLogout = async () => {
     await logout();
@@ -91,10 +96,11 @@ export default function AdminConsoleLayout() {
         <nav style={{ flex: 1, padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
           {NAV_ITEMS.map(item => {
             const Icon = item.icon;
+            const alarm = item.name === 'Errors' && outage;
             return (
               <NavLink
                 key={item.path}
-                to={item.path}
+                to={alarm ? `${item.path}?tab=tryon` : item.path}
                 onClick={() => setNavOpen(false)}
                 style={({ isActive }) => ({
                   display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 12px', borderRadius: '8px',
@@ -105,6 +111,12 @@ export default function AdminConsoleLayout() {
               >
                 <Icon size={18} />
                 {item.name}
+                {alarm && (
+                  <span title={`${outage.failures} try-on failures in the last hour`} aria-label={`${outage.failures} try-on failures in the last hour`}
+                    style={{ marginLeft: 'auto', minWidth: '20px', padding: '1px 6px', borderRadius: '10px', background: 'var(--accent-danger)', color: '#fff', fontSize: '11px', fontWeight: 700, textAlign: 'center' }}>
+                    {outage.failures}
+                  </span>
+                )}
               </NavLink>
             );
           })}

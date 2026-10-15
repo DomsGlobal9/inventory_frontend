@@ -21,6 +21,8 @@ On a phone, keep the page open: one number after another, no need to go back.
 
 ## What the card shows
 
+Everything they bought counts: at the till, in your online shop and on Shopify. An online order where they typed this number counts too, even if they did not confirm it with the code.
+
 - **Name and badges**: their groups, like VIP, the last visit, how many bills, and their points.
 - **Size**: the size they buy for each kind of garment, for example M for kurtis and Free for sarees.
 - **Colours** and **Buys**: what they come back for most.

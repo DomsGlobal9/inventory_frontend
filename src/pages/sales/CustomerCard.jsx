@@ -108,6 +108,7 @@ export default function CustomerCard() {
                 </div>
                 <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
                   {ago(d.visits.lastVisit)} · {d.visits.bills} bill{d.visits.bills === 1 ? '' : 's'}
+                  {d.visits.online > 0 && ` (${d.visits.inStore} in store, ${d.visits.online} online)`}
                   {c.loyaltyPoints > 0 && ` · ${c.loyaltyPoints.toLocaleString('en-IN')} points`}
                   {c.storeCreditPaise > 0 && ` · ${rupees(c.storeCreditPaise / 100)} credit`}
                 </div>

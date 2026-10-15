@@ -366,7 +366,7 @@ export default function ProductDetails() {
         </div>
         <div className="glass-panel" style={{ padding: '20px' }}>
           <p style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Total Variants</p>
-          <h2 style={{ fontSize: '24px', margin: '8px 0 0' }}>{product.variantsSummary.variantCount || 0}</h2>
+          <h2 style={{ fontSize: '24px', margin: '8px 0 0' }}>{product.variantSummary?.variantCount || 0}</h2>
         </div>
         <div className="glass-panel" style={{ padding: '20px' }}>
           <p style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Total Stock Units</p>

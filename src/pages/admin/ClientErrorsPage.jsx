@@ -5,22 +5,43 @@ import { Loader2, Bug, Building2, ChevronDown, ChevronRight } from 'lucide-react
 import { useAdminClientErrors } from '../../hooks/admin/useAdminConsole';
 import PageGuide from '../../components/admin/PageGuide';
 import { rowToggle } from '../../components/common/rowLink';
+import TryOnFailures from '../../components/admin/TryOnFailures';
 
 const SOURCE_STYLE = {
   BACKEND: { color: 'var(--accent-danger)', bg: 'rgba(239, 68, 68, 0.1)' },
   FRONTEND: { color: 'var(--accent-gold)', bg: 'rgba(226, 193, 113, 0.1)' },
 };
 
+const TABS = [{ id: 'app', label: 'App errors' }, { id: 'tryon', label: 'Try-on' }];
+
 export default function ClientErrorsPage() {
+  const [tab, setTab] = useState('app');
+  return (
+    <div>
+      <h1 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <Bug size={22} color="var(--accent-gold)" /> Errors
+      </h1>
+      <div role="tablist" aria-label="Kinds of error" style={{ display: 'flex', gap: '24px', borderBottom: '1px solid var(--border-light)', margin: '8px 0 20px' }}>
+        {TABS.map(t => (
+          <button key={t.id} type="button" role="tab" aria-selected={tab === t.id} onClick={() => setTab(t.id)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px 0', fontSize: '14px', fontWeight: 600,
+              color: tab === t.id ? 'var(--text-primary)' : 'var(--text-secondary)', borderBottom: `2px solid ${tab === t.id ? 'var(--accent-gold)' : 'transparent'}` }}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+      {tab === 'app' ? <AppErrors /> : <TryOnFailures />}
+    </div>
+  );
+}
+
+function AppErrors() {
   const { data, isLoading, isError, error, refetch } = useAdminClientErrors();
   const [expandedId, setExpandedId] = useState(null);
   const navigate = useNavigate();
 
   return (
     <div>
-      <h1 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <Bug size={22} color="var(--accent-gold)" /> Errors
-      </h1>
       <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginBottom: '24px' }}>
         Backend crashes and uncaught frontend errors across every client, newest first. Refreshes automatically.
       </p>

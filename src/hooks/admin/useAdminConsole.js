@@ -50,6 +50,14 @@ export const useAdminTillHealth = () => {
   });
 };
 
+export const useAdminTryOnFailures = (filters) => {
+  return useQuery({
+    queryKey: ['admin', 'tryon-failures', filters],
+    queryFn: async () => (await api.get('/admin/tryon-failures', { params: filters })).data,
+    refetchInterval: 30000
+  });
+};
+
 export const useAdminClientErrors = () => {
   return useQuery({
     queryKey: ['admin', 'client-errors'],

@@ -112,7 +112,7 @@ function PurchaseOrdersList() {
 
   const filteredPOs = pos.filter(po =>
     (!statusFilter || STATUS_FILTERS[statusFilter].includes(po.status)) && (
-      (po.poNumber || '').toLowerCase().includes(searchTerm) ||
+      (po.poNumber || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (po.supplier?.name || '').toLowerCase().includes(searchTerm.toLowerCase())
     )
   );

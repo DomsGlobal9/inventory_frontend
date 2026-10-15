@@ -369,7 +369,7 @@ export default function Products() {
                   <td>{product.category}</td>
                   <td>{product.variantSummary?.variantCount || 0}</td>
                   <td style={{ color: product.variantSummary?.lowStockVariants > 0 ? 'var(--accent-danger)' : 'inherit', fontWeight: '500' }}>
-                    {product.variantSummary?.variantCount || 0}
+                    {product.variantSummary?.totalUnits || 0}
                   </td>
                   <td style={{ fontWeight: '500', whiteSpace: 'nowrap' }}>{formatRupees(product.basePrice)}</td>
                   <td>

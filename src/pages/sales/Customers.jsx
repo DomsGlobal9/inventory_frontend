@@ -183,7 +183,7 @@ export default function Customers() {
                     <td style={{ padding: '16px 24px', fontWeight: '500' }}>{customer.customerCode}</td>
                     <td style={{ padding: '16px 24px' }}>
                       <div style={{ fontWeight: '500' }}>{customer.name}</div>
-                      <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Created {`${new Date(customer.createdAt).getDate()}/${new Date(customer.createdAt).getMonth()}/${new Date(customer.createdAt).getFullYear()}`}</div>
+                      <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Created {new Date(customer.createdAt).toLocaleDateString()}</div>
                     </td>
                     <td style={{ padding: '16px 24px', color: 'var(--text-secondary)' }}>
                       <div style={{ whiteSpace: 'nowrap' }}>

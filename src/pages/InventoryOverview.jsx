@@ -199,7 +199,7 @@ export default function InventoryOverview() {
                   </td>
                   <td>{variant.category}</td>
                   <td>{getStatusBadge(variant.inventoryStatus)}</td>
-                  <td style={{ textAlign: 'right', fontWeight: '600', color: variant.quantity < 0 ? 'var(--accent-danger)' : 'inherit' }}>
+                  <td style={{ textAlign: 'right', fontWeight: '600', color: variant.quantity <= 0 ? 'var(--accent-danger)' : 'inherit' }}>
                     {variant.quantity}
                   </td>
                   {/*

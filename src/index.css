@@ -173,21 +173,13 @@ button {
   color: inherit;
 }
 
-/* Scrollbar Styling for inner scrollable areas */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--border-focus);
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
-}
+/*
+ * No scrollbars drawn anywhere (the owner's call, 16 Oct): every area still scrolls by wheel,
+ * trackpad, touch and keyboard. Both forms, because Chrome 121+ obeys scrollbar-width and
+ * ignores ::-webkit-scrollbar once it is set, while older Safari only knows the second.
+ */
+* { scrollbar-width: none; -ms-overflow-style: none; }
+::-webkit-scrollbar { display: none; width: 0; height: 0; }
 
 /* Premium Utilities */
 .glass-panel {

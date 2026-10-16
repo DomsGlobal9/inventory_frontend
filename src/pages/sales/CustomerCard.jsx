@@ -23,7 +23,7 @@ const ago = (at) => {
   const when = new Date(at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
   return days <= 0 ? 'Last visit today' : days === 1 ? 'Last visit yesterday' : `Last visit ${when} (${days} days ago)`;
 };
-const minutesAgo = (at) => { const m = Math.max(0, Math.round((Date.now() - new Date(at).getTime()) / 60000)); return m === 0 ? 'just now' : m === 1 ? '1 min ago' : ` min ago`; };
+const minutesAgo = (at) => { const m = Math.max(0, Math.round((Date.now() - new Date(at).getTime()) / 60000)); return m === 0 ? 'just now' : m === 1 ? '1 min ago' : `${m} min ago`; };
 const box = { background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '14px', padding: '16px' };
 const label = { fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' };
 

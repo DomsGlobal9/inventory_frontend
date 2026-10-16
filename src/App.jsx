@@ -53,6 +53,7 @@ import Customers from './pages/sales/Customers';
 import CustomerDetail from './pages/sales/CustomerDetail';
 import CustomerCard from './pages/sales/CustomerCard';
 import DoorQr from './pages/sales/DoorQr';
+import GiftVouchers from './pages/sales/GiftVouchers';
 import SalesOrders from './pages/sales/SalesOrders';
 import SalesOrderDetail from './pages/sales/SalesOrderDetail';
 import Receipt from './pages/sales/Receipt';
@@ -218,6 +219,7 @@ function App() {
           <Route path="/customers" element={<Guard permission="customer:view"><Customers /></Guard>} />
           <Route path="/customers/card" element={<Guard permission="customer:view"><CustomerCard /></Guard>} />
               <Route path="/customers/door-qr" element={<Guard permission="customer:view"><DoorQr /></Guard>} />
+              <Route path="/customers/gift-vouchers" element={<Guard permission="voucher:view"><GiftVouchers /></Guard>} />
               <Route path="/customers/:id" element={<Guard permission="customer:view"><CustomerDetail /></Guard>} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/settings/locations" element={<Guard permission="admin:locations" what="set up stores and godowns"><StockLocationsPage /></Guard>} />

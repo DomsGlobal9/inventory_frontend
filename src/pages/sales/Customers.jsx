@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import LoadFailed from '../../components/LoadFailed';
 import { useCustomers } from '../../hooks/useCustomers';
-import { Search, Plus, IdCard } from 'lucide-react';
+import { Search, Plus, IdCard, Gift } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import CustomerModal from '../../components/sales/CustomerModal';
 import { usePermission } from '../../hooks/usePermission';
@@ -78,6 +78,11 @@ export default function Customers() {
           <button className="btn-secondary" onClick={() => navigate('/customers/card')} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
             <IdCard size={16} /> Customer card
           </button>
+          {can('voucher:view') && (
+            <button className="btn-secondary" onClick={() => navigate('/customers/gift-vouchers')} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+              <Gift size={16} /> Gift vouchers
+            </button>
+          )}
           {can('customer:create') && (
             <button className="btn-primary" onClick={() => setAdding(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
               <Plus size={16} /> Add customer
@@ -148,7 +153,8 @@ export default function Customers() {
             ))}
         </div>
       ) : (
-      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="card" style={{ padding: 0, overflow: 'hidden', flexShrink: 0 }}>
+        {/* flexShrink 0: in this scrolling column, overflow hidden would otherwise let the card squash to the window and clip rows */}
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>

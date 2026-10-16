@@ -9,7 +9,7 @@ import { formatINRExact } from '../../utils/formatUtils';
  * the Day Book's cash all agree. Once recorded, it says how and when instead.
  */
 const METHODS = [['CASH', 'Cash'], ['UPI', 'UPI'], ['CARD', 'Card'], ['CREDIT', 'Store credit']];
-const WORD = { CASH: 'in cash', UPI: 'by UPI', CARD: 'by card', CREDIT: 'as store credit', ONLINE: 'through Razorpay' };
+const WORD = { CASH: 'in cash', UPI: 'by UPI', CARD: 'by card', CREDIT: 'as store credit', VOUCHER: 'onto the gift voucher', ONLINE: 'through Razorpay' };
 
 export default function RecordRefund({ ret, canRecord }) {
   const { currentLocation } = useLocationContext();

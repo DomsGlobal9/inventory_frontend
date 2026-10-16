@@ -21,7 +21,7 @@ import { usePermission, canTakeReturn } from '../../hooks/usePermission';
  */
 
 const money = (v) => Number(v ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const METHOD = { CASH: 'Cash', UPI: 'UPI', CARD: 'Card', POINTS: 'Loyalty points', CREDIT: 'Store credit', ONLINE: 'Online (Razorpay)', BANK_TRANSFER: 'Bank transfer', CHEQUE: 'Cheque' };
+const METHOD = { CASH: 'Cash', UPI: 'UPI', CARD: 'Card', POINTS: 'Loyalty points', CREDIT: 'Store credit', VOUCHER: 'Gift voucher', ONLINE: 'Online (Razorpay)', BANK_TRANSFER: 'Bank transfer', CHEQUE: 'Cheque' };
 const ORIGINAL_WINDOW_MS = 10 * 60_000;
 
 export default function Receipt() {

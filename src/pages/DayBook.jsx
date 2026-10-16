@@ -404,19 +404,34 @@ export default function DayBook() {
       )}
 
       {/* ── Money at the counter: taken, paid back, and what the cash drawer should hold ── */}
-      {d?.money && (Object.keys(d.money.taken).length > 0 || Object.keys(d.money.paidBack).length > 0) && (
-        <Panel title="Money at the counter" subtitle="Taken on sales and paid back on returns, by how. Points and store credit are not cash in the drawer.">
+      {d?.money && (Object.keys(d.money.taken).length > 0 || Object.keys(d.money.paidBack).length > 0 || d.giftVouchers?.soldBy?.CASH > 0) && (
+        <Panel title="Money at the counter" subtitle="Taken on sales and paid back on returns, by how. Points, store credit and gift vouchers are not cash in the drawer; cash paid for new gift vouchers is.">
           <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap', padding: '18px 20px' }}>
             <Stat label="Cash in the drawer from these" value={money(d.money.cashInDrawer)} tone={d.money.cashInDrawer >= 0 ? 'good' : 'bad'} />
           </div>
           <SimpleTable
             head={['How', 'Taken', 'Paid back']}
-            rows={['CASH', 'UPI', 'CARD', 'BANK_TRANSFER', 'CHEQUE', 'POINTS', 'CREDIT', 'ONLINE'].filter(m => d.money.taken[m] || d.money.paidBack[m]).map(m => [
-              { CASH: 'Cash', UPI: 'UPI', CARD: 'Card', BANK_TRANSFER: 'Bank transfer', CHEQUE: 'Cheque', POINTS: 'Loyalty points', CREDIT: 'Store credit', ONLINE: 'Online (Razorpay)' }[m],
+            rows={['CASH', 'UPI', 'CARD', 'BANK_TRANSFER', 'CHEQUE', 'POINTS', 'CREDIT', 'VOUCHER', 'ONLINE'].filter(m => d.money.taken[m] || d.money.paidBack[m]).map(m => [
+              { CASH: 'Cash', UPI: 'UPI', CARD: 'Card', BANK_TRANSFER: 'Bank transfer', CHEQUE: 'Cheque', POINTS: 'Loyalty points', CREDIT: 'Store credit', VOUCHER: 'Gift voucher', ONLINE: 'Online (Razorpay)' }[m],
               d.money.taken[m] ? money(d.money.taken[m].amount) : '—',
               d.money.paidBack[m] ? money(d.money.paidBack[m].amount) : '—'
             ])}
           />
+        </Panel>
+      )}
+
+      {/* ── Gift vouchers: sold, used and still owed (sold ones are not sales: GST comes when they are used) ── */}
+      {d?.giftVouchers && (
+        <Panel title="Gift vouchers" subtitle="Selling a voucher is not a sale: the goods are counted when it is used. What is still owed is for every store, today.">
+          <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap', padding: '18px 20px' }}>
+            <Stat label={`Sold (${num(d.giftVouchers.soldCount)})`} value={money(d.giftVouchers.sold)} />
+            <Stat label="Used on bills" value={money(d.giftVouchers.used)} />
+            <Stat label="Returned onto vouchers" value={money(d.giftVouchers.returnedOnto)} />
+            <Stat label="Still owed to customers" value={money(d.giftVouchers.owedNow)} />
+          </div>
+          {Object.keys(d.giftVouchers.soldBy).length > 0 && (
+            <SimpleTable head={['Vouchers paid by', 'Amount']} rows={Object.entries(d.giftVouchers.soldBy).map(([m, a]) => [{ CASH: 'Cash', UPI: 'UPI', CARD: 'Card' }[m] || m, money(a)])} />
+          )}
         </Panel>
       )}
 

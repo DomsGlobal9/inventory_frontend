@@ -61,16 +61,19 @@ function ShopNumberPanel({ data, onChanged }) {
   const [code, setCode] = useState('');
   const [stage, setStage] = useState('ask');
   const [said, setSaid] = useState('');
+  // Said in words, the server's rules: buttons that only switched themselves off looked broken.
+  const [problem, setProblem] = useState('');
 
   /* Through the hooks like everything else on this screen; the raw client is not imported here. */
   const startCall = useStartShopNumberChange();
   const finishCall = useFinishShopNumberChange();
   const busy = startCall.isPending || finishCall.isPending;
 
-  const close = () => { setOpen(false); setStage('ask'); setPhone(''); setCode(''); setSaid(''); };
+  const close = () => { setOpen(false); setStage('ask'); setPhone(''); setCode(''); setSaid(''); setProblem(''); };
 
   const start = async () => {
     setSaid('');
+    if (phone.replace(/\D/g, '').length < 10) { setProblem('Type the new number, 10 digits.'); return; }
     try {
       const r = await startCall.mutateAsync({ phone: phone.trim() });
       const out = r?.data ?? r;
@@ -84,6 +87,7 @@ function ShopNumberPanel({ data, onChanged }) {
 
   const finish = async () => {
     setSaid('');
+    if (code.length !== 6) { setProblem('Type the 6-digit code we sent on WhatsApp.'); return; }
     try {
       await finishCall.mutateAsync({ phone: phone.trim(), code });
       toast.success('Your shop\'s number has been changed.');
@@ -120,9 +124,9 @@ function ShopNumberPanel({ data, onChanged }) {
             <div style={{ flex: '1 1 200px', minWidth: 0 }}>
               <label htmlFor="wa-new-number" className="input-label">New number</label>
               <input id="wa-new-number" className="input-field" inputMode="tel" placeholder="+91 98765 43210"
-                value={phone} onChange={e => setPhone(typedPhone(e.target.value))} />
+                value={phone} onChange={e => { setPhone(typedPhone(e.target.value)); setProblem(''); }} />
             </div>
-            <button type="button" className="btn-secondary" disabled={busy || phone.replace(/\D/g, '').length < 10} onClick={start}>
+            <button type="button" className="btn-secondary" disabled={busy} onClick={start}>
               {busy ? 'Sending…' : 'Send code'}
             </button>
           </>
@@ -131,10 +135,10 @@ function ShopNumberPanel({ data, onChanged }) {
             <div style={{ flex: '0 0 150px' }}>
               <label htmlFor="wa-new-code" className="input-label">Code</label>
               <input id="wa-new-code" className="input-field" inputMode="numeric" maxLength={6} placeholder="123456"
-                value={code} onChange={e => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                onKeyDown={e => { if (e.key === 'Enter' && code.length === 6 && !busy) { e.preventDefault(); finish(); } }} />
+                value={code} onChange={e => { setCode(e.target.value.replace(/\D/g, '').slice(0, 6)); setProblem(''); }}
+                onKeyDown={e => { if (e.key === 'Enter' && !busy) { e.preventDefault(); finish(); } }} />
             </div>
-            <button type="button" className="btn-secondary" disabled={busy || code.length !== 6} onClick={finish}>
+            <button type="button" className="btn-secondary" disabled={busy} onClick={finish}>
               {busy ? 'Checking…' : 'Confirm'}
             </button>
             <button type="button" className="btn-secondary" disabled={busy} onClick={start}>Send again</button>
@@ -145,6 +149,7 @@ function ShopNumberPanel({ data, onChanged }) {
           Cancel
         </button>
       </div>
+      {problem ? <p role="alert" style={{ margin: 0, fontSize: '12.5px', color: 'var(--accent-danger)' }}>{problem}</p> : null}
       {said ? <p style={{ margin: 0, fontSize: '12.5px', color: 'var(--text-muted)' }}>{said}</p> : null}
     </div>
   );

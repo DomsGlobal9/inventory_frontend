@@ -115,12 +115,16 @@ export function CustomerPointsCard({ customerId }) {
   const [open, setOpen] = useState(false);
   const [f, setF] = useState({ sign: 1, points: '', reason: '', nonce: '' });
   const [all, setAll] = useState(false);
+  const [problem, setProblem] = useState(null);
 
   if (!data) return null;
   if (!data.enabled && data.points === 0 && data.entries.length === 0) return null;
 
   const submit = async (e) => {
     e.preventDefault();
+    // Said in words: a Save that only switched itself off looked broken (same rules as the server).
+    if (!(Number(f.points) > 0)) { setProblem('Type how many points, 1 or more.'); return; }
+    if (f.reason.trim().length < 3) { setProblem('Say why the points are changing.'); return; }
     try {
       await adjust.mutateAsync({ points: f.sign * Number(f.points), reason: f.reason, nonce: f.nonce });
       setOpen(false);
@@ -156,18 +160,19 @@ export function CustomerPointsCard({ customerId }) {
 
       {can('loyalty:manage') && !open && (
         <button className="btn-secondary" style={{ marginTop: '12px', padding: '4px 12px', fontSize: '13px', display: 'block' }}
-          onClick={() => { setF({ sign: 1, points: '', reason: '', nonce: crypto.randomUUID() }); setOpen(true); }}>Change points</button>
+          onClick={() => { setF({ sign: 1, points: '', reason: '', nonce: crypto.randomUUID() }); setProblem(null); setOpen(true); }}>Change points</button>
       )}
       {open && (
-        <form onSubmit={submit} style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <form onSubmit={submit} noValidate style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <div style={{ display: 'flex', gap: '6px' }}>
             <button type="button" aria-pressed={f.sign === 1} className={f.sign === 1 ? 'btn-primary' : 'btn-secondary'} onClick={() => setF(p => ({ ...p, sign: 1 }))} style={{ padding: '6px 10px' }} aria-label="Add points"><Plus size={14} /></button>
             <button type="button" aria-pressed={f.sign === -1} className={f.sign === -1 ? 'btn-primary' : 'btn-secondary'} onClick={() => setF(p => ({ ...p, sign: -1 }))} style={{ padding: '6px 10px' }} aria-label="Take points away"><Minus size={14} /></button>
-            <input className="input-field" type="number" min="1" inputMode="numeric" placeholder="Points" aria-label="Points" value={f.points} onChange={(e) => setF(p => ({ ...p, points: e.target.value }))} style={{ width: '100px' }} />
+            <input className="input-field" type="number" min="1" inputMode="numeric" placeholder="Points" aria-label="Points" value={f.points} onChange={(e) => { setF(p => ({ ...p, points: e.target.value })); setProblem(null); }} style={{ width: '100px' }} />
           </div>
-          <input className="input-field" placeholder="Why (the customer sees nothing; the shop does)" aria-label="Reason" maxLength={200} value={f.reason} onChange={(e) => setF(p => ({ ...p, reason: e.target.value }))} />
+          <input className="input-field" placeholder="Why (the customer sees nothing; the shop does)" aria-label="Reason" maxLength={200} value={f.reason} onChange={(e) => { setF(p => ({ ...p, reason: e.target.value })); setProblem(null); }} />
+          {problem && <p role="alert" style={{ margin: 0, fontSize: '12.5px', color: 'var(--accent-danger)' }}>{problem}</p>}
           <div style={{ display: 'flex', gap: '8px' }}>
-            <button type="submit" className="btn-primary" disabled={adjust.isPending || !(Number(f.points) > 0) || f.reason.trim().length < 3} style={{ padding: '6px 14px' }}>{adjust.isPending ? 'Saving…' : 'Save'}</button>
+            <button type="submit" className="btn-primary" disabled={adjust.isPending} style={{ padding: '6px 14px' }}>{adjust.isPending ? 'Saving…' : 'Save'}</button>
             <button type="button" className="btn-secondary" onClick={() => setOpen(false)} style={{ padding: '6px 14px' }}>Cancel</button>
           </div>
         </form>

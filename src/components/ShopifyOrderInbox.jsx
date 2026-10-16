@@ -30,9 +30,12 @@ export default function ShopifyOrderInbox() {
 
   const [dismissing, setDismissing] = useState(null);
   const [reason, setReason] = useState('');
+  const [reasonProblem, setReasonProblem] = useState(null);
 
   const submitDismiss = (e, id) => {
     e.preventDefault();
+    // Said in words, the server's own rule: a Dismiss that only switched itself off looked broken.
+    if (reason.trim().length < 4) { setReasonProblem('Say why this order should not be placed. It is kept as the record of the decision.'); return; }
     dismiss.mutate({ id, reason }, {
       onSuccess: () => { setDismissing(null); setReason(''); }
     });
@@ -130,15 +133,16 @@ export default function ShopifyOrderInbox() {
                       <form onSubmit={e => submitDismiss(e, entry.id)} style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '10px' }}>
                         <label style={{ flex: '1 1 240px' }}>
                           <span className="sr-only">Why should this order not be placed?</span>
-                          <input className="input-field" autoFocus value={reason} onChange={e => setReason(e.target.value)}
+                          <input className="input-field" autoFocus value={reason} onChange={e => { setReason(e.target.value); setReasonProblem(null); }}
                             placeholder="Why should this order not be placed?" maxLength={300} style={{ width: '100%' }} />
                         </label>
-                        <button type="submit" className="btn-primary" disabled={dismiss.isPending || reason.trim().length < 4}
+                        <button type="submit" className="btn-primary" disabled={dismiss.isPending}
                           style={{ fontSize: '12.5px' }}>
                           {dismiss.isPending ? 'Dismissing…' : 'Dismiss order'}
                         </button>
                         <button type="button" className="btn-secondary" onClick={() => { setDismissing(null); setReason(''); }}
                           style={{ fontSize: '12.5px' }}>Cancel</button>
+                        {reasonProblem && <p role="alert" style={{ flexBasis: '100%', margin: 0, fontSize: '12.5px', color: 'var(--accent-danger)' }}>{reasonProblem}</p>}
                       </form>
                     ) : (
                       <div style={{ display: 'flex', gap: '8px', marginTop: '10px', flexWrap: 'wrap' }}>
@@ -150,7 +154,7 @@ export default function ShopifyOrderInbox() {
                             ? <Loader2 size={13} className="animate-spin" /> : <RotateCcw size={13} />}
                           Retry
                         </button>
-                        <button type="button" className="btn-secondary" onClick={() => { setDismissing(entry.id); setReason(''); }}
+                        <button type="button" className="btn-secondary" onClick={() => { setDismissing(entry.id); setReason(''); setReasonProblem(null); }}
                           style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12.5px' }}>
                           <X size={13} /> Dismiss
                         </button>

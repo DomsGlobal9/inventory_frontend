@@ -54,6 +54,7 @@ export default function OfferCodesPanel({ offer, canEdit }) {
     return (words[0] || 'CODE').slice(0, 12);
   });
   const [count, setCount] = useState('100');
+  const [codeProblem, setCodeProblem] = useState(null);
   const [busy, setBusy] = useState(null);
 
   useEffect(() => { const t = setTimeout(() => { setQ(text.trim()); setSkip(0); }, 250); return () => clearTimeout(t); }, [text]);
@@ -115,21 +116,30 @@ export default function OfferCodesPanel({ offer, canEdit }) {
       </div>
 
       {canEdit && offer.status !== 'ARCHIVED' && (
-        <form onSubmit={(e) => { e.preventDefault(); make.mutate({ id: offer.id, prefix, count: Number(count) }); }}
+        <form noValidate onSubmit={(e) => {
+          e.preventDefault();
+          // Said in words, the server's own rules: a button that only switched itself off looked broken.
+          const n = Number(count);
+          if (prefix.length < 2) { setCodeProblem('Start the codes with 2 to 12 letters or numbers, like WELCOME.'); return; }
+          if (!Number.isInteger(n) || n < 1) { setCodeProblem('Say how many codes to make.'); return; }
+          if (n > 5000) { setCodeProblem('Make at most 5000 codes at a time.'); return; }
+          make.mutate({ id: offer.id, prefix, count: n });
+        }}
           style={{ padding: '14px 20px', borderBottom: '1px solid var(--border-light)', display: 'flex', gap: '10px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
           <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '12px', color: 'var(--text-secondary)', flex: '1 1 140px' }}>
             Starts with
-            <input className="input-field" value={prefix} maxLength={12} onChange={e => setPrefix(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
+            <input className="input-field" value={prefix} maxLength={12} onChange={e => { setPrefix(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')); setCodeProblem(null); }}
               style={{ fontFamily: 'var(--font-mono)' }} />
           </label>
           <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '12px', color: 'var(--text-secondary)', flex: '0 1 110px' }}>
             How many
-            <input className="input-field" type="number" min="1" max="5000" step="1" inputMode="numeric" value={count} onChange={e => setCount(e.target.value)} />
+            <input className="input-field" type="number" min="1" max="5000" step="1" inputMode="numeric" value={count} onChange={e => { setCount(e.target.value); setCodeProblem(null); }} />
           </label>
-          <button className="btn-primary" type="submit" disabled={make.isPending || prefix.length < 2 || !(Number(count) >= 1 && Number(count) <= 5000)}
+          <button className="btn-primary" type="submit" disabled={make.isPending}
             style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             {make.isPending && <Loader2 size={15} className="animate-spin" />} Make codes
           </button>
+          {codeProblem && <p role="alert" style={{ flexBasis: '100%', margin: 0, fontSize: '12.5px', color: 'var(--accent-danger)' }}>{codeProblem}</p>}
           <div style={{ flexBasis: '100%', fontSize: '12px', color: 'var(--text-muted)' }}>
             Like {prefix || 'CODE'}-7KQ2M9XR. No 0, O, 1, I or L, so nobody misreads one off a card.
           </div>

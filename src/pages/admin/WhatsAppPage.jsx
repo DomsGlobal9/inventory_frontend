@@ -44,10 +44,13 @@ function LinkPanel({ connected, onDone }) {
   const [method, setMethod] = useState('qr');
   const [phone, setPhone] = useState('');
   const [result, setResult] = useState(null);
+  const [phoneProblem, setPhoneProblem] = useState(null);
   const [startedAt, setStartedAt] = useState(null);
   const attempt = useRef(0);
 
   const start = (m = method) => {
+    // Said in words, the server's own rule: a button that only switched itself off looked broken.
+    if (m === 'code' && phone.replace(/\D/g, '').length < 10) { setPhoneProblem('Type ScaleEzy’s WhatsApp number, 10 digits, to get a pairing code.'); return; }
     const mine = ++attempt.current;
     if (!startedAt) setStartedAt(Date.now());
     link.mutate({ method: m, phone: m === 'code' ? phone : undefined }, {
@@ -71,17 +74,18 @@ function LinkPanel({ connected, onDone }) {
       {!result && (
         <>
           <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-            <button className={method === 'qr' ? 'btn-primary' : 'btn-secondary'} onClick={() => setMethod('qr')}><QrCode size={15} /> QR code</button>
+            <button className={method === 'qr' ? 'btn-primary' : 'btn-secondary'} onClick={() => { setMethod('qr'); setPhoneProblem(null); }}><QrCode size={15} /> QR code</button>
             <button className={method === 'code' ? 'btn-primary' : 'btn-secondary'} onClick={() => setMethod('code')}><KeyRound size={15} /> Pairing code</button>
           </div>
           {method === 'code' && (
             <div style={{ marginBottom: 12 }}>
               <label className="input-label" htmlFor="sc-phone">ScaleEzy's WhatsApp number</label>
-              <input id="sc-phone" className="input-field" inputMode="tel" placeholder="e.g. 8142424642" value={phone} onChange={(e) => setPhone(e.target.value)} />
+              <input id="sc-phone" className="input-field" inputMode="tel" placeholder="e.g. 8142424642" value={phone} onChange={(e) => { setPhone(e.target.value); setPhoneProblem(null); }} />
+              {phoneProblem && <p role="alert" style={{ margin: '6px 0 0', fontSize: 12.5, color: 'var(--accent-danger)' }}>{phoneProblem}</p>}
             </div>
           )}
           <div style={{ display: 'flex', gap: 8 }}>
-            <button className="btn-primary" disabled={link.isPending || (method === 'code' && phone.replace(/\D/g, '').length < 10)} onClick={() => start()}>
+            <button className="btn-primary" disabled={link.isPending} onClick={() => start()}>
               {link.isPending ? <Loader2 size={15} className="animate-spin" /> : null} {method === 'qr' ? 'Show QR code' : 'Get pairing code'}
             </button>
             <button className="btn-secondary" onClick={cancel}>Cancel</button>

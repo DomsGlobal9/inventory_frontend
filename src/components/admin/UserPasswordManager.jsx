@@ -39,6 +39,7 @@ export default function UserPasswordManager({ user, onClose }) {
   const [revealed, setRevealed] = useState(null);
   const [mode, setMode] = useState('view');
   const [customPassword, setCustomPassword] = useState('');
+  const [tooShort, setTooShort] = useState(false);
   const viewMutation = useAdminViewUserPassword();
   const setMutation = useAdminSetUserPassword();
 
@@ -52,7 +53,7 @@ export default function UserPasswordManager({ user, onClose }) {
   };
 
   const handleSet = async (auto) => {
-    if (!auto && customPassword.length < 6) return;
+    if (!auto && customPassword.length < 6) { setTooShort(true); return; }
     try {
       const result = await setMutation.mutateAsync({ userId: user.id, customPassword: auto ? undefined : customPassword });
       setRevealed(result.password);
@@ -96,8 +97,15 @@ export default function UserPasswordManager({ user, onClose }) {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <input type="text" className="input-field" placeholder="New password (at least 6 characters)" value={customPassword} onChange={e => setCustomPassword(e.target.value)} minLength={6} />
-            <button onClick={() => handleSet(false)} disabled={setMutation.isPending || customPassword.length < 6} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px', background: 'var(--accent-gold)', color: '#000', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>
+            <input type="text" className="input-field" placeholder="New password (at least 6 characters)" value={customPassword} onChange={e => { setCustomPassword(e.target.value); setTooShort(false); }} minLength={6} />
+            {(tooShort || (customPassword.length > 0 && customPassword.length < 6)) && (
+              // The button used to switch itself off below 6 characters and look exactly the same, so a
+              // 5-letter password seemed to "not click". Say the rule instead.
+              <p role={tooShort ? 'alert' : undefined} style={{ margin: '-4px 0 0', fontSize: '12.5px', color: tooShort ? 'var(--accent-danger)' : 'var(--text-secondary)' }}>
+                {customPassword.length === 0 ? 'Type a password of at least 6 characters, or auto-generate one.' : `Use at least 6 characters (${6 - customPassword.length} more).`}
+              </p>
+            )}
+            <button onClick={() => handleSet(false)} disabled={setMutation.isPending} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px', background: 'var(--accent-gold)', color: '#000', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>
               {setMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <KeyRound size={16} />} Set This Password
             </button>
             <button onClick={() => handleSet(true)} disabled={setMutation.isPending} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px', background: 'var(--bg-input)', border: '1px solid var(--border-light)', borderRadius: '8px', color: 'var(--text-primary)', cursor: 'pointer' }}>

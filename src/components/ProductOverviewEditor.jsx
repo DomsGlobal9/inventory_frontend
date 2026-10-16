@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../lib/api';
+import Select from './common/Select';
 
 /**
  * Editing what a product IS: its description, how it is described, and what it costs.
@@ -126,15 +127,15 @@ export default function ProductOverviewEditor({ product, saving, onCancel, onSav
         {field('Brand', 'brand')}
         <div>
           <label className="input-label">Category</label>
-          <select className="input-field" value={form.category} onChange={set('category')}>
+          <Select className="input-field" aria-label="Category" value={form.category} onChange={set('category')}>
             {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-          </select>
+          </Select>
         </div>
         <div>
           <label className="input-label">Type</label>
-          <select className="input-field" value={form.productType} onChange={set('productType')}>
+          <Select className="input-field" aria-label="Type" value={form.productType} onChange={set('productType')}>
             {TYPES.map((t) => <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>)}
-          </select>
+          </Select>
         </div>
         {field('Dress style', 'dressType')}
         {field('Fabric', 'fabric')}
@@ -146,9 +147,9 @@ export default function ProductOverviewEditor({ product, saving, onCancel, onSav
         {field('HSN code', 'hsnCode', { placeholder: '4, 6 or 8 digits', inputMode: 'numeric' })}
         <div>
           <label className="input-label">GST rate</label>
-          <select className="input-field" aria-label="GST rate" value={form.taxRateBps} onChange={set('taxRateBps')}>
+          <Select className="input-field" aria-label="GST rate" value={form.taxRateBps} onChange={set('taxRateBps')}>
             {RATES.map((r) => <option key={r.label} value={r.value}>{r.label}</option>)}
-          </select>
+          </Select>
         </div>
         <div>
           <label className="input-label">Priced by the piece</label>

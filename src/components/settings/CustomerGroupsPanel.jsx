@@ -5,6 +5,7 @@ import { ChevronDown, ChevronRight, Plus, Users } from 'lucide-react';
 import { api } from '../../lib/api';
 import { usePermission } from '../../hooks/usePermission';
 import ConfirmModal from '../ConfirmModal';
+import Select from '../common/Select';
 
 /**
  * Settings → Customers → Customer groups.
@@ -262,10 +263,10 @@ function GroupDetail({ group: g, groups, canEdit, canManage, onGone, onMoved }) 
             <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
               <div>
                 <label className="input-label" htmlFor={`cg-into-${g.key}`}>Merge into</label>
-                <select id={`cg-into-${g.key}`} className="input-field" value={into} onChange={e => setInto(e.target.value)}>
+                <Select id={`cg-into-${g.key}`} className="input-field" value={into} onChange={e => setInto(e.target.value)}>
                   <option value="">Choose a group</option>
                   {others.map(o => <option key={o.key} value={o.name}>{o.name}</option>)}
-                </select>
+                </Select>
               </div>
               <button type="button" className="btn-secondary" disabled={merge.isPending || !into} onClick={() => merge.mutate()}>Merge</button>
             </div>

@@ -12,6 +12,7 @@ import { rowLink } from '../../components/common/rowLink';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { api } from '../../lib/api';
+import Select from '../../components/common/Select';
 
 
 export default function Customers() {
@@ -106,10 +107,10 @@ export default function Customers() {
           />
         </div>
         {groups.length > 0 && (
-          <select className="input-field" value={group} onChange={e => setGroup(e.target.value)} aria-label="Group" style={{ flex: '0 1 220px' }}>
+          <Select className="input-field" value={group} onChange={e => setGroup(e.target.value)} aria-label="Group" style={{ flex: '0 1 220px' }}>
             <option value="">All groups</option>
             {groups.map(g => <option key={g.key} value={g.name}>{g.name} ({g.count})</option>)}
-          </select>
+          </Select>
         )}
 
       </div>
@@ -118,9 +119,13 @@ export default function Customers() {
         <form onSubmit={(e) => { e.preventDefault(); if (target.trim()) addToGroup.mutate(); }}
           style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '12px', padding: '10px 14px', borderRadius: '12px', background: 'var(--bg-hover)' }}>
           <span style={{ fontSize: '14px', fontWeight: 500 }}>{picked.size} chosen</span>
-          <input className="input-field" list="customer-group-names" value={target} maxLength={40} placeholder="Group name"
+          <input className="input-field" value={target} maxLength={40} placeholder="New or existing group"
             aria-label="Add to which group" onChange={e => setTarget(e.target.value)} style={{ width: '200px' }} />
-          <datalist id="customer-group-names">{groups.map(g => <option key={g.key} value={g.name} />)}</datalist>
+          {/* Existing groups as chips, in place of the browser's own suggestion list: a new name can still be typed. */}
+          {groups.filter(g => g.name.toLowerCase().includes(target.trim().toLowerCase()) && g.name !== target).slice(0, 6).map(g => (
+            <button key={g.key} type="button" onClick={() => setTarget(g.name)} className="btn-secondary"
+              style={{ padding: '4px 10px', fontSize: '12px', borderRadius: '999px' }}>{g.name}</button>
+          ))}
           <button type="submit" className="btn-primary" disabled={!target.trim() || addToGroup.isPending}>Add to group</button>
           <button type="button" className="btn-secondary" onClick={() => setPicked(new Set())}>Clear</button>
         </form>

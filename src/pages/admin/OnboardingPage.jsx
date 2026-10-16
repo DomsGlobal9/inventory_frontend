@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { Loader2, UserPlus, Mail, Copy, CheckCircle2, Building2, User, KeyRound, AlertTriangle } from 'lucide-react';
 import { useAdminClients, useOnboardClient } from '../../hooks/admin/useAdminConsole';
 import PageGuide from '../../components/admin/PageGuide';
+import Select from '../../components/common/Select';
 
 const STEPS = [
   { key: 'NOT_STARTED', label: 'Not Started', hint: 'No products created yet', color: 'var(--text-secondary)' },
@@ -127,10 +128,10 @@ export default function OnboardingPage() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '16px' }}>
                 <Field label="City"><input type="text" value={form.city} onChange={set('city')} placeholder="Vijayawada" className="input-field" style={INPUT} /></Field>
                 <Field label="State">
-                  <select value={form.stateCode} onChange={set('stateCode')} className="input-field" style={INPUT}>
+                  <Select value={form.stateCode} onChange={set('stateCode')} className="input-field" style={INPUT}>
                     <option value="">Choose…</option>
                     {GST_STATES.map(([code, name]) => <option key={code} value={code}>{name}</option>)}
-                  </select>
+                  </Select>
                 </Field>
                 <Field label="PIN"><input type="text" inputMode="numeric" maxLength={6} value={form.pin} onChange={set('pin')} placeholder="520001" className="input-field" style={INPUT} /></Field>
               </div>

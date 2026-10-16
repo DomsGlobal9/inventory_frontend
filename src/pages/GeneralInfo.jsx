@@ -7,6 +7,7 @@ import { useCatalogData } from '../hooks/useCatalogConfig';
 import Dropdown from '../components/Dropdown';
 import { useSameNameProducts } from '../hooks/useProducts';
 import { useBranding } from '../hooks/useBranding';
+import Select from '../components/common/Select';
 
 /** Basis points, the same list the edit screen offers. 500 = 5%. */
 const GST_RATES = [
@@ -217,13 +218,13 @@ export default function GeneralInfo() {
             </div>
             <div style={{ flex: 1 }}>
               <label className="input-label">GST rate</label>
-              <select
+              <Select aria-label="GST rate"
                 className="input-field"
                 value={productData.taxRateBps}
                 onChange={(e) => updateProductData('taxRateBps', e.target.value)}
               >
                 {GST_RATES.map(r => <option key={r.label} value={r.value}>{r.label}</option>)}
-              </select>
+              </Select>
             </div>
           </div>
 

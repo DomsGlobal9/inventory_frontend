@@ -9,6 +9,7 @@ import {
 import { usePhotoJobs, useStartPhotoJobs, useCancelPhotoJob } from '../hooks/usePhotoJobs';
 import PhotoJobOutcome from './PhotoJobOutcome';
 import { usePermission } from '../hooks/usePermission';
+import Select from './common/Select';
 
 /**
  * The four catalog views, made from a photograph the shop already has.
@@ -239,14 +240,14 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
           <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>
             Which colour to photograph
           </label>
-          <select className="input-field" value={target.name}
+          <Select className="input-field" aria-label="Which colour to photograph" value={target.name}
             onChange={(e) => setChosen(e.target.value)} style={{ maxWidth: '260px' }}>
             {candidates.map(c => (
               <option key={c.name} value={c.name}>
                 {c.name}{viewsMadeFor(c.images).size > 0 ? ` (${progressText(c)})` : ''}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
       )}
 
@@ -324,11 +325,11 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
               <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>
                 Which set to make again
               </label>
-              <select className="input-field" value={redoTarget.name}
+              <Select className="input-field" aria-label="Which set to make again" value={redoTarget.name}
                 onChange={(e) => { setRedoName(e.target.value); setRedoArmed(false); }}
                 style={{ maxWidth: '260px' }}>
                 {finished.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
-              </select>
+              </Select>
             </div>
           )}
 

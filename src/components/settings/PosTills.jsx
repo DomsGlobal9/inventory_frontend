@@ -5,6 +5,7 @@ import { KeyRound, Copy, Plus, Monitor } from 'lucide-react';
 import { api } from '../../lib/api';
 import { useLocationContext } from '../../contexts/LocationContext';
 import ConfirmModal from '../ConfirmModal';
+import Select from '../common/Select';
 
 /**
  * Settings → Money → POS (billing counter).
@@ -102,11 +103,11 @@ export default function PosTills() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', alignItems: 'end' }}>
           <div>
             <label className="input-label" htmlFor="pos-location">Sells from</label>
-            <select id="pos-location" className="input-field" value={chosen}
+            <Select id="pos-location" className="input-field" value={chosen}
               onChange={(e) => { setLocationId(e.target.value); setProblem(null); }}>
               {usable.length !== 1 ? <option value="">Choose a stock location</option> : null}
               {usable.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
-            </select>
+            </Select>
           </div>
           <div>
             <label className="input-label" htmlFor="pos-name">Name (optional)</label>

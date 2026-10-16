@@ -5,6 +5,7 @@ import { ArrowLeft, Gift, Search, ChevronDown, ChevronRight, Loader2 } from 'luc
 import { useGiftVouchers, useGiftVoucher, useExtendGiftVoucher, useBlockGiftVoucher, useUnblockGiftVoucher } from '../../hooks/useGiftVouchers';
 import { usePermission } from '../../hooks/usePermission';
 import LoadFailed from '../../components/LoadFailed';
+import Select from '../../components/common/Select';
 
 /**
  * Gift vouchers sold at the till: what the shop still owes, each voucher's balance and history.
@@ -50,10 +51,10 @@ export default function GiftVouchers() {
             <input id="gv-search" className="input-field" style={{ flex: '1 1 220px' }} placeholder="Code, phone or name" value={typed} onChange={e => setTyped(e.target.value)} />
             <button type="submit" className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><Search size={14} /> Find</button>
             <label htmlFor="gv-status" className="sr-only">Show</label>
-            <select id="gv-status" className="input-field" style={{ flex: '0 0 160px' }} value={status} onChange={e => setStatus(e.target.value)}>
+            <Select id="gv-status" className="input-field" style={{ flex: '0 0 160px' }} value={status} onChange={e => setStatus(e.target.value)}>
               <option value="">All vouchers</option>
               {Object.entries(STATES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-            </select>
+            </Select>
           </form>
 
           {q.isLoading ? <p style={{ color: 'var(--text-secondary)' }}><Loader2 size={14} className="animate-spin" /> Loading…</p>
@@ -141,9 +142,9 @@ function VoucherDetail({ id }) {
             <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
               <div>
                 <label htmlFor={`gv-m-${id}`} style={{ display: 'block', fontSize: '12px', marginBottom: '4px' }}>Extend by (months)</label>
-                <select id={`gv-m-${id}`} className="input-field" value={months} onChange={e => setMonths(e.target.value)}>
+                <Select id={`gv-m-${id}`} className="input-field" value={months} onChange={e => setMonths(e.target.value)}>
                   {[1, 3, 6, 12].map(n => <option key={n} value={n}>{n}</option>)}
-                </select>
+                </Select>
               </div>
               <button type="button" className="btn-secondary" disabled={busy} onClick={() => run(extend, { months: Number(months) }, 'Voucher extended')}>Extend</button>
             </div>

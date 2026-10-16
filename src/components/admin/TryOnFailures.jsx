@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { Loader2, AlertTriangle, ChevronDown, ChevronRight } from 'lucide-react';
 import LoadFailed from '../LoadFailed';
 import { useAdminTryOnFailures } from '../../hooks/admin/useAdminConsole';
+import Select from '../common/Select';
 
 /**
  * Platform Console → Errors → Try-on.
@@ -54,15 +55,15 @@ export default function TryOnFailures() {
       )}
 
       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '14px' }}>
-        <select className="input-field" aria-label="Service" value={service} onChange={e => setService(e.target.value)} style={{ width: 'auto' }}>
+        <Select className="input-field" aria-label="Service" value={service} onChange={e => setService(e.target.value)} style={{ width: 'auto' }}>
           <option value="">All services</option>
           <option value="CATALOG_TRYON">Four-view photos</option>
           <option value="SHOPPER_TRYON">Customer try-on</option>
-        </select>
+        </Select>
         <input className="input-field" aria-label="Shop id" placeholder="Shop id (all shops)" value={clientId} onChange={e => setClientId(e.target.value)} style={{ width: '220px' }} />
-        <select className="input-field" aria-label="Period" value={days} onChange={e => setDays(Number(e.target.value))} style={{ width: 'auto' }}>
+        <Select className="input-field" aria-label="Period" value={days} onChange={e => setDays(Number(e.target.value))} style={{ width: 'auto' }}>
           {[1, 7, 30, 90].map(d => <option key={d} value={d}>{d === 1 ? 'Last 24 hours' : `Last ${d} days`}</option>)}
-        </select>
+        </Select>
       </div>
 
       {isLoading ? (

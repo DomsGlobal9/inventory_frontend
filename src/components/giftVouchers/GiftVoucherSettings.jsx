@@ -5,13 +5,14 @@ import { Gift } from 'lucide-react';
 import { useGiftVoucherSettings, useSaveGiftVoucherSettings } from '../../hooks/useGiftVouchers';
 import { usePermission } from '../../hooks/usePermission';
 import PageLoader from '../PageLoader';
+import LoadFailed from '../LoadFailed';
 
 /**
  * Settings → Gift vouchers: on or off, how long a voucher lasts, and the smallest and largest.
  * Vouchers are sold and spent at the POS till; Inventory holds every balance.
  */
 export default function GiftVoucherSettings() {
-  const { data, isLoading } = useGiftVoucherSettings();
+  const { data, isLoading, isError, error, refetch } = useGiftVoucherSettings();
   const save = useSaveGiftVoucherSettings();
   const { can } = usePermission();
   const mayChange = can('voucher:manage');
@@ -21,6 +22,7 @@ export default function GiftVoucherSettings() {
   useEffect(() => {
     if (data && !f) setF({ enabled: data.enabled, validMonths: String(data.validMonths), min: String(data.minPaise / 100), max: String(data.maxPaise / 100) });
   }, [data, f]);
+  if (isError) return <LoadFailed what="the gift voucher settings" error={error} onRetry={refetch} />;
   if (isLoading || !f) return <PageLoader text="LOADING..." />;
   const set = (k) => (v) => { setF(p => ({ ...p, [k]: v })); setProblem(null); };
 

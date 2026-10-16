@@ -17,6 +17,8 @@ import LoadFailed from '../../components/LoadFailed';
 // The standee is the shop's printed sign, so its colours are fixed rather than following the theme.
 const DEEP = '#164B1E', LIME = '#A6D92B';
 const pretty = (digits) => digits?.length === 12 && digits.startsWith('91') ? `+91 ${digits.slice(2, 7)} ${digits.slice(7)}` : `+${digits}`;
+// A shop with no logo still gets a mark in the middle of the QR: its first letter on a lime disc.
+const initialBadge = (shop) => `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44"><circle cx="22" cy="22" r="21" fill="${LIME}"/><text x="22" y="29.5" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" font-size="21" fill="${DEEP}">${(shop || '?').trim().charAt(0).toUpperCase().replace(/[<&]/g, '')}</text></svg>`)}`;
 const corner = (pos) => ({ position: 'absolute', width: '26px', height: '26px', borderColor: LIME, borderStyle: 'solid', borderWidth: 0, ...pos });
 
 export default function DoorQr() {
@@ -93,7 +95,9 @@ export default function DoorQr() {
                     <span style={corner({ top: 0, right: 0, borderTopWidth: '4px', borderRightWidth: '4px', borderTopRightRadius: '8px' })} />
                     <span style={corner({ bottom: 0, left: 0, borderBottomWidth: '4px', borderLeftWidth: '4px', borderBottomLeftRadius: '8px' })} />
                     <span style={corner({ bottom: 0, right: 0, borderBottomWidth: '4px', borderRightWidth: '4px', borderBottomRightRadius: '8px' })} />
-                    <QRCodeSVG value={d.link} size={196} level="M" fgColor={DEEP} aria-label="QR code that opens WhatsApp" style={{ display: 'block' }} />
+                    {/* Level H survives about 30% of the code being covered, so the logo in the middle never stops it scanning. */}
+                    <QRCodeSVG value={d.link} size={196} level="H" fgColor={DEEP} aria-label="QR code that opens WhatsApp" style={{ display: 'block' }}
+                      imageSettings={{ src: d.logo || initialBadge(d.shop), height: 44, width: 44, excavate: true }} />
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'center', gap: '6px', margin: '14px 0 0', fontSize: '12px', fontWeight: 600 }}>
                     {['Scan', 'Press send', "We'll find your fit"].map((s, i) => (

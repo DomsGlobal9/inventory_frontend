@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Package, Box } from 'lucide-react';
+import { FileText, Box } from 'lucide-react';
 import SummaryCard from './SummaryCard';
 import { formatINR, formatNumber } from '../../utils/formatUtils';
 import WidgetSkeleton from './WidgetSkeleton';
@@ -54,7 +54,8 @@ export default function SummaryCards({ data, isLoading, isError, error }) {
   };
 
   // Inventory value and the low-stock count are on the Dashboard's Stock on hand and Running low
-  // cards now (Overview), with the value's notes, so they are not repeated here.
+  // cards now (Overview), with the value's notes, so they are not repeated here. The active-products
+  // count went too: the Products page shows it, and it asked nothing of anybody.
   const cards = [
     {
       title: "Open PO Value",
@@ -73,14 +74,6 @@ export default function SummaryCards({ data, isLoading, isError, error }) {
       bgColorClass: safeData?.deadStockValue > 0 ? 'rgba(249, 115, 22, 0.1)' : 'rgba(255, 255, 255, 0.05)',
       to: '/inventory?filter=dead_stock'
     },
-    {
-      title: "Active Products",
-      value: formatNumber(safeData?.activeProducts),
-      icon: Package,
-      colorClass: 'var(--accent-success)',
-      bgColorClass: 'rgba(16, 185, 129, 0.1)',
-      to: '/products'
-    }
   ];
 
   const itemVariants = {

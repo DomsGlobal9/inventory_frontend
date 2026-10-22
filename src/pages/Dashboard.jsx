@@ -12,7 +12,6 @@ import DeadStockWidget from '../components/dashboard/DeadStockWidget';
 import SupplierSpendWidget from '../components/dashboard/SupplierSpendWidget';
 import InventoryTrendChart from '../components/dashboard/InventoryTrendChart';
 import SupplierSpendChart from '../components/dashboard/SupplierSpendChart';
-import StockMovementChart from '../components/dashboard/StockMovementChart';
 import Overview from '../components/dashboard/Overview';
 import { Plus } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -40,8 +39,10 @@ export default function Dashboard() {
   const canReports = can('report:view');
   const widgets = {
     overview: [canReports && 'recent', canStock && 'lowStock'].filter(Boolean),
-    inventory: [canStock && 'lowStock', canSeeMoney && 'deadStock'].filter(Boolean),
-    analytics: [canSeeMoney && 'trend', canReports && 'movement', canSeeMoney && 'spendChart', canSeeMoney && 'spend'].filter(Boolean)
+    // The low-stock list lives on Overview only (it was on both tabs). The stock-movement donut is gone:
+    // it drew In and Out in the same grey, and counts of moves said little the tabs above do not.
+    inventory: [canSeeMoney && 'deadStock'].filter(Boolean),
+    analytics: [canSeeMoney && 'trend', canSeeMoney && 'spendChart', canSeeMoney && 'spend'].filter(Boolean)
   };
   const tabs = [
     { id: 'overview', label: 'Overview' },
@@ -213,7 +214,6 @@ export default function Dashboard() {
 
           {activeTab === 'inventory' && (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(400px, 100%), 1fr))', gap: '24px' }}>
-              {shows('lowStock') && <motion.div variants={item}><LowStockWidget /></motion.div>}
               {shows('deadStock') && <motion.div variants={item}><DeadStockWidget /></motion.div>}
             </div>
           )}
@@ -221,7 +221,6 @@ export default function Dashboard() {
           {activeTab === 'analytics' && (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(400px, 100%), 1fr))', gap: '24px' }}>
               {shows('trend') && <motion.div variants={item}><InventoryTrendChart /></motion.div>}
-              {shows('movement') && <motion.div variants={item}><StockMovementChart /></motion.div>}
               {shows('spendChart') && <motion.div variants={item}><SupplierSpendChart /></motion.div>}
               {shows('spend') && <motion.div variants={item}><SupplierSpendWidget /></motion.div>}
             </div>

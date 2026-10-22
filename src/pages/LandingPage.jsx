@@ -1025,7 +1025,8 @@ export default function LandingPage() {
                 boxShadow: '0 14px 30px -8px rgba(0,0,0,0.35)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center'
               }}>
-                <img src="/scaleezy-logo.png" alt="" style={{ width: '44px', objectFit: 'contain' }} />
+                <img src="/scaleezy-logo.png" alt="" className="logo-on-light" style={{ width: '44px', objectFit: 'contain' }} />
+                <img src="/scaleezy-logo-dark.png" alt="" className="logo-on-dark" style={{ width: '44px', objectFit: 'contain' }} />
               </div>
 
               <p style={{ fontSize: '12px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--brand-ink)', fontWeight: 700, margin: '0 0 16px' }}>

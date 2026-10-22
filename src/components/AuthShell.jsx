@@ -203,7 +203,8 @@ export default function AuthShell({ eyebrow, title, subtitle, points = [], child
 
       <header className="auth-head">
         <Link to="/" aria-label="Scaleezy home" style={{ display: 'inline-flex' }}>
-          <img src="/scaleezy-logo.png" alt="Scaleezy" style={{ height: '34px', objectFit: 'contain' }} />
+          <img src="/scaleezy-logo.png" alt="Scaleezy" className="logo-on-light" style={{ height: '34px', objectFit: 'contain' }} />
+          <img src="/scaleezy-logo-dark.png" alt="Scaleezy" className="logo-on-dark" style={{ height: '34px', objectFit: 'contain' }} />
         </Link>
       </header>
 

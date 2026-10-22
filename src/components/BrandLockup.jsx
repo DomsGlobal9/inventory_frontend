@@ -14,7 +14,7 @@ import React from 'react';
  * artwork trimmed differently, they are the four numbers to re-measure.
  *
  * Everywhere that shows the brand comes through this component, so a new file is one change
- * in one place.
+ * in one place. (public/logo-dark.png must be redrawn alongside logo.png: same size, deep green made light.)
  */
 
 // The drawing's bounds inside logo.png, as fractions of the file, with a little room kept.
@@ -40,19 +40,26 @@ export default function BrandLockup({ size = 'md', width, style, className }) {
         display: 'block', width: W, height, overflow: 'hidden', position: 'relative', ...style
       }}
     >
-      <img
-        src="/logo.png"
-        alt="Scaleezy Inventory"
-        style={{
-          position: 'absolute',
-          width: `${100 / ART_W}%`,
-          left: `${(-ART.left / ART_W) * 100}%`,
-          top: `${(-ART.top / ART_H) * 100}%`,
-          height: 'auto',
-          maxWidth: 'none',
-          display: 'block'
-        }}
-      />
+      {/* Two copies of the artwork: logo-dark.png is the same file with the deep-green parts ("ezy",
+          "inventory", the rules) turned light, which on a dark page would otherwise all but vanish.
+          index.css shows the one that matches the theme. Same size, so the crop below fits both. */}
+      {['/logo.png', '/logo-dark.png'].map((src, i) => (
+        <img
+          key={src}
+          src={src}
+          alt="Scaleezy Inventory"
+          className={i ? 'logo-on-dark' : 'logo-on-light'}
+          style={{
+            position: 'absolute',
+            width: `${100 / ART_W}%`,
+            left: `${(-ART.left / ART_W) * 100}%`,
+            top: `${(-ART.top / ART_H) * 100}%`,
+            height: 'auto',
+            maxWidth: 'none',
+            display: 'block'
+          }}
+        />
+      ))}
     </span>
   );
 }

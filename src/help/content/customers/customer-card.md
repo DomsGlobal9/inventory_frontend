@@ -31,6 +31,8 @@ Everything they bought counts: at the till, in your online shop and on Shopify. 
 
 The card reads the store chosen at the top of the screen. Change the store to see what fits them there.
 
+How the card reads their bills: anything they returned does not count, recent buying counts for more than old (a purchase counts half as much for every year since), and colours are counted by family, so Navy, Indigo and Peacock all count as Blue. Items within what they usually spend come first; pricier ones come after.
+
 ## Customers who scan at the door
 
 Press **Door QR** on the Customer card page, print it and stand it at the door. A customer scans it with their phone camera, WhatsApp opens with a message ready, and they press send. They get a short welcome from your shop's number, and they show under **In the store now** on every salesperson's Customer card for two hours.

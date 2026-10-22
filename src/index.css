@@ -1042,3 +1042,12 @@ tr:hover td {
   .tagsheet-paper { position: absolute; left: 0; top: 0; }
   @page { margin: 8mm; }
 }
+
+/* Light/dark switch (ThemeContext): the new theme spreads as a circle from the button pressed. Only while
+   html.theme-wipe is on: no browser cross-fade under the circle, and no colour transitions, so the
+   "after" picture is the finished theme rather than cards caught halfway through fading. */
+html.theme-wipe::view-transition-old(root),
+html.theme-wipe::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+html.theme-wipe::view-transition-old(root) { z-index: 1; }
+html.theme-wipe::view-transition-new(root) { z-index: 2; }
+html.theme-wipe *, html.theme-wipe *::before, html.theme-wipe *::after { transition: none !important; }

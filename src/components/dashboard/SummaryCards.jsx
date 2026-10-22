@@ -1,16 +1,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { IndianRupee, FileText, AlertTriangle, Package, Box } from 'lucide-react';
+import { FileText, Package, Box } from 'lucide-react';
 import SummaryCard from './SummaryCard';
 import { formatINR, formatNumber } from '../../utils/formatUtils';
 import WidgetSkeleton from './WidgetSkeleton';
 import { Link } from 'react-router-dom';
-import { useLocationContext } from '../../contexts/LocationContext';
 import NoAccess from '../NoAccess';
 import { isPermissionError } from '../../lib/access';
 
 export default function SummaryCards({ data, isLoading, isError, error }) {
-  const { currentLocation } = useLocationContext();
 
   // Only mounted for somebody allowed the figures (Dashboard checks report:financial). The 403
   // path below is for a role changed while the page was open: the app then re-reads permissions
@@ -55,43 +53,9 @@ export default function SummaryCards({ data, isLoading, isError, error }) {
     activeProducts: 0
   };
 
+  // Inventory value and the low-stock count are on the Dashboard's Stock on hand and Running low
+  // cards now (Overview), with the value's notes, so they are not repeated here.
   const cards = [
-    {
-      // Named for what it covers, not just "Inventory Value".
-      //
-      // The figure is scoped to the location chosen at the top of the screen, which is right
-      // for someone standing in that shop -- but the title said "Inventory Value", so it read
-      // as the whole business. A shop with two locations saw 20,73,986 here while the platform
-      // console showed 41,47,972, and both were correct. That is the worst kind of
-      // disagreement: nothing is broken, so there is nothing to find, and the merchant is left
-      // believing one of their screens is lying.
-      title: currentLocation && safeData?.companyWideValue != null
-        ? `Inventory Value · ${currentLocation.name}`
-        : "Inventory Value",
-      value: formatINR(safeData?.inventoryValue),
-      // Two different ways this number can mislead, and the shopkeeper is told which applies.
-      // Nothing known at all means the stock counts as ₹0 and a full shelf looks like an empty
-      // one; only a price known means it is valued at what it sells for, which is higher than
-      // what it is worth by the margin. An unexplained figure is the thing to avoid, in
-      // either direction.
-      note: safeData?.unitsWithoutCost > 0
-        ? `${formatNumber(safeData.unitsWithoutCost)} units have no cost or price recorded and count as ₹0. ` +
-          `Add a unit cost when you stock in, or a price on the product.`
-        : safeData?.unitsValuedAtPrice > 0
-          ? `${formatNumber(safeData.unitsValuedAtPrice)} units are valued at their selling price ` +
-            `because no cost was recorded. Add a unit cost when you stock in for a truer figure.`
-          : null,
-      // Shown only when it says something the headline does not: a location is selected and
-      // the shop has more than one. Without it there is nowhere in the merchant's own app that
-      // their whole business's stock value appears.
-      secondaryNote: safeData?.companyWideValue != null
-        ? `${formatINR(safeData.companyWideValue)} across all locations`
-        : null,
-      icon: IndianRupee,
-      colorClass: '#3b82f6',
-      bgColorClass: 'rgba(59, 130, 246, 0.1)',
-      to: '/inventory'
-    },
     {
       title: "Open PO Value",
       value: formatINR(safeData?.openPoValue),
@@ -100,20 +64,6 @@ export default function SummaryCards({ data, isLoading, isError, error }) {
       bgColorClass: 'rgba(245, 158, 11, 0.1)',
       // /purchase-orders does not exist and fell through to the dashboard; the list reads ?filter=open.
       to: '/inventory/purchase-orders?filter=open'
-    },
-    {
-      title: "Low Stock Count",
-      value: formatNumber(safeData?.lowStockCount),
-      // Sold-out items used to be counted INSIDE this number. They are a different problem -- low
-      // is "reorder soon", out is "you are missing sales today" -- so they are no longer mixed in,
-      // but they must not vanish from the dashboard either. Said underneath, when there are any.
-      note: safeData?.outOfStockCount > 0
-        ? `${formatNumber(safeData.outOfStockCount)} more ${safeData.outOfStockCount === 1 ? 'is' : 'are'} out of stock.`
-        : null,
-      icon: AlertTriangle,
-      colorClass: safeData?.lowStockCount > 0 ? 'var(--accent-danger)' : 'var(--text-secondary)',
-      bgColorClass: safeData?.lowStockCount > 0 ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255, 255, 255, 0.05)',
-      to: '/inventory?filter=low_stock'
     },
     {
       title: "Dead Stock Value",

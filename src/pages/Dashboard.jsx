@@ -13,6 +13,7 @@ import SupplierSpendWidget from '../components/dashboard/SupplierSpendWidget';
 import InventoryTrendChart from '../components/dashboard/InventoryTrendChart';
 import SupplierSpendChart from '../components/dashboard/SupplierSpendChart';
 import StockMovementChart from '../components/dashboard/StockMovementChart';
+import Overview from '../components/dashboard/Overview';
 import { Plus } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useProduct } from '../context/ProductContext';
@@ -80,33 +81,11 @@ export default function Dashboard() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', flex: 1, overflowY: 'auto', paddingBottom: '32px' }}>
       
-      {/* Header */}
-      <div className="mobile-col" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
-        <div>
-          <h1 style={{ fontSize: '28px', marginBottom: '4px', color: 'var(--text-primary)' }}>Dashboard</h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>Overview of your operations and analytics.</p>
-        </div>
-      </div>
-
-      {/* A shop that has not set up its shelves would never find the feature otherwise. It hides
-          itself once the work is done, and for good if they say they do not use shelves. */}
-      <SetUpShelvesCard />
-
-      {/* The day's work, one tile per permission held (see MyDayCards). */}
-      <motion.div variants={item}><MyDayCards /></motion.div>
-
-      {/* The shop's money: only for somebody allowed it. Not a "not part of your role" box --
-          a tile nobody can open is noise on the first screen they see. */}
-      {canSeeMoney && (
-        <motion.div variants={item}>
-          <SummaryCards data={data} isLoading={isLoading} isError={isError} error={error} />
-        </motion.div>
-      )}
-
-      {/* Only the shortcuts this person can actually walk through.
-          Offering "+ Purchase Order" to somebody who cannot raise one is worse than offering
-          nothing: they press it, and land on a wall they had no way to predict. */}
-      <motion.div variants={item} style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+      {/* The welcome band, the live cards, the sales chart, top sellers and the latest orders -- each
+          part only when this person may see it (the server leaves the rest out). The buttons are only
+          the shortcuts this person can actually walk through: offering "+ Purchase Order" to somebody
+          who cannot raise one is worse than nothing -- they press it and land on a wall. */}
+      <Overview summary={canSeeMoney ? data : null} actions={<>
         {can('product:create') && (
           <button className="btn btn-primary" onClick={() => navigate(resumePath())} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px' }}>
             <Plus size={16} /> Product
@@ -138,7 +117,23 @@ export default function Dashboard() {
             <Plus size={16} /> Customer
           </button>
         )}
-      </motion.div>
+      </>} />
+
+      {/* A shop that has not set up its shelves would never find the feature otherwise. It hides
+          itself once the work is done, and for good if they say they do not use shelves. */}
+      <SetUpShelvesCard />
+
+      {/* The day's work, one tile per permission held (see MyDayCards). */}
+      <motion.div variants={item}><MyDayCards /></motion.div>
+
+      {/* The shop's money: only for somebody allowed it. Not a "not part of your role" box --
+          a tile nobody can open is noise on the first screen they see. */}
+      {canSeeMoney && (
+        <motion.div variants={item}>
+          <SummaryCards data={data} isLoading={isLoading} isError={isError} error={error} />
+        </motion.div>
+      )}
+
 
       {/* Tabs. Real tabs: buttons in a tab list, reachable and switchable from the keyboard and
           announced as tabs -- they were bare divs, so mouse-only and silent to a screen reader. */}

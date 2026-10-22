@@ -1,9 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Receipt, Undo2, SearchCheck, UserPlus, ArrowLeftRight } from 'lucide-react';
+import { Undo2, SearchCheck, UserPlus, ArrowLeftRight } from 'lucide-react';
 import { api } from '../../lib/api';
-import { formatINR } from '../../utils/formatUtils';
 import { useLocationContext } from '../../contexts/LocationContext';
 import SummaryCard from './SummaryCard';
 
@@ -25,7 +24,7 @@ export default function MyDayCards() {
   if (!data) return null;
 
   const cards = [
-    data.bills && { title: "Today's bills", value: data.bills.count, note: formatINR(data.bills.total), icon: Receipt, color: 'var(--accent-success)', to: '/orders' },
+    // Today's bills are in the Dashboard's welcome line now (Overview), so not repeated here.
     data.returnsWaiting != null && { title: 'Returns waiting', value: data.returnsWaiting, note: 'Not finished yet', icon: Undo2, color: data.returnsWaiting ? 'var(--accent-warning)' : 'var(--text-secondary)', to: '/returns' },
     data.returnsToInspect != null && { title: 'Returns to inspect', value: data.returnsToInspect, note: 'Received, not checked', icon: SearchCheck, color: data.returnsToInspect ? 'var(--accent-warning)' : 'var(--text-secondary)', to: '/returns' },
     data.customersToday != null && { title: 'Customers added today', value: data.customersToday, icon: UserPlus, color: 'var(--accent-gold)', to: '/customers' },

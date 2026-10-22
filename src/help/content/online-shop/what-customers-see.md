@@ -5,7 +5,7 @@ for: Owners and admins
 minutes: 3
 app: /settings
 appLabel: Online shop
-keywords: photos show all photos flat lay try on see it on you hide sold out out of stock only 3 left few left stock numbers
+keywords: also bought customers who bought this recommended viewed remembered 30 days privacy photos show all photos flat lay try on see it on you hide sold out out of stock only 3 left few left stock numbers
 ---
 
 These four switches are on the **What customers see** card in **Settings → Online shop**. Each one applies to your whole shop at once, not to one product.
@@ -41,6 +41,14 @@ Every customer who uses it uses one try-on from the same allowance your shop use
 ![A saree in the shop showing Only 2 left under the price, marked 1.](3-few-left.webp "Above five, nothing is shown — so your stock numbers stay yours.")
 
 This is deliberately limited. It never prints your real stock number, and it never says anything while you are comfortably stocked, so a competitor reading your shop learns nothing about how much you hold.
+
+## On every product page
+
+These need no switch.
+
+**Customers who bought this also bought** is a row under a product, made from your own bills at the till and online. A piece appears there only once at least 2 different customers bought it together with this one, and only while it can be bought online. A new shop has no such history yet, so the row stays hidden until it does.
+
+**What a customer looks at.** When a customer has confirmed their number with the WhatsApp code, your shop remembers which pieces they open and try on, for 30 days. Your staff see it on their [Customer card](/help/customers/customer-card) when they walk in. Customers who have not confirmed a number are never recorded. The checkout tells customers this before they confirm.
 
 ## Common problems
 

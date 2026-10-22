@@ -5,7 +5,7 @@ for: Owners, managers and sales staff
 minutes: 2
 app: /customers/card
 appLabel: Customer card
-keywords: customer card door qr check in check-in scan whatsapp standee in the store now take them walk in door greet regular returning customer know customer size colour colours preference taste usual spend budget picks suggestions what to show notes phone lookup design dna
+keywords: customer card looked at online viewed tried on also bought others bought door qr check in check-in scan whatsapp standee in the store now take them walk in door greet regular returning customer know customer size colour colours preference taste usual spend budget picks suggestions what to show notes phone lookup design dna
 ---
 
 When a customer walks in, ask "Have you shopped with us before?" and type their number. The card shows who they are and what to show them first.
@@ -28,6 +28,8 @@ Everything they bought counts: at the till, in your online shop and on Shopify. 
 - **Colours** and **Buys**: what they come back for most.
 - **Usually spends**: what most of their bills come to. Show things in that range first.
 - **In this store today, in their size**: up to six items you have here now, in their size, their colours first. Items they already bought are left out. The shelf is shown when the store uses [shelves](/help/shelves/where-is-it).
+- **Looked at online lately**: pieces they opened or tried on in your [online shop](/help/online-shop/what-customers-see) in the last 30 days, with how many you have here and the shelf. Only after they confirmed their number there with the WhatsApp code. Anything they bought since is left out.
+- **Others who bought what they bought, also bought**: pieces at least 2 other customers bought together with something they bought. Only items in stock here, in their size. These two show only when there is something to show.
 
 The card reads the store chosen at the top of the screen. Change the store to see what fits them there.
 

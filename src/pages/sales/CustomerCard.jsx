@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { Search, Loader2, ArrowLeft, Shirt, Palette, Tags, IndianRupee, MapPin, StickyNote, UserPlus, ExternalLink, DoorOpen, QrCode } from 'lucide-react';
+import { Search, Loader2, ArrowLeft, Shirt, Palette, Tags, IndianRupee, MapPin, StickyNote, UserPlus, ExternalLink, DoorOpen, QrCode, Eye, Users } from 'lucide-react';
 import { api } from '../../lib/api';
 import { normalisePhone, typedPhone } from '../../utils/phone';
 import { usePermission } from '../../hooks/usePermission';
@@ -186,6 +186,48 @@ export default function CustomerCard() {
               </div>
             )}
           </div>
+
+          {/* Only shown when there is something: a server not yet sending these simply leaves them out. */}
+          {(d.lookedOnline ?? []).length > 0 && (
+            <div style={box}>
+              <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}><Eye size={16} /> Looked at online lately</div>
+              <div style={{ display: 'grid', gap: '8px' }}>
+                {d.lookedOnline.map(l => (
+                  <Link key={l.productId} to={`/products/${l.productId}`} style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', padding: '10px 12px', borderRadius: '10px', background: 'var(--bg-input)', textDecoration: 'none', color: 'var(--text-primary)' }}>
+                    <span style={{ minWidth: 0 }}>
+                      <span style={{ fontWeight: 600 }}>{l.title}</span>
+                      <span style={{ display: 'block', fontSize: '12.5px', color: 'var(--text-secondary)' }}>
+                        {[l.colour, l.views > 0 && `viewed ${l.views === 1 ? 'once' : `${l.views} times`}`, l.tryOns > 0 && `tried on${l.tryOns > 1 ? ` ${l.tryOns} times` : ''}`].filter(Boolean).join(' · ')}
+                        {' · '}{l.inStock > 0 ? `${l.inStock} here` : 'not in this store'}
+                      </span>
+                    </span>
+                    {l.shelf && <span style={{ fontSize: '12.5px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}><MapPin size={13} /> {l.shelf}</span>}
+                  </Link>
+                ))}
+              </div>
+              <p style={{ margin: '8px 0 0', fontSize: '12px', color: 'var(--text-secondary)' }}>From the online shop, after they confirmed this number there. Last 30 days; anything bought since is left out.</p>
+            </div>
+          )}
+
+          {(d.othersAlsoBought ?? []).length > 0 && (
+            <div style={box}>
+              <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}><Users size={16} /> Others who bought what they bought, also bought</div>
+              <div style={{ display: 'grid', gap: '8px' }}>
+                {d.othersAlsoBought.map(p => (
+                  <Link key={p.variantId} to={`/products/${p.productId}`} style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', padding: '10px 12px', borderRadius: '10px', background: 'var(--bg-input)', textDecoration: 'none', color: 'var(--text-primary)' }}>
+                    <span style={{ minWidth: 0 }}>
+                      <span style={{ fontWeight: 600 }}>{p.title}</span>
+                      <span style={{ display: 'block', fontSize: '12.5px', color: 'var(--text-secondary)' }}>
+                        {[p.colour, p.size].filter(Boolean).join(', ')}{p.price ? ` · ${rupees(p.price)}` : ''} · {p.buyers} customers · {p.inStock} here
+                      </span>
+                    </span>
+                    {p.shelf && <span style={{ fontSize: '12.5px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}><MapPin size={13} /> {p.shelf}</span>}
+                  </Link>
+                ))}
+              </div>
+              <p style={{ margin: '8px 0 0', fontSize: '12px', color: 'var(--text-secondary)' }}>Only what at least 2 other customers bought together with theirs. In this store, in their size.</p>
+            </div>
+          )}
 
           <div style={box}>
             <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}><StickyNote size={16} /> Notes</div>

@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { IndianRupee, Package, TriangleAlert, TrendingUp, TrendingDown } from 'lucide-react';
 import { api } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
@@ -155,12 +155,18 @@ const timeAgo = (at) => {
 
 export default function Overview({ actions, summary }) {
   const { user } = useAuth();
-  const { currentLocation } = useLocationContext();
-  const { data, isLoading } = useQuery({
+  const { currentLocation, isLoading: storesLoading } = useLocationContext();
+  const { data, isLoading: figuresLoading } = useQuery({
     queryKey: ['dashboard-overview', currentLocation?.id ?? 'all'],
     queryFn: async () => (await api.get('/dashboard/overview')).data,
+    // Asked once the store is known: asking before fetched the whole shop's figures, then the store's,
+    // and the cards flashed back to placeholders in between.
+    enabled: !storesLoading,
+    // Switching store keeps the last figures on screen until the new ones arrive, instead of blanking.
+    placeholderData: keepPreviousData,
     staleTime: 60 * 1000
   });
+  const isLoading = storesLoading || figuresLoading;
   const first = String(user?.name || '').trim().split(/\s+/)[0];
   const name = first ? first[0].toUpperCase() + first.slice(1) : '';
   const now = new Date();
@@ -185,13 +191,22 @@ export default function Overview({ actions, summary }) {
   return (
     <div className="ov">
       {/* As many columns as cards this person gets; with none, the welcome band takes the row. */}
-      <section className="ov-row1" style={cards.length ? { '--ov-n': cards.length } : { gridTemplateColumns: 'minmax(0, 1fr)' }}>
+      <section className="ov-row1" style={isLoading ? { '--ov-n': 3 } : cards.length ? { '--ov-n': cards.length } : { gridTemplateColumns: 'minmax(0, 1fr)' }}>
         <motion.div className="ov-hello" {...rise(0)}>
           <span className="ov-chip"><span className="ov-live" aria-hidden="true" />{when}</span>
           <h1>Welcome back{name ? `, ${name}` : ''}!</h1>
-          <p>{isLoading ? 'Getting today’s numbers…' : sentence}</p>
+          {isLoading ? <span className="ov-skel" style={{ height: 18, width: 'min(420px, 90%)' }} aria-label="Loading today's figures" /> : <p>{sentence}</p>}
           {actions && <div className="ov-acts">{actions}</div>}
         </motion.div>
+
+        {/* While the figures arrive: the shapes of the cards, so the page fills in rather than waits. */}
+        {isLoading && [1, 2, 3].map(i => (
+          <div key={i} className="ov-card ov-kpi" aria-hidden="true">
+            <span className="ov-skel" style={{ height: 12, width: '55%' }} />
+            <span className="ov-skel" style={{ height: 28, width: '70%', marginTop: 8 }} />
+            <span className="ov-skel" style={{ height: 10, width: '85%', marginTop: 'auto' }} />
+          </div>
+        ))}
 
         {d?.sales && (
           <motion.div className="ov-card ov-kpi" {...rise(1)}>
@@ -253,6 +268,7 @@ export default function Overview({ actions, summary }) {
         )}
       </section>
 
+      {isLoading && <div className="ov-card" aria-hidden="true"><span className="ov-skel" style={{ height: 14, width: 160 }} /><span className="ov-skel" style={{ height: 240, width: '100%', marginTop: 14, borderRadius: 12 }} /></div>}
       {d?.sales && <motion.div {...rise(4)}><SalesChart sales={d.sales} /></motion.div>}
 
       {(d?.topSellers?.length > 0 || d?.latestOrders) && (

@@ -79,7 +79,10 @@ export default function Dashboard() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', flex: 1, overflowY: 'auto', paddingBottom: '32px' }}>
+    // dash-page: every section keeps its height. This column scrolls, and a flex column shrinks any child
+    // with its own overflow (the tab bar scrolls sideways) when the page is taller than the screen --
+    // the taller top half squashed the tab bar to one pixel, invisible and unclickable.
+    <div className="dash-page" style={{ display: 'flex', flexDirection: 'column', gap: '24px', flex: 1, overflowY: 'auto', paddingBottom: '32px' }}>
       
       {/* The welcome band, the live cards, the sales chart, top sellers and the latest orders -- each
           part only when this person may see it (the server leaves the rest out). The buttons are only

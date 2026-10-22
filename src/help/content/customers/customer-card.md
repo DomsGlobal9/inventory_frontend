@@ -31,7 +31,7 @@ Everything they bought counts: at the till, in your online shop and on Shopify. 
 
 The card reads the store chosen at the top of the screen. Change the store to see what fits them there.
 
-How the card reads their bills: anything they returned does not count, recent buying counts for more than old (a purchase counts half as much for every year since), and colours are counted by family, so Navy, Indigo and Peacock all count as Blue. Items within what they usually spend come first; pricier ones come after.
+How the card reads their bills: anything they returned does not count, recent buying counts for more than old (a purchase counts half as much for every year since), and colours are counted by family, so Navy, Indigo and Peacock all count as Blue. A colour counts both by how often they buy it and by how much they spend on it, so one costly red lehenga is not outvoted by two cheap dupattas. Items within what they usually spend come first; much pricier or much cheaper ones come after.
 
 ## Customers who scan at the door
 

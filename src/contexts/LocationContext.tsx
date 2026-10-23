@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { api, LOCATION_STORAGE_KEY } from '../lib/api';
 import toast from 'react-hot-toast';
 import ConfirmModal from '../components/ConfirmModal';
+import PageLoader from '../components/PageLoader';
 import { useUnsavedWorkRegistry } from './UnsavedWorkContext';
 
 export interface Location {
@@ -31,6 +33,19 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // A store change waiting on an answer, because a screen is holding work.
   const [pending, setPending] = useState<{ id: string; work: string } | null>(null);
   const unsavedWork = useUnsavedWorkRegistry();
+  const queryClient = useQueryClient();
+
+  /**
+   * The store the app opens on when this browser has none (first visit) or its one is gone.
+   * Quietly, not through the store picker: the picker reloads the page, which made every first
+   * visit load the app, go white, and load it all again.
+   */
+  const adoptDefault = (id: string) => {
+    setCurrentLocationIdState(id);
+    localStorage.setItem(LOCATION_STORAGE_KEY, id);
+    // Only matters when a deleted store was remembered: screens already asked under it, so ask again.
+    queryClient.invalidateQueries();
+  };
 
   const fetchLocations = async () => {
     try {
@@ -43,7 +58,7 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         let validLocation = data.find((l: Location) => l.id === currentLocationId);
         if (!validLocation) {
           validLocation = data.find((l: Location) => l.code === 'MAIN-STORE') || data[0];
-          setCurrentLocationId(validLocation.id);
+          adoptDefault(validLocation.id);
         }
       }
     } catch (error: any) {
@@ -87,7 +102,9 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   return (
     <LocationContext.Provider value={{ locations, currentLocation, setCurrentLocationId, isLoading, refreshLocations: fetchLocations }}>
-      {children}
+      {/* First visit: no store yet, so wait for one rather than let every screen ask for the whole
+          shop's figures and swap them out a moment later. Later visits have one and never wait. */}
+      {currentLocationId || !isLoading ? children : <PageLoader text="VERIFYING SESSION..." fullScreen />}
       <ConfirmModal
         isOpen={!!pending}
         onClose={() => setPending(null)}

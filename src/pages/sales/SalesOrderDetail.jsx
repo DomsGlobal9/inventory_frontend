@@ -23,6 +23,7 @@ import { ShelvesUsed } from '../../components/shelves/ShelfLinks';
 import { ORDER_STATUS, StatusPill } from '../../components/sales/labels';
 import { useDialog } from '../../hooks/useDialog';
 import WhatsAppSendButton from '../../components/whatsapp/WhatsAppSendButton';
+import RecordPaymentModal from '../../components/sales/RecordPaymentModal';
 import { buildWhatsAppUrl } from '../../utils/whatsappUtils';
 import { api } from '../../lib/api';
 import BillPDF from '../../components/BillPDF';
@@ -39,6 +40,7 @@ export default function SalesOrderDetail() {
   const dispatchMutation = useCreateDispatch();
 
   const [isDispatching, setIsDispatching] = useState(false);
+  const [recording, setRecording] = useState(false);
   const [dispatchQuantities, setDispatchQuantities] = useState({});
   // Which irreversible action is waiting on a yes: 'confirm', 'cancel', or none.
   // One piece of state rather than a boolean each, because the two can never be open at once
@@ -488,15 +490,51 @@ export default function SalesOrderDetail() {
             )}
           </div>
 
-          {/* Money taken for this order, and paid back. Worked out from the rows, never stored twice. */}
-          {(order.atCounter || order.payments?.length > 0 || order.payment?.writtenOff > 0) && (
+          {/* A kept order from the till: when the customer said they would collect, and when they did. */}
+          {order.handover === 'KEEP_FOR_CUSTOMER' && (() => {
+            const day = (d) => new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+            const todayIndia = new Date(Date.now() + 330 * 60000).toISOString().slice(0, 10);
+            const late = !order.handedOverAt && order.promisedAt && String(order.promisedAt).slice(0, 10) < todayIndia;
+            return (
+              <div className="card" style={{ padding: '24px' }} aria-label="Kept for the customer">
+                <h3 style={{ margin: '0 0 12px', fontSize: '18px', fontWeight: '600' }}>Kept for the customer</h3>
+                <div style={{ display: 'grid', gap: 8, fontSize: 14 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+                    <span style={{ color: 'var(--text-secondary)' }}>To collect on</span>
+                    <span style={{ fontWeight: 500, color: late ? 'var(--accent-danger)' : undefined }}>{order.promisedAt ? day(order.promisedAt) : 'No date given'}{late ? ' · past this date' : ''}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+                    <span style={{ color: 'var(--text-secondary)' }}>Handed over</span>
+                    <span style={{ fontWeight: 500 }}>{order.handedOverAt ? new Date(order.handedOverAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : 'Not yet: still in the shop'}</span>
+                  </div>
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 10 }}>Handing over is done on the POS till; it shows here by itself.</div>
+              </div>
+            );
+          })()}
+
+          {/* Money taken for this order, and paid back. Worked out from the rows, never stored twice.
+              Also shown when money can still be recorded here (collectBlocked is null): a pay-on-delivery
+              order with nothing paid had no Payments box and no way to be marked paid. */}
+          {(order.atCounter || order.payments?.length > 0 || order.payment?.writtenOff > 0 || order.collectBlocked === null
+            // A till bill still owed with nothing paid yet (a kept order taken without an advance): show what is due.
+            || (order.sourceSystem === 'SCALEEZY_POS' && order.payment?.due > 0)) && (
             <div className="card" style={{ padding: '24px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12, marginBottom: '16px', flexWrap: 'wrap' }}>
                 <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>Payments</h3>
-                <span style={{ fontSize: '13px', fontWeight: 600, color: order.payment?.due > 0 ? 'var(--accent-warning)' : order.payment?.status === 'WRITTEN_OFF' ? 'var(--accent-danger)' : 'var(--accent-success)' }}>
-                  {order.payment?.due > 0 ? `${formatINRExact(order.payment.due)} due` : order.payment?.status === 'REFUNDED' ? 'Refunded' : order.payment?.status === 'WRITTEN_OFF' ? 'Written off' : 'Paid'}
+                <span style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
+                  <span style={{ fontSize: '13px', fontWeight: 600, color: order.payment?.due > 0 ? 'var(--accent-warning)' : order.payment?.status === 'WRITTEN_OFF' ? 'var(--accent-danger)' : 'var(--accent-success)' }}>
+                    {order.payment?.due > 0 ? `${formatINRExact(order.payment.due)} due` : order.payment?.status === 'REFUNDED' ? 'Refunded' : order.payment?.status === 'WRITTEN_OFF' ? 'Written off' : 'Paid'}
+                  </span>
+                  {order.collectBlocked === null && can('sales_order:counter_sale') && (
+                    <button type="button" className="btn-primary" onClick={() => setRecording(true)} style={{ padding: '6px 12px', fontSize: 13 }}>Record payment</button>
+                  )}
                 </span>
               </div>
+              {/* Money still due on a till bill is taken on the till; say so where the button would be. */}
+              {order.payment?.due > 0 && order.collectBlocked && order.sourceSystem === 'SCALEEZY_POS' && (
+                <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: 8 }}>{order.collectBlocked}</div>
+              )}
               {/* Udhaar written off at the POS till: not money, so it is not a payment row. */}
               {order.payment?.writtenOff > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '8px 0', fontSize: '14px' }}>
@@ -533,6 +571,8 @@ export default function SalesOrderDetail() {
         </div>
 
       </div>
+
+      {recording && <RecordPaymentModal order={order} onClose={() => setRecording(false)} />}
 
       {/* Dispatch Modal */}
       {isDispatching && (

@@ -39,6 +39,7 @@ function Waiting() {
     data.returnsToInspect != null && { n: data.returnsToInspect, one: 'return to check', many: 'returns to check', to: '/returns', hot: true, none: 'returns to check' },
     data.returnsWaiting != null && { n: data.returnsWaiting, one: 'return not finished', many: 'returns not finished', to: '/returns', none: 'returns to finish' },
     data.transfersOnTheWay != null && { n: data.transfersOnTheWay, one: 'transfer on the way', many: 'transfers on the way', to: '/inventory/transfers', none: 'transfers on the way' },
+    data.keptOverdue != null && { n: data.keptOverdue, one: 'kept order past its date', many: 'kept orders past their date', to: '/orders?kept=OVERDUE', hot: true, none: 'kept orders past their date' },
     data.customersToday != null && { n: data.customersToday, one: 'new customer today', many: 'new customers today', to: '/customers', none: 'new customers today' }
   ].filter(Boolean);
   if (!items.length) return null;

@@ -156,6 +156,21 @@ export const useConfirmOrder = () => {
   });
 };
 
+/** Money collected later (pay on delivery, an order typed in by hand), recorded against the order. */
+export const useRecordPayment = (orderId) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body) => api.post(`/sales-orders/${orderId}/payments`, body),
+    onSuccess: (res) => {
+      const due = res?.data?.payment?.due ?? 0;
+      toast.success(due > 0 ? `Payment recorded. ₹${due.toLocaleString('en-IN')} still due.` : 'Payment recorded. Nothing is due now.');
+      queryClient.invalidateQueries({ queryKey: ['sales-orders'] });
+      invalidateDerivedViews(queryClient); // the Day Book counts money in on the day it is recorded
+    },
+    onError: showError('The payment could not be recorded. Try again.')
+  });
+};
+
 export const useCancelOrder = () => {
   const queryClient = useQueryClient();
   return useMutation({

@@ -800,8 +800,10 @@ Change it to ${chosen.name}? The order will say ${chosen.name} from now on, but 
               )}
             </div>
 
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+            {/* The app's table box (pinned first column and phone padding) and a floor on the width: on a phone
+                this table squeezed itself to the screen and the item name went down it a word at a time. */}
+            <div className="table-container" style={{ overflowX: 'auto', border: 'none', borderRadius: 0, background: 'transparent' }}>
+              <table style={{ width: '100%', minWidth: '560px', borderCollapse: 'collapse', textAlign: 'left' }}>
                 <thead>
                   <tr>
                     <th style={{ paddingBottom: '12px', fontWeight: '500', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-light)' }}>Item</th>

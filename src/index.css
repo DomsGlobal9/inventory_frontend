@@ -807,6 +807,18 @@ tr:hover td {
     background: var(--bg-card);
     border-right: 1px solid var(--border-light);
   }
+  /* The pinned first HEADING above the other headings (z-index 10, the sticky header row): at 2 it sat under
+     them, so scrolling sideways slid "PRODUCT", "QTY"... over it and the headings no longer matched the column
+     below (an order's Line Items, Inventory, Stock history, Purchase Orders...; 23 Oct). */
+  .table-container table thead th:first-child { z-index: 12; }
+  /* A phone has no room for 24px either side of every cell: the pinned column kept ~55px for its text, and
+     "PRD-000014-RUST-M" or a product name went down the screen a few letters a line (10 lines on a PO). */
+  .table-container table th,
+  .table-container table td { padding-left: 12px !important; padding-right: 12px !important; }
+  .table-container table td:first-child { min-width: min(170px, 44vw); }
+  /* ...but a first column that only holds a tick box stays as narrow as the box. */
+  .table-container table td:first-child:has(> input[type="checkbox"]:only-child),
+  .table-container table th:first-child:has(> input[type="checkbox"]:only-child) { min-width: 0; width: 44px; }
 
   /* Pagination Wrap */
   .mobile-pagination {

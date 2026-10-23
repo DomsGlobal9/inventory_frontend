@@ -105,7 +105,10 @@ export default function SupplierProductsPanel({ supplierId, supplierName, suppli
             </p>
           </div>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+          // The app's table box and a floor on the width: on a phone this table squeezed to the screen and each
+          // item's name went down it a word at a time (23 Oct).
+          <div className="table-container" style={{ overflowX: 'auto', border: 'none', borderRadius: 0, background: 'transparent' }}>
+          <table style={{ width: '100%', minWidth: '560px', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead style={{ position: 'sticky', top: 0, backgroundColor: 'var(--bg-card)', zIndex: 10 }}>
               <tr>
                 <th>Item</th>
@@ -236,6 +239,7 @@ export default function SupplierProductsPanel({ supplierId, supplierName, suppli
               })}
             </tbody>
           </table>
+          </div>
         )}
       </div>
 

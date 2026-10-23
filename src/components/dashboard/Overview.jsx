@@ -36,30 +36,69 @@ function CountUp({ value, format = (v) => Math.round(v).toLocaleString('en-IN') 
   return <>{format(shown)}</>;
 }
 
-/** The last 30 days as a line, smoothed over five days so one big sale does not flatten the rest. */
-function Sparkline({ daily }) {
+/**
+ * A small line of a series of numbers (one per day). `fromZero` scales from 0 (sales); otherwise from the
+ * series' own low to high, so a stock value that moves a few percent still shows its shape. Drawn here
+ * rather than by the chart library, which measured its box late and first drew itself too big.
+ */
+function Sparkline({ values, width = 120, height = 38, fromZero = true, stretch = false }) {
   const still = useReducedMotion();
   const path = useRef(null);
+  const gid = useMemo(() => `ov-spark-${Math.random().toString(36).slice(2, 8)}`, []);
   const { line, area, end } = useMemo(() => {
-    const vals = daily.map((_, i) => { const w = daily.slice(Math.max(0, i - 4), i + 1); return w.reduce((t, d) => t + d.till + d.online, 0) / w.length; });
-    const max = Math.max(...vals) || 1;
-    const pts = vals.map((v, i) => [(i / Math.max(1, vals.length - 1)) * 120, 36 - (v / max) * 32]);
+    const lo = fromZero ? 0 : Math.min(...values), hi = Math.max(...values);
+    const span = hi - lo || 1;
+    const pts = values.map((v, i) => [(i / Math.max(1, values.length - 1)) * width, height - 2 - ((v - lo) / span) * (height - 6)]);
     const d = pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(' ');
-    return { line: d, area: `${d} L120 38 L0 38 Z`, end: pts[pts.length - 1] };
-  }, [daily]);
+    return { line: d, area: `${d} L${width} ${height} L0 ${height} Z`, end: pts[pts.length - 1] };
+  }, [values, width, height, fromZero]);
   useLayoutEffect(() => {
     const el = path.current; if (!el || still) return;
     const L = el.getTotalLength(); el.style.transition = 'none'; el.style.strokeDasharray = L; el.style.strokeDashoffset = L;
     el.getBoundingClientRect();
     el.style.transition = 'stroke-dashoffset 1.2s ease .3s'; el.style.strokeDashoffset = 0;
   }, [line, still]);
+  if (values.length < 2) return null;
   return (
-    <svg viewBox="0 0 120 38" preserveAspectRatio="none" style={{ width: 120, height: 38, overflow: 'visible', flex: 'none' }} aria-hidden="true">
-      <defs><linearGradient id="ov-spark" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#A6D92B" stopOpacity=".35" /><stop offset="1" stopColor="#A6D92B" stopOpacity="0" /></linearGradient></defs>
-      <path d={area} fill="url(#ov-spark)" />
-      <path ref={path} d={line} fill="none" stroke="var(--ov-online)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-      {end && <circle cx={end[0]} cy={end[1]} r="3.2" fill="var(--ov-online)" stroke="var(--bg-card)" strokeWidth="2" />}
+    <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" style={{ width: stretch ? '100%' : width, height, overflow: 'visible', flex: stretch ? '1 1 auto' : 'none', display: 'block' }} aria-hidden="true">
+      <defs><linearGradient id={gid} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#A6D92B" stopOpacity=".35" /><stop offset="1" stopColor="#A6D92B" stopOpacity="0" /></linearGradient></defs>
+      <path d={area} fill={`url(#${gid})`} />
+      <path ref={path} d={line} fill="none" stroke="var(--ov-online)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+      {end && !stretch && <circle cx={end[0]} cy={end[1]} r="3.2" fill="var(--ov-online)" stroke="var(--bg-card)" strokeWidth="2" />}
     </svg>
+  );
+}
+
+/** Sales per day, smoothed over five days so one big sale does not flatten the rest into the floor. */
+const smoothSales = (daily) => daily.map((_, i) => { const w = daily.slice(Math.max(0, i - 4), i + 1); return w.reduce((t, x) => t + x.till + x.online, 0) / w.length; });
+
+/** Beside the sales chart: the last 30 days in figures -- total, change, till vs online, orders, the average. */
+function SalesCard({ sales }) {
+  const change = sales.prev30 > 0 ? ((sales.last30 - sales.prev30) / sales.prev30) * 100 : null;
+  const till = sales.daily.reduce((t, x) => t + x.till, 0), online = sales.daily.reduce((t, x) => t + x.online, 0);
+  const both = till + online || 1;
+  return (
+    <div className="ov-card ov-kpi" style={{ height: '100%' }}>
+      <div className="ov-kpi-head"><span>Sales · last 30 days</span><span className="ov-ico"><IndianRupee size={17} /></span></div>
+      <div className="ov-big" style={{ fontSize: 32 }}><CountUp value={sales.last30} format={rupees} /></div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+        {change != null
+          ? <span className={`ov-delta ${change >= 0 ? 'up' : 'down'}`}>{change >= 0 ? <TrendingUp size={13} /> : <TrendingDown size={13} />}{change >= 0 ? '+' : ''}{change.toFixed(1)}%</span>
+          : <span className="ov-muted">First month of sales</span>}
+        {sales.prev30 > 0 && <span className="ov-muted">vs {rupees(sales.prev30)} the 30 days before</span>}
+      </div>
+      <div style={{ margin: '10px 0 4px' }}><Sparkline values={smoothSales(sales.daily)} width={300} height={70} stretch /></div>
+      <div className="ov-split" aria-hidden="true">
+        <span style={{ display: 'block', height: '100%', width: `${(till / both) * 100}%`, background: 'var(--ov-till)' }} />
+        <span style={{ display: 'block', height: '100%', width: `${(online / both) * 100}%`, background: 'var(--ov-online)' }} />
+      </div>
+      <div className="ov-salesgrid">
+        <div><span className="ov-muted"><i style={{ background: 'var(--ov-till)' }} />At the till</span><b>{rupees(till)}</b></div>
+        <div><span className="ov-muted"><i style={{ background: 'var(--ov-online)' }} />Online</span><b>{rupees(online)}</b></div>
+        <div><span className="ov-muted">Orders</span><b>{sales.orders30.toLocaleString('en-IN')}</b></div>
+        <div><span className="ov-muted">Average order</span><b>{sales.orders30 ? rupees(sales.last30 / sales.orders30) : '—'}</b></div>
+      </div>
+    </div>
   );
 }
 
@@ -184,8 +223,9 @@ export default function Overview({ actions, summary }) {
     return <>Here's what's moving at {place} today: {bits.reduce((acc, b, i) => (i ? [...acc, ', and ', b] : [b]), [])}.</>;
   })();
 
-  const cards = d ? [d.sales && 'sales', d.stock && 'stock', d.stock && 'low'].filter(Boolean) : [];
-  const change = d?.sales && d.sales.prev30 > 0 ? ((d.sales.last30 - d.sales.prev30) / d.sales.prev30) * 100 : null;
+  const cards = d ? [d.stock?.value != null && 'value', d.stock && 'stock', d.stock && 'low'].filter(Boolean) : [];
+  const trend = d?.stock?.valueTrend ?? [];
+  const valueChange = trend.length > 1 && trend[0].value > 0 ? ((trend[trend.length - 1].value - trend[0].value) / trend[0].value) * 100 : null;
   const plenty = d?.stock ? Math.max(0, d.stock.colours - d.stock.low - d.stock.out) : 0;
 
   return (
@@ -208,17 +248,25 @@ export default function Overview({ actions, summary }) {
           </div>
         ))}
 
-        {d?.sales && (
+        {d?.stock?.value != null && (
           <motion.div className="ov-card ov-kpi" {...rise(1)}>
-            <div className="ov-kpi-head"><span>Sales · last 30 days</span><span className="ov-ico"><IndianRupee size={17} /></span></div>
-            <div className="ov-big"><CountUp value={d.sales.last30} format={rupees} /></div>
+            <div className="ov-kpi-head"><span>Stock value{currentLocation ? ` · ${currentLocation.name}` : ' · whole shop'}</span><span className="ov-ico"><IndianRupee size={17} /></span></div>
+            <div className="ov-big"><CountUp value={d.stock.value} format={rupees} /></div>
             <div className="ov-foot">
-              {change != null
-                ? <span className={`ov-delta ${change >= 0 ? 'up' : 'down'}`}>{change >= 0 ? <TrendingUp size={13} /> : <TrendingDown size={13} />}{change >= 0 ? '+' : ''}{change.toFixed(1)}%</span>
-                : <span className="ov-muted">First month of sales</span>}
-              <Sparkline daily={d.sales.daily} />
+              {valueChange != null
+                ? <span className={`ov-delta ${valueChange >= 0 ? 'up' : 'down'}`}>{valueChange >= 0 ? <TrendingUp size={13} /> : <TrendingDown size={13} />}{valueChange >= 0 ? '+' : ''}{valueChange.toFixed(1)}%</span>
+                : <span className="ov-muted">At cost</span>}
+              <Sparkline values={trend.map(t => t.value)} fromZero={false} />
             </div>
-            <div className="ov-muted">{d.sales.prev30 > 0 ? `vs ${rupees(d.sales.prev30)} the 30 days before · ` : ''}{d.sales.orders30} order{d.sales.orders30 === 1 ? '' : 's'}</div>
+            <div className="ov-muted">At cost{trend.length > 1 ? ` · ${rupees(trend[0].value)} 30 days ago` : ''}{summary?.companyWideValue != null ? ` · ${rupees(summary.companyWideValue)} across all stores` : ''}</div>
+            {/* How far to trust that value (moved here from the old Inventory value tile). */}
+            {(summary?.unitsWithoutCost > 0 || summary?.unitsValuedAtPrice > 0) && (
+              <div className="ov-muted" style={{ fontSize: 11.5 }}>
+                {summary.unitsWithoutCost > 0
+                  ? `${summary.unitsWithoutCost.toLocaleString('en-IN')} pieces have no cost or price and count as ₹0. Add a unit cost when you stock in.`
+                  : `${summary.unitsValuedAtPrice.toLocaleString('en-IN')} pieces are valued at their selling price (no cost recorded). Add a unit cost when you stock in.`}
+              </div>
+            )}
           </motion.div>
         )}
 
@@ -226,15 +274,7 @@ export default function Overview({ actions, summary }) {
           <motion.div className="ov-card ov-kpi" {...rise(2)}>
             <div className="ov-kpi-head"><span>Stock on hand{currentLocation ? ` · ${currentLocation.name}` : ''}</span><span className="ov-ico"><Package size={17} /></span></div>
             <div className="ov-big"><CountUp value={d.stock.units} /> <small>pieces</small></div>
-            {d.stock.value != null && <div className="ov-muted">{rupees(d.stock.value)} at cost{summary?.companyWideValue != null ? ` · ${rupees(summary.companyWideValue)} across all stores` : ''}</div>}
-            {/* How far to trust that value (it moved here from the old Inventory value tile). */}
-            {d.stock.value != null && (summary?.unitsWithoutCost > 0 || summary?.unitsValuedAtPrice > 0) && (
-              <div className="ov-muted" style={{ fontSize: 11.5 }}>
-                {summary.unitsWithoutCost > 0
-                  ? `${summary.unitsWithoutCost.toLocaleString('en-IN')} pieces have no cost or price and count as ₹0. Add a unit cost when you stock in.`
-                  : `${summary.unitsValuedAtPrice.toLocaleString('en-IN')} pieces are valued at their selling price (no cost recorded). Add a unit cost when you stock in.`}
-              </div>
-            )}
+            <div className="ov-muted">{d.stock.colours.toLocaleString('en-IN')} colours across your products</div>
             <div style={{ marginTop: 'auto', display: 'grid', gap: 7 }}>
               <div className="ov-split" aria-hidden="true">
                 {[[plenty, 'var(--ov-till)'], [d.stock.low, 'var(--accent-warning)'], [d.stock.out, 'var(--accent-danger)']].map(([v, c], i) => (
@@ -269,7 +309,13 @@ export default function Overview({ actions, summary }) {
       </section>
 
       {isLoading && <div className="ov-card" aria-hidden="true"><span className="ov-skel" style={{ height: 14, width: 160 }} /><span className="ov-skel" style={{ height: 240, width: '100%', marginTop: 14, borderRadius: 12 }} /></div>}
-      {d?.sales && <motion.div {...rise(4)}><SalesChart sales={d.sales} /></motion.div>}
+      {/* Sales: the chart, and the last 30 days in figures beside it. */}
+      {d?.sales && (
+        <section className="ov-row2">
+          <motion.div {...rise(4)} style={{ minWidth: 0 }}><SalesChart sales={d.sales} /></motion.div>
+          <motion.div {...rise(5)} style={{ minWidth: 0 }}><SalesCard sales={d.sales} /></motion.div>
+        </section>
+      )}
 
       {(d?.topSellers?.length > 0 || d?.latestOrders) && (
         <section className={`ov-row3${d.topSellers?.length > 0 && d.latestOrders ? '' : ' one'}`}>

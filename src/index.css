@@ -1109,6 +1109,13 @@ html.theme-wipe *, html.theme-wipe *::before, html.theme-wipe *::after { transit
 .ov-col:hover .ov-bar { opacity: .85; }
 .ov-tip { position: absolute; pointer-events: none; background: var(--text-primary); color: var(--bg-card); border-radius: 12px; padding: 10px 12px; font-size: 12px; min-width: 170px; box-shadow: 0 12px 30px -12px rgba(0,0,0,.5); z-index: 2; }
 .ov-tip div { display: flex; justify-content: space-between; gap: 14px; }
+.ov-row2 { display: grid; gap: 16px; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); align-items: stretch; }
+.ov-row2.one { grid-template-columns: minmax(0, 1fr); }
+.ov-salesgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; margin-top: 10px; }
+.ov-salesgrid div { display: grid; gap: 2px; }
+.ov-salesgrid b { font-size: 16px; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.ov-salesgrid i { display: inline-block; width: 8px; height: 8px; border-radius: 3px; margin-right: 5px; }
+.ov-row2 > div > .ov-card { height: 100%; }
 .ov-row3 { display: grid; gap: 16px; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
 .ov-row3.one { grid-template-columns: minmax(0, 1fr); }
 /* Alone on its row (no orders list for this role), the photos keep a sensible size instead of filling the width. */
@@ -1131,6 +1138,6 @@ html.theme-wipe *, html.theme-wipe *::before, html.theme-wipe *::after { transit
 .ov-pill.online { background: var(--ov-soft); border-color: transparent; color: var(--brand-ink); }
 .ov-pill.ok { background: color-mix(in srgb, var(--accent-success) 14%, transparent); border-color: transparent; color: var(--accent-success); }
 .ov a:focus-visible, .ov button:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; border-radius: 8px; }
-@media (max-width: 1180px) { .ov-row1 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ov-hello { grid-column: 1 / -1; } .ov-row3 { grid-template-columns: minmax(0, 1fr); } .ov-sellers { grid-template-columns: repeat(5, minmax(110px, 1fr)); overflow-x: auto; padding-bottom: 4px; } }
+@media (max-width: 1180px) { .ov-row1 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ov-hello { grid-column: 1 / -1; } .ov-row2, .ov-row3 { grid-template-columns: minmax(0, 1fr); } .ov-sellers { grid-template-columns: repeat(5, minmax(110px, 1fr)); overflow-x: auto; padding-bottom: 4px; } }
 @media (max-width: 640px) { .ov-row1 { grid-template-columns: minmax(0, 1fr); } .ov-hello h1 { font-size: 25px; } .ov-chart { height: 240px; } }
 @media (prefers-reduced-motion: reduce) { .ov-live, .ov-skel { animation: none; } .ov-bar { transition: none; } .ov-ph img { transition: none; } }

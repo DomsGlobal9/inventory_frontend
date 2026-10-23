@@ -9,9 +9,6 @@ import RecentTransactions from '../components/dashboard/RecentTransactions';
 import LowStockWidget from '../components/dashboard/LowStockWidget';
 import WaitingWidget from '../components/dashboard/WaitingWidget';
 import DeadStockWidget from '../components/dashboard/DeadStockWidget';
-import SupplierSpendWidget from '../components/dashboard/SupplierSpendWidget';
-import InventoryTrendChart from '../components/dashboard/InventoryTrendChart';
-import SupplierSpendChart from '../components/dashboard/SupplierSpendChart';
 import Overview from '../components/dashboard/Overview';
 import { Plus } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -41,13 +38,13 @@ export default function Dashboard() {
     overview: [canReports && 'recent', canStock && 'lowStock'].filter(Boolean),
     // The low-stock list lives on Overview only (it was on both tabs). The stock-movement donut is gone:
     // it drew In and Out in the same grey, and counts of moves said little the tabs above do not.
-    inventory: [canSeeMoney && 'deadStock'].filter(Boolean),
-    analytics: [canSeeMoney && 'trend', canSeeMoney && 'spendChart', canSeeMoney && 'spend'].filter(Boolean)
+    inventory: [canSeeMoney && 'deadStock'].filter(Boolean)
+    // No Analytics tab: the stock value trend is the first card at the top now (Overview, per store), and
+    // the supplier charts were dropped (the owner's call, 22 Oct).
   };
   const tabs = [
     { id: 'overview', label: 'Overview' },
     { id: 'inventory', label: 'Inventory' },
-    { id: 'analytics', label: 'Analytics' }
   ].filter(t => widgets[t.id].length > 0);
 
   const asked = searchParams.get('tab') || 'overview';
@@ -218,13 +215,6 @@ export default function Dashboard() {
             </div>
           )}
 
-          {activeTab === 'analytics' && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(400px, 100%), 1fr))', gap: '24px' }}>
-              {shows('trend') && <motion.div variants={item}><InventoryTrendChart /></motion.div>}
-              {shows('spendChart') && <motion.div variants={item}><SupplierSpendChart /></motion.div>}
-              {shows('spend') && <motion.div variants={item}><SupplierSpendWidget /></motion.div>}
-            </div>
-          )}
         </motion.div>
       )}
       <style>{`.dash-focus:focus-visible { outline: 2px solid var(--accent-primary, #3b82f6); outline-offset: 3px; border-radius: 6px; }`}</style>

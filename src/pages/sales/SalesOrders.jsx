@@ -165,8 +165,10 @@ export default function SalesOrders() {
   return (
     // One scroll for the whole page (.page-scroll): the orders table used to scroll in its own box, which on
     // a smaller laptop showed a third of the screen of orders under the header and filters.
-    <div className="mobile-no-scroll page-scroll" style={{ display: 'flex', flexDirection: 'column', gap: 20, height: '100%', paddingTop: 24, paddingBottom: 24 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, flexWrap: 'wrap', flexShrink: 0 }}>
+    // The space above the title is the title's own, not the scroller's padding: padding there left a 24px
+    // strip above the pinned filters (.pf-sticky sticks inside it) where rows showed through (23 Oct).
+    <div className="mobile-no-scroll page-scroll" style={{ display: 'flex', flexDirection: 'column', gap: 20, height: '100%', paddingBottom: 24 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, flexWrap: 'wrap', flexShrink: 0, paddingTop: 24 }}>
         <div>
           <h1 style={{ fontSize: 32, marginBottom: 8, color: 'var(--text-primary)' }}>Sales Orders</h1>
           <p style={{ color: 'var(--text-secondary)' }}>Sales at the counter, online and from Shopify, and what was paid.</p>
@@ -216,7 +218,7 @@ export default function SalesOrders() {
                   <span style={{ fontWeight: 600 }}>{formatINRExact(Number(order.total))}</span>
                 </div>
                 <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
-                  {order.customer?.name} · {new Date(order.createdAt).toLocaleDateString()} · {whereFrom(order)}{order.createdBy?.name ? ` · ${order.createdBy.name}` : ''}
+                  {order.customer?.name} · {new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })} · {whereFrom(order)}{order.createdBy?.name ? ` · ${order.createdBy.name}` : ''}
                 </div>
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                   <Pill {...(STATUS[order.status] || STATUS.DRAFT)} />
@@ -255,7 +257,7 @@ export default function SalesOrders() {
                     <td style={{ ...td, fontWeight: 500 }}>{order.orderNumber}</td>
                     <td style={td}>
                       <div style={{ fontWeight: 500 }}>{order.customer?.name}</div>
-                      <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{new Date(order.createdAt).toLocaleDateString()} · {order.items?.length || 0} {order.items?.length === 1 ? 'item' : 'items'}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })} · {order.items?.length || 0} {order.items?.length === 1 ? 'item' : 'items'}</div>
                     </td>
                     <td style={td}>
                       <div>{whereFrom(order)}</div>

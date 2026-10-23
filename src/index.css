@@ -1253,6 +1253,11 @@ a.lh-row:hover .lh-what div:first-child { color: var(--brand-ink); }
 .products-page .grid-container, .products-page .table-container { flex: none; min-height: auto; overflow-y: visible; }
 .products-page .table-container { overflow-x: auto; }
 .pf-sticky { position: sticky; top: 0; z-index: 30; display: grid; gap: 12px; padding: 10px 0 12px; margin: -10px 0 -12px; background: var(--bg-dark); box-shadow: 0 1px 0 var(--border-light); }
+/* At 768px and below .main-content is the scroller, and a sticky band sticks inside its 16px top padding:
+   Orders and Products showed rows through a 16px strip above the pinned search and filters (23 Oct, live,
+   638px wide). Pulled up by exactly that padding so the band meets the top edge. After the rule above, or
+   top: 0 wins. Checked by PLAN-help/robot/film/check-sticky-gap.mjs. */
+@media (max-width: 768px) { .pf-sticky { top: -16px; } }
 
 /* Scout's tour spotlight on the landing page (components/landing/usePixelPals): rounded, padded, a lime ring,
    the rest of the page dimmed by its shadow. Glides from stop to stop; no glide for reduced motion. */

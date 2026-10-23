@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
  * the app's own screens never load any of it. The library keeps them still for people who ask
  * their device for less motion, and never lets them block a click.
  */
-const PALS = ['bitbug', 'plane', 'scout', 'scrolly', 'para', 'lurk', 'kitty', 'pip'];
+const PALS = ['bitbug', 'scout', 'scrolly', 'para', 'lurk', 'kitty', 'pip'];
 
 export function usePixelPals(names = PALS) {
   // Ready once every character THIS page asks for has loaded (another page may have loaded others).
@@ -90,8 +90,6 @@ export function useTourSpotlight(ready) {
 
 /** Starts Scout's guided tour of the page (the "Show me around" button). */
 export function startTour() {
-  // The plane's banner crosses the top of the screen slowly; it would fly through the spotlight.
-  document.querySelector('piix-pal[pal="plane"]')?.remove();
   const scout = document.querySelector('piix-pal[pal="scout"]');
   scout?.ctl?.start?.();
 }

@@ -780,7 +780,7 @@ export default function LandingPage() {
       }
       .lp-cta { padding: 11px 16px; font-size: 13.5px; }
       /* Three links pushed Get Started off a phone's edge. What's new is still a tap away on a phone:
-         the plane's banner and the "See everything that's new" button. */
+         the "See everything that's new" button in the New section. */
       .lp-wn-link { display: none !important; }
     }
 
@@ -890,7 +890,6 @@ export default function LandingPage() {
 
         <div style={{ position: 'relative', padding: 'clamp(64px, 11vw, 128px) 24px clamp(36px, 5vw, 64px)', textAlign: 'center' }}>
           <div>
-            {pals && <piix-pal pal="plane" text="New this season: store dashboards, customer card, online shop  →" href="/whats-new"></piix-pal>}
             <h1 className="lp-rise" data-tour="Hi, I'm Scout. Let me show you round ScaleEzy: it takes about a minute." data-tour-title="Welcome" data-tour-step="1" style={{
               fontSize: 'clamp(40px, 8.4vw, 96px)', fontWeight: 800, marginBottom: '24px',
               lineHeight: 1.04, letterSpacing: '-0.03em', color: 'var(--text-primary)'

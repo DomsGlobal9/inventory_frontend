@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery, keepPreviousData } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { api } from '../lib/api';
 import { invalidateDerivedViews } from '../lib/invalidate';
@@ -41,6 +41,28 @@ export const useSalesOrders = (filters = {}) => {
       return api.get('/sales-orders', { params });
     }
   });
+};
+
+/*
+ * The Orders page: search, filters, counts and sort, fifty at a time (services/order-filters).
+ * Under 'sales-orders' like the rest, so a confirm, cancel or payment anywhere refreshes it.
+ */
+export const useOrderSearch = (params) => {
+  const clean = Object.fromEntries(Object.entries(params).filter(([, v]) => v !== undefined && v !== ''));
+  return useInfiniteQuery({
+    queryKey: ['sales-orders', 'search', clean],
+    queryFn: ({ pageParam }) => api.get('/sales-orders', { params: { ...clean, facets: '1', page: pageParam, limit: 50 } }),
+    initialPageParam: 1,
+    getNextPageParam: (last) => (last?.meta && last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined),
+    // Keep the list on screen while a new filter loads, rather than flashing to a spinner.
+    placeholderData: keepPreviousData
+  });
+};
+
+/** Every order the filters match, as rows for a spreadsheet. */
+export const fetchOrdersForExport = (params) => {
+  const clean = Object.fromEntries(Object.entries(params).filter(([, v]) => v !== undefined && v !== ''));
+  return api.get('/sales-orders', { params: { ...clean, facets: '1', export: '1' } });
 };
 
 export const useSalesOrderDetails = (id) => {

@@ -48,7 +48,7 @@ const swatch = (name) => {
   return typeof CSS !== 'undefined' && CSS.supports?.('color', css) ? css : 'var(--bg-input)';
 };
 
-function useOutside(open, close) {
+export function useOutside(open, close) {
   React.useEffect(() => {
     if (!open) return undefined;
     const onKey = (e) => { if (e.key === 'Escape') close(); };
@@ -59,7 +59,7 @@ function useOutside(open, close) {
   }, [open, close]);
 }
 
-function Menu({ label, children, align }) {
+export function Menu({ label, children, align }) {
   return (
     <>
       <div className="pf-backdrop" aria-hidden="true" />

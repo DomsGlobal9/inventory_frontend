@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { firstMissingField, missingFieldMessage } from '../lib/formGuard';
 import toast from 'react-hot-toast';
 import LoadFailed from '../components/LoadFailed';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Truck, Plus, Search, ChevronRight, Building2, Phone, Mail, X } from 'lucide-react';
 import { typedPhone } from '../utils/phone';
@@ -18,7 +18,10 @@ export default function Suppliers() {
   const createSupplier = useCreateSupplier();
   
   const [searchTerm, setSearchTerm] = useState('');
-  const [showAddModal, setShowAddModal] = useState(false);
+  // ?new=1 (the Dashboard's + Supplier) opens the form at once; the address is then tidied.
+  const [linkParams, setLinkParams] = useSearchParams();
+  const [showAddModal, setShowAddModal] = useState(() => linkParams.get('new') === '1');
+  React.useEffect(() => { if (linkParams.get('new')) setLinkParams(p => { p.delete('new'); return p; }, { replace: true }); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const [newSupplier, setNewSupplier] = useState({ name: '', email: '', phone: '', address: '' });
 
   const filteredSuppliers = suppliers.filter(s =>

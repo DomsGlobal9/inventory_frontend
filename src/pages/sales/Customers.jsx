@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import LoadFailed from '../../components/LoadFailed';
 import { useCustomers } from '../../hooks/useCustomers';
 import { Search, Plus, IdCard, Gift } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import CustomerModal from '../../components/sales/CustomerModal';
 import { usePermission } from '../../hooks/usePermission';
 import { formatPhone } from '../../utils/phone';
@@ -22,7 +22,11 @@ export default function Customers() {
   // The search sent to the server waits for typing to pause: a phone number is ten keystrokes, and
   // each one used to be its own request.
   const [search, setSearch] = useState('');
-  const [adding, setAdding] = useState(false);
+  // ?new=1 (the Dashboard's + Customer) opens the form at once; the address is then tidied, so a refresh
+  // does not open it again.
+  const [linkParams, setLinkParams] = useSearchParams();
+  const [adding, setAdding] = useState(() => linkParams.get('new') === '1');
+  React.useEffect(() => { if (linkParams.get('new')) setLinkParams(p => { p.delete('new'); return p; }, { replace: true }); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   // A card per customer on a phone. The table was 774px wide, so STATUS and the View button --
   // the only way into a customer -- sat off the right edge of a 390px screen.
   const narrow = useMediaQuery('(max-width: 760px)');

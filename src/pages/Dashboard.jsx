@@ -35,7 +35,7 @@ export default function Dashboard() {
           </button>
         )}
         {can('inventory:receive') && (
-          <button className="btn btn-secondary" onClick={() => navigate('/inventory')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px' }}>
+          <button className="btn btn-secondary" onClick={() => navigate('/inventory?receive=1')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px' }}>
             <Plus size={16} /> Stock In
           </button>
         )}
@@ -45,7 +45,7 @@ export default function Dashboard() {
           </button>
         )}
         {can('supplier:create') && (
-          <button className="btn btn-secondary" onClick={() => navigate('/inventory/suppliers')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px' }}>
+          <button className="btn btn-secondary" onClick={() => navigate('/inventory/suppliers?new=1')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px' }}>
             <Plus size={16} /> Supplier
           </button>
         )}
@@ -56,7 +56,7 @@ export default function Dashboard() {
           </button>
         )}
         {can('customer:create') && (
-          <button className="btn btn-secondary" onClick={() => navigate('/customers')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px' }}>
+          <button className="btn btn-secondary" onClick={() => navigate('/customers?new=1')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px' }}>
             <Plus size={16} /> Customer
           </button>
         )}

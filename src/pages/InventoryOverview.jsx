@@ -68,6 +68,9 @@ export default function InventoryOverview() {
   }, [data]);
   
   const [modalState, setModalState] = useState({ type: null, variant: null }); // type: 'IN', 'OUT', 'ADJUST'
+  // ?receive=1 (the Dashboard's + Stock In): stock is received item by item, so the search box is ready and
+  // a line says what to do next.
+  const receiving = searchParams.get('receive') === '1';
 
   const container = {
     hidden: { opacity: 0 },
@@ -133,11 +136,17 @@ export default function InventoryOverview() {
         </div>
       </div>
 
+      {receiving && (
+        <div role="status" style={{ flexShrink: 0, padding: '12px 16px', borderRadius: '10px', background: 'color-mix(in srgb, var(--brand) 16%, transparent)', color: 'var(--text-primary)', fontSize: '14px' }}>
+          To receive stock, scan the item's barcode or type its name below, then press <b>Receive Stock</b> (the down arrow) on its row.
+        </div>
+      )}
       <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap', flexShrink: 0 }}>
         <div style={{ position: 'relative', width: '300px' }}>
           <Search size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '10px' }} />
           <input 
             type="text" 
+            autoFocus={receiving}
             placeholder="Search by SKU, Barcode, or Product Name" 
             className="input-field" 
             style={{ paddingLeft: '36px', width: '100%' }}

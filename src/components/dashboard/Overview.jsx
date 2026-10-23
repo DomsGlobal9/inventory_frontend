@@ -192,10 +192,10 @@ const timeAgo = (at) => {
   return new Date(at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 };
 
-export default function Overview({ actions, summary }) {
-  const { user } = useAuth();
-  const { currentLocation, isLoading: storesLoading } = useLocationContext();
-  const { data, isLoading: figuresLoading } = useQuery({
+/** The Dashboard's figures for the chosen store. One request, shared by the top half and the lower half. */
+export function useOverview() {
+  const { isLoading: storesLoading, currentLocation } = useLocationContext();
+  const q = useQuery({
     queryKey: ['dashboard-overview', currentLocation?.id ?? 'all'],
     queryFn: async () => (await api.get('/dashboard/overview')).data,
     // Asked once the store is known: asking before fetched the whole shop's figures, then the store's,
@@ -205,7 +205,13 @@ export default function Overview({ actions, summary }) {
     placeholderData: keepPreviousData,
     staleTime: 60 * 1000
   });
-  const isLoading = storesLoading || figuresLoading;
+  return { ...q, isLoading: storesLoading || q.isLoading };
+}
+
+export default function Overview({ actions, summary }) {
+  const { user } = useAuth();
+  const { currentLocation } = useLocationContext();
+  const { data, isLoading } = useOverview();
   const first = String(user?.name || '').trim().split(/\s+/)[0];
   const name = first ? first[0].toUpperCase() + first.slice(1) : '';
   const now = new Date();

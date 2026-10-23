@@ -1,80 +1,22 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { useDashboardSummary } from '../hooks/useDashboardSummary';
-import PageLoader from '../components/PageLoader';
-import SummaryCards from '../components/dashboard/SummaryCards';
-import MyDayCards from '../components/dashboard/MyDayCards';
 import SetUpShelvesCard from '../components/shelves/SetUpShelvesCard';
-import RecentTransactions from '../components/dashboard/RecentTransactions';
-import LowStockWidget from '../components/dashboard/LowStockWidget';
 import WaitingWidget from '../components/dashboard/WaitingWidget';
-import DeadStockWidget from '../components/dashboard/DeadStockWidget';
 import Overview from '../components/dashboard/Overview';
+import LowerHalf from '../components/dashboard/LowerHalf';
 import { Plus } from 'lucide-react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useProduct } from '../context/ProductContext';
 import { usePermission } from '../hooks/usePermission';
 
 export default function Dashboard() {
   const { can } = usePermission();
-  // The five tiles are the shop's money. Asked for only by somebody allowed to see them.
+  // The shop's money (the Stock value notes): asked for only by somebody allowed to see it.
   const canSeeMoney = can('report:financial');
-  const { data, isLoading, isError, error } = useDashboardSummary(canSeeMoney);
+  // Only the valuation notes under the Stock value card come from here now (Overview).
+  const { data } = useDashboardSummary(canSeeMoney);
   const navigate = useNavigate();
   const { resumePath } = useProduct();
-  const [searchParams, setSearchParams] = useSearchParams();
-  
-  /*
-   * Each widget only for somebody allowed its data, and a tab only when it has one.
-   *
-   * A salesperson was shown "Not part of your role" for the stock reports and, right under it,
-   * "All stock levels are healthy" -- the low-stock widget's query was switched off for them, so
-   * it read an empty answer as good news while three items were low. A widget that cannot load
-   * must not speak at all.
-   */
-  const canStock = can('inventory:view');
-  const canReports = can('report:view');
-  const widgets = {
-    overview: [canReports && 'recent', canStock && 'lowStock'].filter(Boolean),
-    // The low-stock list lives on Overview only (it was on both tabs). The stock-movement donut is gone:
-    // it drew In and Out in the same grey, and counts of moves said little the tabs above do not.
-    inventory: [canSeeMoney && 'deadStock'].filter(Boolean)
-    // No Analytics tab: the stock value trend is the first card at the top now (Overview, per store), and
-    // the supplier charts were dropped (the owner's call, 22 Oct).
-  };
-  const tabs = [
-    { id: 'overview', label: 'Overview' },
-    { id: 'inventory', label: 'Inventory' },
-  ].filter(t => widgets[t.id].length > 0);
-
-  const asked = searchParams.get('tab') || 'overview';
-  const activeTab = tabs.some(t => t.id === asked) ? asked : tabs[0]?.id;
-  const shows = (w) => activeTab && widgets[activeTab].includes(w);
-
-  const container = {
-    hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.1 } }
-  };
-
-  const item = {
-    hidden: { opacity: 0, y: 10 },
-    show: { opacity: 1, y: 0 }
-  };
-
-  const handleTabChange = (tab) => {
-    setSearchParams({ tab });
-  };
-
-  // Arrow keys move between tabs, as a screen reader announces a tab list to work.
-  const onTabKey = (e, index) => {
-    const step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
-    const jump = e.key === 'Home' ? 0 : e.key === 'End' ? tabs.length - 1 : null;
-    if (!step && jump === null) return;
-    e.preventDefault();
-    const next = jump ?? (index + step + tabs.length) % tabs.length;
-    handleTabChange(tabs[next].id);
-    document.getElementById(`dash-tab-${tabs[next].id}`)?.focus();
-  };
 
   return (
     // dash-page: every section keeps its height. This column scrolls, and a flex column shrinks any child
@@ -124,99 +66,14 @@ export default function Dashboard() {
           itself once the work is done, and for good if they say they do not use shelves. */}
       <SetUpShelvesCard />
 
-      {/* The day's work, one tile per permission held (see MyDayCards). */}
-      <motion.div variants={item}><MyDayCards /></motion.div>
+      {/* Customers who wanted something that had sold out: the one thing here that goes stale, so
+          first. It renders nothing when nobody is waiting. */}
+      <WaitingWidget />
 
-      {/* The shop's money: only for somebody allowed it. Not a "not part of your role" box --
-          a tile nobody can open is noise on the first screen they see. */}
-      {canSeeMoney && (
-        <motion.div variants={item}>
-          <SummaryCards data={data} isLoading={isLoading} isError={isError} error={error} />
-        </motion.div>
-      )}
-
-
-      {/* Tabs. Real tabs: buttons in a tab list, reachable and switchable from the keyboard and
-          announced as tabs -- they were bare divs, so mouse-only and silent to a screen reader. */}
-      {tabs.length > 0 && (
-        <div role="tablist" aria-label="Dashboard sections" style={{ display: 'flex', gap: '32px', borderBottom: '1px solid var(--border-light)', marginTop: '8px', marginBottom: '8px', overflowX: 'auto' }}>
-          {tabs.map((tab, index) => {
-            const selected = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                id={`dash-tab-${tab.id}`}
-                type="button"
-                role="tab"
-                aria-selected={selected}
-                aria-controls="dash-tab-panel"
-                tabIndex={selected ? 0 : -1}
-                className="dash-focus"
-                onClick={() => handleTabChange(tab.id)}
-                onKeyDown={(e) => onTabKey(e, index)}
-                style={{
-                  padding: '12px 0',
-                  cursor: 'pointer',
-                  background: 'none',
-                  border: 'none',
-                  font: 'inherit',
-                  fontWeight: selected ? '600' : '400',
-                  color: selected ? 'var(--text-primary)' : 'var(--text-secondary)',
-                  borderBottom: selected ? '2px solid var(--accent-primary)' : '2px solid transparent',
-                  transition: 'all 0.2s ease',
-                  marginBottom: '-1px',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
-      )}
-
-      {activeTab && (
-        <motion.div
-          key={activeTab}
-          id="dash-tab-panel"
-          role="tabpanel"
-          aria-labelledby={`dash-tab-${activeTab}`}
-          variants={container}
-          initial="hidden"
-          animate="show"
-          exit={{ opacity: 0, y: -10, transition: { duration: 0.1 } }}
-          style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}
-        >
-          {activeTab === 'overview' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              {/* Customers who wanted something that had sold out. First, because it is the only
-                  thing on this screen that goes stale -- somebody waiting a week has bought it
-                  somewhere else. It renders nothing at all when nobody is waiting, so it costs a
-                  shop with none of them no space and no attention. */}
-              <motion.div variants={item}><WaitingWidget /></motion.div>
-              {shows('recent') && (
-                <motion.div variants={item}>
-                  <RecentTransactions />
-                </motion.div>
-              )}
-              {shows('lowStock') && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(320px, 100%), 1fr))', gap: '24px' }}>
-                  <motion.div variants={item}>
-                    <LowStockWidget />
-                  </motion.div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {activeTab === 'inventory' && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(400px, 100%), 1fr))', gap: '24px' }}>
-              {shows('deadStock') && <motion.div variants={item}><DeadStockWidget /></motion.div>}
-            </div>
-          )}
-
-        </motion.div>
-      )}
+      {/* Waiting on you, money tied up, stock moves and what to restock, in the same cards as the
+          top half. They replaced six tiles (four mostly reading 0) and two tabs on 23 Oct; the old
+          Open PO tile summed whole orders across the shop, this says what is still to arrive here. */}
+      <LowerHalf canMoves={can('report:view')} canOrder={can('purchase_order:create')} />
       <style>{`.dash-focus:focus-visible { outline: 2px solid var(--accent-primary, #3b82f6); outline-offset: 3px; border-radius: 6px; }`}</style>
     </div>
   );

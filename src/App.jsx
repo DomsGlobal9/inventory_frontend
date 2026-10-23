@@ -101,6 +101,8 @@ function App() {
           {/* Public. Records a signup enquiry as a lead -- it creates no account and no
               workspace, so it sits outside every auth boundary by design. */}
           <Route path="/signup" element={<Signup />} />
+          {/* Public, part of the landing site: what is new, for visitors and staff alike (pages/WhatsNew). */}
+          <Route path="/whats-new" element={<WhatsNew />} />
 
           {/* Public user guide: anyone can read it, signed in or not. */}
           <Route path="/help" element={<Suspense fallback={null}><HelpLayout /></Suspense>}>
@@ -219,8 +221,6 @@ function App() {
           <Route path="/reports/daybook" element={<Guard permission="report:financial"><DayBook /></Guard>} />
           <Route path="/customers" element={<Guard permission="customer:view"><Customers /></Guard>} />
           <Route path="/customers/card" element={<Guard permission="customer:view"><CustomerCard /></Guard>} />
-          {/* Everybody signed in: each card shows its "Open it" only to a role that can open that screen. */}
-          <Route path="/whats-new" element={<WhatsNew />} />
               <Route path="/customers/door-qr" element={<Guard permission="customer:view"><DoorQr /></Guard>} />
               <Route path="/customers/gift-vouchers" element={<Guard permission="voucher:view"><GiftVouchers /></Guard>} />
               <Route path="/customers/:id" element={<Guard permission="customer:view"><CustomerDetail /></Guard>} />

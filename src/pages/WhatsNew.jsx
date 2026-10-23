@@ -1,21 +1,21 @@
 import React from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowRight, Sparkles } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 import { usePermission } from '../hooks/usePermission';
+import { useAuth } from '../context/AuthContext';
+import BrandLockup from '../components/BrandLockup';
 import { usePixelPals } from '../components/landing/usePixelPals';
 
 /**
- * WHAT'S NEW: what has been added to ScaleEzy, a card each, by area.
+ * WHAT'S NEW: a public page of the landing site (not inside the app): what has been added to ScaleEzy, a
+ * card each, by area, with how to start. Linked from the landing page's bar, its plane banner and its
+ * "New in ScaleEzy" section.
  *
- * Every card opens the screen it is about -- but only for somebody whose role can open it; anybody else is
- * told who can, rather than pressing a button that leads to a "not part of your role" wall. Written from
- * what the screens actually do (checked in the app on 23 Oct), not from what was planned.
- *
- * Opening this page clears the "New" dot on its sidebar item (WHATS_NEW_VERSION in localStorage).
+ * A visitor gets "Try it free" (sign-up). Somebody signed in gets "Open it" for screens their role can open,
+ * and who to ask for the rest -- never a button to a "not part of your role" wall. Written from what the
+ * screens actually do (checked in the app on 23 Oct), not from what was planned.
  */
-export const WHATS_NEW_VERSION = '2026-10-23';
-const SEEN_KEY = 'scaleezy_whats_new_seen';
-export const whatsNewUnseen = () => { try { return localStorage.getItem(SEEN_KEY) !== WHATS_NEW_VERSION; } catch { return false; } };
 
 // ── Small drawings, one per feature, in the app's own colours (they follow light and dark). ─────────────
 const Frame = ({ children }) => (
@@ -140,7 +140,9 @@ const FEATURES = [
 ];
 
 function OpenIt({ f }) {
+  const { isAuthenticated } = useAuth();
   const { can } = usePermission();
+  if (!isAuthenticated) return <Link to="/signup" className="wn-open">Try it free <ArrowRight size={15} aria-hidden="true" /></Link>;
   if (!can(f.can)) return <span className="wn-noaccess">Ask whoever manages your team to open this for you.</span>;
   return <Link to={f.to} className="wn-open">Open it <ArrowRight size={15} aria-hidden="true" /></Link>;
 }
@@ -150,9 +152,9 @@ export default function WhatsNew() {
   const area = AREAS.some(a => a.id === params.get('tab')) ? params.get('tab') : 'all';
   const shown = FEATURES.filter(f => area === 'all' || f.area === area);
   const [lead, ...rest] = shown;
-  // One character, on the large card only: it peeks out from behind it and ducks back.
-  const pals = usePixelPals(['lurk']);
-  React.useEffect(() => { try { localStorage.setItem(SEEN_KEY, WHATS_NEW_VERSION); window.dispatchEvent(new Event('whatsnew-seen')); } catch { /* storage off */ } }, []);
+  const { isAuthenticated } = useAuth();
+  // Two cards, not all: something peeks out from behind them and ducks back.
+  const pals = usePixelPals(['lurk', 'kitty']);
 
   const onTabKey = (e, i) => {
     const step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
@@ -164,7 +166,21 @@ export default function WhatsNew() {
   };
 
   return (
-    <div className="mobile-no-scroll page-scroll wn" style={{ display: 'flex', flexDirection: 'column', gap: '22px', height: '100%' }}>
+    // Its own scroller, like the landing page: the app shell keeps html and body from scrolling.
+    <div className="wn-public">
+      <Helmet>
+        <title>What's new · ScaleEzy</title>
+        <meta name="description" content="What ScaleEzy added this season: a dashboard per store, the customer card, your own online shop, the billing counter, gift vouchers and points, WhatsApp offers, shelves and product filters." />
+      </Helmet>
+      <nav className="wn-bar">
+        <Link to="/" aria-label="ScaleEzy home" style={{ display: 'flex', textDecoration: 'none' }}><BrandLockup size="md" /></Link>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          {isAuthenticated
+            ? <Link to="/dashboard" className="wn-open">Go to your dashboard <ArrowRight size={15} aria-hidden="true" /></Link>
+            : <><Link to="/login" className="wn-barlink">Log in</Link><Link to="/signup" className="wn-open">Get started</Link></>}
+        </div>
+      </nav>
+      <main className="wn">
       <header className="wn-head">
         <span className="wn-badge"><Sparkles size={14} aria-hidden="true" /> New this season</span>
         <h1>What's new in ScaleEzy</h1>
@@ -200,8 +216,9 @@ export default function WhatsNew() {
 
       {rest.length > 0 && (
         <div className="wn-grid">
-          {rest.map(f => (
+          {rest.map((f, i) => (
             <article key={f.title} className="wn-card-box" aria-label={f.title}>
+              {pals && i === rest.length - 1 && <piix-pal pal="kitty" do="peek"></piix-pal>}
               {ART[f.art]}
               <span className="wn-when">{f.when}</span>
               <h3>{f.title}</h3>
@@ -215,6 +232,13 @@ export default function WhatsNew() {
           ))}
         </div>
       )}
+      <section className="wn-end">
+        <h2>{isAuthenticated ? 'All of this is already in your account.' : 'Try all of it on your own shop.'}</h2>
+        <p>{isAuthenticated ? 'Open a card above, or go to your dashboard.' : 'Add your products and what is on the shelves. No card, nothing to install.'}</p>
+        <Link to={isAuthenticated ? '/dashboard' : '/signup'} className="wn-open">{isAuthenticated ? 'Go to your dashboard' : 'Start for free'} <ArrowRight size={15} aria-hidden="true" /></Link>
+        <Link to="/" className="wn-barlink">Back to the ScaleEzy home page</Link>
+      </section>
+      </main>
     </div>
   );
 }

@@ -861,6 +861,7 @@ export default function LandingPage() {
           <BrandLockup size="md" />
         </Link>
         <div style={{ display: 'flex', gap: '16px' }}>
+          <Link to="/whats-new" className="lp-login" style={{ whiteSpace: 'nowrap' }}>What's new</Link>
           <Link to="/login" className="lp-login" style={{ whiteSpace: 'nowrap' }}>Log In</Link>
           <Link to="/signup" className="lp-cta" style={{
             whiteSpace: 'nowrap', borderRadius: '999px', fontWeight: 700, textDecoration: 'none',
@@ -886,7 +887,7 @@ export default function LandingPage() {
 
         <div style={{ position: 'relative', padding: 'clamp(64px, 11vw, 128px) 24px clamp(36px, 5vw, 64px)', textAlign: 'center' }}>
           <div>
-            {pals && <piix-pal pal="plane" text="New this season: store dashboards, customer card, online shop  →" href="#new"></piix-pal>}
+            {pals && <piix-pal pal="plane" text="New this season: store dashboards, customer card, online shop  →" href="/whats-new"></piix-pal>}
             <h1 className="lp-rise" data-tour="Hi, I'm Scout. Let me show you round ScaleEzy: it takes about a minute." data-tour-title="Welcome" data-tour-step="1" style={{
               fontSize: 'clamp(40px, 8.4vw, 96px)', fontWeight: 800, marginBottom: '24px',
               lineHeight: 1.04, letterSpacing: '-0.03em', color: 'var(--text-primary)'
@@ -974,9 +975,12 @@ export default function LandingPage() {
             <motion.div
               initial={{ opacity: 0, scale: 0.985 }} whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true, amount: 0.1 }} transition={{ duration: 0.45, delay: 0.05 }}
-              style={{ order: i % 2 === 1 ? 1 : 2, minWidth: 0 }}
+              style={{ order: i % 2 === 1 ? 1 : 2, minWidth: 0, position: 'relative' }}
             >
               {f.art}
+              {/* Two panels, not all: something peeks out from behind them and ducks back. */}
+              {pals && f.eyebrow === 'What it is worth' && <piix-pal pal="lurk"></piix-pal>}
+              {pals && f.eyebrow === 'More than one shop' && <piix-pal pal="kitty" do="peek"></piix-pal>}
             </motion.div>
           </div>
         </section>
@@ -996,7 +1000,7 @@ export default function LandingPage() {
       <section id="new" style={{ padding: 'clamp(56px, 9vw, 104px) 0', borderTop: '1px solid var(--border-light)', scrollMarginTop: '80px' }}>
         <div style={shell}>
           {/* The tour's stop covers the label, heading and line together, so Scout stands above them. */}
-          <div data-tour="And here is what is new this season: a dashboard per store, the customer card, your own online shop and more." data-tour-title="New this season" data-tour-step="7" style={{ maxWidth: '640px' }}>
+          <div data-tour="And here is what is new this season. The What's new page has all of it, with how to start." data-tour-title="New this season" data-tour-step="7" style={{ maxWidth: '640px' }}>
           <p style={{ fontSize: '12px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--brand-ink)', margin: '0 0 16px', fontWeight: 600 }}>
             New in ScaleEzy
           </p>
@@ -1009,7 +1013,7 @@ export default function LandingPage() {
           </p>
           </div>
           <div style={{ display: 'grid', gap: '16px', gridTemplateColumns: 'repeat(auto-fill, minmax(min(260px, 100%), 1fr))' }}>
-            {NEW_FEATURES.map(({ icon: Icon, title, body }, i) => (
+            {NEW_FEATURES.slice(0, 4).map(({ icon: Icon, title, body }, i) => (
               <motion.div key={title}
                 initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.1 }} transition={{ duration: 0.35, delay: (i % 4) * 0.05 }}
@@ -1019,12 +1023,16 @@ export default function LandingPage() {
                 </span>
                 <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.3 }}>{title}</h3>
                 <p style={{ margin: 0, fontSize: '14.5px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>{body}</p>
-                {/* Two cards, not all: something peeks out from behind them and ducks back. */}
-                {pals && i === 1 && <piix-pal pal="lurk"></piix-pal>}
-                {pals && i === 6 && <piix-pal pal="kitty" do="peek"></piix-pal>}
               </motion.div>
             ))}
           </div>
+          <Link to="/whats-new" className="lp-perch" style={{
+            display: 'inline-flex', alignItems: 'center', gap: '9px', marginTop: '28px',
+            padding: '13px 26px', borderRadius: '999px', fontSize: '15.5px', fontWeight: 700,
+            background: 'var(--brand-solid)', color: 'var(--brand-on-solid)', textDecoration: 'none'
+          }}>
+            See everything that's new <ArrowRight size={16} />
+          </Link>
         </div>
       </section>
 

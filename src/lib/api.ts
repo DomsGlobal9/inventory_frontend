@@ -33,7 +33,8 @@ const api = axios.create({
  * a broken screen instead of being asked to sign in. Add a path only when the page genuinely
  * works with nobody logged in.
  */
-const PUBLIC_PATHS = ['/', '/login', '/signup'];
+// /whats-new is part of the landing site: a visitor opening it straight from a link must not be sent to Log in.
+const PUBLIC_PATHS = ['/', '/login', '/signup', '/whats-new'];
 
 const STORAGE_KEY = 'scaleezy_auth_user';
 export const LOCATION_STORAGE_KEY = 'scaleezy_location_id';

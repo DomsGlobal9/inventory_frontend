@@ -1266,7 +1266,6 @@ a.lh-row:hover .lh-what div:first-child { color: var(--brand-ink); }
 .wn-when { font-size: 12px; font-weight: 600; color: var(--brand-ink); }
 .wn-open { display: inline-flex; align-items: center; gap: 6px; width: fit-content; padding: 9px 16px; border-radius: 999px; background: var(--brand-solid); color: var(--brand-on-solid); font-weight: 600; font-size: 14px; text-decoration: none; }
 .wn-noaccess { font-size: 13px; color: var(--text-muted); }
-.wn-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--brand); margin-left: auto; box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 25%, transparent); }
 .wn-art { width: 100%; height: auto; display: block; max-width: 100%; }
 .wn-art-bg { fill: var(--bg-input); }
 .wn-card { fill: var(--bg-card); stroke: var(--border-light); }
@@ -1287,3 +1286,13 @@ a.lh-row:hover .lh-what div:first-child { color: var(--brand-ink); }
 .wn-btntext { fill: #ffffff; }
 .wn-small { font-size: 14px; }
 @media (max-width: 760px) { .wn-lead { grid-template-columns: minmax(0, 1fr); } }
+
+/* What's new is a public page of the landing site: its own scroller, bar and ending. */
+.wn-public { height: 100vh; height: 100dvh; overflow-y: auto; overflow-x: hidden; background: var(--bg-dark); }
+.wn-public .wn { display: flex; flex-direction: column; gap: 22px; max-width: 1180px; margin: 0 auto; padding-block: 28px 64px; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+.wn-bar { position: sticky; top: 0; z-index: 50; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px max(20px, env(safe-area-inset-right, 0px)) 12px max(20px, env(safe-area-inset-left, 0px)); background: color-mix(in srgb, var(--bg-dark) 82%, transparent); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border-light); }
+.wn-barlink { color: var(--text-primary); text-decoration: none; font-weight: 500; font-size: 14.5px; padding: 8px 6px; }
+.wn-card-box { position: relative; }
+.wn-end { display: grid; gap: 12px; justify-items: center; text-align: center; padding: 40px 16px 8px; border-top: 1px solid var(--border-light); }
+.wn-end h2 { margin: 0; font-size: clamp(22px, 3vw, 30px); color: var(--text-primary); }
+.wn-end p { margin: 0; color: var(--text-secondary); }

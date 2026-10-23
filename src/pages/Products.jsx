@@ -1,10 +1,11 @@
 import React from 'react';
 import LoadFailed from '../components/LoadFailed';
-import { useNavigate } from 'react-router-dom';
-import { Plus, Package, Download, Upload, FileSpreadsheet, LayoutGrid, List } from 'lucide-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Plus, Package, Download, Upload, FileSpreadsheet, LayoutGrid, List, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { useProducts, useBulkSetProductStatus } from '../hooks/useProducts';
+import { useProductSearch, useBulkSetProductStatus } from '../hooks/useProducts';
+import ProductFilters, { ActiveFilters, SortMenu, LIST_KEYS } from '../components/products/ProductFilters';
 import { useProduct } from '../context/ProductContext';
 import { rowLink } from '../components/common/rowLink';
 import BulkUpdateModal from '../components/BulkUpdateModal';
@@ -22,7 +23,43 @@ export default function Products() {
   const { resumePath } = useProduct();
   const { can } = usePermission();
   const canEdit = can('product:update');
-  const [statusFilter, setStatusFilter] = React.useState(''); // Empty means default (ACTIVE, DRAFT)
+
+  /*
+   * Search, filters and sort live in the page address: Back returns to the same list, a refresh
+   * keeps it, and a link to "blue sarees under ₹5,000" can be sent to whoever is restocking.
+   * Lists travel joined with "|" (services/product-filters splits them).
+   */
+  const [params, setParams] = useSearchParams();
+  const statusFilter = params.get('status') ?? ''; // Empty means default (ACTIVE, DRAFT)
+  const sort = params.get('sort') ?? 'new';
+  const num = (k) => (params.get(k) === null || params.get(k) === '' ? undefined : Number(params.get(k)));
+  const filters = {
+    ...Object.fromEntries(LIST_KEYS.map(k => [k, params.get(k) ? params.get(k).split('|') : []])),
+    min: num('min'), max: num('max'), q: params.get('q') ?? ''
+  };
+  const setParam = (changes) => setParams(prev => {
+    const next = new URLSearchParams(prev);
+    for (const [k, v] of Object.entries(changes)) {
+      const s = Array.isArray(v) ? v.join('|') : v === undefined || v === null ? '' : String(v);
+      s ? next.set(k, s) : next.delete(k);
+    }
+    return next;
+  }, { replace: true });
+  const setStatusFilter = (s) => setParam({ status: s });
+  const setFilters = (f) => setParam({ ...Object.fromEntries(LIST_KEYS.map(k => [k, f[k] ?? []])), min: f.min, max: f.max });
+  const clearAll = () => { setSearchText(''); setParam({ ...Object.fromEntries(LIST_KEYS.map(k => [k, []])), min: undefined, max: undefined, q: '' }); };
+
+  // Typing searches after a short pause, not on every key.
+  const [searchText, setSearchText] = React.useState(filters.q);
+  React.useEffect(() => {
+    if (searchText.trim() === filters.q) return undefined;
+    const t = setTimeout(() => setParam({ q: searchText.trim() }), 300);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchText]);
+  // Back or Forward changed the search in the address: the box follows.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  React.useEffect(() => { if (filters.q !== searchText.trim()) setSearchText(filters.q); }, [filters.q]);
 
   /*
    * Table or photographs, remembered per person.
@@ -46,7 +83,18 @@ export default function Products() {
     setView(next);
     try { localStorage.setItem('products.view', next); } catch { /* as above */ }
   };
-  const { data, isLoading, isError, error, refetch } = useProducts({ page: 1, limit: 50, status: statusFilter || undefined });
+  /*
+   * Fifty at a time, "Show more" for the next fifty. This page used to ask for the first fifty and
+   * stop: a shop with 59 products could not reach nine of them from here.
+   */
+  const { data, isLoading, isError, error, refetch, fetchNextPage, hasNextPage, isFetchingNextPage, isFetching } = useProductSearch({
+    status: statusFilter || undefined, sort, q: filters.q || undefined,
+    ...Object.fromEntries(LIST_KEYS.map(k => [k, filters[k].join('|') || undefined])),
+    min: filters.min !== undefined ? String(filters.min) : undefined, max: filters.max !== undefined ? String(filters.max) : undefined
+  });
+  const firstPage = data?.pages?.[0];
+  const meta = firstPage?.meta;
+  const filtering = filters.q || LIST_KEYS.some(k => filters[k].length) || filters.min !== undefined || filters.max !== undefined;
 
   const [isBulkUpdateModalOpen, setIsBulkUpdateModalOpen] = React.useState(false);
   const [isImportOpen, setIsImportOpen] = React.useState(false);
@@ -54,12 +102,16 @@ export default function Products() {
   const [confirmState, setConfirmState] = React.useState({ isOpen: false });
   const bulkStatus = useBulkSetProductStatus();
 
-  const products = data?.data || [];
+  // With a colour, price or stock filter on, each product carries only the colours that matched, so
+  // the photo view shows the blue ones when Blue was picked rather than whichever colour comes first.
+  const products = React.useMemo(() => (data?.pages ?? []).flatMap(p => p?.data ?? []).map(p =>
+    Array.isArray(p.matches) ? { ...p, colours: (p.colours ?? []).filter(c => p.matches.includes(c.id)) } : p
+  ), [data]);
 
   // A selection belongs to the list it was made from. Changing the filter shows different
   // products, and acting on ids the merchant can no longer see is how somebody publishes
   // something they never chose.
-  React.useEffect(() => { setSelected(new Set()); }, [statusFilter]);
+  React.useEffect(() => { setSelected(new Set()); }, [params]);
 
   const selectedProducts = products.filter(p => selected.has(p.id));
   const draftsSelected = selectedProducts.filter(p => p.status === 'DRAFT');
@@ -236,6 +288,16 @@ export default function Products() {
         </div>
       </div>
 
+      <div className="pf-top">
+        <label className="pf-search" htmlFor="product-search">
+          <Search size={16} aria-hidden="true" />
+          <input id="product-search" type="search" value={searchText} onChange={(e) => setSearchText(e.target.value)}
+            placeholder="Search name, code, SKU, barcode or colour" autoComplete="off" />
+        </label>
+      </div>
+      <ProductFilters facets={firstPage?.facets} value={filters} onChange={setFilters} />
+      <ActiveFilters value={filters} onChange={setFilters} onClearAll={clearAll} />
+
       {/* Appears only when something is chosen, and says what it will do to what. A bar that
           is always there with "0 selected" is a bar that is always in the way. */}
       {canEdit && selected.size > 0 && (
@@ -272,8 +334,15 @@ export default function Products() {
         The switch. Two buttons rather than a dropdown: there are two choices, both are one
         word, and a menu to pick between two things is a menu nobody opens twice.
       */}
-      {!isLoading && !isError && products.length > 0 && (
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', marginBottom: '12px' }}>
+      {!isLoading && !isError && meta && (
+        <div className="pf-count-line">
+          <span aria-live="polite" style={{ opacity: isFetching && !isFetchingNextPage ? 0.6 : 1 }}>
+            {meta.total === meta.everything ? `${meta.total} ${meta.total === 1 ? 'product' : 'products'}` : `${meta.total} of ${meta.everything} products`}
+            {' · '}{meta.colours} {meta.colours === 1 ? 'colour' : 'colours'}
+          </span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+            <SortMenu sort={sort} onChange={(s) => setParam({ sort: s === 'new' ? '' : s })} />
+            {products.length > 0 && <span style={{ display: 'flex', gap: '6px' }}>
           {[
             { id: 'table', label: 'List', Icon: List },
             { id: 'grid', label: 'Photos', Icon: LayoutGrid }
@@ -289,6 +358,8 @@ export default function Products() {
               <Icon size={14} /> {label}
             </button>
           ))}
+            </span>}
+          </span>
         </div>
       )}
 
@@ -306,9 +377,17 @@ export default function Products() {
         {isLoading ? (
           <PageLoader text="Loading products..." />
         ) : isError ? (<LoadFailed what="products" error={error} onRetry={refetch} />) : products.length === 0 ? (
+          filtering ? (
+            <div style={{ padding: '48px 16px', textAlign: 'center', display: 'grid', gap: '10px', justifyItems: 'center' }}>
+              <p style={{ margin: 0, fontWeight: 600, color: 'var(--text-primary)' }}>Nothing matches all of these.</p>
+              <p style={{ margin: 0, color: 'var(--text-secondary)' }}>Take off a filter above, or start again.</p>
+              <button type="button" className="btn-secondary" onClick={clearAll}>Clear all filters</button>
+            </div>
+          ) : (
           <div style={{ padding: '48px', textAlign: 'center', color: 'var(--text-muted)' }}>
             No products added yet.
           </div>
+          )
         ) : (
           <motion.table variants={container} initial="hidden" animate="show" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
@@ -325,7 +404,7 @@ export default function Products() {
                   />
                 </th>}
                 <th>Product</th>
-                <th>Category</th>
+                <th>Type</th>
                 <th>Variants</th>
                 <th>Stock Units</th>
                 <th>Base Price</th>
@@ -366,7 +445,8 @@ export default function Products() {
                       </div>
                     </div>
                   </td>
-                  <td>{product.category}</td>
+                  {/* What the shop calls it (Saree, Lehenga); the old category column said WOMEN on every row. */}
+                  <td>{product.dressType || product.category}</td>
                   <td>{product.variantSummary?.variantCount || 0}</td>
                   <td style={{ color: product.variantSummary?.lowStockVariants > 0 ? 'var(--accent-danger)' : 'inherit', fontWeight: '500' }}>
                     {product.variantSummary?.totalUnits || 0}
@@ -387,6 +467,14 @@ export default function Products() {
           </motion.table>
         )}
       </div>
+      )}
+
+      {hasNextPage && meta && (
+        <div className="pf-more">
+          <button type="button" className="btn-secondary" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
+            {isFetchingNextPage ? 'Loading…' : `Show ${Math.min(meta.limit, meta.total - products.length)} more · ${products.length} of ${meta.total} shown`}
+          </button>
+        </div>
       )}
 
       <ConfirmModal

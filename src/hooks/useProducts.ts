@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery, keepPreviousData } from '@tanstack/react-query';
 import { getProducts, getProductById, createProduct, updateProduct, archiveProduct, trashProduct, restoreProduct, hardDeleteProduct, bulkSetProductStatus } from '../services/product.service';
 import { queryKeys } from '../lib/queryKeys';
 import { toast } from 'react-hot-toast';
@@ -21,6 +21,29 @@ export const useProducts = (params: any = {}) => {
       const rows = query.state.data?.data ?? [];
       const busy = Array.isArray(rows) && rows.some((p: any) => (p.generating ?? []).length > 0);
       return busy ? 5000 : false;
+    },
+  });
+};
+
+/**
+ * The Products page: search, filters, sort and the counts beside each choice (services/product-filters
+ * on the server), fifty at a time, "Show more" adding the next fifty.
+ *
+ * Under the same key as the plain list, so every mutation that refreshes products refreshes this too.
+ */
+export const useProductSearch = (params: Record<string, string | undefined>) => {
+  const clean = Object.fromEntries(Object.entries(params).filter(([, v]) => v !== undefined && v !== ''));
+  return useInfiniteQuery({
+    queryKey: [...queryKeys.products, 'search', clean],
+    queryFn: ({ pageParam }) => getProducts({ ...clean, facets: '1', page: pageParam, limit: 50 }) as Promise<any>,
+    initialPageParam: 1,
+    getNextPageParam: (last: any) => (last?.meta && last.meta.page < last.meta.pages ? last.meta.page + 1 : undefined),
+    // Keep the list on screen while a new filter loads, rather than flashing to a spinner.
+    placeholderData: keepPreviousData,
+    // As useProducts: ask again only while photographs are being made.
+    refetchInterval: (query: any) => {
+      const rows = (query.state.data?.pages ?? []).flatMap((p: any) => p?.data ?? []);
+      return rows.some((p: any) => (p.generating ?? []).length > 0) ? 5000 : false;
     },
   });
 };

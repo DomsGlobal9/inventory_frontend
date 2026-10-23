@@ -52,6 +52,7 @@ import PurchaseOrderDetails from './pages/PurchaseOrderDetails';
 import Customers from './pages/sales/Customers';
 import CustomerDetail from './pages/sales/CustomerDetail';
 import CustomerCard from './pages/sales/CustomerCard';
+import WhatsNew from './pages/WhatsNew';
 import DoorQr from './pages/sales/DoorQr';
 import GiftVouchers from './pages/sales/GiftVouchers';
 import SalesOrders from './pages/sales/SalesOrders';
@@ -218,6 +219,8 @@ function App() {
           <Route path="/reports/daybook" element={<Guard permission="report:financial"><DayBook /></Guard>} />
           <Route path="/customers" element={<Guard permission="customer:view"><Customers /></Guard>} />
           <Route path="/customers/card" element={<Guard permission="customer:view"><CustomerCard /></Guard>} />
+          {/* Everybody signed in: each card shows its "Open it" only to a role that can open that screen. */}
+          <Route path="/whats-new" element={<WhatsNew />} />
               <Route path="/customers/door-qr" element={<Guard permission="customer:view"><DoorQr /></Guard>} />
               <Route path="/customers/gift-vouchers" element={<Guard permission="voucher:view"><GiftVouchers /></Guard>} />
               <Route path="/customers/:id" element={<Guard permission="customer:view"><CustomerDetail /></Guard>} />

@@ -94,7 +94,9 @@ export default function InventoryOverview() {
   };
 
   return (
-    <div className="mobile-no-scroll" style={{ display: 'flex', flexDirection: 'column', gap: '24px', height: '100%' }}>
+    // One scroll for the whole page (.page-scroll); the table is plain content in it. It used to scroll in
+    // its own box under the header and filters, which on a laptop showed about a third of the screen of rows.
+    <div className="mobile-no-scroll page-scroll" style={{ display: 'flex', flexDirection: 'column', gap: '24px', height: '100%' }}>
       <div className="mobile-col" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexShrink: 0, gap: '16px' }}>
         <div>
           <h1 style={{ fontSize: '32px', fontWeight: '600', letterSpacing: '-0.03em', marginBottom: '8px', color: 'var(--text-primary)' }}>Inventory Overview</h1>
@@ -168,7 +170,7 @@ export default function InventoryOverview() {
         </div>
       </div>
 
-      <div className="table-container" style={{ overflowX: 'auto', flex: 1 }}>
+      <div className="table-container" style={{ overflowX: 'auto' }}>
         {isLoading ? (
           <PageLoader text="Loading inventory..." />
         ) : isError ? (<LoadFailed what="inventory" error={error} onRetry={refetch} />) : variants.length === 0 ? (

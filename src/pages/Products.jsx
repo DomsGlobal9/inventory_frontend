@@ -217,7 +217,9 @@ export default function Products() {
   };
 
   return (
-    <div className="mobile-no-scroll" style={{ display: 'flex', flexDirection: 'column', gap: '24px', height: '100%' }}>
+    // The whole page scrolls, with search, filters and the count pinned at the top (.pf-sticky). Only the
+    // list used to scroll, inside a box that got shorter as the filters were added: one row of cards showed.
+    <div className="mobile-no-scroll products-page" style={{ display: 'flex', flexDirection: 'column', gap: '24px', flex: 1, minHeight: 0 }}>
       <div className="mobile-col" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexShrink: 0, gap: '16px' }}>
         <div>
           <h1 style={{ fontSize: '28px', marginBottom: '4px', color: 'var(--text-primary)' }}>Products</h1>
@@ -288,6 +290,7 @@ export default function Products() {
         </div>
       </div>
 
+      <div className="pf-sticky">
       <div className="pf-top">
         <label className="pf-search" htmlFor="product-search">
           <Search size={16} aria-hidden="true" />
@@ -362,6 +365,8 @@ export default function Products() {
           </span>
         </div>
       )}
+
+      </div>
 
       {view === 'grid' && !isLoading && !isError && products.length > 0 ? (
         <div className="grid-container">

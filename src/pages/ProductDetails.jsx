@@ -232,7 +232,9 @@ export default function ProductDetails() {
    * own scroller on wide screens and switches itself off on phones, where .main-content already
    * scrolls. The other tabs fit the height exactly, so nothing changes for them.
    */
-  const flowingTab = activeTab === 'images';
+  // Every tab flows now (23 Oct): "the other tabs fit the height exactly" stopped being true -- on a
+  // 1366x700 laptop the Overview panel scrolled in a 279px box. One scroll for the whole page instead.
+  const flowingTab = true;
 
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="page-scroll"
@@ -426,7 +428,7 @@ export default function ProductDetails() {
               : { flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
           >
             {activeTab === 'overview' && (
-              <div className="glass-panel mobile-no-scroll" style={{ padding: '32px', flex: 1, overflowY: 'auto' }}>
+              <div className="glass-panel mobile-no-scroll" style={{ padding: '32px' }}>
                 {/*
                   * Stacks on a phone. The Identifiers panel beside this is a fixed 280px and does
                   * not shrink, so on a 390px screen it took 280 of the 326 available and left the

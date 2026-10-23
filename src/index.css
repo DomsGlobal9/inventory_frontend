@@ -548,6 +548,12 @@ tr:hover td {
   overflow-y: auto;
   padding-bottom: 40px;
 }
+/* Nothing in a scrolling page may be squeezed to fit: a flex column shrinks any child that has its own
+   overflow (a table-container), which is how a list ends up in a small box again. */
+.page-scroll > * { flex-shrink: 0; }
+/* ...and a table in one is as tall as its rows. .table-container's own flex: 1 (basis 0) made it fill only the
+   room left under the header and scroll by itself: Inventory showed 478px of a 3,498px list on a laptop. */
+.page-scroll .table-container { flex: none; }
 
 /* Tables scroll sideways at ANY width rather than only below 768px.
  *
@@ -1220,3 +1226,64 @@ a.lh-row:hover .lh-what div:first-child { color: var(--brand-ink); }
 .lh-bar i { display: block; height: 100%; border-radius: 99px; background: var(--accent-warning, #f59e0b); }
 .lh-out { font-size: 11.5px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: rgba(239, 68, 68, 0.12); color: var(--accent-danger); }
 @media (max-width: 860px) { .lh-pair, .lh-two { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---- Products page: one scroll for the whole page, search and filters pinned ----
+   The shell's .main-content never scrolls, and this page used to let only its list scroll -- inside a box
+   that got shorter with every row added above it (search, filters, chips), until one row of cards showed.
+   Now the page is the scroller and the list is plain content in it; .pf-sticky keeps the controls in reach. */
+.products-page { overflow-y: auto; overflow-x: hidden; }
+.products-page > * { flex-shrink: 0; }
+.products-page .grid-container, .products-page .table-container { flex: none; min-height: auto; overflow-y: visible; }
+.products-page .table-container { overflow-x: auto; }
+.pf-sticky { position: sticky; top: 0; z-index: 30; display: grid; gap: 12px; padding: 10px 0 12px; margin: -10px 0 -12px; background: var(--bg-dark); box-shadow: 0 1px 0 var(--border-light); }
+
+/* Scout's tour spotlight on the landing page (components/landing/usePixelPals): rounded, padded, a lime ring,
+   the rest of the page dimmed by its shadow. Glides from stop to stop; no glide for reduced motion. */
+.lp-spotlight { position: fixed; pointer-events: none; border-radius: 22px; box-shadow: 0 0 0 2px var(--brand), 0 0 0 200vmax rgba(23, 18, 31, 0.46); transition: left .35s ease, top .35s ease, width .35s ease, height .35s ease; }
+@media (prefers-reduced-motion: reduce) { .lp-spotlight { transition: none; } }
+
+/* ---- What's new (pages/WhatsNew) ---- */
+.wn-head { display: grid; gap: 8px; }
+.wn-head h1 { margin: 0; font-size: clamp(24px, 3vw, 30px); color: var(--text-primary); text-wrap: balance; }
+.wn-head p { margin: 0; color: var(--text-secondary); max-width: 62ch; line-height: 1.55; }
+.wn-badge { display: inline-flex; align-items: center; gap: 6px; width: fit-content; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; color: var(--brand-ink); background: color-mix(in srgb, var(--brand) 20%, transparent); }
+.wn-tabs { display: flex; gap: 6px; flex-wrap: wrap; border-bottom: 1px solid var(--border-light); }
+.wn-tabs button { display: inline-flex; align-items: center; gap: 6px; padding: 10px 12px; border: 0; background: none; color: var(--text-secondary); font: inherit; font-size: 14px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.wn-tabs button[aria-selected="true"] { color: var(--text-primary); font-weight: 600; border-bottom-color: var(--brand-solid); }
+.wn-tabs button:focus-visible, .wn-open:focus-visible, .wn-card-box summary:focus-visible { outline: 2px solid var(--brand-solid); outline-offset: 2px; border-radius: 6px; }
+.wn-count { font-size: 11.5px; padding: 0 7px; border-radius: 999px; background: var(--bg-input); color: var(--text-secondary); }
+.wn-lead { position: relative; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 28px; align-items: center; padding: 22px; border-radius: 18px; background: var(--bg-card); border: 1px solid var(--border-light); }
+.wn-lead-text { display: grid; gap: 10px; align-content: start; }
+.wn-lead-text h2 { margin: 0; font-size: clamp(20px, 2.4vw, 26px); color: var(--text-primary); }
+.wn-lead-text h3 { margin: 6px 0 0; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--text-secondary); }
+.wn-lead-text p, .wn-card-box p { margin: 0; color: var(--text-secondary); line-height: 1.6; font-size: 14.5px; }
+.wn-lead-text ol, .wn-card-box ol { margin: 0; padding-left: 20px; display: grid; gap: 6px; color: var(--text-primary); font-size: 14px; line-height: 1.5; }
+.wn-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); align-items: start; }
+.wn-card-box { display: grid; gap: 10px; padding: 16px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-light); }
+.wn-card-box h3 { margin: 0; font-size: 16.5px; color: var(--text-primary); }
+.wn-card-box summary { cursor: pointer; font-size: 13.5px; font-weight: 600; color: var(--text-primary); padding: 2px 0; }
+.wn-card-box details[open] summary { margin-bottom: 8px; }
+.wn-when { font-size: 12px; font-weight: 600; color: var(--brand-ink); }
+.wn-open { display: inline-flex; align-items: center; gap: 6px; width: fit-content; padding: 9px 16px; border-radius: 999px; background: var(--brand-solid); color: var(--brand-on-solid); font-weight: 600; font-size: 14px; text-decoration: none; }
+.wn-noaccess { font-size: 13px; color: var(--text-muted); }
+.wn-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--brand); margin-left: auto; box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 25%, transparent); }
+.wn-art { width: 100%; height: auto; display: block; max-width: 100%; }
+.wn-art-bg { fill: var(--bg-input); }
+.wn-card { fill: var(--bg-card); stroke: var(--border-light); }
+.wn-soft { fill: color-mix(in srgb, var(--brand) 14%, var(--bg-card)); }
+.wn-ink { fill: var(--text-primary); }
+.wn-ink2 { fill: color-mix(in srgb, var(--text-secondary) 45%, transparent); }
+.wn-lime { fill: var(--brand); }
+.wn-deep, .wn-deepfill { fill: var(--brand-deep); }
+.wn-warn { fill: #f59e0b; }
+.wn-line { fill: none; stroke: var(--brand-deep); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.wn-tick { fill: none; stroke: var(--brand-deep); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+.wn-tickdark { fill: none; stroke: #0B2410; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+.wn-onDeep { fill: color-mix(in srgb, #ffffff 80%, transparent); }
+.wn-onLime { fill: color-mix(in srgb, #0B2410 45%, transparent); }
+.wn-chip { fill: var(--bg-card); stroke: var(--border-light); }
+.wn-chiptext, .wn-initials, .wn-btntext { font: 600 9px var(--font-sans); fill: var(--text-primary); }
+.wn-initials { font-size: 11px; fill: #0B2410; }
+.wn-btntext { fill: #ffffff; }
+.wn-small { font-size: 14px; }
+@media (max-width: 760px) { .wn-lead { grid-template-columns: minmax(0, 1fr); } }

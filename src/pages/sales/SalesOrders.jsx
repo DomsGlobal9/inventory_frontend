@@ -67,7 +67,9 @@ export default function SalesOrders() {
   const td = { padding: '14px 20px' };
 
   return (
-    <div className="mobile-no-scroll" style={{ display: 'flex', flexDirection: 'column', gap: 20, height: '100%', paddingTop: 24, paddingBottom: 24 }}>
+    // One scroll for the whole page (.page-scroll): the orders table used to scroll in its own box, which on
+    // a smaller laptop showed a third of the screen of orders under the header and filters.
+    <div className="mobile-no-scroll page-scroll" style={{ display: 'flex', flexDirection: 'column', gap: 20, height: '100%', paddingTop: 24, paddingBottom: 24 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, flexWrap: 'wrap', flexShrink: 0 }}>
         <div>
           <h1 style={{ fontSize: 32, marginBottom: 8, color: 'var(--text-primary)' }}>Sales Orders</h1>
@@ -126,7 +128,7 @@ export default function SalesOrders() {
             ))}
         </div>
       ) : (
-        <div className="table-container mobile-no-scroll" style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+        <div className="table-container mobile-no-scroll" style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border-light)', backgroundColor: 'var(--bg-hover)' }}>

@@ -15,7 +15,7 @@ export default function Login() {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  // Two Peepers on the sign-in fields (Piixpal, self-hosted; components/landing/usePixelPals).
+  // A Peeper on the email box (Piixpal, self-hosted; components/landing/usePixelPals).
   const peepers = usePixelPals(['peeper']);
   // Only populated in the rare case where the same email+password combination
   // matches more than one workspace -- see auth.controller.ts's `login`.
@@ -141,7 +141,8 @@ export default function Login() {
       ) : (
         <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div>
-            <label htmlFor="email" style={authLabel}>Email address</label>
+            {/* Room above the box for the Peeper, which stands on the box's top edge: without it, it stood on the label. */}
+            <label htmlFor="email" style={peepers ? { ...authLabel, marginBottom: '34px' } : authLabel}>Email address</label>
             <input
               id="email"
               type="email"
@@ -154,7 +155,7 @@ export default function Login() {
               autoFocus
               required
             />
-            {/* Peeper (Piixpal): its eyes follow what is typed here... */}
+            {/* Peeper (Piixpal): its eyes follow what is typed here. One only: not on the password box. */}
             {peepers && <piix-pal pal="peeper"></piix-pal>}
           </div>
 
@@ -185,8 +186,6 @@ export default function Login() {
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
-            {/* ...and this one covers its eyes while the password is typed (and peeks when Show is pressed). */}
-            {peepers && <piix-pal pal="peeper"></piix-pal>}
           </div>
 
           {/*

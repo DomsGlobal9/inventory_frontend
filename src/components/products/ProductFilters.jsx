@@ -1,6 +1,7 @@
 import React from 'react';
 import { ChevronDown, Check, X } from 'lucide-react';
-import { formatRupees } from '../../utils/money';
+// Whole rupees: a filter says "₹5,000 to ₹15,000", not "₹5,000.00 to ₹15,000.00".
+const formatRupees = (n) => `₹${Math.round(Number(n) || 0).toLocaleString('en-IN')}`;
 
 /**
  * The Products page's filter bar: one button per filter, each opening a short list with how many

@@ -318,16 +318,20 @@ export default function TopNav({ onMenuClick }) {
         </div>
         
         {locations.length > 0 && (
-          <div data-tour="store-switcher" className="store-box" title="The store you are working in" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-input)', border: '1px solid var(--border-light)', borderRadius: '8px', padding: '0 12px', height: '40px', minWidth: 0, flexShrink: 1, overflow: 'hidden' }}>
+          <div data-tour="store-switcher" className="store-box" title={currentLocation ? `The store you are working in: ${currentLocation.name} (${currentLocation.code})` : 'The store you are working in'} style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-input)', border: '1px solid var(--border-light)', borderRadius: '8px', padding: '0 12px', height: '40px', minWidth: 0, flexShrink: 1, overflow: 'hidden' }}>
             <MapPin className="store-pin" size={16} color="var(--text-secondary)" style={{ marginRight: '8px', flexShrink: 0 }} />
             <Select
               value={currentLocation?.id || ''}
               onChange={(e) => setCurrentLocationId(e.target.value)}
               variant="ghost"
-              style={{ width: '100%', minWidth: 0, maxWidth: '180px' }}
+              style={{ width: '100%', minWidth: 0, maxWidth: '240px' }}
             >
+              {/* The name, as people call the store. "Main Store (MAIN-STORE)" was cut to "Main Store (MAIN-ST…";
+                  the code is added only when two stores share a name, so they can still be told apart. */}
               {locations.map(loc => (
-                <option key={loc.id} value={loc.id}>{loc.name} ({loc.code})</option>
+                <option key={loc.id} value={loc.id}>
+                  {locations.filter(l => l.name.trim().toLowerCase() === loc.name.trim().toLowerCase()).length > 1 ? `${loc.name} (${loc.code})` : loc.name}
+                </option>
               ))}
             </Select>
           </div>

@@ -77,7 +77,14 @@ const startingPrice = (v) => String(Math.round((Number(v) || 0) * 100) / 100);
 export default function PurchaseOrderDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const isNew = id === 'new';
+  const { pathname } = useLocation();
+  /*
+   * A new order is reached by its own route since 14 Oct (/inventory/purchase-orders/new, guarded by
+   * purchase_order:create), which has no :id -- so id is undefined there, not 'new'. Reading only the id
+   * made every Create PO (the list, the product page, the Dashboard's + Purchase Order) open "Purchase order
+   * not found" for nine days. The address decides; 'new' as an id still counts, for any old link.
+   */
+  const isNew = id === 'new' || /\/purchase-orders\/new\/?$/.test(pathname);
 
   const { data: po, isLoading: isLoadingPO } = usePurchaseOrder(isNew ? null : id);
   const { data: suppliers = [] } = useSuppliers();

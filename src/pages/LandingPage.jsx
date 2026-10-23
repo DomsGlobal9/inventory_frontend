@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, Navigate } from 'react-router-dom';
-import { ArrowRight, Plus, Minus } from 'lucide-react';
+import { ArrowRight, Plus, Minus, LayoutDashboard, UserRound, ShoppingBag, Gift, MessageCircle, MapPin, SlidersHorizontal, Receipt } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '../context/AuthContext';
 import Humaaan from '../components/landing/Humaaan';
 import BrandLockup from '../components/BrandLockup';
+import { usePixelPals, useTourSpotlight, startTour } from '../components/landing/usePixelPals';
 
 /**
  * The page a shopkeeper meets before they have an account.
@@ -545,12 +546,14 @@ function TryTheMargin() {
 const FEATURES = [
   {
     eyebrow: 'The ledger',
+    tour: ['Every piece in and out is written down here, with who and when. Nothing is quietly changed.', 2],
     title: 'Every movement is written down, and stays written down',
     body: 'Stock in, stock out, a transfer between shops, a customer return. Each one is a line you can go back to, with who did it and when. Nothing is quietly overwritten, so the count on the screen and the count on the shelf have a reason to agree.',
     art: <LedgerArt />
   },
   {
     eyebrow: 'What it is worth',
+    tour: ['See what your stock is worth, and how much of that figure is a guess.', 3],
     title: 'A number that tells you how much of itself is a guess',
     body: 'Stock you have costed is valued at what you paid. Stock you never costed is valued at what it sells for, and the screen says so plainly — because an unexplained figure is the thing to avoid, in either direction.',
     art: <ValuationArt />
@@ -569,12 +572,14 @@ const FEATURES = [
   },
   {
     eyebrow: 'More than one shop',
+    tour: ['Got more than one shop? Each keeps its own stock, and you still see the total.', 5],
     title: 'Each shop on its own, and the whole business at once',
     body: 'Count, price and reorder per location, then see the total that covers all of them. Move stock between shops and the numbers on both sides move with it.',
     art: <LocationsArt />
   },
   {
     eyebrow: 'Try-on',
+    tour: ['Customers scan the tag and see the piece on themselves, on their own phone.', 6],
     title: 'A customer scans the tag and sees it on themselves',
     body: 'Print a code on the garment. A shopper points their phone at it, adds a photo, and sees the piece on them — no app to install and no account to make. You pay per try-on, and you can see how many were used.',
     art: <TryOnArt />
@@ -585,6 +590,21 @@ const FEATURES = [
     body: 'Each business has its own products, prices, customers and staff, and cannot reach another’s. Everything a Scaleezy administrator does inside a shop is recorded where the shop can be told about it.',
     art: <PlatformArt />
   }
+];
+
+/**
+ * What has been added since the features above were written (Sep--Oct 2026), one short card each.
+ * Only what is built and working: a card here is a promise a shopkeeper will test on day one.
+ */
+const NEW_FEATURES = [
+  { icon: LayoutDashboard, title: 'A dashboard for each store', body: 'The stock value of the store you are in with its last 30 days, sales by day and month split between the till and online, top sellers, what suppliers still have to deliver, and what to restock first. Each person sees only what their role allows.' },
+  { icon: UserRound, title: 'Know a customer as they walk in', body: 'Type their number, or they scan the QR at your door. You see their sizes, the colours they buy, what they usually spend, what is in the store today in their size and colour, and what others who bought the same pieces went on to buy.' },
+  { icon: ShoppingBag, title: 'Your own online shop', body: 'A shop page for your catalogue that you share as a link. Shoppers pick a colour, see how many are left, and pay online or when it arrives. Orders land in the same Orders list as the counter.' },
+  { icon: Receipt, title: 'Billing counter connected', body: 'Walk-in bills are made on the ScaleEzy billing counter and update your stock and orders here, returns and exchanges included.' },
+  { icon: Gift, title: 'Gift vouchers and loyalty points', body: 'Sell gift vouchers and give points on what customers buy. Both are spent at the billing counter, and every voucher and point is accounted for.' },
+  { icon: MessageCircle, title: 'Offers on WhatsApp', body: 'Send an offer to your customers, or a group of them, from your shop’s own WhatsApp number. Birthday and anniversary wishes go by themselves. Only customers who agreed get messages, a few each day.' },
+  { icon: MapPin, title: 'Find any piece on its shelf', body: 'Tell ScaleEzy your racks and shelves and print a label for each. Scan a price tag or type a name to see which shelf it is on, and put away, move, pick and count shelf by shelf.' },
+  { icon: SlidersHorizontal, title: 'Find products in seconds', body: 'Search by name, code, barcode or colour, and filter by type, colour, price, fabric, brand and stock. Pick Blue and the photos show the blue ones.' }
 ];
 
 /**
@@ -628,6 +648,14 @@ const FAQS = [
   {
     q: 'What is the try-on for?',
     a: 'A customer scans a code on the garment and sees it on themselves, from their own photo, in about a minute. It works in any phone browser with no app and no sign-up. You are charged per try-on and can see the count at any time.'
+  },
+  {
+    q: 'Can I sell online as well as in the shop?',
+    a: 'Yes. Your catalogue becomes a shop page you share as a link. Customers pay online into your own Razorpay account, or when the parcel arrives, and online orders land in the same Orders list as the counter, with the stock held for them.'
+  },
+  {
+    q: 'Does it work on a phone?',
+    a: 'Yes. Every screen works in a phone browser, including scanning barcodes and shelf labels with the camera. Nothing to install.'
   },
   {
     q: 'Is my data separate from other businesses?',
@@ -674,6 +702,11 @@ export default function LandingPage() {
     el.addEventListener('scroll', onScroll, { passive: true });
     return () => el.removeEventListener('scroll', onScroll);
   }, []);
+
+  // The pixel characters that walk a visitor down the page (Piixpal; components/landing/usePixelPals).
+  // Above the early return, like the hooks above.
+  const pals = usePixelPals();
+  useTourSpotlight(pals);
 
   if (!isLoading && isAuthenticated) return <Navigate to="/dashboard" replace />;
 
@@ -783,7 +816,14 @@ export default function LandingPage() {
     //
     // Which is also why the nav below listens to THIS element rather than to window: a scroll
     // handler on window would never fire here and the bar would simply never move.
-    <div ref={scrollerRef} className="lp" style={{ backgroundColor: 'var(--bg-dark)', height: '100vh', overflowY: 'auto', overflowX: 'hidden' }}>
+    <div ref={scrollerRef} className="lp" style={{ backgroundColor: 'var(--bg-dark)', height: '100vh', overflowY: 'auto', overflowX: 'hidden', '--piix-z': 40 }}>
+      {/* Scout gives the guided tour (the [data-tour] stops below, in data-tour-step order); Scrolly runs along
+          a reading bar at the bottom; Pip perches on the sign-up buttons at the end (.lp-perch). */}
+      {pals && <>
+        <piix-pal pal="scout"></piix-pal>
+        <piix-pal pal="scrolly" color="#A6D92B"></piix-pal>
+        <piix-pal pal="pip" on=".lp-perch"></piix-pal>
+      </>}
       <Helmet>
         <title>Scaleezy Inventory</title>
         <meta name="description" content="Inventory for clothing retail: an immutable ledger, honest stock valuation, margins before you buy, purchase orders you can send, multi-location stock, and QR try-on for shoppers." />
@@ -846,12 +886,13 @@ export default function LandingPage() {
 
         <div style={{ position: 'relative', padding: 'clamp(64px, 11vw, 128px) 24px clamp(36px, 5vw, 64px)', textAlign: 'center' }}>
           <div>
-            <h1 className="lp-rise" style={{
+            {pals && <piix-pal pal="plane" text="New this season: store dashboards, customer card, online shop  →" href="#new"></piix-pal>}
+            <h1 className="lp-rise" data-tour="Hi, I'm Scout. Let me show you round ScaleEzy: it takes about a minute." data-tour-title="Welcome" data-tour-step="1" style={{
               fontSize: 'clamp(40px, 8.4vw, 96px)', fontWeight: 800, marginBottom: '24px',
               lineHeight: 1.04, letterSpacing: '-0.03em', color: 'var(--text-primary)'
             }}>
               Total stock control. <br />
-              <span style={{ color: 'var(--brand-ink)' }}>Effortless scaling.</span>
+              <span style={{ color: 'var(--brand-ink)' }}>Effortless scaling.{pals && <piix-pal pal="bitbug"></piix-pal>}</span>
             </h1>
             <p className="lp-rise lp-rise-2" style={{
               fontSize: 'clamp(17px, 1.9vw, 22px)', color: 'var(--text-secondary)',
@@ -879,6 +920,14 @@ export default function LandingPage() {
               }}>
                 Live Demo
               </Link>
+              {/* A guided walk down this page, a stop per idea, by Scout. */}
+              <button type="button" onClick={startTour} disabled={!pals} style={{
+                padding: '16px 30px', borderRadius: '999px', fontSize: '17px', fontWeight: 500,
+                color: 'var(--brand-ink)', background: 'transparent', border: '1px dashed color-mix(in srgb, var(--brand-ink) 45%, transparent)',
+                cursor: pals ? 'pointer' : 'default', fontFamily: 'inherit'
+              }}>
+                Show me around
+              </button>
             </div>
           </div>
         </div>
@@ -907,6 +956,7 @@ export default function LandingPage() {
               initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.1 }} transition={{ duration: 0.4 }}
               style={{ order: i % 2 === 1 ? 2 : 1 }}
+              {...(f.tour ? { 'data-tour': f.tour[0], 'data-tour-title': f.eyebrow, 'data-tour-step': f.tour[1] } : {})}
             >
               <p style={{ fontSize: '12px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--brand-ink)', margin: '0 0 16px', fontWeight: 600 }}>
                 {f.eyebrow}
@@ -936,11 +986,47 @@ export default function LandingPage() {
             in a position to test it. */}
         {i === 2 && (
           <section style={{ padding: 'clamp(48px, 7vw, 88px) 0', borderTop: '1px solid var(--border-light)' }}>
-            <div style={shell}><TryTheMargin /></div>
+            <div style={shell} data-tour="Try it yourself: type what a piece cost you and what you sell it for, and see what you keep." data-tour-title="Your margin" data-tour-step="4"><TryTheMargin /></div>
           </section>
         )}
         </React.Fragment>
       ))}
+
+      {/* ── New in ScaleEzy ─────────────────────────────────────────────── */}
+      <section id="new" style={{ padding: 'clamp(56px, 9vw, 104px) 0', borderTop: '1px solid var(--border-light)', scrollMarginTop: '80px' }}>
+        <div style={shell}>
+          {/* The tour's stop covers the label, heading and line together, so Scout stands above them. */}
+          <div data-tour="And here is what is new this season: a dashboard per store, the customer card, your own online shop and more." data-tour-title="New this season" data-tour-step="7" style={{ maxWidth: '640px' }}>
+          <p style={{ fontSize: '12px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--brand-ink)', margin: '0 0 16px', fontWeight: 600 }}>
+            New in ScaleEzy
+          </p>
+          <h2 style={{ fontSize: 'clamp(26px, 3.6vw, 40px)', fontWeight: 500, lineHeight: 1.16, letterSpacing: '-0.015em', color: 'var(--text-primary)', margin: '0 0 12px', maxWidth: '22ch' }}>
+            From the stockroom to the customer's phone
+            {pals && <piix-pal pal="para"></piix-pal>}
+          </h2>
+          <p style={{ fontSize: 'clamp(15px, 1.8vw, 17px)', color: 'var(--text-secondary)', lineHeight: 1.68, margin: '0 0 40px', maxWidth: '60ch' }}>
+            What shops asked for this season, all in the same app and the same stock.
+          </p>
+          </div>
+          <div style={{ display: 'grid', gap: '16px', gridTemplateColumns: 'repeat(auto-fill, minmax(min(260px, 100%), 1fr))' }}>
+            {NEW_FEATURES.map(({ icon: Icon, title, body }, i) => (
+              <motion.div key={title}
+                initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.1 }} transition={{ duration: 0.35, delay: (i % 4) * 0.05 }}
+                style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '16px', padding: '22px', display: 'grid', gap: '10px', alignContent: 'start' }}>
+                <span style={{ width: 40, height: 40, borderRadius: 12, display: 'grid', placeItems: 'center', background: 'color-mix(in srgb, var(--brand) 22%, transparent)', color: 'var(--brand-ink)' }}>
+                  <Icon size={20} aria-hidden="true" />
+                </span>
+                <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.3 }}>{title}</h3>
+                <p style={{ margin: 0, fontSize: '14.5px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>{body}</p>
+                {/* Two cards, not all: something peeks out from behind them and ducks back. */}
+                {pals && i === 1 && <piix-pal pal="lurk"></piix-pal>}
+                {pals && i === 6 && <piix-pal pal="kitty" do="peek"></piix-pal>}
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* ── FAQ ─────────────────────────────────────────────────────────── */}
       <section style={{ padding: 'clamp(56px, 9vw, 104px) 0', borderTop: '1px solid var(--border-light)' }}>
@@ -1042,7 +1128,7 @@ export default function LandingPage() {
                 Add your products, enter what is on the shelves, and the rest follows. No card,
                 and nothing to install.
               </p>
-              <Link to="/signup" style={{
+              <Link to="/signup" className="lp-perch" data-tour="That's the tour. Make a free workspace and add your first products: no card needed." data-tour-title="Your turn" data-tour-step="8" style={{
                 display: 'inline-flex', alignItems: 'center', gap: '9px', marginTop: '34px',
                 padding: '15px 34px', borderRadius: '999px', fontSize: '16px', fontWeight: 700,
                 background: 'var(--brand-solid)', color: 'var(--brand-on-solid)', textDecoration: 'none',
@@ -1082,7 +1168,7 @@ export default function LandingPage() {
             </div>
 
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-              <Link to="/signup" style={{
+              <Link to="/signup" className="lp-perch" style={{
                 display: 'inline-flex', alignItems: 'center', gap: '9px',
                 padding: '14px 28px', borderRadius: '999px', fontSize: '15.5px', fontWeight: 700,
                 background: 'var(--brand-solid)', color: 'var(--brand-on-solid)', textDecoration: 'none'

@@ -1,80 +1,107 @@
 ---
 title: Your dashboard
-summary: The first screen after you sign in. Five tiles show your stock value, open purchase orders, low stock, dead stock and products on sale.
-for: Owners, admins and inventory managers (others see a shorter dashboard)
-minutes: 3
+summary: The first screen after you sign in. The stock value of your store, what is running low, your sales, your best sellers and latest orders, and what is waiting for you.
+for: Everyone who can see the dashboard (each role sees its own part)
+minutes: 4
 app: /dashboard
 appLabel: Dashboard
-keywords: dashboard home tiles inventory value stock value open po low stock dead stock active products analytics chart overview
+keywords: dashboard home stock value stock on hand running low low stock sales chart top sellers latest orders money tied up still to arrive purchase orders dead stock not moved 90 days stock moves restock waiting returns transfers shortcuts
 ---
 
 The **Dashboard** is the first screen after you sign in. Click **Dashboard** at the top of the menu to come back to it.
 
-## 1. The five tiles
+Everything on it is for the store chosen at the top of the screen. Change the store there to see another one.
 
-![The Dashboard. The five tiles are marked 1 Inventory Value, 2 Open PO Value, 3 Low Stock Count, 4 Dead Stock Value and 5 Active Products.](1-the-tiles.webp "Click any tile to see the items behind the number.")
+## 1. Welcome and shortcuts
 
-[[1]] **Inventory Value**: what your stock is worth, at what you paid for it, in the store chosen at the top of the screen. The small line under it shows the value across all your locations. If some items have no cost, a note says so: those are counted at their selling price, or at ₹0 when they have no price either. Click the tile to open **Inventory**.
+![The top of the Dashboard. The welcome line is marked 1 and the shortcut buttons are marked 2.](1-welcome.webp "You only see the buttons your role can use.")
 
-[[2]] **Open PO Value**: the total of your purchase orders that are sent to suppliers but not fully received yet. This is money you still expect to pay. Click the tile to open **Purchase Orders** showing only these open orders.
+[[1]] The welcome line says how many orders came in today, what they are worth, and how many colours are running low.
 
-[[3]] **Low Stock Count**: how many items are at or below their reorder level. The line under it counts items that are completely out of stock. Click the tile to open **Inventory** showing only low stock items.
+[[2]] The shortcut buttons take you straight to common jobs: **+ Product** opens Add Product, **+ Purchase Order** starts a new purchase order, **+ Supplier** opens the form to add a supplier, **+ Take a return** starts a return and **+ Customer** opens the form to add a customer. **+ Stock In** opens **Inventory** ready for you to scan or type the item you received; then press **Receive Stock** on its row.
 
-[[4]] **Dead Stock Value**: the value of stock that has not moved (not sold, received or changed) for more than 90 days. Money sitting on your shelves. Click the tile to open **Inventory**.
+## 2. The three cards
 
-[[5]] **Active Products**: how many products are published and on sale. Drafts and archived products are not counted. Click the tile to open **Products**.
+![The three cards: 1 Stock value, 2 Stock on hand and 3 Running low.](2-the-cards.webp "Click a card to open the page behind it.")
 
-:::tip Numbers look wrong?
-The first tile follows the store chosen at the top of the screen. Change the store to see another one.
+[[1]] **Stock value**: what the stock in this store is worth, at what you paid for it. The small line shows the last 30 days, and the figure beside it shows how much it went up or down. Under it you see the value 30 days ago, and the value across all your stores. If some pieces have no cost, a note says so: they are counted at their selling price, or at ₹0 when they have no price either. Click the card to open **Inventory**.
+
+[[2]] **Stock on hand**: how many pieces you hold in this store, and in how many colours. The coloured bar shows how many colours have plenty, how many are low and how many are sold out. Click the card to open **Inventory**.
+
+[[3]] **Running low**: how many colours are at or under their reorder level, with the four lowest. Click a product to open it. Click the card, or **See all**, to open the stock alerts on the **Low Stock** tab.
+
+:::tip What is a colour here?
+Each colour and size of a product is counted on its own. A saree in red and blue is two colours.
 :::
 
-## 2. Shortcuts
+## 3. Sales
 
-[[1]] The buttons under the tiles take you straight to common jobs: **+ Product** opens Add Product, **+ Stock In** opens Inventory, **+ Purchase Order** starts a new purchase order and **+ Supplier** opens your suppliers. You only see the buttons your role can use.
+![The sales chart and, beside it, the sales card. The Last 30 days button is marked 1 and the sales card is marked 2.](3-sales.webp "Point at a bar to see its figures.")
 
-![The shortcut buttons + Product, + Stock In, + Purchase Order and + Supplier, marked 1.](2-shortcuts.webp)
+The chart shows your sales month by month, split into sales at the till and sales online. [[1]] Click **Last 30 days** to see them day by day instead. Point at a bar to see the till, online and total for it, and the number of orders.
 
-## 3. Overview, Inventory and Analytics
+[[2]] The sales card beside it gives the last 30 days in figures: the total, how it compares with the 30 days before, the till and online parts, the number of orders and the average order. Click the card to open **Orders**.
 
-Below the shortcuts are three tabs.
+Cancelled orders, drafts and deleted orders are never counted as sales.
 
-- **Overview**: *Recent Transactions* (the latest stock movements) and *Low Stock Items*.
-- **Inventory**: *Low Stock Items* and the *Dead Stock List*. [[1]] **View All** opens all stock alerts.
+## 4. Top sellers and latest orders
 
-![The Inventory tab with Low Stock Items and the Dead Stock List. View All is marked 1.](4-inventory-tab.webp "4 / 5 means 4 pieces left, and the warning level is 5.")
+![Top sellers, marked 1, and Latest orders, marked 2.](4-sellers-and-orders.webp)
 
-- **Analytics**: *Inventory Value Trend*, *Stock Movement (30 Days)*, *Supplier Concentration* (how much you buy from each supplier) and *Top Suppliers*.
+[[1]] **Top sellers**: the five products that sold the most in the last 30 days, by sales value. Click one to open it.
 
-![The Analytics tab with four charts: Inventory Value Trend, Stock Movement, Supplier Concentration and Top Suppliers.](5-analytics-tab.webp "A new shop has no trend line yet. The chart starts the next day.")
+[[2]] **Latest orders**: the five newest orders, from the till and online, with their state. Click one to open it, or **See all** to open **Orders**.
 
-## 4. Where Open PO Value takes you
+## 5. Lower down
 
-Clicking **Open PO Value** opens **Purchase Orders** with [[1]] **Open (waiting for delivery)** already chosen. These are the orders that make up the number on the tile.
+![The lower half of the Dashboard: 1 Waiting on you, 2 Money tied up, 3 Stock moves and 4 To restock.](5-lower-half.webp)
 
-![Purchase Orders with the filter Open (waiting for delivery) marked 1, showing PO-000003 from Kanchi Weavers, status SENT.](6-open-po-value.webp "Choose All statuses to see every order again.")
+[[1]] **Waiting on you**: returns to check, returns not finished, transfers on the way and customers added today. Each one opens its list. When there is nothing, it says so in one line.
 
-## 5. What other roles see
+[[2]] **Money tied up**: two figures, at cost.
+- *Still to arrive from suppliers* is what is left to come on your open purchase orders: what you ordered, less what has already arrived, for this store. Under it you see the same for all your stores. **See open orders** opens **Purchase Orders** with the open orders chosen.
+- *Not sold or moved in 90 days* is the stock in this store that has not moved for more than 90 days. When there is some, **See the list** shows the pieces, and each one opens its product.
 
-Stock value, open orders and dead stock are money figures. Only roles that may see financial reports see the tiles: the owner, admins and inventory managers.
+[[3]] **Stock moves**: the latest stock that came in or went out. **See all** opens the stock history.
 
-A salesperson or stock room staff sees [[1]] *Stock value, open orders and dead stock aren't part of your role. Ask whoever manages your team.* instead. The tabs below show only what your role may see, and a tab with nothing for you is left out.
+[[4]] **To restock**: the colours that are sold out (on sale, with nothing left) first, then the ones running lowest. The first eight show; **Show all** shows the rest. **Raise a purchase order** starts a new purchase order.
 
-![The Dashboard for a salesperson. The message Not part of your role is marked 1 where the tiles would be.](7-salesperson.webp "The shortcut buttons are hidden too, because this role cannot use them.")
+## 6. Running low opens your stock alerts
+
+![The stock alerts page, opened from the Running low card, with the Low Stock tab marked 1.](6-running-low-opens.webp "The number on the tab matches the number on the card.")
+
+[[1]] Clicking the **Running low** card opens the stock alerts with the **Low Stock** tab already chosen. These are the colours behind the number on the card.
+
+## 7. What other roles see
+
+Each person sees only the parts their role allows. Money figures (stock value, sales, money tied up) are only for roles that may see financial reports: the owner, admins and inventory managers.
+
+![The Dashboard for a salesperson: the welcome line and shortcuts marked 1, then Latest orders and Waiting on you.](7-salesperson.webp "The shortcut buttons are only the ones this role can use.")
+
+[[1]] A salesperson sees the welcome line, the shortcuts their role can use, the latest orders and what is waiting for them. Stock room staff see the stock cards, top sellers by pieces sold and what to restock, without money. A part a role may not see is left out, not shown as a locked box.
 
 ## Common problems
 
-:::faq Inventory Value is ₹0 or very low
+:::faq Stock value is ₹0 or very low
 Your stock has no cost recorded. Add what you paid when you receive stock, or set **You pay** on the product's Variants tab.
 :::
 
-:::faq Clicking an item in Low Stock Items or Dead Stock List goes back to the Dashboard
-Open the item from **Products** or **Inventory** instead. To see all low stock items, click the **Low Stock Count** tile or **View All**.
+:::faq Stock value is different from the value across all stores
+The big figure is for the store chosen at the top of the screen. The line under it gives all your stores together. Change the store at the top to see each one.
 :::
 
-:::faq Dead Stock Value opens the whole inventory
-The tile opens **Inventory** with all items. To see the items that have not moved, use the **Dead Stock List** on the **Inventory** tab of the Dashboard.
+:::faq Still to arrive is less than my purchase order total
+It counts only what has not arrived yet. When part of an order has been received, that part is in your stock and is no longer counted as still to arrive.
 :::
 
-:::faq I only see "Not part of your role"
+:::faq The sales chart is empty
+No orders have been made in this store in the months shown. Orders from the till, the counter and your online shop all count once they are placed.
+:::
+
+:::faq I don't see the money figures
 Your role does not include financial reports. Ask your shop owner. See [Roles](/help/settings/roles).
+:::
+
+:::faq Where did the Analytics tab and the supplier charts go?
+They were removed when the Dashboard was redesigned. The stock value line is now on the Stock value card. To see what you buy from each supplier, open **Purchase Orders**.
 :::

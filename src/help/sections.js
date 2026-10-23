@@ -37,7 +37,7 @@ export const SECTIONS = [
       ta: 'நீங்கள் விற்பவற்றைச் சேர்க்கவும், இறக்குமதி செய்யவும், விலை வைக்கவும், வெளியிடவும்.',
       kn: 'ನೀವು ಮಾರುವುದನ್ನು ಸೇರಿಸಿ, ಇಂಪೋರ್ಟ್ ಮಾಡಿ, ಬೆಲೆ ಇಡಿ ಮತ್ತು ಪಬ್ಲಿಷ್ ಮಾಡಿ.'
     },
-    pages: ['add-a-product', 'import-products', 'bulk-updates', 'variants-and-barcodes', 'product-page', 'price-per-store', 'photos', 'try-on-qr-code', 'publish-archive-delete'] },
+    pages: ['add-a-product', 'find-products', 'import-products', 'bulk-updates', 'variants-and-barcodes', 'product-page', 'price-per-store', 'photos', 'try-on-qr-code', 'publish-archive-delete'] },
   { id: 'orders', title: 'Orders', icon: 'ShoppingBag',
     blurb: 'Counter sales, receipts, and sending out online orders.',
     titles: { te: 'Orders (ఆర్డర్‌లు)', hi: 'Orders (ऑर्डर)', ta: 'Orders (ஆர்டர்கள்)', kn: 'Orders (ಆರ್ಡರ್‌ಗಳು)' },

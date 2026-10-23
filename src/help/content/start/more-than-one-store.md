@@ -38,9 +38,9 @@ These change when you switch store:
 | **Shelves** | **Where is it?**, **Put away**, **Move**, **Pick**, **Count** and the racks all use this store's shelves. |
 | **Reorder** | Suggestions use this store's stock and orders. |
 | **Price labels** | The price printed on a label is this store's price, if it has one. |
-| **Dashboard** | The first tile is **Inventory Value** for this store. Under it you see the value across all stores. |
+| **Dashboard** | Everything on it is this store's: stock value, stock on hand, running low, sales and money tied up. The **Stock value** card also gives the value across all stores. |
 
-![The Inventory Value tile for Main Store, marked 1. The line under the amount gives the value across all locations.](2-inventory-value.webp "Inventory Value shows the store name when your shop has more than one store.")
+![The Stock value card for Main Store: the store name marked 1, and the value across all stores marked 2.](2-stock-value.webp "The card shows the store's name when your shop has more than one store.")
 
 :::note Where is it? in every store
 In **Where is it?**, tick **Look in every location** to search all your stores at once.

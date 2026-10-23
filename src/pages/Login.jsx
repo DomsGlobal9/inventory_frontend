@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { usePixelPals } from '../components/landing/usePixelPals';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Loader2, ArrowRight, Building2, Eye, EyeOff, AlertCircle } from 'lucide-react';
@@ -14,6 +15,8 @@ export default function Login() {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  // Two Peepers on the sign-in fields (Piixpal, self-hosted; components/landing/usePixelPals).
+  const peepers = usePixelPals(['peeper']);
   // Only populated in the rare case where the same email+password combination
   // matches more than one workspace -- see auth.controller.ts's `login`.
   const [workspaceChoices, setWorkspaceChoices] = useState(null);
@@ -151,6 +154,8 @@ export default function Login() {
               autoFocus
               required
             />
+            {/* Peeper (Piixpal): its eyes follow what is typed here... */}
+            {peepers && <piix-pal pal="peeper"></piix-pal>}
           </div>
 
           <div>
@@ -180,6 +185,8 @@ export default function Login() {
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
+            {/* ...and this one covers its eyes while the password is typed (and peeks when Show is pressed). */}
+            {peepers && <piix-pal pal="peeper"></piix-pal>}
           </div>
 
           {/*

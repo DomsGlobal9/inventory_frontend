@@ -779,6 +779,9 @@ export default function LandingPage() {
         padding: 11px 6px; color: var(--text-secondary);
       }
       .lp-cta { padding: 11px 16px; font-size: 13.5px; }
+      /* Three links pushed Get Started off a phone's edge. What's new is still a tap away on a phone:
+         the plane's banner and the "See everything that's new" button. */
+      .lp-wn-link { display: none !important; }
     }
 
     @keyframes lpFloat {
@@ -861,7 +864,7 @@ export default function LandingPage() {
           <BrandLockup size="md" />
         </Link>
         <div style={{ display: 'flex', gap: '16px' }}>
-          <Link to="/whats-new" className="lp-login" style={{ whiteSpace: 'nowrap' }}>What's new</Link>
+          <Link to="/whats-new" className="lp-login lp-wn-link" style={{ whiteSpace: 'nowrap' }}>What's new</Link>
           <Link to="/login" className="lp-login" style={{ whiteSpace: 'nowrap' }}>Log In</Link>
           <Link to="/signup" className="lp-cta" style={{
             whiteSpace: 'nowrap', borderRadius: '999px', fontWeight: 700, textDecoration: 'none',

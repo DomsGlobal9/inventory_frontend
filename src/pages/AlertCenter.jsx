@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { AlertTriangle, AlertCircle, ArrowLeft, Download, Pin, X } from 'lucide-react';
 import { useAlerts, useTogglePinAlert, useDeleteAlert, useMarkAlertRead } from '../hooks/useAlerts';
@@ -15,7 +15,9 @@ export default function AlertCenter() {
   const deleteAlert = useDeleteAlert();
   const markAlertRead = useMarkAlertRead();
 
-  const [activeTab, setActiveTab] = useState('out_of_stock');
+  // ?tab=low_stock opens on Low Stock: the Dashboard's Running low card sends people here.
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') === 'low_stock' ? 'low_stock' : 'out_of_stock');
 
   if (isLoading) {
     return <PageLoader text="Loading Alerts..." />;

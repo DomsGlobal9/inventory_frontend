@@ -1,11 +1,13 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { IndianRupee, Package, TriangleAlert, TrendingUp, TrendingDown } from 'lucide-react';
 import { api } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
 import { useLocationContext } from '../../contexts/LocationContext';
+import { usePermission } from '../../hooks/usePermission';
+import { rowLink } from '../common/rowLink';
 
 /**
  * The Dashboard's top half: a welcome line, three live cards (sales, stock, running low), sales by
@@ -15,6 +17,22 @@ import { useLocationContext } from '../../contexts/LocationContext';
  * see -- so a part is drawn only when the server sent it, and nothing here re-checks permissions.
  * Numbers count up, bars grow and the sales line draws itself, unless the device asks for less motion.
  */
+
+/**
+ * The whole card opens its page, as the old tiles did (Inventory value, Low stock...). Built on rowLink, so a
+ * link inside the card (a product in Running low) still opens that product and the card does not fire too,
+ * selecting text is not a click, and Enter or Space opens it from the keyboard. Nothing for a role that cannot
+ * open the page: no pointer, no focus stop, no click into a "not part of your role" wall.
+ */
+function useCardLink() {
+  const navigate = useNavigate();
+  const { can } = usePermission();
+  return (to, permission, label) => {
+    if (!to || (permission && !can(permission))) return {};
+    const { className, ...rest } = rowLink(() => navigate(to), { label });
+    return { ...rest, 'data-card-link': to };
+  };
+}
 
 const rupees = (n) => `₹${Math.round(n).toLocaleString('en-IN')}`;
 /** Short money for an axis: ₹1.5L, ₹50k, ₹800. */
@@ -73,12 +91,12 @@ function Sparkline({ values, width = 120, height = 38, fromZero = true, stretch 
 const smoothSales = (daily) => daily.map((_, i) => { const w = daily.slice(Math.max(0, i - 4), i + 1); return w.reduce((t, x) => t + x.till + x.online, 0) / w.length; });
 
 /** Beside the sales chart: the last 30 days in figures -- total, change, till vs online, orders, the average. */
-function SalesCard({ sales }) {
+function SalesCard({ sales, link = {} }) {
   const change = sales.prev30 > 0 ? ((sales.last30 - sales.prev30) / sales.prev30) * 100 : null;
   const till = sales.daily.reduce((t, x) => t + x.till, 0), online = sales.daily.reduce((t, x) => t + x.online, 0);
   const both = till + online || 1;
   return (
-    <div className="ov-card ov-kpi" style={{ height: '100%' }}>
+    <div className={`ov-card ov-kpi${link.role ? ' ov-click' : ''}`} style={{ height: '100%' }} {...link}>
       <div className="ov-kpi-head"><span>Sales · last 30 days</span><span className="ov-ico"><IndianRupee size={17} /></span></div>
       <div className="ov-big" style={{ fontSize: 32 }}><CountUp value={sales.last30} format={rupees} /></div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
@@ -212,6 +230,8 @@ export default function Overview({ actions, summary }) {
   const { user } = useAuth();
   const { currentLocation } = useLocationContext();
   const { data, isLoading } = useOverview();
+  const cardLink = useCardLink();
+  const canInventory = usePermission().can('inventory:view');
   const first = String(user?.name || '').trim().split(/\s+/)[0];
   const name = first ? first[0].toUpperCase() + first.slice(1) : '';
   const now = new Date();
@@ -255,7 +275,7 @@ export default function Overview({ actions, summary }) {
         ))}
 
         {d?.stock?.value != null && (
-          <motion.div className="ov-card ov-kpi" {...rise(1)}>
+          <motion.div {...rise(1)} {...cardLink('/inventory', 'inventory:view', 'Open Inventory: stock value')} className={`ov-card ov-kpi${canInventory ? ' ov-click' : ''}`}>
             <div className="ov-kpi-head"><span>Stock value{currentLocation ? ` · ${currentLocation.name}` : ' · whole shop'}</span><span className="ov-ico"><IndianRupee size={17} /></span></div>
             <div className="ov-big"><CountUp value={d.stock.value} format={rupees} /></div>
             <div className="ov-foot">
@@ -277,7 +297,7 @@ export default function Overview({ actions, summary }) {
         )}
 
         {d?.stock && (
-          <motion.div className="ov-card ov-kpi" {...rise(2)}>
+          <motion.div {...rise(2)} {...cardLink('/inventory', 'inventory:view', 'Open Inventory: stock on hand')} className={`ov-card ov-kpi${canInventory ? ' ov-click' : ''}`}>
             <div className="ov-kpi-head"><span>Stock on hand{currentLocation ? ` · ${currentLocation.name}` : ''}</span><span className="ov-ico"><Package size={17} /></span></div>
             <div className="ov-big"><CountUp value={d.stock.units} /> <small>pieces</small></div>
             <div className="ov-muted">{d.stock.colours.toLocaleString('en-IN')} colours across your products</div>
@@ -298,16 +318,16 @@ export default function Overview({ actions, summary }) {
         )}
 
         {d?.stock && (
-          <motion.div className="ov-card ov-kpi" {...rise(3)}>
+          <motion.div {...rise(3)} {...cardLink('/inventory/alerts?tab=low_stock', 'inventory:view', 'Open the stock alerts: low stock')} className={`ov-card ov-kpi${canInventory ? ' ov-click' : ''}`}>
             <div className="ov-kpi-head"><span>Running low</span><span className="ov-ico warn"><TriangleAlert size={17} /></span></div>
             <div className="ov-big"><CountUp value={d.stock.low} /> <small>colour{d.stock.low === 1 ? '' : 's'}</small></div>
             <div className="ov-muted">{d.stock.low > 0 ? `${d.stock.lowPieces} pieces left between them · at or under their reorder level` : 'Nothing at or under its reorder level.'}</div>
             {d.stock.lowest.length > 0 && (
               <div className="ov-lows">
                 {d.stock.lowest.map((l, i) => (
-                  <Link key={i} to={`/products/${l.productId}`}><span>{l.title}{l.colour ? ` · ${l.colour}` : ''}{l.size && !/free/i.test(l.size) ? ` · ${l.size}` : ''}</span><b>{l.left} left</b></Link>
+                  <Link key={i} to={`/products/${l.productId}`} title={`${l.title}${l.colour ? ` · ${l.colour}` : ''}${l.size ? ` · ${l.size}` : ''}: ${l.left} left`}><span>{l.title}{l.colour ? ` · ${l.colour}` : ''}{l.size && !/free/i.test(l.size) ? ` · ${l.size}` : ''}</span><b>{l.left} left</b></Link>
                 ))}
-                {d.stock.low > d.stock.lowest.length && <Link to="/inventory/alerts" style={{ fontWeight: 600 }}><span>See all {d.stock.low}</span></Link>}
+                {d.stock.low > d.stock.lowest.length && <Link to="/inventory/alerts?tab=low_stock" style={{ fontWeight: 600 }}><span>See all {d.stock.low}</span></Link>}
               </div>
             )}
           </motion.div>
@@ -319,7 +339,7 @@ export default function Overview({ actions, summary }) {
       {d?.sales && (
         <section className="ov-row2">
           <motion.div {...rise(4)} style={{ minWidth: 0 }}><SalesChart sales={d.sales} /></motion.div>
-          <motion.div {...rise(5)} style={{ minWidth: 0 }}><SalesCard sales={d.sales} /></motion.div>
+          <motion.div {...rise(5)} style={{ minWidth: 0 }}><SalesCard sales={d.sales} link={cardLink('/orders', 'sales_order:view', 'Open Orders: sales of the last 30 days')} /></motion.div>
         </section>
       )}
 

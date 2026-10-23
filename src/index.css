@@ -1106,7 +1106,12 @@ html.theme-wipe *, html.theme-wipe *::before, html.theme-wipe *::after { transit
 .ov-lows { display: grid; gap: 4px; font-size: 12px; margin-top: auto; }
 .ov-lows a { display: flex; justify-content: space-between; gap: 8px; color: var(--text-secondary); text-decoration: none; }
 .ov-lows a:hover { color: var(--text-primary); }
-.ov-lows a span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* min-width: 0, or a flex item never shrinks below its text and the "..." never comes: a long saree name
+   ("Antique Gold Kanchi Tissue Silk Saree with Multi-Color Bird Motifs...") stretched the card and pushed
+   the whole row of cards sideways, the Stock value card off the left edge (Swathy's shop, 23 Oct). */
+.ov-lows a { min-width: 0; }
+.ov-lows a span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.ov-row1 > *, .ov-row2 > *, .ov-row3 > * { min-width: 0; }
 .ov-lows b { color: var(--accent-warning); white-space: nowrap; }
 .ov-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
 .ov-head h2 { font-size: 15px; margin: 0; font-weight: 700; color: var(--text-primary); }
@@ -1296,3 +1301,13 @@ a.lh-row:hover .lh-what div:first-child { color: var(--brand-ink); }
 .wn-end { display: grid; gap: 12px; justify-items: center; text-align: center; padding: 40px 16px 8px; border-top: 1px solid var(--border-light); }
 .wn-end h2 { margin: 0; font-size: clamp(22px, 3vw, 30px); color: var(--text-primary); }
 .wn-end p { margin: 0; color: var(--text-secondary); }
+
+/* A dashboard card that opens its page (components/dashboard/Overview useCardLink). */
+.ov-click { cursor: pointer; transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease; }
+.ov-click:hover { border-color: color-mix(in srgb, var(--brand) 55%, var(--border-light)); box-shadow: 0 10px 26px -14px rgba(0, 0, 0, .28); }
+.ov-click:focus-visible { outline: 2px solid var(--brand-solid); outline-offset: 3px; }
+@media (prefers-reduced-motion: no-preference) { .ov-click:hover { transform: translateY(-2px); } }
+
+/* Edge draws its own "reveal password" eye inside password boxes, beside the app's Show/Hide button: two eyes.
+   The app's button is the one that works everywhere, so Edge's is hidden. */
+input[type="password"]::-ms-reveal, input[type="password"]::-ms-clear { display: none; }

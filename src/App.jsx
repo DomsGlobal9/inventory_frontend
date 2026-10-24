@@ -40,7 +40,6 @@ import ProductDetails from './pages/ProductDetails';
 import Products from './pages/Products';
 import Settings from './pages/Settings';
 import StockLocationsPage from './pages/settings/StockLocationsPage';
-import TransfersPage from './pages/inventory/TransfersPage';
 import InventoryOverview from './pages/InventoryOverview';
 import InventoryLedger from './pages/InventoryLedger';
 import AlertCenter from './pages/AlertCenter';
@@ -201,7 +200,8 @@ function App() {
           {/* The same page in its "new" mode; a literal path outranks :id. */}
           <Route path="/inventory/purchase-orders/new" element={<Guard allOf={['purchase_order:view', 'purchase_order:create']} what="raise purchase orders"><PurchaseOrderDetails /></Guard>} />
           <Route path="/inventory/ledger" element={<Guard permission="inventory:view"><InventoryLedger /></Guard>} />
-          <Route path="/inventory/transfers" element={<Guard permission="inventory:transfer" what="move stock between stores"><TransfersPage /></Guard>} />
+          {/* Moving stock is the Move stock box on Inventory now (24 Oct); old links and bookmarks open it there. */}
+          <Route path="/inventory/transfers" element={<Navigate to="/inventory?transfer=1" replace />} />
           <Route path="/inventory" element={<Guard permission="inventory:view"><InventoryOverview /></Guard>} />
           <Route path="/shelves" element={<Guard permission="shelf:view" what="look up where an item is"><WhereIsIt /></Guard>} />
           <Route path="/shelves/put-away" element={<Guard permission="shelf:putaway" what="put stock away"><PutAway /></Guard>} />

@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import LoadFailed from '../components/LoadFailed';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Plus, Minus, Settings2, History, Search, BellRing, ClipboardCheck } from 'lucide-react';
+import { Plus, Minus, Settings2, History, Search, BellRing, ClipboardCheck, ArrowLeftRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useInventoryVariants } from '../hooks/useInventory';
 import PageLoader from '../components/PageLoader';
 import StockInModal from '../components/inventory/StockInModal';
 import StockOutModal from '../components/inventory/StockOutModal';
 import AdjustModal from '../components/inventory/AdjustModal';
+import MoveStockModal from '../components/inventory/MoveStockModal';
 import { usePermission } from '../hooks/usePermission';
 import Select from '../components/common/Select';
 import { formatRupees } from '../utils/money';
@@ -67,7 +68,8 @@ export default function InventoryOverview() {
     return (data?.items || []).filter(v => (seen.has(v.variantId) ? false : seen.add(v.variantId)));
   }, [data]);
   
-  const [modalState, setModalState] = useState({ type: null, variant: null }); // type: 'IN', 'OUT', 'ADJUST'
+  // type: 'IN', 'OUT', 'ADJUST', or 'MOVE' (between locations; ?transfer=1 opens it, as the old Transfers address does).
+  const [modalState, setModalState] = useState(() => ({ type: searchParams.get('transfer') === '1' && can('inventory:transfer') ? 'MOVE' : null, variant: null }));
   // ?receive=1 (the Dashboard's + Stock In): stock is received item by item, so the search box is ready and
   // a line says what to do next.
   const receiving = searchParams.get('receive') === '1';
@@ -133,6 +135,16 @@ export default function InventoryOverview() {
             <History size={16} />
             View Ledger
           </button>
+          {can('inventory:transfer') && (
+            <button
+              className="btn-primary"
+              style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+              onClick={() => setModalState({ type: 'MOVE', variant: null })}
+            >
+              <ArrowLeftRight size={16} />
+              Move stock
+            </button>
+          )}
         </div>
       </div>
 
@@ -252,6 +264,11 @@ export default function InventoryOverview() {
                           <Settings2 size={16} />
                         </button>
                       )}
+                      {can('inventory:transfer') && (
+                        <button title="Move to another location" aria-label={`Move ${variant.sku} to another location`} className="btn-icon" onClick={() => setModalState({ type: 'MOVE', variant })}>
+                          <ArrowLeftRight size={16} />
+                        </button>
+                      )}
                       <button title="View Ledger" className="btn-icon" onClick={() => navigate(`/inventory/ledger?variantId=${variant.variantId}`)}>
                         <History size={16} />
                       </button>
@@ -293,6 +310,9 @@ export default function InventoryOverview() {
       )}
       {modalState.type === 'OUT' && (
         <StockOutModal variant={modalState.variant} onClose={() => setModalState({ type: null, variant: null })} />
+      )}
+      {modalState.type === 'MOVE' && (
+        <MoveStockModal startWith={modalState.variant} onClose={() => setModalState({ type: null, variant: null })} />
       )}
       {modalState.type === 'ADJUST' && (
         <AdjustModal variant={modalState.variant} onClose={() => setModalState({ type: null, variant: null })} />

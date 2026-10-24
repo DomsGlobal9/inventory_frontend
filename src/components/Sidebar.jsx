@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, ShoppingBag, Box, Users, Settings, Package, Truck, FileText, ArrowLeftRight, LogOut, User, Tag, MapPinned, Megaphone } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Box, Users, Settings, Package, Truck, FileText, LogOut, User, Tag, MapPinned, Megaphone } from 'lucide-react';
 import { usePermission } from '../hooks/usePermission';
 import { useAuth } from '../context/AuthContext';
 import BrandLockup from './BrandLockup';
@@ -18,7 +18,6 @@ const NAV_ITEMS = [
   { name: 'Inventory', path: '/inventory', icon: Box, permission: 'inventory:view' },
   // Where a piece is kept. Open to a salesperson too, who has no inventory:view.
   { name: 'Shelves', path: '/shelves', icon: MapPinned, permission: 'shelf:view' },
-  { name: 'Transfers', path: '/inventory/transfers', icon: ArrowLeftRight, permission: 'inventory:transfer' },
   { name: 'Purchase Orders', path: '/inventory/purchase-orders', icon: FileText, permission: 'purchase_order:view' },
   { name: 'Offers', path: '/offers', icon: Tag, permission: 'offer:view' },
   { name: 'Customers', path: '/customers', icon: Users, permission: 'customer:view' },
@@ -107,7 +106,7 @@ export default function Sidebar({ isOpen }) {
             <NavLink
               key={item.name}
               // `end` stops react-router adding its own "active" class on a prefix match.
-              // Without it both "Inventory" and "Transfers" light up on /inventory/transfers,
+              // Without it both "Inventory" and "Purchase Orders" light up on /inventory/purchase-orders,
               // and both "Reports" and "Day Book" on /reports/daybook, whatever this
               // component decides. Which single item is lit is settled by activePath above.
               end

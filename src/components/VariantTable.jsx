@@ -968,6 +968,7 @@ export default function VariantTable({ productId, productName, productCode, prod
                   <motion.tr
                     variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}
                     ref={isScanned ? scannedRowRef : undefined}
+                    data-highlighted={isScanned || undefined}
                     style={{
                       background: isScanned ? 'rgba(245, 158, 11, 0.14)' : (isSelected ? 'var(--bg-input)' : 'transparent'),
                       boxShadow: isScanned ? 'inset 3px 0 0 #f59e0b' : undefined

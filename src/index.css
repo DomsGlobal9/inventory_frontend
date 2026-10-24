@@ -1324,3 +1324,15 @@ a.lh-row:hover .lh-what div:first-child { color: var(--brand-ink); }
 /* Edge draws its own "reveal password" eye inside password boxes, beside the app's Show/Hide button: two eyes.
    The app's button is the one that works everywhere, so Edge's is hidden. */
 input[type="password"]::-ms-reveal, input[type="password"]::-ms-clear { display: none; }
+
+/* Move stock (components/inventory/MoveStockModal): From and To stack on a phone, so the arrow points down. */
+@media (max-width: 768px) { .ms-arrow { transform: rotate(90deg); justify-self: center; padding-bottom: 0 !important; } }
+
+/* The top bar's store picker: the box itself shows hover, open and keyboard focus (its dropdown is a ghost and
+   draws no box of its own -- it showed a box inside a box, 24 Oct). */
+.store-box { transition: border-color .15s ease, box-shadow .15s ease; }
+.store-box:hover { border-color: var(--border-focus, rgba(0,0,0,.25)) !important; }
+.store-box:focus-within, .store-box:has(.custom-select-trigger.open) {
+  border-color: var(--border-focus, rgba(0,0,0,.25)) !important;
+  box-shadow: 0 0 0 1px var(--border-focus, rgba(0,0,0,.25));
+}

@@ -322,12 +322,13 @@ export default function SalesOrderDetail() {
                     // heldQty, read off the line's live reservations (see heldQty above).
                     return (
                     <tr key={item.id} style={{ borderBottom: '1px solid var(--border-light)' }}>
-                      {/* The code and the name open the product (24 Oct). */}
+                      {/* The code and the name open the product on its Variants tab with THIS colour and size picked out, the way a
+                          barcode scan does (?tab=variants&variant=). Plain product links lost which piece it was (24 Oct). */}
                       <td style={{ padding: '16px 24px', fontWeight: '500' }}>
-                        {item.variant?.product?.id ? <Link to={`/products/${item.variant.product.id}`} style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: 3 }}>{item.variant?.sku}</Link> : item.variant?.sku}
+                        {item.variant?.product?.id ? <Link to={`/products/${item.variant.product.id}?tab=variants&variant=${item.variantId}`} style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: 3 }}>{item.variant?.sku}</Link> : item.variant?.sku}
                       </td>
                       <td style={{ padding: '16px 24px' }}>
-                        {item.variant?.product?.id ? <Link to={`/products/${item.variant.product.id}`} style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: 3 }}>{item.variant?.product?.title}</Link> : item.variant?.product?.title}
+                        {item.variant?.product?.id ? <Link to={`/products/${item.variant.product.id}?tab=variants&variant=${item.variantId}`} style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: 3 }}>{item.variant?.product?.title}</Link> : item.variant?.product?.title}
                       </td>
                       <td style={{ padding: '16px 24px', textAlign: 'right' }}>{item.quantity}</td>
                       {order.status !== 'DRAFT' && (

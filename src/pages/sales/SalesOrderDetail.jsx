@@ -24,6 +24,9 @@ import { ORDER_STATUS, StatusPill } from '../../components/sales/labels';
 import { useDialog } from '../../hooks/useDialog';
 import WhatsAppSendButton from '../../components/whatsapp/WhatsAppSendButton';
 import RecordPaymentModal from '../../components/sales/RecordPaymentModal';
+import UndoPaymentModal from '../../components/sales/UndoPaymentModal';
+import { useAuth } from '../../context/AuthContext';
+import { holdsEverything } from '../../lib/authority';
 import { buildWhatsAppUrl } from '../../utils/whatsappUtils';
 import { api } from '../../lib/api';
 import BillPDF from '../../components/BillPDF';
@@ -41,6 +44,10 @@ export default function SalesOrderDetail() {
 
   const [isDispatching, setIsDispatching] = useState(false);
   const [recording, setRecording] = useState(false);
+  const [undoing, setUndoing] = useState(null);
+  const { permissions: myPermissions, roles: myRoles } = useAuth();
+  // Undo a recorded payment is the account owner's alone (the server checks it too).
+  const isOwner = holdsEverything({ permissions: myPermissions, roles: myRoles });
   const [dispatchQuantities, setDispatchQuantities] = useState({});
   // Which irreversible action is waiting on a yes: 'confirm', 'cancel', or none.
   // One piece of state rather than a boolean each, because the two can never be open at once
@@ -551,11 +558,11 @@ export default function SalesOrderDetail() {
               {order.payments?.length === 0 ? (
                 <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>No payment recorded.</div>
               ) : order.payments.map(p => (
-                <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '8px 0', borderTop: '1px solid var(--border-light)', fontSize: '14px' }}>
+                <div key={p.id} data-payment-row style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '8px 0', borderTop: '1px solid var(--border-light)', fontSize: '14px', color: p.isUndo ? 'var(--accent-danger)' : undefined }}>
                   <div style={{ minWidth: 0 }}>
-                    <div style={{ fontWeight: 500 }}>
-                      {p.kind === 'REFUND' ? 'Refund · ' : ''}{({ CASH: 'Cash', UPI: 'UPI', CARD: 'Card', POINTS: 'Loyalty points', CREDIT: 'Store credit', VOUCHER: 'Gift voucher', ONLINE: 'Online (Razorpay)', BANK_TRANSFER: 'Bank transfer', CHEQUE: 'Cheque' })[p.method]}
-                      {p.reference ? <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}> · {p.reference}</span> : null}
+                    <div style={{ fontWeight: 500, textDecoration: p.undone ? 'line-through' : undefined }}>
+                      {p.isUndo ? 'Undone · ' : ''}{p.kind === 'REFUND' ? 'Refund · ' : ''}{({ CASH: 'Cash', UPI: 'UPI', CARD: 'Card', POINTS: 'Loyalty points', CREDIT: 'Store credit', VOUCHER: 'Gift voucher', ONLINE: 'Online (Razorpay)', BANK_TRANSFER: 'Bank transfer', CHEQUE: 'Cheque' })[p.method]}
+                      {p.reference ? <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}> · {p.isUndo ? `“${p.reference.replace(/^Undone: /, '')}”` : p.reference}</span> : null}
                     </div>
                     <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
                       {new Date(p.receivedAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}
@@ -563,7 +570,15 @@ export default function SalesOrderDetail() {
                       {Number(p.changeGiven) > 0 ? ` · got ${formatINRExact(Number(p.cashReceived))}, gave back ${formatINRExact(Number(p.changeGiven))}` : ''}
                     </div>
                   </div>
-                  <span style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>{p.kind === 'REFUND' ? '-' : ''}{formatINRExact(Number(p.amount))}</span>
+                  <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+                    <span style={{ fontWeight: 600, whiteSpace: 'nowrap', textDecoration: p.undone ? 'line-through' : undefined }}>
+                      {p.kind === 'REFUND' || Number(p.amount) < 0 ? '-' : ''}{formatINRExact(Math.abs(Number(p.amount)))}
+                    </span>
+                    {p.undone && <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Undone</span>}
+                    {p.undoable && isOwner && (
+                      <button type="button" onClick={() => setUndoing(p)} style={{ background: 'none', border: 'none', padding: 0, fontSize: 12, color: 'var(--accent-danger)', textDecoration: 'underline', cursor: 'pointer' }}>Undo</button>
+                    )}
+                  </span>
                 </div>
               ))}
             </div>
@@ -573,6 +588,7 @@ export default function SalesOrderDetail() {
       </div>
 
       {recording && <RecordPaymentModal order={order} onClose={() => setRecording(false)} />}
+      {undoing && <UndoPaymentModal order={order} payment={undoing} onClose={() => setUndoing(null)} />}
 
       {/* Dispatch Modal */}
       {isDispatching && (

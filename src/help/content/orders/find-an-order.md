@@ -5,7 +5,7 @@ for: Sales staff, stock room staff, admins and owners
 minutes: 4
 app: /orders
 appLabel: Orders
-keywords: order search look up find sale bill number phone item code filter date this month last 30 days status payment not paid due part paid where from pos till online shop shopify kept order collect handed over amount sort most due export excel download record payment pay on delivery cash on delivery collected
+keywords: order search look up find sale bill number phone item code filter date this month last 30 days status payment not paid due part paid where from pos till online shop shopify kept order collect handed over amount sort most due export excel download record payment pay on delivery cash on delivery collected undo payment mistake wrong amount
 ---
 
 Every sale lives in **Orders**: bills from your POS till, online orders, Shopify orders and older sales made at Inventory's own counter.
@@ -107,6 +107,10 @@ Your role does not include orders. Sales staff, stock room staff, admins and own
 
 :::faq The payment says due
 Less money was recorded than the order total. Open the order and check **Payments**. If the customer has paid since, use **Record payment** (or, for a till bill, take it on the till).
+:::
+
+:::faq I recorded a payment by mistake
+The shop owner can open the order and click **Undo** under that payment, with a reason. The payment stays on the order, struck through and marked *Undone*; a red row below it takes the money back off, so the amount is due again and today's Day Book takes it off. Only payments made with **Record payment** can be undone: a till payment is corrected on the till, and an online payment is refunded.
 :::
 
 :::faq I don't see Record payment

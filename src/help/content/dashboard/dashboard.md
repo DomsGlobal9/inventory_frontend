@@ -56,7 +56,7 @@ Cancelled orders, drafts and deleted orders are never counted as sales.
 
 ![The lower half of the Dashboard: 1 Waiting on you, 2 Money tied up, 3 Stock moves and 4 To restock.](5-lower-half.webp)
 
-[[1]] **Waiting on you**: returns to check, returns not finished, transfers on the way and customers added today. Each one opens its list. When there is nothing, it says so in one line.
+[[1]] **Waiting on you**: returns to check, returns not finished, transfers on the way, **kept orders past their date** (kept at the till for a customer who has not come on the day they promised; it opens Orders with just those) and customers added today. Each one opens its list. When there is nothing, it says so in one line.
 
 [[2]] **Money tied up**: two figures, at cost.
 - *Still to arrive from suppliers* is what is left to come on your open purchase orders: what you ordered, less what has already arrived, for this store. Under it you see the same for all your stores. **See open orders** opens **Purchase Orders** with the open orders chosen.

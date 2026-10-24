@@ -171,6 +171,21 @@ export const useRecordPayment = (orderId) => {
   });
 };
 
+/** A payment recorded by mistake, cancelled with a reason (the owner only; services/order-payments). */
+export const useUndoPayment = (orderId) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ paymentId, reason }) => api.post(`/sales-orders/${orderId}/payments/${paymentId}/undo`, { reason }),
+    onSuccess: (res) => {
+      const due = res?.data?.payment?.due ?? 0;
+      toast.success(`Payment undone. ₹${due.toLocaleString('en-IN')} is due again.`);
+      queryClient.invalidateQueries({ queryKey: ['sales-orders'] });
+      invalidateDerivedViews(queryClient); // today's Day Book nets it out
+    },
+    onError: showError('The payment could not be undone. Try again.')
+  });
+};
+
 export const useCancelOrder = () => {
   const queryClient = useQueryClient();
   return useMutation({

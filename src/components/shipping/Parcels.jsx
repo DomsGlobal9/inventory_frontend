@@ -86,6 +86,8 @@ export default function Parcels({ order }) {
               </div>
             ) : p.courierName ? (
               <>
+                {/* Courier and number on the left, what can be done on the right; one under the other when narrow. */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                   <b>{p.courierName}</b>
                   {p.trackingNumber
@@ -99,7 +101,7 @@ export default function Parcels({ order }) {
                     </button>
                   )}
                 </div>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                   {labelButton(p)}
                   {p.trackingUrl && (
                     <button type="button" className="btn-secondary" onClick={() => track(p)} style={{ padding: '6px 10px', fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
@@ -123,6 +125,7 @@ export default function Parcels({ order }) {
                       <Pencil size={14} /> {p.trackingNumber || !p.needsNumber ? 'Change' : 'Add tracking number'}
                     </button>
                   )}
+                </div>
                 </div>
                 {mayEdit && delivered && (
                   <button type="button" onClick={() => change.mutate({ id: p.id, delivered: false }, { onSuccess: () => toast.success('Marked not delivered') })}

@@ -379,6 +379,11 @@ export default function SalesOrderDetail() {
             </table>
             </div>
           </div>
+
+          {/* Each dispatch with its courier, tracking number and delivery, under the lines it carried: the
+              wide column had room, while the right one had grown into a long scroll (24 Oct). None for a
+              till or counter bill. */}
+          {!order.atCounter && order.sourceSystem !== 'SCALEEZY_POS' && <Parcels order={order} />}
         </div>
 
         {/* Right Sidebar: Summary */}
@@ -509,9 +514,6 @@ export default function SalesOrderDetail() {
               </div>
             )}
           </div>
-
-          {/* Each dispatch with its courier, tracking number and delivery. None for a till or counter bill. */}
-          {!order.atCounter && order.sourceSystem !== 'SCALEEZY_POS' && <Parcels order={order} />}
 
           {/* A kept order from the till: when the customer said they would collect, and when they did. */}
           {order.handover === 'KEEP_FOR_CUSTOMER' && (() => {

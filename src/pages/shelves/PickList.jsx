@@ -3,6 +3,7 @@ import { useUnsavedWork } from '../../contexts/UnsavedWorkContext';
 import toast from 'react-hot-toast';
 import { ClipboardList, CheckCircle2, Circle, Loader2, PackageX, Truck, RotateCcw, SearchX } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useLocationContext } from '../../contexts/LocationContext';
 import { usePermission } from '../../hooks/usePermission';
 import { usePickOrders, usePickList, useReportNotFound, isLabelScan } from '../../hooks/useShelves';
@@ -21,10 +22,18 @@ const channelName = (o) => o.source === 'SHOPIFY' ? 'Shopify' : o.channel === 'O
 export default function PickList() {
   const { currentLocation } = useLocationContext();
   const { can } = usePermission();
-  const locationId = currentLocation?.id;
+  const navigate = useNavigate();
+  /*
+   * Opened from an online order's "Pick from shelves" (?order=&loc=): straight into the walk for that one
+   * order, at the order's own store whatever store is chosen at the top, and back to the order after.
+   */
+  const [params] = useSearchParams();
+  const oneOrder = params.get('order');
+  const locationId = (oneOrder && params.get('loc')) || currentLocation?.id;
   const orders = usePickOrders(locationId);
   const [selected, setSelected] = useState([]);
-  const [started, setStarted] = useState(null);
+  const [started, setStarted] = useState(oneOrder ? [oneOrder] : null);
+  const backToOrder = () => navigate(`/orders/${oneOrder}`);
 
   if (!can('shelf:putaway')) {
     return <ShelvesLayout title="Pick" icon={ClipboardList}><div className="sh-card"><EmptyState icon={ClipboardList} title="You cannot pick orders" text="Ask whoever manages your team for the permission to put stock away and move it." /></div></ShelvesLayout>;
@@ -36,8 +45,10 @@ export default function PickList() {
   return (
     <ShelvesLayout title="Pick" icon={ClipboardList} subtitle="Choose the orders to send out and walk the shelves once to collect them.">
       {started ? (
-        <PickWalk key={started.join(',')} locationId={locationId} orderIds={started} onBack={() => setStarted(null)}
-          onDone={() => { setStarted(null); setSelected([]); orders.refetch(); }} canDispatch={can('dispatch:create')} />
+        <PickWalk key={started.join(',')} locationId={locationId} orderIds={started}
+          onBack={oneOrder ? backToOrder : () => setStarted(null)}
+          onDone={oneOrder ? backToOrder : () => { setStarted(null); setSelected([]); orders.refetch(); }} canDispatch={can('dispatch:create')}
+          backLabel={oneOrder ? 'Back to the order' : undefined} />
       ) : (
         <section className="sh-card" style={{ display: 'grid', gap: 12 }}>
           <div className="sh-row" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
@@ -71,7 +82,7 @@ export default function PickList() {
   );
 }
 
-function PickWalk({ locationId, orderIds, onBack, onDone, canDispatch }) {
+function PickWalk({ locationId, orderIds, onBack, onDone, canDispatch, backLabel = 'Choose orders' }) {
   const pick = usePickList(locationId, orderIds);
   const report = useReportNotFound();
   const queryClient = useQueryClient();
@@ -168,7 +179,7 @@ function PickWalk({ locationId, orderIds, onBack, onDone, canDispatch }) {
       <div className="sh-card" style={{ display: 'grid', gap: 10, position: 'sticky', top: 0, zIndex: 3 }}>
         <div className="sh-row" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
           <span><strong>{done} of {tasks.length}</strong> <span className="sh-muted">picks · {pieces(data.pieces)} for {data.orders.length} {data.orders.length === 1 ? 'order' : 'orders'}</span></span>
-          <button type="button" className="btn-secondary" onClick={onBack} style={{ display: 'flex', gap: 6, alignItems: 'center' }}><RotateCcw size={14} /> Choose orders</button>
+          <button type="button" className="btn-secondary" onClick={onBack} style={{ display: 'flex', gap: 6, alignItems: 'center' }}><RotateCcw size={14} /> {backLabel}</button>
         </div>
         <div style={{ height: 6, borderRadius: 999, background: 'var(--bg-input)', overflow: 'hidden' }}>
           <div style={{ width: `${tasks.length ? (done / tasks.length) * 100 : 0}%`, height: '100%', background: 'var(--accent-success)', transition: 'width .2s' }} />

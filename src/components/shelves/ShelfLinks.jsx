@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { PackagePlus, MapPinned } from 'lucide-react';
+import { PackagePlus, MapPinned, ClipboardList } from 'lucide-react';
 import { usePermission } from '../../hooks/usePermission';
 import { useNotShelved, useShelvesUsed } from '../../hooks/useShelves';
 
@@ -39,6 +39,26 @@ export function PutAwayNotice({ locationId, variantIds, quantities, what = 'thes
       </span>
       <Link to={`/shelves/put-away${params}`} className="btn-secondary" style={{ textDecoration: 'none', whiteSpace: 'nowrap' }}>Put away</Link>
     </div>
+  );
+}
+
+/**
+ * On an online order still to go out: pick it from the shelves now, from here (24 Oct). Opens the pick
+ * walk for just this order at its own store, and comes back to the order when done. Only where it means
+ * something: an online order, confirmed or part sent, pieces still to send, someone who may pick, and a
+ * store that uses shelves.
+ */
+export function PickThisOrder({ order }) {
+  const { can } = usePermission();
+  const waiting = (order?.items ?? []).some(i => Number(i.quantity) > Number(i.fulfilledQty ?? 0));
+  const fits = order?.channel === 'ONLINE' && ['CONFIRMED', 'PARTIALLY_DISPATCHED'].includes(order?.status) && waiting && can('shelf:putaway');
+  const store = useNotShelved(fits ? order.locationId : null, 1);
+  if (!fits || !store.data?.usesShelves) return null;
+  return (
+    <Link to={`/shelves/pick?order=${order.id}&loc=${order.locationId}`} className="btn-secondary"
+      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, textDecoration: 'none', width: '100%', padding: '12px', fontSize: '15px' }}>
+      <ClipboardList size={18} /> Pick from shelves
+    </Link>
   );
 }
 

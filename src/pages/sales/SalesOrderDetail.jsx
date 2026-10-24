@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useSalesOrderDetails, useConfirmOrder, useCancelOrder } from '../../hooks/useSalesOrders';
 import { useCreateDispatch } from '../../hooks/useDispatches';
 import { ArrowLeft, Loader2, CheckCircle, XCircle, Truck, Printer, Undo2 } from 'lucide-react';
@@ -19,7 +19,7 @@ import { formatINRExact } from '../../utils/formatUtils';
 import PageLoader from '../../components/PageLoader';
 import ConfirmModal from '../../components/ConfirmModal';
 import toast from 'react-hot-toast';
-import { ShelvesUsed } from '../../components/shelves/ShelfLinks';
+import { ShelvesUsed, PickThisOrder } from '../../components/shelves/ShelfLinks';
 import { ORDER_STATUS, StatusPill } from '../../components/sales/labels';
 import { useDialog } from '../../hooks/useDialog';
 import WhatsAppSendButton from '../../components/whatsapp/WhatsAppSendButton';
@@ -322,8 +322,13 @@ export default function SalesOrderDetail() {
                     // heldQty, read off the line's live reservations (see heldQty above).
                     return (
                     <tr key={item.id} style={{ borderBottom: '1px solid var(--border-light)' }}>
-                      <td style={{ padding: '16px 24px', fontWeight: '500' }}>{item.variant?.sku}</td>
-                      <td style={{ padding: '16px 24px' }}>{item.variant?.product?.title}</td>
+                      {/* The code and the name open the product (24 Oct). */}
+                      <td style={{ padding: '16px 24px', fontWeight: '500' }}>
+                        {item.variant?.product?.id ? <Link to={`/products/${item.variant.product.id}`} style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: 3 }}>{item.variant?.sku}</Link> : item.variant?.sku}
+                      </td>
+                      <td style={{ padding: '16px 24px' }}>
+                        {item.variant?.product?.id ? <Link to={`/products/${item.variant.product.id}`} style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: 3 }}>{item.variant?.product?.title}</Link> : item.variant?.product?.title}
+                      </td>
                       <td style={{ padding: '16px 24px', textAlign: 'right' }}>{item.quantity}</td>
                       {order.status !== 'DRAFT' && (
                         <>
@@ -479,6 +484,8 @@ export default function SalesOrderDetail() {
                     Create Dispatch
                   </button>
                 )}
+                {/* An online order: pick it off the shelves from here (only where the store uses shelves). */}
+                <PickThisOrder order={order} />
                 {can('sales_order:cancel') && (
                   <button
                     className="btn-secondary"

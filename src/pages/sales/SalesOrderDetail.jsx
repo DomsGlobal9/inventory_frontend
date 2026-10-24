@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useSalesOrderDetails, useConfirmOrder, useCancelOrder } from '../../hooks/useSalesOrders';
@@ -40,6 +40,36 @@ export default function SalesOrderDetail() {
   const navigate = useNavigate();
   const { can } = usePermission();
   const { data: order, isLoading } = useSalesOrderDetails(id);
+  /*
+   * The lines are a table only when the table really fits its box; otherwise cards (24 Oct).
+   *
+   * A screen-width rule cut the TOTAL column off on laptops: how wide the table must be depends on the
+   * side menu, the Discount column and how long the product names are (530 to 810 px measured). So the
+   * table, while shown, is measured at its narrowest (before the screen is painted) and that width kept;
+   * the box's own width is compared with it whenever the box changes size.
+   */
+  const linesBoxRef = useRef(null);
+  const linesTableRef = useRef(null);
+  const linesNeed = useRef(0);
+  const [linesFit, setLinesFit] = useState(true);
+  // A big order shows its first lines and a button for the rest, so Parcels stays near the top (24 Oct).
+  const [allLines, setAllLines] = useState(false);
+  useLayoutEffect(() => {
+    const box = linesBoxRef.current, table = linesTableRef.current;
+    if (!linesFit || !box || !table) return;
+    const { width, minWidth } = table.style;
+    table.style.width = '1px'; table.style.minWidth = '0';
+    linesNeed.current = table.scrollWidth;
+    table.style.width = width; table.style.minWidth = minWidth;
+    if (box.clientWidth < linesNeed.current) setLinesFit(false);
+  });
+  useLayoutEffect(() => {
+    const box = linesBoxRef.current;
+    if (!box) return undefined;
+    const ro = new ResizeObserver(() => setLinesFit(box.clientWidth >= linesNeed.current));
+    ro.observe(box);
+    return () => ro.disconnect();
+  }, [order]);
   const confirmMutation = useConfirmOrder();
   const cancelMutation = useCancelOrder();
   const dispatchMutation = useCreateDispatch();
@@ -206,6 +236,88 @@ export default function SalesOrderDetail() {
     });
   };
 
+  const LINES_SHOWN = 6;
+  const lineCount = order.items?.length ?? 0;
+  const shownLines = allLines ? (order.items ?? []) : (order.items ?? []).slice(0, LINES_SHOWN);
+  const linesTable = () => (
+            <table ref={linesTableRef} className="li-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+              <thead>
+                <tr style={{ backgroundColor: 'var(--bg-hover)' }}>
+                  <th style={{ fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px' }}>SKU</th>
+                  <th style={{ fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px' }}>PRODUCT</th>
+                  <th style={{ fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px', textAlign: 'right' }}>QTY</th>
+                  {order.status !== 'DRAFT' && (
+                    <>
+                      <th style={{ fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px', textAlign: 'right' }}>RESERVED</th>
+                      <th style={{ fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px', textAlign: 'right' }}>DISPATCHED</th>
+                    </>
+                  )}
+                  <th style={{ fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px', textAlign: 'right' }}>UNIT PRICE</th>
+                  {anyDiscount && (
+                    <th style={{ fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px', textAlign: 'right' }}>DISCOUNT</th>
+                  )}
+                  <th style={{ fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px', textAlign: 'right' }}>TOTAL</th>
+                </tr>
+              </thead>
+              <tbody>
+                {order.items?.length === 0 ? (
+                  <tr><td colSpan={(order.status === 'DRAFT' ? 5 : 7) + (anyDiscount ? 1 : 0)} style={{ padding: '48px', textAlign: 'center', color: 'var(--text-secondary)' }}>No items added yet.</td></tr>
+                ) : (
+                  shownLines.map(item => {
+                    // DISPATCHED is fulfilledQty, which DispatchService maintains. RESERVED is
+                    // heldQty, read off the line's live reservations (see heldQty above).
+                    return (
+                    <tr key={item.id} style={{ borderBottom: '1px solid var(--border-light)' }}>
+                      {/* The code and the name open the product on its Variants tab with THIS colour and size picked out, the way a
+                          barcode scan does (?tab=variants&variant=). Plain product links lost which piece it was (24 Oct). */}
+                      <td style={{ fontWeight: '500' }}>
+                        {item.variant?.product?.id ? <Link to={`/products/${item.variant.product.id}?tab=variants&variant=${item.variantId}`} style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: 3 }}>{item.variant?.sku}</Link> : item.variant?.sku}
+                      </td>
+                      <td>
+                        {item.variant?.product?.id ? <Link to={`/products/${item.variant.product.id}?tab=variants&variant=${item.variantId}`} style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: 3 }}>{item.variant?.product?.title}</Link> : item.variant?.product?.title}
+                      </td>
+                      <td style={{ textAlign: 'right' }}>{item.quantity}</td>
+                      {order.status !== 'DRAFT' && (
+                        <>
+                          <td style={{ textAlign: 'right', color: 'var(--accent-warning)', fontWeight: '500' }}>
+                            {heldQty(item)}
+                          </td>
+                          <td style={{ textAlign: 'right', color: 'var(--accent-success)', fontWeight: '500' }}>
+                            {item.fulfilledQty || 0}
+                          </td>
+                        </>
+                      )}
+                      {/*
+                        * The list price above the net one, whenever they differ.
+                        *
+                        * The order used to be recorded at list price and discounted only at the
+                        * grand total, so one number per line was the whole truth. It is not any
+                        * more: a line can be sold for less than it is listed at, and showing only
+                        * the net leaves a merchant looking at "₹993" for a saree their catalogue
+                        * says is ₹999 with nothing on the screen to explain the difference.
+                        */}
+                      <td style={{ textAlign: 'right', color: 'var(--text-secondary)' }}>
+                        {discountOf(item) > 0 && Number(item.listUnitPrice) !== Number(item.unitPrice) && (
+                          <span style={{ textDecoration: 'line-through', opacity: 0.55, marginRight: '8px' }}>
+                            {formatINRExact(Number(item.listUnitPrice))}
+                          </span>
+                        )}
+                        {formatINRExact(Number(item.unitPrice))}
+                      </td>
+                      {anyDiscount && (
+                        <td style={{ textAlign: 'right', color: discountOf(item) > 0 ? 'var(--accent-success)' : 'var(--text-secondary)' }}>
+                          {discountOf(item) > 0 ? `-${formatINRExact(discountOf(item))}` : '—'}
+                        </td>
+                      )}
+                      <td style={{ textAlign: 'right', fontWeight: '500' }}>{formatINRExact(Number(item.totalPrice))}</td>
+                    </tr>
+                  );
+                })
+                )}
+              </tbody>
+            </table>
+  );
+
   return (
     <div style={{ maxWidth: '1400px', margin: '0 auto', paddingTop: '24px', flex: 1, minHeight: 0, overflowY: 'auto', paddingBottom: '64px', width: '100%', display: 'flex', flexDirection: 'column' }}>
       
@@ -297,86 +409,41 @@ export default function SalesOrderDetail() {
               * minWidth keeps the columns from crushing into each other before the scroll
               * starts; on a desktop the table is narrower than the card and nothing changes.
               */}
-            <div className="table-container" style={{ border: 'none', borderRadius: 0 }}>
-            <table style={{ width: '100%', minWidth: '620px', borderCollapse: 'collapse', textAlign: 'left' }}>
-              <thead>
-                <tr style={{ backgroundColor: 'var(--bg-hover)' }}>
-                  <th style={{ padding: '16px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px' }}>SKU</th>
-                  <th style={{ padding: '16px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px' }}>PRODUCT</th>
-                  <th style={{ padding: '16px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px', textAlign: 'right' }}>QTY</th>
-                  {order.status !== 'DRAFT' && (
-                    <>
-                      <th style={{ padding: '16px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px', textAlign: 'right' }}>RESERVED</th>
-                      <th style={{ padding: '16px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px', textAlign: 'right' }}>DISPATCHED</th>
-                    </>
-                  )}
-                  <th style={{ padding: '16px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px', textAlign: 'right' }}>UNIT PRICE</th>
-                  {anyDiscount && (
-                    <th style={{ padding: '16px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px', textAlign: 'right' }}>DISCOUNT</th>
-                  )}
-                  <th style={{ padding: '16px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px', textAlign: 'right' }}>TOTAL</th>
-                  <th style={{ padding: '16px 24px', width: '60px' }}></th>
-                </tr>
-              </thead>
-              <tbody>
-                {order.items?.length === 0 ? (
-                  <tr><td colSpan={(order.status === 'DRAFT' ? 6 : 8) + (anyDiscount ? 1 : 0)} style={{ padding: '48px', textAlign: 'center', color: 'var(--text-secondary)' }}>No items added yet.</td></tr>
-                ) : (
-                  order.items?.map(item => {
-                    // DISPATCHED is fulfilledQty, which DispatchService maintains. RESERVED is
-                    // heldQty, read off the line's live reservations (see heldQty above).
+            <div ref={linesBoxRef}>
+            {!linesFit ? (
+              <div className="li-cards">
+                {order.items?.length === 0 ? <div style={{ padding: 24, textAlign: 'center', color: 'var(--text-secondary)' }}>No items added yet.</div>
+                  : shownLines.map(item => {
+                    const to = item.variant?.product?.id ? `/products/${item.variant.product.id}?tab=variants&variant=${item.variantId}` : null;
                     return (
-                    <tr key={item.id} style={{ borderBottom: '1px solid var(--border-light)' }}>
-                      {/* The code and the name open the product on its Variants tab with THIS colour and size picked out, the way a
-                          barcode scan does (?tab=variants&variant=). Plain product links lost which piece it was (24 Oct). */}
-                      <td style={{ padding: '16px 24px', fontWeight: '500' }}>
-                        {item.variant?.product?.id ? <Link to={`/products/${item.variant.product.id}?tab=variants&variant=${item.variantId}`} style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: 3 }}>{item.variant?.sku}</Link> : item.variant?.sku}
-                      </td>
-                      <td style={{ padding: '16px 24px' }}>
-                        {item.variant?.product?.id ? <Link to={`/products/${item.variant.product.id}?tab=variants&variant=${item.variantId}`} style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: 3 }}>{item.variant?.product?.title}</Link> : item.variant?.product?.title}
-                      </td>
-                      <td style={{ padding: '16px 24px', textAlign: 'right' }}>{item.quantity}</td>
-                      {order.status !== 'DRAFT' && (
-                        <>
-                          <td style={{ padding: '16px 24px', textAlign: 'right', color: 'var(--accent-warning)', fontWeight: '500' }}>
-                            {heldQty(item)}
-                          </td>
-                          <td style={{ padding: '16px 24px', textAlign: 'right', color: 'var(--accent-success)', fontWeight: '500' }}>
-                            {item.fulfilledQty || 0}
-                          </td>
-                        </>
-                      )}
-                      {/*
-                        * The list price above the net one, whenever they differ.
-                        *
-                        * The order used to be recorded at list price and discounted only at the
-                        * grand total, so one number per line was the whole truth. It is not any
-                        * more: a line can be sold for less than it is listed at, and showing only
-                        * the net leaves a merchant looking at "₹993" for a saree their catalogue
-                        * says is ₹999 with nothing on the screen to explain the difference.
-                        */}
-                      <td style={{ padding: '16px 24px', textAlign: 'right', color: 'var(--text-secondary)' }}>
-                        {discountOf(item) > 0 && Number(item.listUnitPrice) !== Number(item.unitPrice) && (
-                          <span style={{ textDecoration: 'line-through', opacity: 0.55, marginRight: '8px' }}>
-                            {formatINRExact(Number(item.listUnitPrice))}
-                          </span>
-                        )}
-                        {formatINRExact(Number(item.unitPrice))}
-                      </td>
-                      {anyDiscount && (
-                        <td style={{ padding: '16px 24px', textAlign: 'right', color: discountOf(item) > 0 ? 'var(--accent-success)' : 'var(--text-secondary)' }}>
-                          {discountOf(item) > 0 ? `-${formatINRExact(discountOf(item))}` : '—'}
-                        </td>
-                      )}
-                      <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '500' }}>{formatINRExact(Number(item.totalPrice))}</td>
-                      <td style={{ padding: '16px 24px', textAlign: 'center' }}>
-                      </td>
-                    </tr>
-                  );
-                })
-                )}
-              </tbody>
-            </table>
+                      <div key={item.id} className="li-card" data-line={item.variant?.sku}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ fontWeight: 600, overflowWrap: 'anywhere' }}>{to ? <Link to={to} style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: 3 }}>{item.variant?.product?.title}</Link> : item.variant?.product?.title}</div>
+                            <div style={{ fontSize: 12, color: 'var(--text-secondary)', overflowWrap: 'anywhere' }}>{item.variant?.sku}</div>
+                          </div>
+                          <div style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>{formatINRExact(Number(item.totalPrice))}</div>
+                        </div>
+                        <div style={{ fontSize: 13, color: 'var(--text-secondary)', display: 'flex', flexWrap: 'wrap', gap: '4px 12px' }}>
+                          <span>{item.quantity} × {formatINRExact(Number(item.unitPrice))}</span>
+                          {discountOf(item) > 0 && <span style={{ color: 'var(--accent-success)' }}>-{formatINRExact(discountOf(item))} off</span>}
+                          {order.status !== 'DRAFT' && <span style={{ color: 'var(--accent-warning)' }}>{heldQty(item)} reserved</span>}
+                          {order.status !== 'DRAFT' && <span style={{ color: 'var(--accent-success)' }}>{item.fulfilledQty || 0} dispatched</span>}
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            ) : (
+            <div className="table-container" style={{ border: 'none', borderRadius: 0 }}>
+            {linesTable()}
+            </div>
+            )}
+            {lineCount > LINES_SHOWN && (
+              <button type="button" className="li-more" aria-expanded={allLines} onClick={() => setAllLines(v => !v)}>
+                {allLines ? 'Show fewer lines' : `Show all ${lineCount} lines (${lineCount - LINES_SHOWN} more)`}
+              </button>
+            )}
             </div>
           </div>
 

@@ -43,6 +43,15 @@ const styles = `
     outline: none;
   }
   
+  /* A ghost sits inside a box of its own (the store picker in the top bar): it never draws a second border
+     or glow inside that box. The box around it shows hover, open and focus instead (.store-box, index.css). */
+  .custom-select-trigger.ghost:hover:not(.disabled),
+  .custom-select-trigger.ghost.open,
+  .custom-select-trigger.ghost:focus-visible {
+    border-color: transparent;
+    box-shadow: none;
+  }
+
   .custom-select-trigger.disabled {
     opacity: 0.5;
     cursor: not-allowed;

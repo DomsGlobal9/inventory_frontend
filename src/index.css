@@ -1259,10 +1259,6 @@ a.lh-row:hover .lh-what div:first-child { color: var(--brand-ink); }
    top: 0 wins. Checked by PLAN-help/robot/film/check-sticky-gap.mjs. */
 @media (max-width: 768px) { .pf-sticky { top: -16px; } }
 
-/* Scout's tour spotlight on the landing page (components/landing/usePixelPals): rounded, padded, a lime ring,
-   the rest of the page dimmed by its shadow. Glides from stop to stop; no glide for reduced motion. */
-.lp-spotlight { position: fixed; pointer-events: none; border-radius: 22px; box-shadow: 0 0 0 2px var(--brand), 0 0 0 200vmax rgba(23, 18, 31, 0.46); transition: left .35s ease, top .35s ease, width .35s ease, height .35s ease; }
-@media (prefers-reduced-motion: reduce) { .lp-spotlight { transition: none; } }
 
 /* ---- What's new (pages/WhatsNew) ---- */
 .wn-head { display: grid; gap: 8px; }

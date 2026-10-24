@@ -8,6 +8,7 @@ import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { RETURN_STATUS, StatusPill, returnReasonLabel } from '../../components/sales/labels';
 
 import PageLoader from '../../components/PageLoader';
+import OrdersTabs from '../../components/sales/OrdersTabs';
 import { rowLink } from '../../components/common/rowLink';
 
 export default function ReturnsList() {
@@ -34,8 +35,10 @@ export default function ReturnsList() {
   return (
     <div style={{ maxWidth: '1400px', margin: '0 auto', paddingTop: '24px', flex: 1, minHeight: 0, overflowY: 'auto', paddingBottom: '64px', width: '100%', display: 'flex', flexDirection: 'column' }}>
 
+      <div style={{ marginBottom: 20 }}><OrdersTabs /></div>
+
       {/* Header section */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, flexWrap: 'wrap', marginBottom: '32px' }}>
         <div>
           <h1 style={{ fontSize: '32px', marginBottom: '8px', color: 'var(--text-primary)' }}>Customer Returns</h1>
           <p style={{ color: 'var(--text-secondary)' }}>Take back what customers bring to the counter, and check returned parcels.</p>

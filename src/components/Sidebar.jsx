@@ -13,8 +13,10 @@ const NAV_ITEMS = [
   // appearance if not in fact.
   { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, permission: 'dashboard:view' },
   { name: 'Products', path: '/products', icon: Package, permission: 'product:view' },
-  { name: 'Orders', path: '/orders', icon: ShoppingBag, permission: 'sales_order:view' },
-  { name: 'Returns', path: '/returns', icon: Truck, permission: 'return:view' },
+  // Returns are a tab of Orders (24 Oct): /returns lights up Orders. Someone who may see returns but
+  // not orders still gets a Returns entry of their own, or they would have no way in.
+  { name: 'Orders', path: '/orders', icon: ShoppingBag, permission: 'sales_order:view', also: ['/returns'] },
+  { name: 'Returns', path: '/returns', icon: Truck, permission: 'return:view', unless: 'sales_order:view' },
   { name: 'Inventory', path: '/inventory', icon: Box, permission: 'inventory:view' },
   // Where a piece is kept. Open to a salesperson too, who has no inventory:view.
   { name: 'Shelves', path: '/shelves', icon: MapPinned, permission: 'shelf:view' },
@@ -34,16 +36,17 @@ export default function Sidebar({ isOpen }) {
   const { can } = usePermission();
   const { user, logout } = useAuth();
 
-  const navItems = NAV_ITEMS.filter((item) => can(item.permission));
+  const navItems = NAV_ITEMS.filter((item) => can(item.permission) && !(item.unless && can(item.unless)));
 
   // The longest nav path that the current URL sits under. Exact match first, then a match on
   // a path segment boundary so /reportsomething never counts as being under /reports.
-  const matches = navItems.filter(i =>
+  const under = (p) => location.pathname === p || location.pathname.startsWith(p + '/');
+  const matches = navItems.flatMap(i =>
     i.path === '/'
-      ? location.pathname === '/'
-      : location.pathname === i.path || location.pathname.startsWith(i.path + '/')
+      ? (location.pathname === '/' ? [{ path: i.path, len: 1 }] : [])
+      : [i.path, ...(i.also ?? [])].filter(under).map(p => ({ path: i.path, len: p.length }))
   );
-  const activePath = matches.reduce((best, i) => (i.path.length > best.length ? i.path : best), '');
+  const activePath = matches.reduce((best, m) => (m.len > best.len ? m : best), { path: '', len: 0 }).path;
 
   // On a short window the nav list is taller than the space it has, so the last few entries
   // sit below the fold behind a 6px scrollbar that is easy to miss entirely -- which meant

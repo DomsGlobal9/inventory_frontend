@@ -27,8 +27,15 @@ export default function OrdersBulkBar({ ticked, onClear }) {
     mutationFn: async () => (await api.post('/shipping/delivered', { orderIds: ticked })).data,
     onSuccess: (r) => {
       const said = r.parcels ? `${r.parcels} ${r.parcels === 1 ? 'parcel' : 'parcels'} marked delivered.` : 'Nothing new to mark delivered.';
-      const left = r.skipped?.length ? ` Not marked: ${r.skipped.map(s => `${s.orderNumber} (${s.why})`).join(', ')}.` : '';
-      (r.skipped?.length ? toast : toast.success)(said + left, { duration: r.skipped?.length ? 8000 : 4000 });
+      // Counted by reason, a few order numbers each: ticking a whole page listed forty orders one by one.
+      const by = {};
+      for (const s of r.skipped ?? []) (by[s.why] ??= []).push(s.orderNumber);
+      const WHY = { 'not sent yet': 'not sent yet', 'no courier on its parcel': 'handed over without a courier' };
+      const parts = Object.entries(by).map(([why, nums]) =>
+        `${nums.length} ${WHY[why] ?? why} (${nums.slice(0, 3).join(', ')}${nums.length > 3 ? ` and ${nums.length - 3} more` : ''})`);
+      const skippedN = r.skipped?.length ?? 0;
+      const left = skippedN ? ` ${skippedN} ${skippedN === 1 ? 'order' : 'orders'} not marked: ${parts.join('; ')}.` : '';
+      (skippedN ? toast : toast.success)(said + left, { duration: skippedN ? 8000 : 4000 });
       queryClient.invalidateQueries({ queryKey: ['sales-orders'] });
       onClear();
     },

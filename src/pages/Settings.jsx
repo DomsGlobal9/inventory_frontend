@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Tag, Palette, Scissors, Layers, Hexagon, Grid, ShoppingBag, Store, Users, Key, Shield, MapPin, LifeBuoy, BookOpen, Globe, MessageCircle, Gift, Undo2, CreditCard, Monitor, ArrowLeft } from 'lucide-react';
+import { Tag, Palette, Scissors, Layers, Hexagon, Grid, ShoppingBag, Store, Users, Key, Shield, MapPin, LifeBuoy, BookOpen, Globe, MessageCircle, Gift, Undo2, CreditCard, Monitor, ArrowLeft, Truck } from 'lucide-react';
 import CatalogManager from '../components/CatalogManager';
 import StockLocationsPage from './settings/StockLocationsPage';
 import DayBook from './DayBook';
@@ -19,6 +19,7 @@ import PosTills from '../components/settings/PosTills';
 import SettingsHub, { groupOf } from '../components/settings/SettingsHub';
 import ReturnRulesPanel from '../components/sales/ReturnRulesPanel';
 import CustomerGroupsPanel from '../components/settings/CustomerGroupsPanel';
+import CouriersPanel from '../components/shipping/CouriersPanel';
 import { holdsEverything } from '../lib/authority';
 import { useAuth } from '../context/AuthContext';
 import { usePermission } from '../hooks/usePermission';
@@ -30,6 +31,7 @@ const SETTINGS_DOMAINS = [
   { id: 'DAYBOOK', label: 'Day Book', icon: BookOpen, permission: 'report:financial' },
   { id: 'STOREFRONT', label: 'Connected websites', icon: Globe, permission: 'admin:locations' },
   { id: 'ONLINE_SHOP', label: 'Online shop', icon: Globe, permission: 'admin:online_shop' },
+  { id: 'COURIERS', label: 'Couriers', icon: Truck, permission: 'dispatch:create' },
   // Its own place: the shop's Razorpay account, what has been paid online and money back. The
   // server guards all of it with admin:online_shop, so the menu does too.
   { id: 'PAYMENTS', label: 'Payments', icon: CreditCard, permission: 'admin:online_shop' },
@@ -59,7 +61,7 @@ const SETTINGS_DOMAINS = [
  * chain had to be extended by hand every time a domain gained content -- and when Day Book was
  * added it was not, so the page rendered the day book AND the placeholder underneath it.
  */
-const IMPLEMENTED_DOMAINS = new Set(['GENERAL', 'CATALOG', 'LOCATIONS', 'DAYBOOK', 'STOREFRONT', 'ONLINE_SHOP', 'PAYMENTS', 'POS', 'WHATSAPP', 'LOYALTY', 'GIFT_VOUCHERS', 'GROUPS', 'RETURNS', 'SERVICES', 'USERS', 'ROLES', 'SUPPORT']);
+const IMPLEMENTED_DOMAINS = new Set(['GENERAL', 'CATALOG', 'LOCATIONS', 'DAYBOOK', 'STOREFRONT', 'ONLINE_SHOP', 'PAYMENTS', 'POS', 'WHATSAPP', 'LOYALTY', 'GIFT_VOUCHERS', 'GROUPS', 'COURIERS', 'RETURNS', 'SERVICES', 'USERS', 'ROLES', 'SUPPORT']);
 
 const CATALOG_TABS = [
   { id: 'SIZE', label: 'Sizes', icon: Scissors, description: 'Manage available sizes across your products' },
@@ -256,6 +258,12 @@ export default function Settings() {
           {activeDomain === 'POS' && (
             <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '32px' }}>
               <PosTills />
+            </div>
+          )}
+
+          {activeDomain === 'COURIERS' && (
+            <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '32px' }}>
+              <CouriersPanel />
             </div>
           )}
 

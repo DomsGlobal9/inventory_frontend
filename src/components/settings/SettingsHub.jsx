@@ -41,6 +41,7 @@ export const GROUPS = [
     { label: 'Orders and delivery', section: 'ONLINE_SHOP', part: 'os-orders' },
     { label: 'Banners', section: 'ONLINE_SHOP', part: 'os-banners' },
     { label: 'Share your shop', section: 'ONLINE_SHOP', part: 'os-share' },
+    { label: 'Couriers', section: 'COURIERS' },
     { label: 'Connected websites', section: 'STOREFRONT' }
   ] },
   { id: 'MONEY', label: 'Money', icon: IndianRupee, links: [

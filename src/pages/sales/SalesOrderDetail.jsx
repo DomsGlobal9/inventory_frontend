@@ -24,6 +24,8 @@ import { ORDER_STATUS, StatusPill } from '../../components/sales/labels';
 import { useDialog } from '../../hooks/useDialog';
 import WhatsAppSendButton from '../../components/whatsapp/WhatsAppSendButton';
 import RecordPaymentModal from '../../components/sales/RecordPaymentModal';
+import CourierFields, { courierForDispatch } from '../../components/shipping/CourierFields';
+import Parcels from '../../components/shipping/Parcels';
 import UndoPaymentModal from '../../components/sales/UndoPaymentModal';
 import { useAuth } from '../../context/AuthContext';
 import { holdsEverything } from '../../lib/authority';
@@ -49,6 +51,8 @@ export default function SalesOrderDetail() {
   // Undo a recorded payment is the account owner's alone (the server checks it too).
   const isOwner = holdsEverything({ permissions: myPermissions, roles: myRoles });
   const [dispatchQuantities, setDispatchQuantities] = useState({});
+  // Who is carrying this parcel and its tracking number (components/shipping). Optional.
+  const [courier, setCourier] = useState({});
   // Which irreversible action is waiting on a yes: 'confirm', 'cancel', or none.
   // One piece of state rather than a boolean each, because the two can never be open at once
   // and a single value cannot drift into a state where both are true.
@@ -158,6 +162,7 @@ export default function SalesOrderDetail() {
       initialQs[item.id] = 0;
     });
     setDispatchQuantities(initialQs);
+    setCourier({});
     setIsDispatching(true);
   };
 
@@ -193,7 +198,7 @@ export default function SalesOrderDetail() {
       return;
     }
 
-    dispatchMutation.mutate({ salesOrderId: id, items: itemsToDispatch }, {
+    dispatchMutation.mutate({ salesOrderId: id, items: itemsToDispatch, courier: courierForDispatch(courier) }, {
       onSuccess: () => setIsDispatching(false),
       // Released on failure only. After a success the modal closes, and handleOpenDispatch
       // clears it again the next time it is opened.
@@ -505,6 +510,9 @@ export default function SalesOrderDetail() {
             )}
           </div>
 
+          {/* Each dispatch with its courier, tracking number and delivery. None for a till or counter bill. */}
+          {!order.atCounter && order.sourceSystem !== 'SCALEEZY_POS' && <Parcels order={order} />}
+
           {/* A kept order from the till: when the customer said they would collect, and when they did. */}
           {order.handover === 'KEEP_FOR_CUSTOMER' && (() => {
             const day = (d) => new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -653,6 +661,12 @@ export default function SalesOrderDetail() {
                 ))}
               </tbody>
             </table>
+
+            {/* A parcel going to an address starts with the shop's default courier chosen. */}
+            <div style={{ marginBottom: '24px' }}>
+              <CourierFields value={courier} onChange={setCourier} idPrefix="cd"
+                startWithDefault={!!order.shippingAddress || ['SCALEEZY_SHOP', 'SHOPIFY'].includes(order.sourceSystem) || order.channel === 'ONLINE'} />
+            </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
               <button type="button" className="btn-secondary" onClick={closeDispatch}>Cancel</button>

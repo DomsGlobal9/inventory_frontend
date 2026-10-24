@@ -144,9 +144,12 @@ export default function SalesOrders() {
         'Payment': r.payment ? optionLabel('payment', r.payment) : (r.source === 'SHOPIFY' ? 'Paid on Shopify' : 'Nothing owed'),
         'Kept order': r.kept ? optionLabel('kept', r.kept) : '',
         'Promised for': r.promisedAt ? day(`${r.promisedAt}T12:00:00Z`) : '',
-        'Handed over': day(r.handedOverAt)
+        'Handed over': day(r.handedOverAt),
+        'Courier': r.courier ?? '',
+        'Tracking number': r.trackingNumber ?? '',
+        'Delivered': day(r.deliveredAt)
       })));
-      sheet['!cols'] = [12, 18, 13, 8, 16, 14, 24, 15, 12, 7, 11, 11, 12, 14, 10, 11, 22, 13, 13].map(wch => ({ wch }));
+      sheet['!cols'] = [12, 18, 13, 8, 16, 14, 24, 15, 12, 7, 11, 11, 12, 14, 10, 11, 22, 13, 13, 16, 22, 13].map(wch => ({ wch }));
       const book = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(book, sheet, 'Orders');
       const when = dateLabel(filters.from, filters.to);

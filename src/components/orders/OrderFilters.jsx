@@ -14,20 +14,22 @@ import { ORDER_STATUS } from '../sales/labels';
 
 const formatRupees = (n) => `₹${Math.round(Number(n) || 0).toLocaleString('en-IN')}`;
 
-export const LIST_KEYS = ['status', 'payment', 'source', 'kept', 'store'];
-const LABELS = { status: 'Status', payment: 'Payment', source: 'Where from', kept: 'Kept orders', store: 'Store' };
+export const LIST_KEYS = ['status', 'payment', 'source', 'kept', 'store', 'delivery', 'courier'];
+const LABELS = { status: 'Status', payment: 'Payment', source: 'Where from', kept: 'Kept orders', store: 'Store', delivery: 'Delivery', courier: 'Courier' };
 
 const NAMES = {
   status: Object.fromEntries(Object.entries(ORDER_STATUS).map(([k, s]) => [k, s.label])),
   payment: { PAID: 'Paid', PART_PAID: 'Part paid', UNPAID: 'Not paid', WRITTEN_OFF: 'Written off', REFUNDED: 'Refunded' },
   source: { TILL: 'POS till', ONLINE_SHOP: 'Online shop', SHOPIFY: 'Shopify', COUNTER: 'Counter (before 6 Oct)', MANUAL: 'Typed in' },
-  kept: { WAITING: 'Waiting for collection', OVERDUE: 'Past the promised date', HANDED_OVER: 'Handed over' }
+  kept: { WAITING: 'Waiting for collection', OVERDUE: 'Past the promised date', HANDED_OVER: 'Handed over' },
+  delivery: { NO_NUMBER: 'Tracking number missing', ON_THE_WAY: 'On the way', DELIVERED: 'Delivered' }
 };
 // The order each list is shown in: the way a shop thinks of them, not by count.
 const ORDER = {
   payment: ['UNPAID', 'PART_PAID', 'PAID', 'WRITTEN_OFF', 'REFUNDED'],
   source: ['TILL', 'ONLINE_SHOP', 'SHOPIFY', 'COUNTER', 'MANUAL'],
   kept: ['WAITING', 'OVERDUE', 'HANDED_OVER'],
+  delivery: ['NO_NUMBER', 'ON_THE_WAY', 'DELIVERED'],
   status: Object.keys(ORDER_STATUS)
 };
 

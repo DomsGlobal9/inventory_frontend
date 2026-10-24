@@ -1336,3 +1336,8 @@ input[type="password"]::-ms-reveal, input[type="password"]::-ms-clear { display:
   border-color: var(--border-focus, rgba(0,0,0,.25)) !important;
   box-shadow: 0 0 0 1px var(--border-focus, rgba(0,0,0,.25));
 }
+
+/* Courier and tracking number side by side; one under the other on a phone (components/shipping). */
+@media (max-width: 560px) {
+  .cf-row { grid-template-columns: 1fr !important; }
+}

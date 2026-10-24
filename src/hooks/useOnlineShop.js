@@ -106,6 +106,21 @@ export const useReorderBanners = () => useBannerMutation(
   async (ids) => (await api.patch('/online-shop/banners/order', { ids })).data
 );
 
+/** The one line across the top of every shop page (services/online-shop/announcement). */
+const ANNOUNCEMENT = ['online-shop', 'announcement'];
+export const useAnnouncement = () => useQuery({
+  queryKey: ANNOUNCEMENT,
+  queryFn: async () => (await api.get('/online-shop/announcement')).data
+});
+export const useSaveAnnouncement = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (body) => (await api.put('/online-shop/announcement', body)).data,
+    onSuccess: (saved) => { qc.setQueryData(ANNOUNCEMENT, saved); toast.success('Announcement bar saved.'); },
+    onError: (e) => toast.error(e?.message || 'That could not be saved.')
+  });
+};
+
 export const useRemoveBanner = () => useBannerMutation(
   async (id) => (await api.delete(`/online-shop/banners/${id}`)).data,
   () => toast.success('Banner removed.')

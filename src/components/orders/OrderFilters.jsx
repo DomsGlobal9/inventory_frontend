@@ -92,7 +92,7 @@ export default function OrderFilters({ facets, value, onChange }) {
       <span className="pf-btn" data-pf-keep>
         {button('date', dateOn ? dateLabel(value.from, value.to) : 'Any date', dateOn ? 1 : 0, CalendarDays)}
         {open === 'date' && (
-          <Menu label="Date">
+          <Menu label="Date" onClose={close}>
             {PRESETS().map(p => {
               const on = value.from === p.from && value.to === p.to;
               return (
@@ -116,7 +116,7 @@ export default function OrderFilters({ facets, value, onChange }) {
           <span key={k} className="pf-btn" data-pf-keep>
             {button(k, LABELS[k], n)}
             {open === k && (
-              <Menu label={LABELS[k]}>
+              <Menu label={LABELS[k]} onClose={close}>
                 {options.map(({ value: v, count }) => {
                   const on = (value[k] ?? []).includes(v);
                   return (
@@ -137,7 +137,7 @@ export default function OrderFilters({ facets, value, onChange }) {
       <span className="pf-btn" data-pf-keep>
         {button('amount', 'Amount', amountOn ? 1 : 0)}
         {open === 'amount' && (
-          <Menu label="Amount">
+          <Menu label="Amount" onClose={close}>
             {(facets.amount ?? []).map(b => {
               const [lo, hi] = b.value.split('-').map(x => (x === '' ? undefined : Number(x)));
               const on = value.min === lo && value.max === hi;
@@ -220,7 +220,7 @@ export function SortMenu({ sort, onChange }) {
         Sort: {SORTS[sort] ?? SORTS.new}<ChevronDown size={14} aria-hidden="true" />
       </button>
       {open && (
-        <Menu label="Sort" align="right">
+        <Menu label="Sort" align="right" onClose={close}>
           {Object.entries(SORTS).map(([k, l]) => (
             <button key={k} type="button" role="menuitemradio" aria-checked={k === sort} className="pf-opt" onClick={() => { onChange(k); setOpen(false); }}>
               <span className="pf-box">{k === sort && <Check size={12} />}</span><span className="pf-name">{l}</span><span />

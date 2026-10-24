@@ -91,7 +91,7 @@ For a bill made on the POS till, take the rest of the money on the till, so the 
 
 ## On a phone
 
-On a phone the orders are shown as cards. Tap a card to open the order. The filter buttons scroll sideways, and each opens from the bottom of the screen.
+On a phone the orders are shown as cards. Tap a card to open the order. The filter buttons scroll sideways, and each opens from the bottom of the screen. Tap outside it to close it; your choices stay.
 
 ![Orders on a phone, shown as cards with order number, total, customer, date and status.](5-on-a-phone-phone.webp "Search, filters, sort and Export work the same on a phone.")
 

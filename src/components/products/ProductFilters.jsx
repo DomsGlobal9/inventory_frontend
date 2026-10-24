@@ -52,18 +52,24 @@ export function useOutside(open, close) {
   React.useEffect(() => {
     if (!open) return undefined;
     const onKey = (e) => { if (e.key === 'Escape') close(); };
-    const onDown = (e) => { if (!e.target.closest?.('[data-pf-keep]')) close(); };
+    /*
+     * Outside means outside the button and its list -- OR on the phone sheet's dark layer, which sits inside
+     * the button's box (data-pf-keep) and covers the whole screen. Counting it as "inside" left a phone with
+     * no way to close a filter at all (24 Oct). Pointer, not mouse, events: a tap is a pointer too.
+     */
+    const onDown = (e) => { if (e.target.closest?.('.pf-backdrop') || !e.target.closest?.('[data-pf-keep]')) close(); };
     document.addEventListener('keydown', onKey);
-    document.addEventListener('mousedown', onDown);
-    return () => { document.removeEventListener('keydown', onKey); document.removeEventListener('mousedown', onDown); };
+    document.addEventListener('pointerdown', onDown);
+    return () => { document.removeEventListener('keydown', onKey); document.removeEventListener('pointerdown', onDown); };
   }, [open, close]);
 }
 
-export function Menu({ label, children, align }) {
+export function Menu({ label, children, align, onClose }) {
   return (
     <>
-      <div className="pf-backdrop" aria-hidden="true" />
+      <div className="pf-backdrop" aria-hidden="true" onClick={onClose} />
       <div className={`pf-pop${align === 'right' ? ' right' : ''}`} role="menu" aria-label={label} data-pf-keep>
+        {/* The title, shown only as a phone sheet (index.css); a tap on the dark layer above closes it. */}
         <div className="pf-sheet-head"><b>{label}</b></div>
         {children}
       </div>
@@ -103,7 +109,7 @@ export default function ProductFilters({ facets, value, onChange }) {
               {label}{n > 0 && <span className="pf-n">{n}</span>}<ChevronDown size={14} aria-hidden="true" />
             </button>
             {open === k && k !== 'price' && (
-              <Menu label={label}>
+              <Menu label={label} onClose={close}>
                 {(facets[k] ?? []).map(({ value: v, count }) => {
                   const on = (value[k] ?? []).includes(v);
                   return (
@@ -121,7 +127,7 @@ export default function ProductFilters({ facets, value, onChange }) {
               </Menu>
             )}
             {open === 'price' && k === 'price' && (
-              <Menu label="Price">
+              <Menu label="Price" onClose={close}>
                 {(price.bands ?? []).map(b => {
                   const on = (value.min ?? null) === b.min && (value.max ?? null) === b.max;
                   const text = b.min == null ? `Under ${formatRupees(b.max)}` : b.max == null ? `Above ${formatRupees(b.min)}` : `${formatRupees(b.min)} to ${formatRupees(b.max)}`;
@@ -197,7 +203,7 @@ export function SortMenu({ sort, onChange }) {
         Sort: {SORTS[sort] ?? SORTS.new}<ChevronDown size={14} aria-hidden="true" />
       </button>
       {open && (
-        <Menu label="Sort" align="right">
+        <Menu label="Sort" align="right" onClose={close}>
           {Object.entries(SORTS).map(([k, l]) => (
             <button key={k} type="button" role="menuitemradio" aria-checked={k === sort} className="pf-opt" onClick={() => { onChange(k); setOpen(false); }}>
               <span className="pf-box">{k === sort && <Check size={12} />}</span><span className="pf-name">{l}</span><span />

@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import LoadFailed from '../../components/LoadFailed';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useOrderSearch, fetchOrdersForExport } from '../../hooks/useSalesOrders';
-import { Search, Download } from 'lucide-react';
+import { Search, FileOutput } from 'lucide-react';
 import { formatINRExact } from '../../utils/formatUtils';
 import OrderFilters, { ActiveFilters, SortMenu, LIST_KEYS, optionLabel, dateLabel } from '../../components/orders/OrderFilters';
 import { usePermission } from '../../hooks/usePermission';
@@ -198,7 +198,7 @@ export default function SalesOrders() {
               <SortMenu sort={sort} onChange={(s) => setParam({ sort: s === 'new' ? '' : s })} />
               <button type="button" className="btn-secondary" onClick={exportExcel} disabled={exporting || !summary.count}
                 style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', fontSize: 13 }}>
-                <Download size={14} aria-hidden="true" />{exporting ? 'Preparing…' : 'Export to Excel'}
+                <FileOutput size={14} aria-hidden="true" />{exporting ? 'Preparing…' : 'Export to Excel'}
               </button>
             </span>
           </div>

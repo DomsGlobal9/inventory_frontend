@@ -1,7 +1,7 @@
 import React from 'react';
 import LoadFailed from '../components/LoadFailed';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Plus, Package, Download, Upload, FileSpreadsheet, LayoutGrid, List, Search } from 'lucide-react';
+import { Plus, Package, FileOutput, FileInput, FileSpreadsheet, LayoutGrid, List, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { useProductSearch, useBulkSetProductStatus } from '../hooks/useProducts';
@@ -250,7 +250,8 @@ export default function Products() {
             onClick={handleExport}
             disabled={!products.length}
           >
-            <Download size={16} />
+            {/* Out of the app: an arrow leaving a page (24 Oct, the user's choice over the download tray). */}
+            <FileOutput size={16} />
             Export
           </button>
           {can('inventory:adjust') && (
@@ -259,7 +260,7 @@ export default function Products() {
             style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
             onClick={() => setIsBulkUpdateModalOpen(true)}
           >
-            <Upload size={16} />
+            <FileInput size={16} />
             Import Updates
           </button>
           )}

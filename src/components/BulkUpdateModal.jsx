@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Upload, FileText, AlertCircle, Loader2, MapPin } from 'lucide-react';
+import { X, Upload, FileInput, FileText, AlertCircle, Loader2, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { parseCSV } from '../utils/csvUtils';
 import { useBulkUpdateVariants } from '../hooks/useVariants';
@@ -305,7 +305,7 @@ export default function BulkUpdateModal({ isOpen, onClose }) {
                 }
                 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
               >
-                {bulkUpdateMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
+                {bulkUpdateMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <FileInput size={16} />}
                 Import Updates
               </button>
             </div>

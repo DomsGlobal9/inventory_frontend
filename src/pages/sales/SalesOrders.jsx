@@ -13,6 +13,7 @@ import { ORDER_STATUS as STATUS } from '../../components/sales/labels';
 import { rowLink } from '../../components/common/rowLink';
 import { useTillLocations } from '../../hooks/useTillLocations';
 import OrdersTabs from '../../components/sales/OrdersTabs';
+import OrdersBulkBar from '../../components/sales/OrdersBulkBar';
 import BillsAtPosNote from '../../components/sales/BillsAtPosNote';
 
 const PAYMENT = {
@@ -119,6 +120,12 @@ export default function SalesOrders() {
   const filtering = (filters.q || filters.from || filters.to || LIST_KEYS.some(k => filters[k].length) || filters.min !== undefined || filters.max !== undefined);
   const orders = (data?.pages ?? []).flatMap(p => (p?.orders ?? []).map(o => ({ ...o, kept: p.kept?.[o.id] ?? null })));
 
+  // Orders ticked for Print labels / Mark delivered (components/sales/OrdersBulkBar), in the order ticked.
+  const [ticked, setTicked] = useState([]);
+  const tick = (id) => setTicked(t => (t.includes(id) ? t.filter(x => x !== id) : [...t, id]));
+  const allTicked = orders.length > 0 && orders.every(o => ticked.includes(o.id));
+  const tickAll = () => setTicked(t => (allTicked ? t.filter(id => !orders.some(o => o.id === id)) : [...t, ...orders.map(o => o.id).filter(id => !t.includes(id))]));
+
   // Every order the filters match, as an Excel file: built here, so nothing is stored anywhere.
   const [exporting, setExporting] = useState(false);
   const exportExcel = async () => {
@@ -208,6 +215,7 @@ export default function SalesOrders() {
             </span>
           </div>
         )}
+        <OrdersBulkBar ticked={ticked} onClear={() => setTicked([])} />
       </div>
 
       {narrow ? (
@@ -216,8 +224,12 @@ export default function SalesOrders() {
             : isError ? <LoadFailed what="orders" error={error} onRetry={refetch} />
             : orders.length === 0 ? <div style={{ padding: 32, textAlign: 'center', color: 'var(--text-secondary)' }}>{filtering ? <>No orders match these filters. <button type="button" className="pf-clear" onClick={clearAll}>Clear all</button></> : 'No orders yet.'}</div>
             : orders.map(order => (
-              <button key={order.id} type="button" onClick={() => navigate(`/orders/${order.id}`)}
-                style={{ textAlign: 'left', background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: 12, padding: 14, color: 'var(--text-primary)', display: 'grid', gap: 6, cursor: 'pointer' }}>
+              <div key={order.id} style={{ display: 'flex', alignItems: 'stretch', gap: 8 }}>
+              <label className="order-tick" aria-label={`Tick ${order.orderNumber}`}>
+                <input type="checkbox" checked={ticked.includes(order.id)} onChange={() => tick(order.id)} />
+              </label>
+              <button type="button" onClick={() => navigate(`/orders/${order.id}`)}
+                style={{ flex: 1, minWidth: 0, textAlign: 'left', background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: 12, padding: 14, color: 'var(--text-primary)', display: 'grid', gap: 6, cursor: 'pointer' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
                   <span style={{ fontWeight: 600 }}>{order.orderNumber}</span>
                   <span style={{ fontWeight: 600 }}>{formatINRExact(Number(order.total))}</span>
@@ -231,6 +243,7 @@ export default function SalesOrders() {
                   {keptPill(order)}
                 </div>
               </button>
+              </div>
             ))}
         </div>
       ) : (
@@ -238,6 +251,9 @@ export default function SalesOrders() {
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border-light)', backgroundColor: 'var(--bg-hover)' }}>
+                <th style={{ ...th, width: 44, paddingRight: 0 }}>
+                  <input type="checkbox" aria-label="Tick every order shown" checked={allTicked} onChange={tickAll} disabled={!orders.length} />
+                </th>
                 <th style={th}>ORDER NO</th>
                 <th style={th}>CUSTOMER</th>
                 <th style={th}>WHERE FROM</th>
@@ -249,9 +265,9 @@ export default function SalesOrders() {
             </thead>
             <tbody>
               {isLoading ? (
-                <tr><td colSpan="7" style={{ padding: 48, textAlign: 'center', color: 'var(--text-secondary)' }}>Loading orders...</td></tr>
-              ) : isError ? (<LoadFailed what="orders" error={error} onRetry={refetch} colSpan={7} />) : orders.length === 0 ? (
-                <tr><td colSpan="7" style={{ padding: 48, textAlign: 'center', color: 'var(--text-secondary)' }}>{filtering ? <>No orders match these filters. <button type="button" className="pf-clear" onClick={clearAll}>Clear all</button></> : 'No orders yet.'}</td></tr>
+                <tr><td colSpan="8" style={{ padding: 48, textAlign: 'center', color: 'var(--text-secondary)' }}>Loading orders...</td></tr>
+              ) : isError ? (<LoadFailed what="orders" error={error} onRetry={refetch} colSpan={8} />) : orders.length === 0 ? (
+                <tr><td colSpan="8" style={{ padding: 48, textAlign: 'center', color: 'var(--text-secondary)' }}>{filtering ? <>No orders match these filters. <button type="button" className="pf-clear" onClick={clearAll}>Clear all</button></> : 'No orders yet.'}</td></tr>
               ) : (
                 orders.map(order => (
                   <tr
@@ -259,6 +275,9 @@ export default function SalesOrders() {
                     style={{ borderBottom: '1px solid var(--border-light)' }}
                     {...rowLink(() => navigate(`/orders/${order.id}`), { label: `Open ${order.orderNumber}` })}
                   >
+                    <td style={{ ...td, width: 44, paddingRight: 0 }} onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+                      <input type="checkbox" aria-label={`Tick ${order.orderNumber}`} checked={ticked.includes(order.id)} onChange={() => tick(order.id)} />
+                    </td>
                     <td style={{ ...td, fontWeight: 500 }}>{order.orderNumber}</td>
                     <td style={td}>
                       <div style={{ fontWeight: 500 }}>{order.customer?.name}</div>

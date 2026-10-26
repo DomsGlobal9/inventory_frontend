@@ -189,7 +189,8 @@ function PutAwayPanel({ variantId, locationId, onDone, hasSpots }) {
   const confirm = (target = spot) => {
     if (!target || sending.current || put.isPending || quantity < 1 || quantity > waiting) return;
     sending.current = true;
-    put.mutate({ locationId, variantId, spotId: target.id, quantity }, {
+    // One key per press: a retry of this same press (slow line) is never a second put-away.
+    put.mutate({ locationId, variantId, spotId: target.id, quantity, saveKey: (crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`) }, {
       onSuccess: () => { onDone?.(waiting - quantity); setSpot(null); },
       onSettled: () => { sending.current = false; }
     });

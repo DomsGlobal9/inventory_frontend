@@ -48,8 +48,8 @@ export default function ShelfCount() {
             <ScanInput value={text} onChange={setText} onSubmit={openShelf} busy={busy} placeholder="Scan the shelf label" label="Scan the shelf you are counting" />
           </section>
           <section className="sh-card" style={{ display: 'grid', gap: 12 }}>
-            <h2 className="sh-section-title" style={{ margin: 0 }}>Or choose it</h2>
-            <SpotPicker locationId={locationId} onChange={async (s) => { setBusy(true); try { setShelf((await api.get(`/shelves/spots/${s.id}`)).data); } finally { setBusy(false); } }} />
+            <h2 className="sh-section-title" style={{ margin: 0 }}>Or choose it (not counted longest first)</h2>
+            <SpotPicker byCount locationId={locationId} onChange={async (s) => { setBusy(true); try { setShelf((await api.get(`/shelves/spots/${s.id}`)).data); } finally { setBusy(false); } }} />
           </section>
         </div>
       )}

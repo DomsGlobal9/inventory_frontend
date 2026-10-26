@@ -4,7 +4,25 @@ import { firstMissingField, missingFieldMessage } from '../lib/formGuard';
 import toast from 'react-hot-toast';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Edit, Mail, Phone, MapPin, Building, Calendar, FileText, IndianRupee, Clock, Package, X } from 'lucide-react';
+import {
+  ArrowLeft,
+  Edit,
+  Mail,
+  Phone,
+  MapPin,
+  Building,
+  Calendar,
+  FileText,
+  IndianRupee,
+  Clock,
+  Package,
+  X,
+  Copy,
+  Check,
+  TrendingUp,
+  Plus,
+  ChevronRight
+} from 'lucide-react';
 import { typedPhone } from '../utils/phone';
 import { useQuery } from '@tanstack/react-query';
 import { useUpdateSupplier } from '../hooks/useSuppliers';
@@ -21,6 +39,7 @@ export default function SupplierDetails() {
   const updateSupplier = useUpdateSupplier();
 
   const [showEditModal, setShowEditModal] = useState(false);
+  const [copiedField, setCopiedField] = useState(null);
   const [editForm, setEditForm] = useState({ name: '', email: '', phone: '', address: '', isActive: true });
 
   const { data, isLoading, error } = useQuery({
@@ -46,210 +65,509 @@ export default function SupplierDetails() {
     }
   }, [supplier, showEditModal]);
 
+  // The clipboard exists only on secure pages and only when the browser allows it; without it the
+  // old version threw and the button simply did nothing.
+  const copyToClipboard = async (text, fieldName) => {
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedField(fieldName);
+      toast.success(`${fieldName} copied`);
+      setTimeout(() => setCopiedField(null), 2000);
+    } catch {
+      toast.error(`Could not copy. Select the ${fieldName.toLowerCase()} and copy it by hand.`);
+    }
+  };
+
   if (isLoading) return <PageLoader text="Loading Supplier Details..." />;
   if (error || !supplier) return <div style={{ padding: '32px', color: 'var(--accent-danger)' }}>Failed to load supplier.</div>;
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
-    // The browser no longer draws this warning (the form carries noValidate) -- see
-    // lib/formGuard. Same `required` fields, same rule, said in the app's own voice.
     const missing = firstMissingField(e.currentTarget);
     if (missing) { toast.error(missingFieldMessage(missing)); return; }
     try {
       await updateSupplier.mutateAsync({ id, data: editForm });
     } catch {
-      return; // the toast says why; the form keeps what was typed
+      return;
     }
     setShowEditModal(false);
   };
+
   const metrics = supplier.metrics || { openOrders: 0, totalSpend: 0, totalOrders: 0, lastOrderDate: null };
   const purchaseOrders = supplier.purchaseOrders || [];
 
+  // Generate monogram initials
+  const initials = (supplier.name || 'S')
+    .split(' ')
+    .filter(Boolean)
+    .map(w => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+
   const container = {
     hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.1 } }
+    show: { opacity: 1, transition: { staggerChildren: 0.08 } }
   };
 
   const item = {
-    hidden: { opacity: 0, y: 10 },
-    show: { opacity: 1, y: 0 }
+    hidden: { opacity: 0, y: 12 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.25 } }
   };
 
   return (
-    <motion.div variants={container} initial="hidden" animate="show" style={{ display: 'flex', flexDirection: 'column', gap: '24px', height: '100%', paddingBottom: '32px' }}>
-      
-      {/* Header */}
-      {/* Wraps: at 320px the supplier's name and code pushed Edit Supplier 39px past the
-          right edge, where nothing scrolled to reach it -- editing a supplier was simply
-          unavailable on a small phone. */}
-      <motion.div variants={item} style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-        <button className="btn-icon" onClick={() => navigate('/inventory/suppliers')} style={{ backgroundColor: 'var(--bg-card)' }}>
-          <ArrowLeft size={20} />
+    <motion.div
+      variants={container}
+      initial="hidden"
+      animate="show"
+      className="page-scroll mobile-no-scroll"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '24px',
+        minHeight: '100%',
+        paddingBottom: '48px'
+      }}
+    >
+      {/* Breadcrumb Navigation */}
+      <motion.div variants={item} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
+        <button
+          onClick={() => navigate('/inventory/suppliers')}
+          style={{
+            background: 'none',
+            border: 'none',
+            padding: 0,
+            color: 'var(--text-secondary)',
+            cursor: 'pointer',
+            fontWeight: 500
+          }}
+          className="hover-underline"
+        >
+          Suppliers
         </button>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <h1 style={{ fontSize: '24px', margin: 0, color: 'var(--text-primary)' }}>{supplier.name}</h1>
-            <span style={{ 
-              padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: '600',
-              backgroundColor: supplier.isActive ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-              color: supplier.isActive ? 'var(--accent-success)' : 'var(--accent-danger)'
-            }}>
-              {supplier.isActive ? 'ACTIVE' : 'INACTIVE'}
-            </span>
-          </div>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '14px', margin: '4px 0 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Building size={14} /> {supplier.supplierCode}
-          </p>
-        </div>
-        <div style={{ marginLeft: 'auto' }}>
-          {can('supplier:update') && (
-          <button className="btn-secondary" onClick={() => setShowEditModal(true)} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Edit size={16} /> Edit Supplier
+        <span style={{ color: 'var(--text-muted)' }}>/</span>
+        <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{supplier.name}</span>
+      </motion.div>
+
+      {/* Header Bar */}
+      <motion.div
+        variants={item}
+        className="glass-panel"
+        style={{
+          padding: '20px 24px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '20px',
+          flexWrap: 'wrap'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: '260px' }}>
+          <button
+            className="btn-icon"
+            onClick={() => navigate('/inventory/suppliers')}
+            title="Back to suppliers list"
+            style={{
+              backgroundColor: 'var(--bg-input)',
+              border: '1px solid var(--border-light)',
+              width: '40px',
+              height: '40px'
+            }}
+          >
+            <ArrowLeft size={18} />
           </button>
+
+          {/* Supplier Monogram Badge */}
+          <div
+            style={{
+              width: '46px',
+              height: '46px',
+              borderRadius: '10px',
+              background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(166, 217, 43, 0.2))',
+              border: '1px solid rgba(16, 185, 129, 0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: 700,
+              fontSize: '17px',
+              color: 'var(--accent-success)',
+              letterSpacing: '0.04em',
+              flexShrink: 0
+            }}
+          >
+            {initials}
+          </div>
+
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+              <h1 style={{ fontSize: '22px', fontWeight: 700, margin: 0, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
+                {supplier.name}
+              </h1>
+
+              {/* Status Pill with subtle glow */}
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '3px 10px',
+                  borderRadius: '999px',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  letterSpacing: '0.05em',
+                  backgroundColor: supplier.isActive ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                  color: supplier.isActive ? 'var(--accent-success)' : 'var(--accent-danger)',
+                  border: `1px solid ${supplier.isActive ? 'rgba(16, 185, 129, 0.25)' : 'rgba(239, 68, 68, 0.25)'}`
+                }}
+              >
+                <span
+                  style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    backgroundColor: 'currentColor'
+                  }}
+                />
+                {supplier.isActive ? 'ACTIVE' : 'INACTIVE'}
+              </span>
+            </div>
+
+            {/* Supplier Code Chip with Copy Action */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+              <span
+                onClick={() => copyToClipboard(supplier.supplierCode, 'Supplier code')}
+                title="Click to copy supplier code"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  color: 'var(--text-secondary)',
+                  fontSize: '12px',
+                  fontFamily: 'var(--font-mono)',
+                  backgroundColor: 'var(--bg-input)',
+                  padding: '2px 8px',
+                  borderRadius: '5px',
+                  border: '1px solid var(--border-light)',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <Building size={12} style={{ color: 'var(--text-muted)' }} />
+                {supplier.supplierCode || 'SUP-AUTO'}
+                {copiedField === 'Supplier code' ? <Check size={11} color="var(--accent-success)" /> : <Copy size={11} style={{ opacity: 0.6 }} />}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          {can('purchase_order:create') && (
+            <button
+              className="btn-primary"
+              disabled={supplier.isActive === false}
+              title={supplier.isActive === false ? 'Reactivate supplier to create purchase orders' : 'Raise a new purchase order for this supplier'}
+              onClick={() => navigate('/inventory/purchase-orders/new', { state: { supplierId: supplier.id } })}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', fontSize: '13px' }}
+            >
+              <Plus size={15} /> New Purchase Order
+            </button>
+          )}
+
+          {can('supplier:update') && (
+            <button
+              className="btn-secondary"
+              onClick={() => setShowEditModal(true)}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', fontSize: '13px' }}
+            >
+              <Edit size={15} /> Edit Supplier
+            </button>
           )}
         </div>
       </motion.div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(300px, 100%), 1fr))', gap: '24px' }}>
-        {/* Contact Info */}
-        <motion.div variants={item} className="glass-panel" style={{ padding: '24px' }}>
-          <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-light)', paddingBottom: '12px' }}>Contact Details</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {/* Top Grid: Contact Details & Procurement Performance */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(320px, 100%), 1fr))', gap: '24px' }}>
+        {/* Contact Info Card */}
+        <motion.div variants={item} className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-light)', paddingBottom: '14px', marginBottom: '18px' }}>
+            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Building size={16} style={{ color: 'var(--accent-primary)' }} /> Contact Details
+            </h3>
+            {can('supplier:update') && (
+              <button
+                onClick={() => setShowEditModal(true)}
+                style={{ background: 'none', border: 'none', padding: 0, fontSize: '12px', color: 'var(--accent-primary)', cursor: 'pointer', fontWeight: 500 }}
+              >
+                Update
+              </button>
+            )}
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1 }}>
+            {/* Email */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-              <div style={{ color: 'var(--text-muted)' }}><Mail size={18} /></div>
-              <div>
-                <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Email Address</div>
-                <div style={{ color: 'var(--text-primary)' }}>{supplier.email || '—'}</div>
+              <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--bg-input)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', flexShrink: 0 }}>
+                <Mail size={16} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 500 }}>Email Address</div>
+                {supplier.email ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
+                    <a
+                      href={`mailto:${supplier.email}`}
+                      style={{ color: 'var(--text-primary)', fontSize: '14px', textDecoration: 'none', fontWeight: 500 }}
+                      className="hover-underline"
+                    >
+                      {supplier.email}
+                    </a>
+                    <button
+                      onClick={() => copyToClipboard(supplier.email, 'Email')}
+                      title="Copy email"
+                      style={{ background: 'none', border: 'none', padding: '2px', cursor: 'pointer', color: 'var(--text-muted)' }}
+                    >
+                      {copiedField === 'Email' ? <Check size={13} color="var(--accent-success)" /> : <Copy size={13} />}
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '2px' }}>No email provided</div>
+                )}
               </div>
             </div>
+
+            {/* Phone */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-              <div style={{ color: 'var(--text-muted)' }}><Phone size={18} /></div>
-              <div>
-                <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Phone Number</div>
-                <div style={{ color: 'var(--text-primary)' }}>{supplier.phone || '—'}</div>
+              <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--bg-input)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', flexShrink: 0 }}>
+                <Phone size={16} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 500 }}>Phone Number</div>
+                {supplier.phone ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
+                    <a
+                      href={`tel:${supplier.phone}`}
+                      style={{ color: 'var(--text-primary)', fontSize: '14px', textDecoration: 'none', fontWeight: 500 }}
+                      className="hover-underline"
+                    >
+                      {supplier.phone}
+                    </a>
+                    <button
+                      onClick={() => copyToClipboard(supplier.phone, 'Phone number')}
+                      title="Copy phone"
+                      style={{ background: 'none', border: 'none', padding: '2px', cursor: 'pointer', color: 'var(--text-muted)' }}
+                    >
+                      {copiedField === 'Phone number' ? <Check size={13} color="var(--accent-success)" /> : <Copy size={13} />}
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '2px' }}>No phone provided</div>
+                )}
               </div>
             </div>
+
+            {/* Physical Address */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-              <div style={{ color: 'var(--text-muted)' }}><MapPin size={18} /></div>
-              <div>
-                <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Physical Address</div>
-                <div style={{ color: 'var(--text-primary)', lineHeight: '1.4' }}>{supplier.address || '—'}</div>
+              <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--bg-input)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', flexShrink: 0 }}>
+                <MapPin size={16} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 500 }}>Physical Address</div>
+                <div style={{ color: supplier.address ? 'var(--text-primary)' : 'var(--text-muted)', fontSize: '13px', lineHeight: '1.5', marginTop: '2px' }}>
+                  {supplier.address || 'No address specified'}
+                </div>
               </div>
             </div>
           </div>
         </motion.div>
 
-        {/* Aggregate Metrics */}
-        <motion.div variants={item} className="glass-panel" style={{ padding: '24px' }}>
-          <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-light)', paddingBottom: '12px' }}>Procurement Overview</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-            <div>
-              <div style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                <FileText size={14} /> Total Orders
+        {/* Procurement KPI Overview Card */}
+        <motion.div variants={item} className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-light)', paddingBottom: '14px', marginBottom: '18px' }}>
+            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <TrendingUp size={16} style={{ color: 'var(--accent-gold)' }} /> Procurement Overview
+            </h3>
+            <span style={{ fontSize: '11px', color: 'var(--text-muted)', background: 'var(--bg-input)', padding: '2px 8px', borderRadius: '4px', border: '1px solid var(--border-light)' }}>
+              Lifetime
+            </span>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px', flex: 1 }}>
+            {/* Total Orders */}
+            <div style={{ background: 'var(--bg-input)', padding: '16px', borderRadius: '10px', border: '1px solid var(--border-light)' }}>
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                <FileText size={14} style={{ color: 'var(--text-muted)' }} /> Total Orders
               </div>
-              <div style={{ fontSize: '24px', fontWeight: '600', color: 'var(--text-primary)' }}>{metrics.totalOrders}</div>
+              <div style={{ fontSize: '26px', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+                {metrics.totalOrders || 0}
+              </div>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
+                POs placed to date
+              </div>
             </div>
-            <div>
-              <div style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                <Package size={14} /> Open Orders
+
+            {/* Open Orders */}
+            <div style={{ background: 'var(--bg-input)', padding: '16px', borderRadius: '10px', border: '1px solid var(--border-light)' }}>
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                <Package size={14} style={{ color: metrics.openOrders > 0 ? 'var(--accent-gold)' : 'var(--text-muted)' }} /> Open Orders
               </div>
-              <div style={{ fontSize: '24px', fontWeight: '600', color: 'var(--accent-gold)' }}>{metrics.openOrders}</div>
+              <div style={{ fontSize: '26px', fontWeight: 700, color: metrics.openOrders > 0 ? 'var(--accent-gold)' : 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+                {metrics.openOrders || 0}
+              </div>
+              <div style={{ fontSize: '11px', color: metrics.openOrders > 0 ? 'var(--accent-gold)' : 'var(--accent-success)', marginTop: '4px', fontWeight: 500 }}>
+                {metrics.openOrders > 0 ? 'Active in pipeline' : 'All fulfilled'}
+              </div>
             </div>
-            <div>
-              <div style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                <IndianRupee size={14} /> Total Spend
+
+            {/* Total Spend */}
+            <div style={{ background: 'var(--bg-input)', padding: '16px', borderRadius: '10px', border: '1px solid var(--border-light)' }}>
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                <IndianRupee size={14} style={{ color: 'var(--text-muted)' }} /> Total Spend
               </div>
-              <div style={{ fontSize: '24px', fontWeight: '600', color: 'var(--text-primary)' }}>
+              <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 ₹{Number(metrics.totalSpend || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
-            </div>
-            <div>
-              <div style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                <Calendar size={14} /> Last Order Date
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
+                Procurement volume
               </div>
-              <div style={{ fontSize: '18px', fontWeight: '500', color: 'var(--text-primary)', marginTop: '4px' }}>
+            </div>
+
+            {/* Last Order Date */}
+            <div style={{ background: 'var(--bg-input)', padding: '16px', borderRadius: '10px', border: '1px solid var(--border-light)' }}>
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                <Calendar size={14} style={{ color: 'var(--text-muted)' }} /> Last Order Date
+              </div>
+              <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', marginTop: '2px' }}>
                 {metrics.lastOrderDate ? new Date(metrics.lastOrderDate).toLocaleDateString() : 'Never'}
+              </div>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
+                {metrics.lastOrderDate ? 'Most recent PO' : 'No previous orders'}
               </div>
             </div>
           </div>
         </motion.div>
       </div>
 
-      {/* What we buy from this supplier. Placed above purchase orders because it answers
-          the question people come to a supplier page with -- "what do we get from them, and
-          what needs reordering" -- whereas the PO list is history. */}
-      <motion.div variants={item} style={{ marginBottom: '24px' }}>
+      {/* Items We Buy Here Section */}
+      <motion.div variants={item}>
         <SupplierProductsPanel
           supplierId={supplier.id}
           supplierName={supplier.name}
-          /* Whether they are still someone we buy from, so the panel can decline to
-             offer a one-click order to a supplier the shop has switched off. */
           supplierIsActive={supplier.isActive !== false}
         />
       </motion.div>
 
-      {/* Recent Purchase Orders */}
-      <motion.div variants={item} className="glass-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '400px' }}>
-        <div style={{ padding: '24px', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 style={{ margin: 0, fontSize: '16px' }}>Recent Purchase Orders</h3>
+      {/* Recent Purchase Orders Section */}
+      <motion.div variants={item} className="glass-panel" style={{ padding: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)' }}>Recent Purchase Orders</h3>
+              <span style={{ fontSize: '12px', fontWeight: 600, padding: '2px 8px', borderRadius: '12px', background: 'var(--bg-input)', color: 'var(--text-secondary)', border: '1px solid var(--border-light)' }}>
+                {purchaseOrders.length}
+              </span>
+            </div>
+            <p style={{ margin: '4px 0 0', fontSize: '13px', color: 'var(--text-secondary)' }}>
+              Order history and delivery status for this supplier.
+            </p>
+          </div>
+
           {can('purchase_order:create') && (
-          <button className="btn-primary" onClick={() => navigate('/inventory/purchase-orders')} style={{ padding: '6px 12px', fontSize: '13px' }}>
-            New PO
-          </button>
+            <button
+              className="btn-primary"
+              disabled={supplier.isActive === false}
+              onClick={() => navigate('/inventory/purchase-orders/new', { state: { supplierId: supplier.id } })}
+              style={{ padding: '6px 14px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}
+            >
+              <Plus size={14} /> New PO
+            </button>
           )}
         </div>
-        
-        <div className="table-container mobile-no-scroll" style={{ flex: 1, overflowY: 'auto' }}>
+
+        <div className="table-container mobile-no-scroll" style={{ overflowX: 'auto', border: 'none', borderRadius: 0, background: 'transparent' }}>
           {purchaseOrders.length === 0 ? (
             <div style={{ padding: '64px 32px', textAlign: 'center', color: 'var(--text-muted)' }}>
               <FileText size={48} style={{ opacity: 0.2, marginBottom: '16px' }} />
-              <p>No purchase orders found for this supplier.</p>
+              <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>No purchase orders recorded for this supplier yet.</p>
+              {can('purchase_order:create') && (
+                <button
+                  className="btn-secondary"
+                  disabled={supplier.isActive === false}
+                  onClick={() => navigate('/inventory/purchase-orders/new', { state: { supplierId: supplier.id } })}
+                  style={{ marginTop: '12px', fontSize: '13px' }}
+                >
+                  Raise First Purchase Order
+                </button>
+              )}
             </div>
           ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-              <thead style={{ position: 'sticky', top: 0, backgroundColor: 'var(--bg-card)', zIndex: 10 }}>
+            <table style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse', textAlign: 'left' }}>
+              <thead style={{ position: 'sticky', top: 0, backgroundColor: 'var(--bg-card)', zIndex: 10, borderBottom: '1px solid var(--border-light)' }}>
                 <tr>
-                  <th>PO Number</th>
-                  <th>Status</th>
-                  <th>Date</th>
-                  <th>Amount</th>
-                  <th style={{ textAlign: 'right' }}>Actions</th>
+                  <th style={{ padding: '12px 20px', fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>PO Number</th>
+                  <th style={{ padding: '12px 16px', fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Status</th>
+                  <th style={{ padding: '12px 16px', fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Date Created</th>
+                  <th style={{ padding: '12px 16px', fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', textAlign: 'right' }}>Total Amount</th>
+                  <th style={{ padding: '12px 20px', fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', textAlign: 'right' }}>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {purchaseOrders.map(po => (
                   <tr
                     key={po.id}
-                    style={{ borderBottom: '1px solid var(--border-light)' }}
+                    style={{ borderBottom: '1px solid var(--border-light)', transition: 'background-color 0.15s ease' }}
+                   
                     {...rowLink(() => navigate(`/inventory/purchase-orders/${po.id}`), { label: `Open ${po.poNumber || 'purchase order'}` })}
                   >
-                    <td><span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{po.poNumber}</span></td>
-                    <td>
-                      <span style={{ 
-                        padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: '500',
-                        backgroundColor: po.status === 'RECEIVED' ? 'rgba(16, 185, 129, 0.1)' : 
-                                       (po.status === 'SENT' || po.status === 'PARTIALLY_RECEIVED') ? 'rgba(245, 158, 11, 0.1)' :
+                    <td style={{ padding: '14px 20px' }}>
+                      <span style={{ fontWeight: 600, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', fontSize: '13px' }}>
+                        {po.poNumber}
+                      </span>
+                    </td>
+                    <td style={{ padding: '14px 16px' }}>
+                      <span style={{
+                        padding: '3px 8px',
+                        borderRadius: '6px',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        letterSpacing: '0.03em',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        backgroundColor: po.status === 'RECEIVED' ? 'rgba(16, 185, 129, 0.1)' :
+                                       (po.status === 'SENT' || po.status === 'PARTIALLY_RECEIVED') ? 'rgba(245, 158, 11, 0.12)' :
                                        po.status === 'CANCELLED' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(156, 163, 175, 0.1)',
-                        color: po.status === 'RECEIVED' ? 'var(--accent-success)' : 
+                        color: po.status === 'RECEIVED' ? 'var(--accent-success)' :
                                (po.status === 'SENT' || po.status === 'PARTIALLY_RECEIVED') ? 'var(--accent-gold)' :
-                               po.status === 'CANCELLED' ? 'var(--accent-danger)' : 'var(--text-secondary)'
+                               po.status === 'CANCELLED' ? 'var(--accent-danger)' : 'var(--text-secondary)',
+                        border: `1px solid ${
+                          po.status === 'RECEIVED' ? 'rgba(16, 185, 129, 0.25)' :
+                          (po.status === 'SENT' || po.status === 'PARTIALLY_RECEIVED') ? 'rgba(245, 158, 11, 0.25)' :
+                          po.status === 'CANCELLED' ? 'rgba(239, 68, 68, 0.25)' : 'rgba(156, 163, 175, 0.2)'
+                        }`
                       }}>
+                        <span style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: 'currentColor' }} />
                         {po.status.replace('_', ' ')}
                       </span>
                     </td>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)' }}>
-                        <Clock size={14} /> {new Date(po.createdAt).toLocaleDateString()}
+                    <td style={{ padding: '14px 16px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)', fontSize: '13px' }}>
+                        <Clock size={13} style={{ color: 'var(--text-muted)' }} />
+                        {new Date(po.createdAt).toLocaleDateString()}
                       </div>
                     </td>
-                    <td>
-                      <span style={{ fontWeight: '500' }}>
+                    <td style={{ padding: '14px 16px', textAlign: 'right' }}>
+                      <span style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)' }}>
                         ₹{Number(po.totalAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </span>
                     </td>
-                    <td style={{ textAlign: 'right' }}>
-                      <button className="btn-secondary" style={{ padding: '4px 8px' }}>
-                        View
+                    <td style={{ padding: '14px 20px', textAlign: 'right' }}>
+                      <button
+                        className="btn-secondary"
+                        style={{ padding: '4px 10px', fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                      >
+                        <span>View</span>
+                        <ChevronRight size={13} />
                       </button>
                     </td>
                   </tr>
@@ -261,112 +579,142 @@ export default function SupplierDetails() {
       </motion.div>
 
       {/* Edit Modal */}
-      {/* Portalled as a whole: AnimatePresence must stay the outermost thing here, because it
-          reads its own children to drive the enter and exit. A portal placed inside it is not a
-          child it can work with, and the modal never appears. */}
       {createPortal(
-      <AnimatePresence>
-        {showEditModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
-            onClick={(e) => { if (e.target === e.currentTarget) setShowEditModal(false); }}
-          >
+        <AnimatePresence>
+          {showEditModal && (
             <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              style={{ backgroundColor: 'var(--bg-card)', borderRadius: '12px', padding: '32px', width: '100%', maxWidth: '500px', border: '1px solid var(--border-light)', position: 'relative', boxShadow: 'var(--shadow-panel)' }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(0,0,0,0.6)',
+                backdropFilter: 'blur(4px)',
+                zIndex: 1000,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '16px'
+              }}
+              onClick={(e) => { if (e.target === e.currentTarget) setShowEditModal(false); }}
             >
-              <button 
-                onClick={() => setShowEditModal(false)}
-                className="btn-icon"
-                style={{ position: 'absolute', top: '24px', right: '24px' }}
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0, y: 10 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.95, opacity: 0, y: 10 }}
+                style={{
+                  backgroundColor: 'var(--bg-card)',
+                  borderRadius: '14px',
+                  padding: '32px',
+                  width: '100%',
+                  maxWidth: '520px',
+                  border: '1px solid var(--border-light)',
+                  position: 'relative',
+                  boxShadow: 'var(--shadow-modal)'
+                }}
               >
-                <X size={20} />
-              </button>
-              
-              <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '24px' }}>Edit Supplier</h2>
-              
-              <form onSubmit={handleEditSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }} noValidate>
-                <div>
-                  <label className="input-label">Company Name *</label>
-                  <input
-                    required
-                    type="text"
-                    className="input-field"
-                    value={editForm.name}
-                    onChange={e => setEditForm({...editForm, name: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <label className="input-label">Email</label>
-                  <input
-                    type="email"
-                    className="input-field"
-                    value={editForm.email}
-                    onChange={e => setEditForm({...editForm, email: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <label className="input-label">Phone</label>
-                  <input
-                    type="tel"
-                    className="input-field"
-                    value={editForm.phone}
-                    maxLength={20}
-                    onChange={e => setEditForm({...editForm, phone: typedPhone(e.target.value)})}
-                  />
-                </div>
-                <div>
-                  <label className="input-label">Address</label>
-                  <textarea
-                    className="input-field"
-                    rows="3"
-                    style={{ resize: 'none' }}
-                    value={editForm.address}
-                    onChange={e => setEditForm({...editForm, address: e.target.value})}
-                  ></textarea>
-                </div>
-                
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '8px', padding: '12px', background: 'var(--bg-input)', borderRadius: '8px', border: '1px solid var(--border-light)' }}>
-                  <input 
-                    type="checkbox" 
-                    id="isActive"
-                    checked={editForm.isActive}
-                    onChange={e => setEditForm({...editForm, isActive: e.target.checked})}
-                    style={{ width: '18px', height: '18px', accentColor: 'var(--accent-primary)' }}
-                  />
-                  <label htmlFor="isActive" style={{ color: 'var(--text-primary)', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}>
-                    Active Supplier
-                  </label>
+                <button
+                  onClick={() => setShowEditModal(false)}
+                  className="btn-icon"
+                  style={{ position: 'absolute', top: '20px', right: '20px' }}
+                >
+                  <X size={18} />
+                </button>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
+                  <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'var(--bg-input)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-primary)' }}>
+                    <Edit size={18} />
+                  </div>
+                  <div>
+                    <h2 style={{ fontSize: '18px', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>Edit Supplier</h2>
+                    <p style={{ margin: '2px 0 0', fontSize: '13px', color: 'var(--text-secondary)' }}>Update contact information and active status.</p>
+                  </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-                  <button
-                    type="button"
-                    onClick={() => setShowEditModal(false)}
-                    className="btn-secondary"
-                    style={{ flex: 1 }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={updateSupplier.isPending}
-                    className="btn-primary"
-                    style={{ flex: 1 }}
-                  >
-                    {updateSupplier.isPending ? 'Saving...' : 'Save Changes'}
-                  </button>
-                </div>
-              </form>
+                <form onSubmit={handleEditSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }} noValidate>
+                  <div>
+                    <label className="input-label">Company Name *</label>
+                    <input
+                      required
+                      type="text"
+                      className="input-field"
+                      value={editForm.name}
+                      onChange={e => setEditForm({...editForm, name: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <label className="input-label">Email Address</label>
+                    <input
+                      type="email"
+                      className="input-field"
+                      placeholder="supplier@company.com"
+                      value={editForm.email}
+                      onChange={e => setEditForm({...editForm, email: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <label className="input-label">Phone Number</label>
+                    <input
+                      type="tel"
+                      className="input-field"
+                      placeholder="e.g. +91 9876543210"
+                      value={editForm.phone}
+                      maxLength={20}
+                      onChange={e => setEditForm({...editForm, phone: typedPhone(e.target.value)})}
+                    />
+                  </div>
+                  <div>
+                    <label className="input-label">Physical Address</label>
+                    <textarea
+                      className="input-field"
+                      rows="3"
+                      placeholder="Street, City, State, PIN..."
+                      style={{ resize: 'none' }}
+                      value={editForm.address}
+                      onChange={e => setEditForm({...editForm, address: e.target.value})}
+                    ></textarea>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '4px', padding: '12px 14px', background: 'var(--bg-input)', borderRadius: '8px', border: '1px solid var(--border-light)' }}>
+                    <input
+                      type="checkbox"
+                      id="isActive"
+                      checked={editForm.isActive}
+                      onChange={e => setEditForm({...editForm, isActive: e.target.checked})}
+                      style={{ width: '18px', height: '18px', accentColor: 'var(--accent-primary)', cursor: 'pointer' }}
+                    />
+                    <label htmlFor="isActive" style={{ color: 'var(--text-primary)', cursor: 'pointer', fontSize: '14px', fontWeight: 500 }}>
+                      Active Supplier (available for purchase orders)
+                    </label>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+                    <button
+                      type="button"
+                      onClick={() => setShowEditModal(false)}
+                      className="btn-secondary"
+                      style={{ flex: 1, padding: '10px' }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={updateSupplier.isPending}
+                      className="btn-primary"
+                      style={{ flex: 1, padding: '10px' }}
+                    >
+                      {updateSupplier.isPending ? 'Saving...' : 'Save Changes'}
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>,
+          )}
+        </AnimatePresence>,
         document.body
       )}
     </motion.div>

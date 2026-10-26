@@ -181,7 +181,13 @@ export default function PurchaseOrderDetails() {
   };
 
   useEffect(() => {
-    if (isNew && location.state && formData.items.length === 0) {
+    // Only the supplier, no item (the supplier page's "New Purchase Order"): pick the supplier
+    // and leave the lines empty. Treating it as a line made a blank row with no product in it.
+    if (isNew && location.state?.supplierId && !location.state.variantId && formData.items.length === 0) {
+      setFormData(prev => ({ ...prev, supplierId: location.state.supplierId }));
+      return;
+    }
+    if (isNew && location.state?.variantId && formData.items.length === 0) {
       /*
        * Arriving here with a line already chosen.
        *

@@ -39,7 +39,10 @@ const CellNote = ({ children, color }) => (
   </span>
 );
 
-export default function VariantTable({ productId, productName, productCode, productCategory, productBasePrice, highlightVariantId }) {
+/** The one size a saree comes in, spelled as the wizard spells it. */
+const FREE_SIZE = 'Free Size';
+
+export default function VariantTable({ productId, productName, productCode, productCategory, productDressType, productBasePrice, highlightVariantId }) {
   // Stamped into the barcode-label PDF metadata; must be the real tenant.
   const { clientId } = useAuth();
   const { data, isLoading, isError } = useVariants(productId);
@@ -116,6 +119,16 @@ export default function VariantTable({ productId, productName, productCode, prod
   };
 
   const variants = data?.data || [];
+
+  /*
+   * Sarees come in one size. The wizard has always forced Free Size for them (Measurements.jsx);
+   * this generator did not, and offered a saree XS to XXL (26 Oct). Also one-size: a product whose
+   * variants are all Free Size already, whatever its dress type says -- adding a new colour to it
+   * must not invent sizes it has never had.
+   */
+  const oneSize = String(productDressType ?? '').trim().toLowerCase() === 'saree'
+    || (variants.length > 0 && variants.every(v => String(v.size ?? '').trim().toLowerCase() === FREE_SIZE.toLowerCase()));
+  const sizesOffered = oneSize ? [FREE_SIZE] : SIZES;
 
   const toggleSize = (size) => {
     setSelectedSizes(prev => prev.includes(size) ? prev.filter(s => s !== size) : [...prev, size]);
@@ -639,6 +652,8 @@ export default function VariantTable({ productId, productName, productCode, prod
             className="btn-primary"
             onClick={() => {
               if (showGenerator) resetGenerator();
+              // One-size products start with their one size already chosen: only colours to pick.
+              else if (oneSize) setSelectedSizes([FREE_SIZE]);
               setShowGenerator(!showGenerator);
             }}
             style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
@@ -657,11 +672,18 @@ export default function VariantTable({ productId, productName, productCode, prod
           <div className="mobile-col" style={{ display: 'flex', gap: '48px', marginBottom: '20px' }}>
             <div style={{ flex: 1, minWidth: 0 }}>
               <p style={{ fontSize: '11px', letterSpacing: '0.05em', color: 'var(--text-secondary)', marginBottom: '10px', textTransform: 'uppercase' }}>1. Select Sizes</p>
+              {oneSize && (
+                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '-4px 0 10px' }}>
+                  {String(productDressType ?? '').trim().toLowerCase() === 'saree'
+                    ? 'Sarees come in one size. Pick the colours to add.'
+                    : 'This product comes in one size. Pick the colours to add.'}
+                </p>
+              )}
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 {/* Keyed by position too: a shop's catalogue can hold the same size or shade twice
                     (added by hand under two names), and a repeated key made React warn and
                     could toggle the wrong button. */}
-                {SIZES.map((size, i) => (
+                {sizesOffered.map((size, i) => (
                   <button
                     key={`${size}-${i}`}
                     onClick={() => toggleSize(size)}

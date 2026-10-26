@@ -547,36 +547,10 @@ tr:hover td {
   min-height: 0;
   overflow-y: auto;
   padding-bottom: 40px;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border-focus) transparent;
   scroll-behavior: smooth;
 }
 /* Links that look like text until pointed at (supplier page breadcrumbs, email and phone). */
 .hover-underline:hover { text-decoration: underline; }
-/* Custom sleek scrollbars */
-.page-scroll::-webkit-scrollbar,
-.table-container::-webkit-scrollbar,
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-.page-scroll::-webkit-scrollbar-track,
-.table-container::-webkit-scrollbar-track,
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-.page-scroll::-webkit-scrollbar-thumb,
-.table-container::-webkit-scrollbar-thumb,
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--border-focus);
-  border-radius: 999px;
-  transition: background 0.2s ease;
-}
-.page-scroll::-webkit-scrollbar-thumb:hover,
-.table-container::-webkit-scrollbar-thumb:hover,
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
-}
 /* Nothing in a scrolling page may be squeezed to fit: a flex column shrinks any child that has its own
    overflow (a table-container), which is how a list ends up in a small box again. */
 .page-scroll > * { flex-shrink: 0; }

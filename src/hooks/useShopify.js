@@ -121,6 +121,61 @@ export const useShopifyProductSummary = (enabled) =>
     staleTime: 30_000
   });
 
+/** How far our products have got in Shopify. Re-read every few seconds while any are being sent. */
+export const useShopifyPushSummary = (enabled = true) =>
+  useQuery({
+    queryKey: ['shopify', 'products', 'push'],
+    queryFn: async () => (await api.get('/shopify-connect/products/push')).data,
+    enabled,
+    staleTime: 5_000,
+    refetchInterval: (query) => (query.state.data?.sending > 0 ? 5_000 : false)
+  });
+
+export const usePutAllOnShopify = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => (await api.post('/shopify-connect/products/push-all')).data,
+    onSuccess: (result) => {
+      refreshShopify(queryClient);
+      const n = (result?.added ?? 0) + (result?.switchedOn ?? 0);
+      toast.success(n > 0 ? `${n} product${n === 1 ? ' is' : 's are'} being put on Shopify.` : 'Every active product is already on Shopify.');
+    },
+    onError: (error) => toast.error(error?.message || 'Could not put your products on Shopify.')
+  });
+};
+
+export const useRetryShopifyPush = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => (await api.post('/shopify-connect/products/retry')).data,
+    onSuccess: (result) => { refreshShopify(queryClient); toast.success(`Trying ${result?.retried ?? 0} again.`); },
+    onError: (error) => toast.error(error?.message || 'Could not try again.')
+  });
+};
+
+/** One product's Shopify state, for its page. Null data when no store is connected. */
+export const useProductShopify = (productId) =>
+  useQuery({
+    queryKey: ['shopify', 'product', productId],
+    queryFn: async () => (await api.get(`/shopify-connect/products/${productId}/shopify`)).data,
+    enabled: !!productId,
+    staleTime: 5_000,
+    retry: false,
+    refetchInterval: (query) => (query.state.data?.on && query.state.data?.status === 'PENDING' ? 4_000 : false)
+  });
+
+export const useSetProductOnShopify = (productId) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (on) => (await api.put(`/shopify-connect/products/${productId}/shopify`, { on })).data,
+    onSuccess: (_r, on) => {
+      refreshShopify(queryClient);
+      toast.success(on ? 'Putting it on Shopify.' : 'Taking it off Shopify. It will be archived there, not deleted.');
+    },
+    onError: (error) => toast.error(error?.message || 'Could not change whether this is on Shopify.')
+  });
+};
+
 export const useMatchShopifyProducts = () => {
   const queryClient = useQueryClient();
   return useMutation({

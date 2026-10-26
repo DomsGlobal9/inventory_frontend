@@ -1,9 +1,17 @@
 import React, { useState } from 'react';
-import { Package, Loader2, AlertTriangle } from 'lucide-react';
-import { useShopifyProductSummary, useMatchShopifyProducts } from '../hooks/useShopify';
+import { Package, Loader2, AlertTriangle, UploadCloud, RotateCcw } from 'lucide-react';
+import {
+  useShopifyProductSummary, useMatchShopifyProducts, useShopifyPushSummary, usePutAllOnShopify, useRetryShopifyPush
+} from '../hooks/useShopify';
 import { sectionStyle, headerButton, hint, warningBox } from './ShopifyLocationPairing';
 
 /**
+ * Our products in Shopify: the ones put there from here, and the ones matched by SKU.
+ *
+ * Putting a product on Shopify makes it there with its photos, sizes, price and stock, and keeps it
+ * true afterwards. Matching adopts a product the shop built by hand in Shopify; from then on only its
+ * price and stock follow ours.
+ *
  * Which Shopify products are which of ours, by SKU.
  *
  * Nothing is changed in Shopify. The button reads the store and adopts every variant whose SKU is
@@ -17,7 +25,11 @@ import { sectionStyle, headerButton, hint, warningBox } from './ShopifyLocationP
 export default function ShopifyProductMatching({ open, onToggle }) {
   const { data: summary } = useShopifyProductSummary(true);
   const match = useMatchShopifyProducts();
+  const { data: push } = useShopifyPushSummary(true);
+  const putAll = usePutAllOnShopify();
+  const retry = useRetryShopifyPush();
   const [result, setResult] = useState(null);
+  const notPaired = push && push.pairedLocations === 0;
 
   const run = () => match.mutate(undefined, { onSuccess: setResult });
 
@@ -27,19 +39,69 @@ export default function ShopifyProductMatching({ open, onToggle }) {
         <Package size={16} />
         <span style={{ fontWeight: 600 }}>Products</span>
         <span style={{ color: 'var(--text-secondary)', fontSize: '12.5px' }}>
-          {summary ? `${summary.matched} matched` : 'Match Shopify products by SKU'}
+          {push ? `${push.onShopify} on Shopify${push.sending ? ` · ${push.sending} sending` : ''}${push.failed ? ` · ${push.failed} could not be sent` : ''}`
+            : summary ? `${summary.matched} matched` : 'Match Shopify products by SKU'}
         </span>
         <span style={{ marginLeft: 'auto', fontSize: '12px', color: 'var(--text-secondary)' }}>{open ? 'Hide' : 'Show'}</span>
       </button>
 
       {open && (
         <div style={{ marginTop: '14px' }}>
+          {push && (
+            <div style={{ display: 'flex', gap: '18px', flexWrap: 'wrap', fontSize: '13px', marginBottom: '12px' }}>
+              <Stat label="On Shopify" value={push.onShopify} />
+              <Stat label="Up to date" value={push.upToDate} />
+              <Stat label="Sending" value={push.sending} />
+              <Stat label="Could not send" value={push.failed} danger={push.failed > 0} />
+            </div>
+          )}
+
+          {notPaired && (
+            <div style={{ ...warningBox, marginBottom: '12px' }}>
+              <AlertTriangle size={14} /> Pair a Shopify location with one of your stores first (Locations, above), so Shopify knows where the stock is.
+            </div>
+          )}
+
           <p style={hint}>
-            Each Shopify product is matched to yours by SKU, ignoring spaces and capitals. Nothing
-            in your Shopify store is changed.
+            Put a product on Shopify and it appears there with its photos, sizes, price and stock, and
+            stays up to date. You can also switch each product on or off on its own page. Switched off
+            or deleted here, it is archived in Shopify, never deleted. Stock goes out from your paired
+            store only.
           </p>
 
-          <button type="button" className="btn-primary" onClick={run} disabled={match.isPending}
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <button type="button" className="btn-primary" onClick={() => putAll.mutate()} disabled={putAll.isPending || notPaired}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+              {putAll.isPending ? <Loader2 size={15} className="animate-spin" /> : <UploadCloud size={15} />}
+              {putAll.isPending ? 'Putting them on…' : `Put all products on Shopify${push ? ` (${Math.max(0, push.activeProducts - push.onShopify)} more)` : ''}`}
+            </button>
+            {push?.failed > 0 && (
+              <button type="button" className="btn-secondary" onClick={() => retry.mutate()} disabled={retry.isPending}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                <RotateCcw size={15} /> Try the {push.failed} again
+              </button>
+            )}
+          </div>
+
+          {push?.problems?.length > 0 && (
+            <div style={{ marginTop: '12px' }}>
+              <Listing
+                tone="warning"
+                title={`${push.failed} could not be sent`}
+                rows={push.problems.map(p => ({ key: p.productId, sku: p.productCode, text: `${p.title} — ${p.problem}` }))}
+                more={push.failed - push.problems.length}
+              />
+            </div>
+          )}
+
+          <div style={{ borderTop: '1px solid var(--border-light)', margin: '16px 0 12px' }} />
+          <p style={hint}>
+            Already have products in Shopify that you made there by hand? Match them by SKU (spaces and
+            capitals ignored). Their title and photos stay as you wrote them in Shopify; only their price
+            and stock follow ScaleEzy from then on.
+          </p>
+
+          <button type="button" className="btn-secondary" onClick={run} disabled={match.isPending}
             style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
             {match.isPending && <Loader2 size={15} className="animate-spin" />}
             {match.isPending ? 'Reading your Shopify products…' : 'Match products by SKU'}
@@ -79,10 +141,10 @@ export default function ShopifyProductMatching({ open, onToggle }) {
   );
 }
 
-function Stat({ label, value }) {
+function Stat({ label, value, danger }) {
   return (
     <div>
-      <div style={{ fontSize: '18px', fontWeight: 600 }}>{value}</div>
+      <div style={{ fontSize: '18px', fontWeight: 600, color: danger ? 'var(--accent-danger)' : undefined }}>{value}</div>
       <div style={{ fontSize: '11.5px', color: 'var(--text-secondary)' }}>{label}</div>
     </div>
   );

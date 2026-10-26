@@ -31,6 +31,15 @@ const ALERT_LABEL = {
   SYSTEM_ERROR: 'PROBLEM'
 };
 
+/**
+ * Notices about a product changed or deleted inside Shopify are stored as a count-type alert (a new
+ * alert kind would be a database enum value, and adding one broke the bell on 23 September), so
+ * they are told apart by the words their title starts with -- the backend's SHOPIFY_NOTICE.
+ */
+const SHOPIFY_TITLE = /^(Changed|Deleted) in Shopify:/;
+const alertLabel = (alert) => (SHOPIFY_TITLE.test(alert?.title ?? '') ? 'SHOPIFY'
+  : ALERT_LABEL[alert.type] ?? String(alert.type || 'ALERT').replace(/_/g, ' '));
+
 const ALERT_TONE = {
   OUT_OF_STOCK: 'var(--accent-danger)',
   SYSTEM_ERROR: 'var(--accent-danger)',
@@ -446,7 +455,7 @@ export default function TopNav({ onMenuClick }) {
                               stock warning. Named from the type, with an unknown one falling
                               back to its own words rather than to somebody else's. */}
                           <span style={{ fontSize: '11px', color: ALERT_TONE[alert.type] ?? 'var(--accent-gold)' }}>
-                            {ALERT_LABEL[alert.type] ?? String(alert.type || 'ALERT').replace(/_/g, ' ')}
+                            {alertLabel(alert)}
                           </span>
                           <button
                             title={alert.isPinned ? 'Unpin' : 'Pin'}

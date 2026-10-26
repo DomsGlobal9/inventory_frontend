@@ -22,6 +22,7 @@ import StockMovementModal from '../components/StockMovementModal';
 import PageLoader from '../components/PageLoader';
 import ConfirmModal from '../components/ConfirmModal';
 import CounterTryOn from '../components/CounterTryOn';
+import ProductShopifyCard from '../components/ProductShopifyCard';
 import { usePermission } from '../hooks/usePermission';
 
 export default function ProductDetails() {
@@ -380,6 +381,10 @@ export default function ProductDetails() {
             {product.variantSummary?.lowStockVariants || 0}
           </h2>
         </div>
+      </motion.div>
+
+      <motion.div variants={item} style={{ flexShrink: 0 }}>
+        <ProductShopifyCard productId={product.id} canEdit={canEdit} isService={!!product.isService} />
       </motion.div>
 
       {/* Tabs */}

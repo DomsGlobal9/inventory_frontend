@@ -55,7 +55,11 @@ export const useOrderSearch = (params) => {
     initialPageParam: 1,
     getNextPageParam: (last) => (last?.meta && last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined),
     // Keep the list on screen while a new filter loads, rather than flashing to a spinner.
-    placeholderData: keepPreviousData
+    placeholderData: keepPreviousData,
+    // New orders from Shopify, the online shop and the till appear without a reload. Only while
+    // just the first page is loaded -- re-reading five scrolled pages every 30 s is five slow
+    // round trips -- and paused by React Query while the tab is in the background.
+    refetchInterval: (query) => ((query.state.data?.pages?.length ?? 1) > 1 ? false : 30_000)
   });
 };
 

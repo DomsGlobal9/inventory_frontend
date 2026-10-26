@@ -19,7 +19,10 @@ export const useShopifyStatus = () =>
   useQuery({
     queryKey: ['shopify', 'status'],
     queryFn: async () => (await api.get('/shopify-connect/status')).data ?? null,
-    staleTime: 30_000
+    staleTime: 30_000,
+    // Kept current on screen: a card left open used to keep its old answer until a reload.
+    refetchInterval: 60_000,
+    refetchOnWindowFocus: true
   });
 
 /**
@@ -198,7 +201,8 @@ export const useShopifyInbox = (state = 'open', enabled = true) =>
     queryKey: ['shopify', 'inbox', state],
     queryFn: async () => (await api.get('/shopify-connect/inbox', { params: { state } })).data,
     enabled,
-    staleTime: 15_000
+    staleTime: 15_000,
+    refetchInterval: enabled ? 30_000 : false
   });
 
 export const useReplayShopifyOrder = () => {

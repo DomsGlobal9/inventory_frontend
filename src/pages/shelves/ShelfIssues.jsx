@@ -7,8 +7,8 @@ import { useShelfIssues, useResolveIssue, ISSUE_KINDS } from '../../hooks/useShe
 import { ShelvesLayout, SpotChip, EmptyState, pieces } from '../../components/shelves/ShelfBits';
 
 const FILTERS = [
-  { value: 'OPEN', label: 'Open' },
-  { value: 'RESOLVED', label: 'Resolved' },
+  { value: 'OPEN', label: 'To fix' },
+  { value: 'RESOLVED', label: 'Fixed' },
   { value: 'ALL', label: 'All' }
 ];
 
@@ -28,8 +28,8 @@ export default function ShelfIssues() {
   const rows = issues.data?.issues ?? [];
 
   return (
-    <ShelvesLayout title="Shelf issues" icon={TriangleAlert} needsLocation={false}
-      subtitle="Where the shelves and the stock did not agree. Check the shelf, fix it with a move, then mark it resolved.">
+    <ShelvesLayout title="Shelf problems" icon={TriangleAlert} needsLocation={false}
+      subtitle="When a count or a sale did not match what a shelf should hold, it shows here. Check the shelf, fix it (usually with Move), then mark it fixed.">
       <div className="sh-row" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
         <div role="tablist" className="sh-row" style={{ gap: 6 }}>
           {FILTERS.map(f => (
@@ -80,7 +80,7 @@ function IssueCard({ issue, canResolve, canMove }) {
       <div className="sh-row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', alignItems: 'flex-start' }}>
         <div style={{ display: 'grid', gap: 4, minWidth: 0 }}>
           <span className="sh-row" style={{ gap: 8, flexWrap: 'wrap' }}>
-            <span className={`sh-tag ${resolved ? 'floor' : 'back'}`}>{resolved ? 'Resolved' : ISSUE_KINDS[issue.kind] ?? issue.kind}</span>
+            <span className={`sh-tag ${resolved ? 'floor' : 'back'}`}>{resolved ? 'Fixed' : ISSUE_KINDS[issue.kind] ?? issue.kind}</span>
             <span className="sh-muted">{issue.location?.name} · {when(issue.createdAt)}</span>
           </span>
           <strong>{issue.item.title} <span className="sh-muted" style={{ fontWeight: 400 }}>{[issue.item.colorName, issue.item.size, issue.item.sku].filter(Boolean).join(' · ')}</span></strong>
@@ -94,17 +94,17 @@ function IssueCard({ issue, canResolve, canMove }) {
       {issue.spot && issue.spot.address !== issue.address && <span className="sh-muted">That shelf is now {issue.spot.address}.</span>}
 
       {resolved ? (
-        <div className="sh-muted">Resolved {issue.resolvedAt ? when(issue.resolvedAt) : ''}{issue.resolutionNote ? ` — “${issue.resolutionNote}”` : ''}</div>
+        <div className="sh-muted">Fixed {issue.resolvedAt ? when(issue.resolvedAt) : ''}{issue.resolutionNote ? ` — “${issue.resolutionNote}”` : ''}</div>
       ) : (
         <div className="sh-row" style={{ gap: 8, flexWrap: 'wrap' }}>
-          {issue.spot && canMove && <Link to={`/shelves/move?spot=${issue.spot.id}&variant=${issue.item.variantId}`} className="btn-secondary" style={{ textDecoration: 'none', padding: '6px 12px' }}>Open the shelf</Link>}
-          {canResolve && !open && <button type="button" className="btn-secondary" style={{ padding: '6px 12px' }} onClick={() => setOpen(true)}>Mark resolved</button>}
+          {issue.spot && canMove && <Link to={`/shelves/move?spot=${issue.spot.id}&variant=${issue.item.variantId}`} className="btn-secondary" style={{ textDecoration: 'none', padding: '6px 12px' }}>Open the shelf to move them</Link>}
+          {canResolve && !open && <button type="button" className="btn-secondary" style={{ padding: '6px 12px' }} onClick={() => setOpen(true)}>Mark fixed</button>}
           {canResolve && open && (
             <form style={{ display: 'flex', gap: 8, flex: 1, minWidth: 260, flexWrap: 'wrap' }}
               onSubmit={(e) => { e.preventDefault(); resolve.mutate({ issueId: issue.id, note }); }}>
               <input className="input-field" autoFocus value={note} maxLength={500} onChange={(e) => setNote(e.target.value)}
-                placeholder="What you found or did (optional)" style={{ flex: 1, minWidth: 180 }} aria-label="Resolution note" />
-              <button type="submit" className="btn-primary" disabled={resolve.isPending}>{resolve.isPending ? 'Saving…' : 'Resolve'}</button>
+                placeholder="What you found or did (optional)" style={{ flex: 1, minWidth: 180 }} aria-label="What you found or did" />
+              <button type="submit" className="btn-primary" disabled={resolve.isPending}>{resolve.isPending ? 'Saving…' : 'Save as fixed'}</button>
               <button type="button" className="btn-secondary" onClick={() => setOpen(false)}>Cancel</button>
             </form>
           )}

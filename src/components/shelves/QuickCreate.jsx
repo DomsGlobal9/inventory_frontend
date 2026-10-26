@@ -82,7 +82,7 @@ export default function QuickCreate({ locationId, parent, onClose, onCreated }) 
   return (
     <div className="sh-card" style={{ display: 'grid', gap: 16 }}>
       <div className="sh-row" style={{ justifyContent: 'space-between' }}>
-        <h2 style={{ margin: 0, fontSize: 18, display: 'flex', gap: 8, alignItems: 'center' }}><Wand2 size={18} /> Quick create {parent ? <>inside <span className="sh-addr">{parent.address}</span></> : ''}</h2>
+        <h2 style={{ margin: 0, fontSize: 18, display: 'flex', gap: 8, alignItems: 'center' }}><Wand2 size={18} /> Add from a template {parent ? <>inside <span className="sh-addr">{parent.address}</span></> : ''}</h2>
         <button type="button" className="sh-iconbtn" aria-label="Close" onClick={onClose}><X size={18} /></button>
       </div>
 
@@ -102,7 +102,8 @@ export default function QuickCreate({ locationId, parent, onClose, onCreated }) 
       )}
 
       <div style={{ display: 'grid', gap: 10 }}>
-        <h3 className="sh-section-title" style={{ margin: 0 }}>Levels</h3>
+        <h3 className="sh-section-title" style={{ margin: 0 }}>What is inside what</h3>
+        <p className="sh-muted" style={{ margin: '-4px 0 0', fontSize: 13 }}>Line 1 is the biggest (an area); each next line sits inside the one above (racks in the area, shelves in each rack).</p>
         {levels.map((l, i) => (
           <div key={i} className="sh-level">
             <span className="sh-level-n" aria-hidden>{i + 1}</span>
@@ -116,21 +117,21 @@ export default function QuickCreate({ locationId, parent, onClose, onCreated }) 
                 const mode = e.target.value;
                 setLevel(i, mode === 'numbers' ? numbers(1, 4) : mode === 'letters' ? letters('A', 'D') : list(['A']));
               }}>
-                <option value="numbers">Numbered</option>
-                <option value="letters">Lettered</option>
-                <option value="list">Named</option>
+                <option value="numbers">Numbers: 1, 2, 3…</option>
+                <option value="letters">Letters: A, B, C…</option>
+                <option value="list">My own names</option>
               </Select>
             </div>
             <div className="sh-row sh-level-codes" style={{ gap: 6, flexWrap: 'wrap' }}>
               {l.mode === 'numbers' && (<>
-                <input className="input-field" style={{ width: 64 }} value={l.prefix} maxLength={6} placeholder="Prefix" aria-label="Prefix" onChange={(e) => setLevel(i, { prefix: e.target.value.toUpperCase() })} />
+                <input className="input-field" style={{ width: 64 }} value={l.prefix} maxLength={6} placeholder="Start" title="Letters before the number, like R for R1, R2" aria-label="Letters before the number" onChange={(e) => setLevel(i, { prefix: e.target.value.toUpperCase() })} />
                 <input className="input-field" style={{ width: 64 }} type="number" min={0} value={l.from} aria-label="From" onChange={(e) => setLevel(i, { from: e.target.value })} />
                 <span className="sh-muted">to</span>
                 <input className="input-field" style={{ width: 64 }} type="number" min={0} value={l.to} aria-label="To" onChange={(e) => setLevel(i, { to: e.target.value })} />
-                <label className="sh-row sh-muted" style={{ gap: 4 }}><input type="checkbox" checked={Number(l.pad) === 2} onChange={(e) => setLevel(i, { pad: e.target.checked ? 2 : 0 })} /> 01, 02…</label>
+                <label className="sh-row sh-muted" style={{ gap: 4 }}><input type="checkbox" checked={Number(l.pad) === 2} onChange={(e) => setLevel(i, { pad: e.target.checked ? 2 : 0 })} /> Two digits (01, 02…)</label>
               </>)}
               {l.mode === 'letters' && (<>
-                <input className="input-field" style={{ width: 64 }} value={l.prefix} maxLength={6} placeholder="Prefix" aria-label="Prefix" onChange={(e) => setLevel(i, { prefix: e.target.value.toUpperCase() })} />
+                <input className="input-field" style={{ width: 64 }} value={l.prefix} maxLength={6} placeholder="Start" title="Letters before the number, like R for R1, R2" aria-label="Letters before the number" onChange={(e) => setLevel(i, { prefix: e.target.value.toUpperCase() })} />
                 <input className="input-field" style={{ width: 52 }} value={l.letterFrom} maxLength={1} aria-label="First letter" onChange={(e) => setLevel(i, { letterFrom: e.target.value.toUpperCase() })} />
                 <span className="sh-muted">to</span>
                 <input className="input-field" style={{ width: 52 }} value={l.letterTo} maxLength={1} aria-label="Last letter" onChange={(e) => setLevel(i, { letterTo: e.target.value.toUpperCase() })} />

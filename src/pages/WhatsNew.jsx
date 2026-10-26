@@ -135,7 +135,7 @@ const FEATURES = [
     to: '/campaigns', can: 'campaign:view' },
   { art: 'shelves', area: 'stock', when: 'Sep 2026', title: 'Find any piece on its shelf',
     body: 'Tell ScaleEzy your racks and shelves and print a label for each. Scan a price tag or type a name to see which shelf it is on, and put away, move, pick and count shelf by shelf.',
-    steps: ['Shelves, Racks and shelves: describe each rack.', 'Print the labels and stick one on each shelf.', 'Fill shelves: walk round once and scan what is on each.'],
+    steps: ['Shelves, Set up racks: describe each rack.', 'Print the labels and stick one on each shelf.', 'Record shelves: walk round once and scan what is on each.'],
     to: '/shelves', can: 'shelf:view' }
 ];
 

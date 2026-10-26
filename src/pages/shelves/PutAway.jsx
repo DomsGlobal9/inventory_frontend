@@ -48,7 +48,7 @@ export default function PutAway() {
   };
 
   if (!can('shelf:putaway')) {
-    return <ShelvesLayout title="Put away" icon={PackagePlus}><div className="sh-card"><EmptyState icon={PackagePlus} title="You cannot put stock away" text="Ask whoever manages your team for the permission to put stock away and move it between shelves." /></div></ShelvesLayout>;
+    return <ShelvesLayout title="Put away" icon={PackagePlus}><div className="sh-card"><EmptyState icon={PackagePlus} title="You cannot put stock away" text="Ask whoever manages your team for the shelf work permission (put away, pick, move and count).between shelves." /></div></ShelvesLayout>;
   }
 
   const noShelves = list.data && list.data.usesShelves === false;
@@ -145,6 +145,24 @@ function PutAwayPanel({ variantId, locationId, onDone, hasSpots }) {
   useEffect(() => { if (ready) setTimeout(() => shelfScanRef.current?.focus(), 60); }, [ready]);
   // Where its twins already are: shop floor first, in walking order (the server's order).
   const suggestions = useMemo(() => place?.shelves ?? [], [place]);
+  /*
+   * A new item has no twins to sit beside, and the screen used to offer nothing: a worker had to know a
+   * free shelf. Now the first empty shelves in walking order (shop floor first) are offered -- offered,
+   * not chosen for them (26 Oct).
+   */
+  const tree = useSpotTree(locationId);
+  const emptyShelves = useMemo(() => {
+    const out = [];
+    const walk = (nodes, floor) => {
+      for (const n of nodes ?? []) {
+        const onFloor = n.isShopFloor ?? floor;
+        if (n.children?.length) walk(n.children, onFloor);
+        else if (n.active !== false && (n.pieces ?? 0) === 0) out.push({ ...n, isShopFloor: onFloor });
+      }
+    };
+    walk(tree.data?.spots, false);
+    return [...out.filter(n => n.isShopFloor), ...out.filter(n => !n.isShopFloor)].slice(0, 3);
+  }, [tree.data]);
   useEffect(() => { if (!spot && !scanRefused && suggestions[0]) setSpot({ id: suggestions[0].spotId, address: suggestions[0].address, name: suggestions[0].name, colour: suggestions[0].colour, isShopFloor: suggestions[0].isShopFloor }); }, [suggestions, spot, scanRefused]);
 
   const scanShelf = async (typed) => {
@@ -225,8 +243,21 @@ function PutAwayPanel({ variantId, locationId, onDone, hasSpots }) {
             </div>
           )}
 
+          {suggestions.length === 0 && emptyShelves.length > 0 && (
+            <div style={{ display: 'grid', gap: 6 }}>
+              <h3 className="sh-section-title">Empty shelves</h3>
+              {emptyShelves.map(s => (
+                <button key={s.id} type="button" className={`sh-list-btn${spot?.id === s.id ? ' selected' : ''}`} style={{ border: '1px solid var(--border-light)' }}
+                  onClick={() => { setScanRefused(false); setSpot({ id: s.id, address: s.address, name: s.name, colour: s.colour, isShopFloor: s.isShopFloor }); }}>
+                  <span style={{ flex: 1 }}><SpotChip address={s.address} name={s.name} colour={s.colour} isShopFloor={s.isShopFloor} /></span>
+                  <span className="sh-muted">empty</span>
+                </button>
+              ))}
+            </div>
+          )}
+
           <details>
-            <summary style={{ cursor: 'pointer', fontWeight: 600, padding: '4px 0' }}>Or choose another shelf</summary>
+            <summary style={{ cursor: 'pointer', fontWeight: 600, padding: '4px 0' }}>{suggestions.length || emptyShelves.length ? 'Or choose another shelf' : 'Choose the shelf from a list'}</summary>
             <div style={{ marginTop: 10 }}>
               <SpotPicker locationId={locationId} value={spot?.id} onChange={(s) => { setScanRefused(false); setSpot(s); }} />
             </div>

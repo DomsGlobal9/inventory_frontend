@@ -39,7 +39,7 @@ export default function SetUpShelvesCard() {
   const steps = [
     { done: spots > 0, label: 'Describe this place', to: '/shelves/setup', hint: 'How many racks, and how many shelves on each' },
     { done: spots > 0, label: 'Print the labels', to: `/shelves/labels?locationId=${locationId}`, hint: 'One sticker per shelf, so a phone can scan it' },
-    { done: finished, label: 'Fill your shelves', to: '/shelves/fill', hint: filledAny ? `${status.shelves.completed} of ${status.shelves.total} shelves done` : 'Walk round once and record what is on each shelf' }
+    { done: finished, label: 'Record what is on your shelves', to: '/shelves/fill', hint: filledAny ? `${status.shelves.completed} of ${status.shelves.total} shelves done` : 'Walk round once and record what is on each shelf' }
   ];
   const next = steps.find(s => !s.done) ?? steps[steps.length - 1];
 

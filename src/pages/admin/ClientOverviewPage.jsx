@@ -150,7 +150,7 @@ export default function ClientOverviewPage() {
           <div style={STAT_CARD}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: 500 }}>
               <div style={{ background: 'var(--bg-input)', padding: '6px', borderRadius: '6px', color: 'var(--text-primary)' }}><Boxes size={16} /></div>
-              Racks &amp; shelves
+              Set up racks
             </div>
             <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
               {data.shelves.spots === 0 ? 'Not started' : `${data.shelves.spots} spots`}

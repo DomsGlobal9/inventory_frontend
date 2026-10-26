@@ -32,14 +32,14 @@ export default function RackMap() {
   const max = Math.max(1, ...[...(tree.data?.spots ?? [])].flatMap(function all(n) { return [n.pieces ?? 0, ...(n.children ?? []).flatMap(all)]; }));
 
   return (
-    <ShelvesLayout title="Rack map" icon={MapIcon} subtitle="Every area and rack in walking order. Search to light up where something is.">
+    <ShelvesLayout title="Rack map" icon={MapIcon} subtitle="Every area, rack and shelf in walking order, with how many pieces each holds. Search for an item to light up the shelves that have it.">
       <div className="sh-card" style={{ display: 'grid', gap: 10 }}>
         <ScanInput value={text} onChange={setText} busy={find.isFetching} placeholder="Type or scan an item to light up its shelves" label="Search the map" />
         {q && <span className="sh-muted">{lit.size ? `Found on ${lit.size} ${lit.size === 1 ? 'shelf' : 'shelves'}.` : find.isFetching ? 'Searching…' : `Not on any shelf here.`}</span>}
       </div>
 
       {tree.isLoading ? <div className="sh-card sh-muted"><Loader2 size={16} className="animate-spin" /> Loading…</div>
-        : !tree.data?.spots?.length ? <div className="sh-card"><EmptyState icon={MapIcon} title="No racks or shelves here yet" text="Set them up under Racks & shelves." /></div>
+        : !tree.data?.spots?.length ? <div className="sh-card"><EmptyState icon={MapIcon} title="No racks or shelves here yet" text="Set them up under Set up racks." /></div>
         : (
           <div style={{ display: 'grid', gap: 16 }}>
             {tree.data.spots.map(area => (
@@ -107,7 +107,10 @@ function Cell({ cell, lit, max, onOpen, label }) {
         color: 'var(--text-primary)', opacity: cell.active ? 1 : 0.4, boxShadow: here ? '0 0 0 3px rgba(16,185,129,.18)' : 'none'
       }}>
       <span className="sh-addr" style={{ fontSize: 11 }}>{label}</span>
-      <span style={{ fontSize: here ? 15 : 11, fontWeight: here ? 800 : 500, color: here ? 'var(--accent-success)' : 'var(--text-secondary)' }}>{here ?? (holds || '·')}</span>
+      {/* "Shelf 2" over "23 pcs", or "empty": a lone number under a lone number, and a dot for empty, said nothing (26 Oct). */}
+      <span style={{ fontSize: here ? 15 : 11, fontWeight: here ? 800 : 500, color: here ? 'var(--accent-success)' : 'var(--text-secondary)' }}>
+        {here != null ? `${here} here` : holds ? `${holds} pcs` : 'empty'}
+      </span>
     </button>
   );
 }

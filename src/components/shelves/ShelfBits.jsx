@@ -69,16 +69,21 @@ export function ShelfStyles() {
   return <style>{SHELF_CSS}</style>;
 }
 
+/*
+ * In the order a day goes: find, put away, pick, move, count; then the occasional ones (the one-time
+ * walk that records what is already on each shelf, the map); then problems and set-up. "Fill shelves"
+ * read like Put away and stood second, so people opened it to put stock away (26 Oct).
+ */
 const TABS = [
   { to: '/shelves', label: 'Where is it?', icon: Search, permission: 'shelf:view', end: true },
-  { to: '/shelves/fill', label: 'Fill shelves', icon: Boxes, permission: 'shelf:putaway' },
   { to: '/shelves/put-away', label: 'Put away', icon: PackagePlus, permission: 'shelf:putaway' },
+  { to: '/shelves/pick', label: 'Pick orders', icon: ClipboardList, permission: 'shelf:putaway' },
   { to: '/shelves/move', label: 'Move', icon: ArrowRightLeft, permission: 'shelf:putaway' },
-  { to: '/shelves/pick', label: 'Pick', icon: ClipboardList, permission: 'shelf:putaway' },
   { to: '/shelves/count', label: 'Count', icon: ClipboardCheck, permission: 'shelf:putaway' },
+  { to: '/shelves/fill', label: 'Record shelves', icon: Boxes, permission: 'shelf:putaway' },
   { to: '/shelves/map', label: 'Map', icon: MapIcon, permission: 'shelf:view' },
-  { to: '/shelves/issues', label: 'Shelf issues', icon: TriangleAlert, permission: 'shelf:view', badge: true },
-  { to: '/shelves/setup', label: 'Racks & shelves', icon: Settings2, permission: 'shelf:manage' }
+  { to: '/shelves/issues', label: 'Problems', icon: TriangleAlert, permission: 'shelf:view', badge: true },
+  { to: '/shelves/setup', label: 'Set up racks', icon: Settings2, permission: 'shelf:manage' }
 ];
 
 /** Header, current location and tabs for every shelves screen. */
@@ -228,7 +233,9 @@ export function ItemThumb({ url, size = 48, label }) {
   );
 }
 
-export const itemDetail = (it) => [it.colorName, it.size && it.size !== 'Free' ? `Size ${it.size}` : it.size, it.sku].filter(Boolean).join(' · ');
+// "Free Size" is already a size: "Size Free Size" read twice over.
+const sizeText = (s) => (!s ? null : /free/i.test(s) ? 'Free size' : `Size ${s}`);
+export const itemDetail = (it) => [it.colorName, sizeText(it.size), it.sku].filter(Boolean).join(' · ');
 
 export function Stepper({ value, onChange, min = 1, max = 100000, label = 'Quantity' }) {
   const [text, setText] = useState(String(value));

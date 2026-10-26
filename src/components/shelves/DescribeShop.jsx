@@ -177,7 +177,7 @@ export default function DescribeShop({ locationId, locationName, onClose, onCrea
             </div>
           )}
           {holder.sections && (
-            <p className="sh-muted" style={{ margin: 0 }}>Each rail is split into {holder.sections.join(', ')}. Change any of this later in Racks &amp; shelves.</p>
+            <p className="sh-muted" style={{ margin: 0 }}>Each rail is split into {holder.sections.join(', ')}. Change any of this later in Set up racks.</p>
           )}
           {!holder.inside && (
             <p className="sh-muted" style={{ margin: 0 }}>Each pile holds stock by itself, with nothing inside it.</p>
@@ -211,7 +211,7 @@ export default function DescribeShop({ locationId, locationName, onClose, onCrea
               )}
               <p className="sh-muted" style={{ margin: 0 }}>
                 This only adds. Nothing here is renamed, moved or removed, so you can answer these questions again
-                later. To take something away, use <strong>Racks &amp; shelves</strong>.
+                later. To take something away, use <strong>Set up racks</strong>.
               </p>
             </>
           )}

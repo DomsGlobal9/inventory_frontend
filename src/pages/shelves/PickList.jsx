@@ -9,6 +9,8 @@ import { usePermission } from '../../hooks/usePermission';
 import { usePickOrders, usePickList, useReportNotFound, isLabelScan } from '../../hooks/useShelves';
 import { api } from '../../lib/api';
 import { invalidateDerivedViews } from '../../lib/invalidate';
+import Select from '../../components/common/Select';
+import { useCouriers } from '../../hooks/useShipping';
 import { ShelvesLayout, ScanInput, SpotChip, ItemThumb, EmptyState, itemDetail, pieces } from '../../components/shelves/ShelfBits';
 
 const when = (iso) => new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
@@ -36,14 +38,14 @@ export default function PickList() {
   const backToOrder = () => navigate(`/orders/${oneOrder}`);
 
   if (!can('shelf:putaway')) {
-    return <ShelvesLayout title="Pick" icon={ClipboardList}><div className="sh-card"><EmptyState icon={ClipboardList} title="You cannot pick orders" text="Ask whoever manages your team for the permission to put stock away and move it." /></div></ShelvesLayout>;
+    return <ShelvesLayout title="Pick orders" icon={ClipboardList}><div className="sh-card"><EmptyState icon={ClipboardList} title="You cannot pick orders" text="Ask whoever manages your team for the shelf work permission (put away, pick, move and count)." /></div></ShelvesLayout>;
   }
 
   const list = orders.data?.orders ?? [];
   const toggle = (id) => setSelected(s => s.includes(id) ? s.filter(x => x !== id) : s.length >= 30 ? s : [...s, id]);
 
   return (
-    <ShelvesLayout title="Pick" icon={ClipboardList} subtitle="Choose the orders to send out and walk the shelves once to collect them.">
+    <ShelvesLayout title="Pick orders" icon={ClipboardList} subtitle="Tick the orders to send out. The app lists every piece in shelf order, so one walk round collects them all.">
       {started ? (
         <PickWalk key={started.join(',')} locationId={locationId} orderIds={started}
           onBack={oneOrder ? backToOrder : () => setStarted(null)}
@@ -54,14 +56,14 @@ export default function PickList() {
           <div className="sh-row" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
             <h2 className="sh-section-title" style={{ margin: 0 }}>Waiting to go out from {currentLocation?.name}</h2>
             <div className="sh-row" style={{ gap: 8 }}>
-              {list.length > 0 && <button type="button" className="btn-secondary" onClick={() => setSelected(selected.length ? [] : list.slice(0, 30).map(o => o.id))}>{selected.length ? 'Clear' : `Select ${Math.min(30, list.length)}`}</button>}
+              {list.length > 0 && <button type="button" className="btn-secondary" onClick={() => setSelected(selected.length ? [] : list.slice(0, 30).map(o => o.id))}>{selected.length ? 'Clear' : list.length > 30 ? 'Tick the first 30' : `Tick all ${list.length}`}</button>}
               <button type="button" className="btn-primary" disabled={selected.length === 0} onClick={() => setStarted(selected)}>
-                Pick {selected.length || ''} {selected.length === 1 ? 'order' : 'orders'}
+                {selected.length ? `Start picking ${selected.length} ${selected.length === 1 ? 'order' : 'orders'}` : 'Tick orders to pick'}
               </button>
             </div>
           </div>
           {orders.isLoading ? <div className="sh-muted"><Loader2 size={16} className="animate-spin" /> Loading…</div>
-            : list.length === 0 ? <EmptyState icon={CheckCircle2} title="Nothing waiting to go out" text="Confirmed orders with pieces still to send appear here." />
+            : list.length === 0 ? <EmptyState icon={CheckCircle2} title="Nothing waiting to go out" text="Confirmed orders from this store that still have pieces to send show up here." />
             : (
               <div style={{ display: 'grid', gap: 4 }}>
                 {list.map(o => (
@@ -71,7 +73,10 @@ export default function PickList() {
                       <strong>{o.orderNumber}</strong> <span className="sh-muted">· {o.customer ?? 'Customer'} · {channelName(o)}</span>
                       <span className="sh-muted" style={{ display: 'block' }}>{when(o.createdAt)} · {o.lines} {o.lines === 1 ? 'line' : 'lines'}{o.status === 'PARTIALLY_DISPATCHED' ? ' · partly sent' : ''}</span>
                     </span>
-                    <span className="sh-big-qty" style={{ fontSize: 18 }}>{o.pieces}</span>
+                    <span style={{ textAlign: 'right' }}>
+                      <span className="sh-big-qty" style={{ fontSize: 18, display: 'block' }}>{o.pieces}</span>
+                      <span className="sh-muted" style={{ fontSize: 12 }}>{o.pieces === 1 ? 'piece' : 'pieces'} to pick</span>
+                    </span>
                   </button>
                 ))}
               </div>
@@ -91,6 +96,16 @@ function PickWalk({ locationId, orderIds, onBack, onDone, canDispatch, backLabel
   useUnsavedWork(Object.keys(picked).length > 0, 'a pick walk that has not been sent out'); // eslint-disable-line react-hooks/exhaustive-deps
   const [scan, setScan] = useState('');
   const [sending, setSending] = useState(false);
+  /*
+   * Who carries this walk's parcels, and each order's tracking number (components/shipping). Picked orders
+   * used to go out with no courier, to be added later on each order page one by one (26 Oct). One courier
+   * for the walk -- a batch usually goes to one pickup -- the shop's default chosen already; numbers optional.
+   */
+  const couriers = useCouriers(canDispatch);
+  const [courierId, setCourierId] = useState(undefined);
+  const [numbers, setNumbers] = useState({});
+  const courierList = couriers.data?.couriers ?? [];
+  const chosenCourier = courierId === undefined ? (courierList.find(c => c.isDefault)?.id ?? '') : courierId;
   const data = pick.data;
 
   const tasks = useMemo(() => {
@@ -150,7 +165,11 @@ function PickWalk({ locationId, orderIds, onBack, onDone, canDispatch, backLabel
       }
       if (lines.size === 0) continue;
       try {
-        await api.post('/dispatches', { salesOrderId: order.id, items: [...lines.values()].map(l => ({ ...l, fromSpots: l.fromSpots.length ? l.fromSpots : undefined })) });
+        await api.post('/dispatches', {
+          salesOrderId: order.id,
+          items: [...lines.values()].map(l => ({ ...l, fromSpots: l.fromSpots.length ? l.fromSpots : undefined })),
+          courier: chosenCourier ? { courierId: chosenCourier, trackingNumber: (numbers[order.id] ?? '').trim() || null } : null
+        });
         sent++;
       } catch (err) {
         problems.push(`${order.orderNumber}: ${err?.message || 'could not be sent'}`);
@@ -210,6 +229,32 @@ function PickWalk({ locationId, orderIds, onBack, onDone, canDispatch, backLabel
         <section className="sh-card" style={{ display: 'grid', gap: 10 }}>
           <h3 className="sh-section-title" style={{ margin: 0 }}>Not on a shelf — find these in the location</h3>
           {data.notShelved.map(p => <PickRow key={p.salesOrderItemId} task={tasks.find(t => t.key === `loose|${p.salesOrderItemId}`)} picked={picked} confirm={confirm} />)}
+        </section>
+      )}
+
+      {canDispatch && readyPieces > 0 && (
+        <section className="sh-card" style={{ display: 'grid', gap: 10 }} aria-label="Courier">
+          <h3 className="sh-section-title" style={{ margin: 0 }}>Who is carrying them</h3>
+          <div style={{ maxWidth: 360 }}>
+            <Select id="pick-courier" className="input-field" value={chosenCourier} onChange={(e) => setCourierId(e.target.value)} style={{ width: '100%' }}>
+              <option value="">No courier (handed over)</option>
+              {courierList.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </Select>
+          </div>
+          {chosenCourier && courierList.find(c => c.id === chosenCourier)?.needsNumber !== false && (
+            <div style={{ display: 'grid', gap: 6 }}>
+              {data.orders.map(o => (
+                <label key={o.id} className="sh-row" style={{ gap: 10, flexWrap: 'wrap' }}>
+                  <span style={{ minWidth: 110, fontWeight: 600 }}>{o.orderNumber}</span>
+                  <input className="input-field" style={{ flex: 1, minWidth: 180, fontFamily: 'var(--font-mono)' }} maxLength={40}
+                    placeholder="Tracking number (optional)" aria-label={`Tracking number for ${o.orderNumber}`}
+                    value={numbers[o.id] ?? ''} onChange={(e) => setNumbers(n => ({ ...n, [o.id]: e.target.value }))} />
+                </label>
+              ))}
+              <span className="sh-muted" style={{ fontSize: 12 }}>No number yet? Send them out now and add it on each order later.</span>
+            </div>
+          )}
+          {courierList.length === 0 && !couriers.isLoading && <span className="sh-muted" style={{ fontSize: 13 }}>No couriers yet: add them in Settings, Couriers.</span>}
         </section>
       )}
 

@@ -45,7 +45,14 @@ export default function ShelfLabels() {
   const rows = (labels.data ?? []).filter(l => wanted.has(l.id) && (!endsOnly || ends.has(l.id)));
   const s = SIZES[size];
 
-  if (!locationId) return <div style={{ padding: 32 }}>Open this from Racks & shelves.</div>;
+  // Opened without saying which store (a bookmark, a typed address): say how to get here, with the way back.
+  if (!locationId) return (
+    <div style={{ padding: 32, display: 'grid', gap: 12, maxWidth: 520 }}>
+      <h2 style={{ margin: 0, fontSize: 20 }}>Print shelf labels</h2>
+      <p style={{ margin: 0, color: 'var(--text-secondary)' }}>Labels are printed for one store at a time. Open Shelves, then Set up racks, and press Print all labels (or Labels on one rack).</p>
+      <Link to="/shelves/setup" className="btn-primary" style={{ justifySelf: 'start', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}><ArrowLeft size={16} /> Go to Set up racks</Link>
+    </div>
+  );
 
   return (
     <div className="lbl-root">

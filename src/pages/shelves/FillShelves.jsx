@@ -51,10 +51,10 @@ export default function FillShelves() {
 
   if (!can('shelf:putaway')) {
     return (
-      <ShelvesLayout title="Fill your shelves" icon={Boxes}>
+      <ShelvesLayout title="Record what is on your shelves" icon={Boxes}>
         <div className="sh-card">
           <EmptyState icon={Boxes} title="You cannot put stock away"
-            text="Ask whoever manages your team for the permission to put stock away and move it." />
+            text="Ask whoever manages your team for the shelf work permission (put away, pick, move and count)." />
         </div>
       </ShelvesLayout>
     );
@@ -103,9 +103,9 @@ export default function FillShelves() {
 
   return (
     <ShelvesLayout
-      title="Fill your shelves"
+      title="Record what is on your shelves"
       icon={Boxes}
-      subtitle="Stand at a shelf, add what is on it, and move to the next one. This never changes how much stock you have."
+      subtitle="A one-time walk to write down what is already on each shelf: stand at a shelf, add what is on it, go to the next. Your stock totals do not change."
       actions={can('shelf:manage') && filling && (
         <button type="button" className="btn-secondary" style={{ display: 'flex', gap: 6, alignItems: 'center' }}
           onClick={() => finish.mutate({ locationId }, { onSuccess: (r) => { if (r.needsConfirming) setConfirmFinish(r.message); else status.refetch(); } })}>
@@ -123,16 +123,22 @@ export default function FillShelves() {
       ) : total === 0 ? (
         <div className="sh-card">
           <EmptyState icon={Boxes} title={`No shelves at ${currentLocation?.name} yet`}
-            text="Describe this place first, so there are shelves to fill."
-            action={<Link className="btn-primary" to="/shelves/setup" style={{ textDecoration: 'none' }}>Go to Racks &amp; shelves</Link>} />
+            text="Set up the racks and shelves first, so there is something to walk round."
+            action={<Link className="btn-primary" to="/shelves/setup" style={{ textDecoration: 'none' }}>Go to Set up racks</Link>} />
         </div>
       ) : (
         <div style={{ display: 'grid', gap: 14 }}>
           {/* Where the walk has got to. Two numbers, because they answer different questions. */}
           <div className="sh-card" style={{ display: 'grid', gap: 10 }}>
             <div className="sh-row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
-              <strong>{done} of {total} {total === 1 ? 'shelf' : 'shelves'} done</strong>
-              <span className="sh-muted">{pieces(data.piecesWaiting)} still on no shelf</span>
+              <span>
+                <strong>{done} of {total} {total === 1 ? 'shelf' : 'shelves'} done</strong>
+                {/* Started or skipped shelves are not "done", which is why the next one can be shelf 6 of 16 with 0 done. */}
+                {(data.shelves.inProgress > 0 || data.shelves.skipped > 0) && (
+                  <span className="sh-muted"> · {[data.shelves.inProgress && `${data.shelves.inProgress} started`, data.shelves.skipped && `${data.shelves.skipped} skipped`].filter(Boolean).join(' · ')}</span>
+                )}
+              </span>
+              <span className="sh-muted">{pieces(data.piecesWaiting)} not on a shelf yet</span>
             </div>
             <div style={{ height: 8, borderRadius: 999, background: 'var(--bg-input)', overflow: 'hidden' }}>
               <div style={{ height: '100%', width: `${total ? Math.round((done / total) * 100) : 0}%`, background: 'var(--accent-success, #16a34a)' }} />
@@ -302,7 +308,7 @@ export default function FillShelves() {
               ) : (
                 <EmptyState icon={PartyPopper} title="Every shelf has been looked at"
                   text={data.piecesWaiting > 0
-                    ? `${pieces(data.piecesWaiting)} are still on no shelf. They may be in a pile, at the tailor, or waiting to be put away.`
+                    ? `${pieces(data.piecesWaiting)} are not on a shelf yet. They may be in a pile, at the tailor, or waiting to be put away.`
                     : 'Everything is on a shelf.'} />
               )}
               {data.skippedShelves.length > 0 && (

@@ -295,8 +295,8 @@ export const SPOT_KINDS = [
 export const kindLabel = (kind) => SPOT_KINDS.find(k => k.value === kind)?.label ?? kind;
 
 export const ISSUE_KINDS = {
-  SOLD_FROM_BACK_ROOM: 'Sold from the back room',
-  AUTO_TAKEN_FROM_SHELF: 'Taken off a shelf without a choice',
-  COUNT_BELOW_SHELVES: 'Count lower than the shelves',
-  NOT_FOUND_ON_SHELF: 'Not found on the shelf'
+  SOLD_FROM_BACK_ROOM: 'Sold from a back-room shelf',
+  AUTO_TAKEN_FROM_SHELF: 'Shelf chosen by the app',
+  COUNT_BELOW_SHELVES: 'Count and stock do not match',
+  NOT_FOUND_ON_SHELF: 'Missing from the shelf'
 };

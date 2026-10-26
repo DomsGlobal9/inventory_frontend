@@ -86,13 +86,13 @@ export default function MoveStock() {
   };
 
   if (!can('shelf:putaway')) {
-    return <ShelvesLayout title="Move stock" icon={ArrowRightLeft}><div className="sh-card"><EmptyState icon={ArrowRightLeft} title="You cannot move stock between shelves" text="Ask whoever manages your team for the permission to put stock away and move it." /></div></ShelvesLayout>;
+    return <ShelvesLayout title="Move between shelves" icon={ArrowRightLeft}><div className="sh-card"><EmptyState icon={ArrowRightLeft} title="You cannot move stock between shelves" text="Ask whoever manages your team for the shelf work permission (put away, pick, move and count)." /></div></ShelvesLayout>;
   }
 
   const wrongLocation = from.data && from.data.spot.location?.id !== locationId;
 
   return (
-    <ShelvesLayout title="Move stock" icon={ArrowRightLeft} subtitle="Scan the shelf the pieces are on, choose the item, then scan where they go.">
+    <ShelvesLayout title="Move between shelves" icon={ArrowRightLeft} subtitle="Inside this store: scan the shelf the pieces are on, choose the item, then scan the shelf they go to. To send stock to another store, use Move stock on the Inventory page.">
       <div className="sh-grid-2">
         <section className="sh-card" style={{ display: 'grid', gap: 14 }} aria-label="From">
           <h2 className="sh-section-title" style={{ margin: 0 }}>1 · From</h2>
@@ -148,7 +148,7 @@ export default function MoveStock() {
             // The store was changed at the top while this was open: every button below would be
             // refused by the server, so none of them is offered.
             <p className="sh-muted" style={{ margin: 0 }}>
-              This shelf is in another store. Change the store at the top back, or use a transfer to move stock between stores.
+              This shelf is in another store. Change the store at the top back. To send stock to another store, use Move stock on the Inventory page.
             </p>
           ) : confirmAll ? (
             <>
@@ -160,7 +160,7 @@ export default function MoveStock() {
               </div>
             </>
           ) : !item ? (
-            <EmptyState icon={ArrowDown} title="Choose what to move" text="Pick the shelf and the item on the left first." />
+            <EmptyState icon={ArrowDown} title="Choose what to move" text="First choose the shelf (step 1) and the item on it (step 2), on the left." />
           ) : (
             <>
               <div className="sh-row">
@@ -182,7 +182,7 @@ export default function MoveStock() {
                 </div>
               </details>
               <button type="button" className="btn-secondary" disabled={move.isPending || quantity < 1} onClick={() => go(null)}>
-                Take {quantity} off the shelf (back to Not shelved)
+                Take {quantity} off this shelf (on no shelf for now)
               </button>
             </>
           )}

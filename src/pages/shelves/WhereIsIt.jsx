@@ -80,12 +80,16 @@ export default function WhereIsIt() {
         </div>
       ) : (
         <div style={{ display: 'grid', gap: 14 }}>
-          {items.map(item => <ItemResult key={item.variantId} item={item} canMove={can('shelf:putaway')} navigate={navigate} />)}
+          {/* What is actually here first: searching "saree" led with archived sarees and "None in stock here" (26 Oct).
+              The search's own order is kept within each group. */}
+          {[...items].sort((a, b) => rank(a) - rank(b)).map(item => <ItemResult key={item.variantId} item={item} canMove={can('shelf:putaway')} navigate={navigate} />)}
         </div>
       )}
     </ShelvesLayout>
   );
 }
+
+const rank = (item) => ((item.places ?? []).some(p => p.total > 0) ? 0 : 2) + (item.archived ? 1 : 0);
 
 function ItemResult({ item, canMove, navigate }) {
   const places = item.places ?? [];
@@ -101,7 +105,7 @@ function ItemResult({ item, canMove, navigate }) {
       </div>
 
       {places.length === 0 ? (
-        <div className="sh-muted" style={{ padding: '4px 2px' }}>None in stock {places.length === 0 ? 'here' : ''}.</div>
+        <div className="sh-muted" style={{ padding: '4px 2px' }}>No stock of this in the store right now.</div>
       ) : places.map(place => (
         <div key={place.locationId} style={{ display: 'grid', gap: 8 }}>
           <div className="sh-row" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>

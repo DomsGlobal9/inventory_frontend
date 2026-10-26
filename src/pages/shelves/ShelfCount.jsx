@@ -22,7 +22,7 @@ export default function ShelfCount() {
   const [busy, setBusy] = useState(false);
 
   if (!can('shelf:putaway')) {
-    return <ShelvesLayout title="Count a shelf" icon={ClipboardCheck}><div className="sh-card"><EmptyState icon={ClipboardCheck} title="You cannot count shelves" text="Ask whoever manages your team for the permission to put stock away and move it." /></div></ShelvesLayout>;
+    return <ShelvesLayout title="Count a shelf" icon={ClipboardCheck}><div className="sh-card"><EmptyState icon={ClipboardCheck} title="You cannot count shelves" text="Ask whoever manages your team for the shelf work permission (put away, pick, move and count)." /></div></ShelvesLayout>;
   }
 
   const openShelf = async (typed) => {
@@ -38,7 +38,7 @@ export default function ShelfCount() {
   };
 
   return (
-    <ShelvesLayout title="Count a shelf" icon={ClipboardCheck} subtitle="Scan the shelf, then every piece on it. Differences are shown to the shop, never hidden.">
+    <ShelvesLayout title="Count a shelf" icon={ClipboardCheck} subtitle="Scan the shelf, then every piece on it. Anything that does not match what was recorded is listed under Problems.">
       {shelf ? (
         <CountSheet key={shelf.spot.id} shelf={shelf} onDone={() => setShelf(null)} />
       ) : (
@@ -64,7 +64,13 @@ function CountSheet({ shelf, onDone }) {
   // Items on the sheet: what the shelf is known to hold, plus anything scanned that it did not.
   const [items, setItems] = useState(() => shelf.items.map(i => ({ ...i, counted: null })));
   useUnsavedWork(items.some(i => i.counted !== null), `a count of ${shelf.spot.address} that is not saved yet`);
-  const [complete, setComplete] = useState(true);
+  /*
+   * "I counted the whole shelf" turns every line not counted into "not on this shelf". It started
+   * ticked, so one press of Save with nothing scanned recorded the whole shelf missing (26 Oct). Now it
+   * starts unticked, says how many lines it would mark missing, and Save asks once more before it does.
+   */
+  const [complete, setComplete] = useState(false);
+  const [sureMissing, setSureMissing] = useState(false);
   const [result, setResult] = useState(null);
 
   useEffect(() => { setItems(shelf.items.map(i => ({ ...i, counted: null }))); }, [shelf]);
@@ -89,9 +95,12 @@ function CountSheet({ shelf, onDone }) {
   };
 
   const countedLines = items.filter(i => i.counted !== null);
+  const notCounted = items.filter(i => i.counted === null);
   const sending = useRef(false);
+  useEffect(() => { setSureMissing(false); }, [complete, notCounted.length]);
   const submit = () => {
     if (sending.current || count.isPending) return;
+    if (complete && notCounted.length > 0 && !sureMissing) { setSureMissing(true); return; }
     sending.current = true;
     count.mutate({ spotId: shelf.spot.id, complete, counts: countedLines.map(i => ({ variantId: i.variantId, counted: i.counted })) }, {
       onSuccess: (r) => setResult(r),
@@ -108,7 +117,7 @@ function CountSheet({ shelf, onDone }) {
           <SpotChip address={result.address} size="lg" showTag={false} />
           <button type="button" className="btn-primary" onClick={onDone} style={{ display: 'flex', gap: 6, alignItems: 'center' }}><RotateCcw size={14} /> Count another shelf</button>
         </div>
-        <p style={{ margin: 0 }}>{result.matched} of {result.counted} matched{result.issues ? ` · ${result.issues} raised as shelf issues` : ''}{result.failed ? ` · ${result.failed} could not be recorded` : ''}.</p>
+        <p style={{ margin: 0 }}>{result.matched} of {result.counted} matched what was recorded{result.issues ? ` · ${result.issues} listed under Problems` : ''}{result.failed ? ` · ${result.failed} could not be saved` : ''}.</p>
         {result.results.map(r => {
           const it = nameOf.get(r.variantId);
           const ok = r.recorded === r.counted && !r.error;
@@ -117,7 +126,7 @@ function CountSheet({ shelf, onDone }) {
               {ok ? <CheckCircle2 size={20} color="var(--accent-success)" /> : <TriangleAlert size={20} color="var(--accent-warning)" />}
               <span style={{ flex: 1, minWidth: 0 }}>
                 <strong>{it?.title}</strong> <span className="sh-muted">{it ? itemDetail(it) : ''}</span>
-                <span className="sh-muted" style={{ display: 'block' }}>Counted {r.counted} · was recorded {r.recorded ?? '—'} · on the shelf now {r.onShelfNow ?? '—'}</span>
+                <span className="sh-muted" style={{ display: 'block' }}>You counted {r.counted} · the system had {r.recorded ?? '—'} · on the shelf now {r.onShelfNow ?? '—'}</span>
                 {(r.issue || r.error) && <span style={{ display: 'block', fontSize: 13, color: r.error ? 'var(--accent-danger)' : 'var(--text-primary)' }}>{r.error || r.issue}</span>}
               </span>
             </div>
@@ -137,7 +146,7 @@ function CountSheet({ shelf, onDone }) {
       <ScanInput value={scan} onChange={setScan} onSubmit={onScan} clearOnSubmit busy={finding} placeholder="Scan a tag — each scan counts one" label="Scan a piece" />
 
       {items.length === 0 ? (
-        <EmptyState title="Nothing recorded here" text="Scan what you find. If the shelf is empty, press Save count." />
+        <EmptyState title="Nothing is recorded on this shelf" text="Scan anything you find on it. If it really is empty, there is nothing to save." />
       ) : (
         <div style={{ display: 'grid', gap: 6 }}>
           {items.map(i => (
@@ -149,7 +158,7 @@ function CountSheet({ shelf, onDone }) {
               </span>
               <span className="sh-stepper">
                 <button type="button" aria-label="One fewer" disabled={!i.counted} onClick={() => bump(i.variantId, -1)}><Minus size={16} /></button>
-                <input type="number" inputMode="numeric" min={0} value={i.counted ?? ''} placeholder="–" aria-label={`Counted ${i.title}`} onChange={(e) => setCount(i.variantId, e.target.value)} />
+                <input type="number" inputMode="numeric" min={0} value={i.counted ?? ''} placeholder="?" title="Not counted yet: scan it, press +, or type how many" aria-label={`How many ${i.title} you counted`} onChange={(e) => setCount(i.variantId, e.target.value)} />
                 <button type="button" aria-label="One more" onClick={() => bump(i.variantId, 1)}><Plus size={16} /></button>
               </span>
             </div>
@@ -159,12 +168,18 @@ function CountSheet({ shelf, onDone }) {
 
       <label className="sh-row" style={{ gap: 8, cursor: 'pointer', width: 'fit-content' }}>
         <input type="checkbox" checked={complete} onChange={(e) => setComplete(e.target.checked)} />
-        I counted the whole shelf (anything not counted is not there)
+        I counted the whole shelf: anything I did not count is not on it
       </label>
+      {complete && notCounted.length > 0 && (
+        <div role="alert" style={{ fontSize: 13, color: 'var(--accent-warning)', marginTop: -6 }}>
+          {notCounted.length} {notCounted.length === 1 ? 'item' : 'items'} not counted ({notCounted.slice(0, 3).map(i => i.title).join(', ')}{notCounted.length > 3 ? '…' : ''}) will be recorded as not on this shelf.
+        </div>
+      )}
       <div className="sh-row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', borderTop: '1px solid var(--border-light)', paddingTop: 12 }}>
-        <span className="sh-muted">{countedLines.length} of {items.length} counted</span>
+        <span className="sh-muted">{countedLines.length} of {items.length} {items.length === 1 ? 'item' : 'items'} counted</span>
         <button type="button" className="btn-primary" onClick={submit} disabled={count.isPending || (!complete && countedLines.length === 0)} style={{ minHeight: 44, display: 'flex', gap: 8, alignItems: 'center' }}>
-          {count.isPending ? <Loader2 size={16} className="animate-spin" /> : <ClipboardCheck size={18} />} Save count
+          {count.isPending ? <Loader2 size={16} className="animate-spin" /> : <ClipboardCheck size={18} />}
+          {sureMissing ? `Yes, ${notCounted.length} not on the shelf: save` : 'Save count'}
         </button>
       </div>
     </section>

@@ -49,7 +49,7 @@ export default function RackSetup() {
   }, [tree.data]);
 
   if (!can('shelf:manage')) {
-    return <ShelvesLayout title="Racks & shelves" icon={Settings2}><div className="sh-card"><EmptyState icon={Settings2} title="You cannot change the racks and shelves" text="Ask whoever manages your team for the permission to set up racks and shelves." /></div></ShelvesLayout>;
+    return <ShelvesLayout title="Set up racks and shelves" icon={Settings2}><div className="sh-card"><EmptyState icon={Settings2} title="You cannot change the racks and shelves" text="Ask whoever manages your team for the permission to set up racks and shelves." /></div></ShelvesLayout>;
   }
 
   const toggle = (id) => setExpanded(prev => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
@@ -58,9 +58,9 @@ export default function RackSetup() {
 
   return (
     <ShelvesLayout
-      title="Racks & shelves"
+      title="Set up racks and shelves"
       icon={Settings2}
-      subtitle="Lay out this location the way it really is. Addresses print on labels; names are just for you."
+      subtitle="Draw this store as it really is: areas, racks and shelves. The code (like FLOOR-R1-2) is printed on the shelf label; the name is only a note for you."
       actions={tree.data?.count > 0 && (
         <Link to={`/shelves/labels?locationId=${locationId}`} target="_blank" className="btn-secondary" style={{ textDecoration: 'none', display: 'flex', gap: 6, alignItems: 'center' }}>
           <Printer size={16} /> Print all labels
@@ -85,7 +85,7 @@ export default function RackSetup() {
             text="Answer three questions — where you keep stock, what holds it, and how many shelves — and ScaleEzy draws it for you. You can change everything later."
             action={
               <div className="sh-row" style={{ gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
-                <button type="button" className="btn-primary" onClick={() => setDescribe(true)} style={{ display: 'flex', gap: 8, alignItems: 'center' }}><Wand2 size={16} /> Describe this place</button>
+                <button type="button" className="btn-primary" onClick={() => setDescribe(true)} style={{ display: 'flex', gap: 8, alignItems: 'center' }}><Wand2 size={16} /> Set up step by step</button>
                 <button type="button" className="btn-secondary" onClick={() => setQuick({ parent: null })} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>Set it up myself</button>
                 <button type="button" className="btn-secondary" onClick={() => setImporting(true)} style={{ display: 'flex', gap: 8, alignItems: 'center' }}><Upload size={16} /> Import from a spreadsheet</button>
               </div>
@@ -95,13 +95,13 @@ export default function RackSetup() {
         <div className="sh-split">
           <section className="sh-card" style={{ display: 'grid', gap: 10, alignContent: 'start' }} aria-label="Rack tree">
             <div className="sh-row" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
-              <span className="sh-muted">{tree.data.count} spots · {pieces(totals?.onShelves ?? 0)} on shelves · {totals?.notShelved ?? 0} not shelved</span>
+              <span className="sh-muted">{tree.data.count} {tree.data.count === 1 ? 'place' : 'places'} · {pieces(totals?.onShelves ?? 0)} on shelves · {pieces(totals?.notShelved ?? 0)} not on a shelf</span>
             </div>
             <div className="sh-row" style={{ gap: 6, flexWrap: 'wrap' }}>
-              <button type="button" className="btn-primary" onClick={() => { setDescribe(true); setQuick(null); setSelectedId(null); }} style={{ display: 'flex', gap: 6, alignItems: 'center', padding: '6px 12px' }}><Wand2 size={14} /> Describe</button>
-              <button type="button" className="btn-secondary" onClick={() => { setQuick({ parent: null }); setSelectedId(null); }} style={{ display: 'flex', gap: 6, alignItems: 'center', padding: '6px 12px' }}>Quick create</button>
+              <button type="button" className="btn-primary" onClick={() => { setDescribe(true); setQuick(null); setSelectedId(null); }} style={{ display: 'flex', gap: 6, alignItems: 'center', padding: '6px 12px' }}><Wand2 size={14} /> Step by step</button>
+              <button type="button" className="btn-secondary" onClick={() => { setQuick({ parent: null }); setSelectedId(null); }} style={{ display: 'flex', gap: 6, alignItems: 'center', padding: '6px 12px' }} title="Make many racks and shelves at once from a ready-made layout">From a template</button>
               <AddArea locationId={locationId} onAdded={(s) => { setSelectedId(s.id); setQuick(null); }} />
-              <button type="button" className="btn-secondary" onClick={() => { setImporting(true); setQuick(null); }} style={{ display: 'flex', gap: 6, alignItems: 'center', padding: '6px 12px' }}><Upload size={14} /> CSV</button>
+              <button type="button" className="btn-secondary" onClick={() => { setImporting(true); setQuick(null); }} style={{ display: 'flex', gap: 6, alignItems: 'center', padding: '6px 12px' }}><Upload size={14} /> Import a list</button>
             </div>
             <div role="tree" aria-label="Areas, racks and shelves" style={{ display: 'grid', gap: 2, maxHeight: 'min(68vh, 760px)', overflowY: 'auto', marginRight: -6, paddingRight: 6 }}>
               {(tree.data.spots ?? []).map(n => (
@@ -122,7 +122,7 @@ export default function RackSetup() {
                 onRemoved={() => setSelectedId(selected.parent?.id ?? null)} />
             ) : (
               <div className="sh-card">
-                <EmptyState icon={FolderTree} title="Choose a spot" text="Pick an area, rack or shelf on the left to rename it, reorder it, add shelves inside it or print its labels." />
+                <EmptyState icon={FolderTree} title="Choose a place on the left" text="Click an area, rack or shelf to rename it, move it up or down the walking order, add shelves inside it or print its labels." />
               </div>
             )}
           </section>
@@ -162,7 +162,7 @@ function AddArea({ locationId, onAdded }) {
   const [open, setOpen] = useState(false);
   const [code, setCode] = useState('');
   const [floor, setFloor] = useState(true);
-  if (!open) return <button type="button" className="btn-secondary" onClick={() => setOpen(true)} style={{ display: 'flex', gap: 6, alignItems: 'center', padding: '6px 12px' }}><Plus size={14} /> Area</button>;
+  if (!open) return <button type="button" className="btn-secondary" onClick={() => setOpen(true)} style={{ display: 'flex', gap: 6, alignItems: 'center', padding: '6px 12px' }}><Plus size={14} /> Add an area</button>;
   return (
     <form className="sh-row" style={{ gap: 6, flexWrap: 'wrap', width: '100%' }}
       onSubmit={(e) => { e.preventDefault(); create.mutate({ locationId, kind: 'AREA', code, isShopFloor: floor }, { onSuccess: (s) => { setOpen(false); setCode(''); onAdded(s); } }); }}>
@@ -221,7 +221,7 @@ function SpotEditor({ spot, locationId, siblings, onQuick, onAdded, onRemoved })
       <div className="sh-card" style={{ display: 'grid', gap: 14 }}>
         <div className="sh-row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', alignItems: 'flex-start' }}>
           <div style={{ display: 'grid', gap: 4 }}>
-            <span className="sh-muted">{kindLabel(spot.kind)}{spot.depth ? ` · level ${spot.depth} of 4` : ''}{!spot.active ? ' · switched off' : ''}{spot.isTemporary ? ' · temporary' : ''}</span>
+            <span className="sh-muted">{kindLabel(spot.kind)}{!spot.active ? ' · not in use' : ''}{spot.isTemporary ? ' · temporary' : ''}</span>
             <SpotChip address={spot.address} name={spot.name} colour={spot.colour} isShopFloor={spot.isShopFloor} size="lg" />
             <span className="sh-muted">{pieces(spot.branchPieces ?? 0)} {holdsStock ? 'here' : 'inside'}{spot.capacity ? ` · holds about ${spot.capacity}` : ''}</span>
           </div>
@@ -239,7 +239,7 @@ function SpotEditor({ spot, locationId, siblings, onQuick, onAdded, onRemoved })
           <label style={{ display: 'grid', gap: 4 }}><span className="sh-muted">Name (optional)</span>
             <input className="input-field" value={form.name} maxLength={80} placeholder="Silk sarees — blue box" onChange={(e) => setForm({ ...form, name: e.target.value })} />
           </label>
-          <label style={{ display: 'grid', gap: 4 }}><span className="sh-muted">Kind</span>
+          <label style={{ display: 'grid', gap: 4 }}><span className="sh-muted">Type</span>
             <Select className="input-field" value={form.kind} onChange={(e) => setForm({ ...form, kind: e.target.value })}>
               {SPOT_KINDS.map(k => <option key={k.value} value={k.value}>{k.label}</option>)}
             </Select>
@@ -277,8 +277,9 @@ function SpotEditor({ spot, locationId, siblings, onQuick, onAdded, onRemoved })
                 Mark as {spot.isShopFloor ? 'back room' : 'shop floor'}
               </button>
             )}
-            <button type="button" className="btn-secondary" disabled={update.isPending} onClick={() => update.mutate({ spotId: spot.id, active: !spot.active })} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-              <Power size={14} /> {spot.active ? 'Switch off' : 'Switch on'}
+            <button type="button" className="btn-secondary" disabled={update.isPending} onClick={() => update.mutate({ spotId: spot.id, active: !spot.active })} style={{ display: 'flex', gap: 6, alignItems: 'center' }}
+              title={spot.active ? 'Nothing new can be put here (and everything inside it). What is on it now stays until it is moved or sold.' : 'Use this place again'}>
+              <Power size={14} /> {spot.active ? 'Stop using' : 'Use again'}
             </button>
             <button type="button" className="btn-secondary" onClick={() => setConfirmDelete(true)} style={{ display: 'flex', gap: 6, alignItems: 'center', color: 'var(--accent-danger)' }}>
               <Trash2 size={14} /> Remove
@@ -299,14 +300,14 @@ function SpotEditor({ spot, locationId, siblings, onQuick, onAdded, onRemoved })
             <>
               <form className="sh-row" style={{ gap: 6, flexWrap: 'wrap' }}
                 onSubmit={(e) => { e.preventDefault(); create.mutate({ locationId, parentId: spot.id, kind: child.kind, code: child.code, name: child.name || undefined }, { onSuccess: (s) => { setChild({ ...child, code: '', name: '' }); onAdded(s); } }); }}>
-                <Select className="input-field" value={child.kind} onChange={(e) => setChild({ ...child, kind: e.target.value })} aria-label="Kind">
+                <Select className="input-field" value={child.kind} onChange={(e) => setChild({ ...child, kind: e.target.value })} aria-label="Type">
                   {SPOT_KINDS.filter(k => k.value !== 'AREA').map(k => <option key={k.value} value={k.value}>{k.label}</option>)}
                 </Select>
                 <input className="input-field" value={child.code} maxLength={12} placeholder="Code: 1, A, R04" aria-label="Code" style={{ width: 120 }} onChange={(e) => setChild({ ...child, code: e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '') })} />
                 <input className="input-field" value={child.name} maxLength={80} placeholder="Name (optional)" aria-label="Name" style={{ flex: 1, minWidth: 140 }} onChange={(e) => setChild({ ...child, name: e.target.value })} />
                 <button type="submit" className="btn-secondary" disabled={!child.code || create.isPending} style={{ display: 'flex', gap: 6, alignItems: 'center' }}><Plus size={14} /> Add</button>
               </form>
-              <button type="button" className="btn-secondary" onClick={onQuick} style={{ justifySelf: 'start', display: 'flex', gap: 6, alignItems: 'center' }}><Wand2 size={14} /> Quick create several inside</button>
+              <button type="button" className="btn-secondary" onClick={onQuick} style={{ justifySelf: 'start', display: 'flex', gap: 6, alignItems: 'center' }}><Wand2 size={14} /> Add several inside from a template</button>
             </>
           )}
         </div>

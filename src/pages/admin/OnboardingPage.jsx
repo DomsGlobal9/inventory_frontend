@@ -210,7 +210,19 @@ export default function OnboardingPage() {
                     <div style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-primary)', fontSize: '15px', fontWeight: 600, letterSpacing: '1px' }}>{result.tempPassword}</div>
                   </div>
                 </div>
-                
+
+                {/* What actually reached the owner: the login, then the welcome (owner only). */}
+                {(result.emailed !== undefined || result.welcomed !== undefined) && (
+                  <div style={{ display: 'grid', gap: '6px', marginBottom: '16px', fontSize: '13px' }}>
+                    {[['Login email', result.emailed, result.emailReason], ['Welcome email', result.welcomed, result.welcomeReason]].map(([what, sent, reason]) => (
+                      <div key={what} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: sent ? 'var(--accent-success)' : 'var(--accent-gold)' }}>
+                        {sent ? <CheckCircle2 size={14} /> : <AlertTriangle size={14} />}
+                        <span>{sent ? `${what} sent to ${result.adminEmail}.` : `${what} not sent${reason ? `: ${reason}` : '.'}`}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <AlertTriangle size={12} color="var(--accent-gold)" />
                   {/* This used to read "shown once -- it won't be retrievable again", which was

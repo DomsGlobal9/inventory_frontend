@@ -9,6 +9,7 @@ import { usePermission } from '../../hooks/usePermission';
 import { useLocationContext } from '../../contexts/LocationContext';
 import CustomerModal from '../../components/sales/CustomerModal';
 import LoadFailed from '../../components/LoadFailed';
+import { useGoBack } from '../../hooks/useGoBack';
 
 /**
  * Customer card: the salesperson types the number at the door and sees who this is, the sizes and
@@ -29,6 +30,7 @@ const label = { fontSize: '12px', color: 'var(--text-secondary)', display: 'flex
 
 export default function CustomerCard() {
   const navigate = useNavigate();
+  const goBack = useGoBack('/customers');
   const { can } = usePermission();
   const { currentLocation } = useLocationContext();
   const queryClient = useQueryClient();
@@ -74,7 +76,7 @@ export default function CustomerCard() {
 
   return (
     <div style={{ maxWidth: '720px', margin: '0 auto', paddingTop: '24px', paddingBottom: '64px', width: '100%', flex: 1, minHeight: 0, overflowY: 'auto' }}>
-      <button type="button" onClick={() => navigate('/customers')} className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>
+      <button type="button" onClick={goBack} className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>
         <ArrowLeft size={16} /> Customers
       </button>
       <h1 style={{ fontSize: '28px', margin: '0 0 6px', color: 'var(--text-primary)' }}>Customer card</h1>

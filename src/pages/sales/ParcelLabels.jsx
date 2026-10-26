@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Printer, ArrowLeft, Loader2 } from 'lucide-react';
 import { api } from '../../lib/api';
 import LabelCard, { LABEL_CSS } from '../../components/shipping/LabelCard';
+import { useGoBack } from '../../hooks/useGoBack';
 
 /**
  * Many parcels' labels at once, from Orders → tick → Print labels. `?orders=` the ticked orders,
@@ -15,6 +16,7 @@ const chunk = (list, n) => Array.from({ length: Math.ceil(list.length / n) }, (_
 
 export default function ParcelLabels() {
   const navigate = useNavigate();
+  const goBack = useGoBack('/orders');
   const [params] = useSearchParams();
   const ids = (params.get('orders') || '').split(',').filter(Boolean);
   const a4 = params.get('paper') === 'a4';
@@ -60,7 +62,7 @@ export default function ParcelLabels() {
       `}</style>
 
       <div className="labels-bar">
-        <button className="btn-secondary" onClick={() => navigate('/orders')} style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}><ArrowLeft size={15} /> Orders</button>
+        <button className="btn-secondary" onClick={goBack} style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}><ArrowLeft size={15} /> Orders</button>
         <button className="btn-primary" disabled={!labels.length} onClick={() => window.print()} style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}>
           <Printer size={15} /> Print {labels.length} {labels.length === 1 ? 'label' : 'labels'}{a4 ? ` on ${Math.ceil(labels.length / 4)} A4 ${Math.ceil(labels.length / 4) === 1 ? 'sheet' : 'sheets'}` : ''}
         </button>

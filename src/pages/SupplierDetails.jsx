@@ -31,10 +31,12 @@ import { api } from '../lib/api';
 import PageLoader from '../components/PageLoader';
 import { rowLink } from '../components/common/rowLink';
 import { usePermission } from '../hooks/usePermission';
+import { useGoBack } from '../hooks/useGoBack';
 
 export default function SupplierDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const goBack = useGoBack('/inventory/suppliers');
   const { can } = usePermission();
   const updateSupplier = useUpdateSupplier();
 
@@ -166,8 +168,8 @@ export default function SupplierDetails() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: '260px' }}>
           <button
             className="btn-icon"
-            onClick={() => navigate('/inventory/suppliers')}
-            title="Back to suppliers list"
+            onClick={goBack}
+            title="Back"
             style={{
               backgroundColor: 'var(--bg-input)',
               border: '1px solid var(--border-light)',

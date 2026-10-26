@@ -6,6 +6,7 @@ import { useGiftVouchers, useGiftVoucher, useExtendGiftVoucher, useBlockGiftVouc
 import { usePermission } from '../../hooks/usePermission';
 import LoadFailed from '../../components/LoadFailed';
 import Select from '../../components/common/Select';
+import { useGoBack } from '../../hooks/useGoBack';
 
 /**
  * Gift vouchers sold at the till: what the shop still owes, each voucher's balance and history.
@@ -22,6 +23,7 @@ const box = { background: 'var(--bg-card)', border: '1px solid var(--border-ligh
 
 export default function GiftVouchers() {
   const navigate = useNavigate();
+  const goBack = useGoBack('/customers');
   const [typed, setTyped] = useState('');
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
@@ -30,7 +32,7 @@ export default function GiftVouchers() {
 
   return (
     <div className="animate-fade-in" style={{ maxWidth: '960px' }}>
-      <button type="button" onClick={() => navigate('/customers')} className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>
+      <button type="button" onClick={goBack} className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>
         <ArrowLeft size={14} /> Customers
       </button>
       <h1 style={{ fontSize: '28px', margin: '0 0 6px', display: 'flex', alignItems: 'center', gap: '10px' }}><Gift size={24} /> Gift vouchers</h1>

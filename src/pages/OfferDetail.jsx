@@ -11,6 +11,7 @@ import ConfirmModal from '../components/ConfirmModal';
 import OfferEditor from '../components/OfferEditor';
 import OfferStatusPill from '../components/OfferStatusPill';
 import OfferShopifyPanel, { ShopifyChip } from '../components/OfferShopifyPanel';
+import { useGoBack } from '../hooks/useGoBack';
 
 /**
  * One offer: what it does, whether it worked, who used it, and every change made to it.
@@ -55,6 +56,7 @@ const cardTitle = { margin: 0, fontSize: '16px', fontWeight: 600, color: 'var(--
 export default function OfferDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const goBack = useGoBack('/offers');
   const { can } = usePermission();
   const { data: offer, isLoading, error } = useOffer(id);
   const updateMutation = useUpdateOffer();
@@ -101,7 +103,7 @@ export default function OfferDetail() {
       {/* Header */}
       <div className="mobile-col" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', marginBottom: '24px' }}>
         <div style={{ display: 'flex', gap: '12px', minWidth: 0 }}>
-          <button onClick={() => navigate('/offers')} aria-label="Back to offers"
+          <button onClick={goBack} aria-label="Back"
             style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'flex-start', paddingTop: '6px', width: 'auto' }}>
             <ArrowLeft size={24} />
           </button>

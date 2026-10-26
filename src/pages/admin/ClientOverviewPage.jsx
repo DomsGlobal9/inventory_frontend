@@ -7,6 +7,7 @@ import ClientDangerZone from '../../components/admin/ClientDangerZone';
 import ClientServiceKeys from '../../components/admin/ClientServiceKeys';
 import UserPasswordManager from '../../components/admin/UserPasswordManager';
 import { formatINR } from '../../utils/formatUtils';
+import { useGoBack } from '../../hooks/useGoBack';
 
 const ONBOARDING_STYLE = {
   NOT_STARTED: { label: 'Not Started', color: 'var(--text-secondary)', bg: 'var(--bg-input)' },
@@ -28,6 +29,7 @@ const STAT_CARD = {
 export default function ClientOverviewPage() {
   const { clientId } = useParams();
   const navigate = useNavigate();
+  const goBack = useGoBack('/platformconsole/clients');
   const { data, isLoading } = useAdminClient(clientId);
   const assumeMutation = useAssumeClient();
   const [passwordTarget, setPasswordTarget] = useState(null);
@@ -78,7 +80,7 @@ export default function ClientOverviewPage() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '1200px', margin: '0 auto' }}>
       <div>
         <button
-          onClick={() => navigate('/platformconsole/clients')}
+          onClick={goBack}
           style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--bg-input)', border: '1px solid var(--border-light)', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '13px', marginBottom: '24px', padding: '6px 12px', borderRadius: '6px', transition: 'all 0.2s' }}
           onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-hover)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
           onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-input)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}

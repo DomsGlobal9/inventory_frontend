@@ -6,6 +6,7 @@ import { ArrowLeft, Printer, Loader2, ScanLine, Send, Sparkles } from 'lucide-re
 import { api } from '../../lib/api';
 import { useLocationContext } from '../../contexts/LocationContext';
 import LoadFailed from '../../components/LoadFailed';
+import { useGoBack } from '../../hooks/useGoBack';
 
 /**
  * The door standee: a card with a QR that opens WhatsApp with "I'm at the shop" and this store's
@@ -23,6 +24,7 @@ const corner = (pos) => ({ position: 'absolute', width: '26px', height: '26px', 
 
 export default function DoorQr() {
   const navigate = useNavigate();
+  const goBack = useGoBack('/customers/card');
   const { currentLocation } = useLocationContext();
   const q = useQuery({
     queryKey: ['door-qr', currentLocation?.id],
@@ -35,7 +37,7 @@ export default function DoorQr() {
     <div style={{ maxWidth: '980px', margin: '0 auto', paddingTop: '16px', paddingBottom: '32px', width: '100%', flex: 1, minHeight: 0, overflowY: 'auto' }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px', alignItems: 'start' }}>
         <div className="tagsheet-chrome">
-          <button type="button" onClick={() => navigate('/customers/card')} className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>
+          <button type="button" onClick={goBack} className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>
             <ArrowLeft size={16} /> Customer card
           </button>
           <h1 style={{ fontSize: '28px', margin: '0 0 6px', color: 'var(--text-primary)' }}>Door QR</h1>

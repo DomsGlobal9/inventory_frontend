@@ -24,10 +24,12 @@ import ConfirmModal from '../components/ConfirmModal';
 import CounterTryOn from '../components/CounterTryOn';
 import ProductShopifyCard from '../components/ProductShopifyCard';
 import { usePermission } from '../hooks/usePermission';
+import { useGoBack } from '../hooks/useGoBack';
 
 export default function ProductDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const goBack = useGoBack('/products');
   const { can } = usePermission();
   const canEdit = can('product:update');
   const canRemove = can('product:delete');
@@ -244,7 +246,7 @@ export default function ProductDetails() {
       {/* Header */}
       <motion.div variants={item} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, gap: '16px', flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <button className="btn-secondary" onClick={() => navigate('/products')} style={{ padding: '8px' }}>
+          <button className="btn-secondary" onClick={goBack} style={{ padding: '8px' }}>
             <ArrowLeft size={16} />
           </button>
           <div>

@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Printer, ArrowLeft, Loader2 } from 'lucide-react';
 import { api } from '../../lib/api';
 import LabelCard, { LABEL_CSS } from '../../components/shipping/LabelCard';
+import { useGoBack } from '../../hooks/useGoBack';
 
 /**
  * One parcel's label, 4 × 6 inches (100 × 150 mm): the size of the thermal labels couriers and most
@@ -15,6 +16,7 @@ import LabelCard, { LABEL_CSS } from '../../components/shipping/LabelCard';
 export default function ParcelLabel() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const goBack = useGoBack('/orders');
   const [params] = useSearchParams();
   const printed = useRef(false);
   const { data, isLoading, isError, error } = useQuery({
@@ -50,7 +52,7 @@ export default function ParcelLabel() {
       `}</style>
 
       <div className="label-actions">
-        <button className="btn-secondary" onClick={() => navigate(-1)} style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}><ArrowLeft size={15} /> Back</button>
+        <button className="btn-secondary" onClick={goBack} style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}><ArrowLeft size={15} /> Back</button>
         <button className="btn-primary" onClick={() => window.print()} style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}><Printer size={15} /> Print label</button>
       </div>
 

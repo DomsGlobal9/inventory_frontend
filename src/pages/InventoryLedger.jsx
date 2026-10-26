@@ -6,9 +6,11 @@ import { motion } from 'framer-motion';
 import { useInventoryTransactions } from '../hooks/useInventory';
 import PageLoader from '../components/PageLoader';
 import dayjs from 'dayjs';
+import { useGoBack } from '../hooks/useGoBack';
 
 export default function InventoryLedger() {
   const navigate = useNavigate();
+  const goBack = useGoBack('/inventory');
   const [searchParams] = useSearchParams();
   const initialVariantId = searchParams.get('variantId') || '';
 
@@ -59,10 +61,10 @@ export default function InventoryLedger() {
           <button 
             className="btn-secondary" 
             style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 8px', marginBottom: '16px', background: 'transparent', border: 'none', color: 'var(--text-secondary)' }}
-            onClick={() => navigate('/inventory')}
+            onClick={goBack}
           >
             <ArrowLeft size={16} />
-            Back to Overview
+            Back
           </button>
           <h1 style={{ fontSize: '28px', marginBottom: '4px', color: 'var(--text-primary)' }}>Inventory Ledger</h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>Immutable history of all stock movements.</p>

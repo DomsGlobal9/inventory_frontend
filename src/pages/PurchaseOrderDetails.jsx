@@ -22,6 +22,7 @@ import { typedPhone } from '../utils/phone';
 import Select from '../components/common/Select';
 import { usePermission } from '../hooks/usePermission';
 import { PutAwayNotice } from '../components/shelves/ShelfLinks';
+import { useGoBack } from '../hooks/useGoBack';
 
 /** Money to the paisa, grouped the Indian way: ₹1,23,456.50. A purchase order is a bill. */
 const rupees = (v) => `₹${(Number(v) || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -77,6 +78,7 @@ const startingPrice = (v) => String(Math.round((Number(v) || 0) * 100) / 100);
 export default function PurchaseOrderDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const goBack = useGoBack('/inventory/purchase-orders');
   const { pathname } = useLocation();
   /*
    * A new order is reached by its own route since 14 Oct (/inventory/purchase-orders/new, guarded by
@@ -545,7 +547,7 @@ Change it to ${chosen.name}? The order will say ${chosen.name} from now on, but 
       {/* Top Bar */}
       <motion.div variants={itemVariants} style={{ display: 'flex', flexDirection: 'column', gap: '16px', flexShrink: 0 }}>
         <button
-          onClick={() => navigate(-1)}
+          onClick={goBack}
           style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', width: 'fit-content', fontWeight: '500', transition: 'color 0.2s' }}
           onMouseOver={(e) => e.currentTarget.style.color = 'var(--text-primary)'}
           onMouseOut={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}

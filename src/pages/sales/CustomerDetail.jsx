@@ -18,10 +18,12 @@ import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { COUNTER_PHONE_QUERY } from '../../hooks/useCounterSale';
 import { ORDER_STATUS, DISPATCH_STATUS, CUSTOMER_STATUS, RETURN_REASONS, StatusPill } from '../../components/sales/labels';
 import { rowLink } from '../../components/common/rowLink';
+import { useGoBack } from '../../hooks/useGoBack';
 
 export default function CustomerDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const goBack = useGoBack('/customers');
   const queryClient = useQueryClient();
   const { can } = usePermission();
   const { data: customer, isLoading, error } = useCustomerDetails(id);
@@ -125,7 +127,7 @@ export default function CustomerDetail() {
 
       {/* Header section */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px', flexWrap: 'wrap' }}>
-        <button onClick={() => navigate('/customers')} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+        <button onClick={goBack} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
           <ArrowLeft size={24} />
         </button>
         <div>

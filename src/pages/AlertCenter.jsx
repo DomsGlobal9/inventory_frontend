@@ -6,9 +6,11 @@ import { useAlerts, useTogglePinAlert, useDeleteAlert, useMarkAlertRead } from '
 import PageLoader from '../components/PageLoader';
 import { exportToCSV } from '../utils/csvUtils';
 import { usePermission } from '../hooks/usePermission';
+import { useGoBack } from '../hooks/useGoBack';
 
 export default function AlertCenter() {
   const navigate = useNavigate();
+  const goBack = useGoBack('/dashboard');
   const { can } = usePermission();
   const { data, isLoading } = useAlerts();
   const togglePinAlert = useTogglePinAlert();
@@ -66,7 +68,7 @@ export default function AlertCenter() {
       {/* Header */}
       <motion.div variants={item} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <button className="btn-secondary" onClick={() => navigate('/dashboard')} style={{ padding: '8px' }}>
+          <button className="btn-secondary" onClick={goBack} style={{ padding: '8px' }}>
             <ArrowLeft size={16} />
           </button>
           <div>

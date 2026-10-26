@@ -34,10 +34,12 @@ import { api } from '../../lib/api';
 import BillPDF from '../../components/BillPDF';
 import { makePdf } from '../../components/pdf/downloadPdf';
 import { logoAsPng } from '../../components/pdf/pdfLogo';
+import { useGoBack } from '../../hooks/useGoBack';
 
 export default function SalesOrderDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const goBack = useGoBack('/orders');
   const { can } = usePermission();
   const { data: order, isLoading } = useSalesOrderDetails(id);
   /*
@@ -323,7 +325,7 @@ export default function SalesOrderDetail() {
       
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px', flexWrap: 'wrap' }}>
-        <button onClick={() => navigate('/orders')} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+        <button onClick={goBack} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
           <ArrowLeft size={24} />
         </button>
         <div>

@@ -10,10 +10,12 @@ import { useAuth } from '../context/AuthContext';
 import { holdsEverything } from '../lib/authority';
 import StatusPill from '../components/StockCountStatus';
 import { usePermission } from '../hooks/usePermission';
+import { useGoBack } from '../hooks/useGoBack';
 
 export default function ActiveAudit() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const goBack = useGoBack('/inventory/audits');
   const { user } = useAuth();
   const { data, isLoading } = useStockCount(id);
   const startMutation = useStartStockCount();
@@ -233,7 +235,7 @@ export default function ActiveAudit() {
       {/* Wraps on a phone: the buttons drop under the name instead of squeezing it to one word a line. */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexShrink: 0, flexWrap: 'wrap', gap: '12px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <button className="btn-secondary" onClick={() => navigate('/inventory/audits')} style={{ padding: '8px' }}>
+          <button className="btn-secondary" onClick={goBack} style={{ padding: '8px' }}>
             <ArrowLeft size={16} />
           </button>
           <div>

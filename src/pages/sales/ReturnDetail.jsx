@@ -22,6 +22,7 @@ import ReturnNotePDF from '../../components/ReturnNotePDF';
 import { makePdf } from '../../components/pdf/downloadPdf';
 import { logoAsPng } from '../../components/pdf/pdfLogo';
 import { buildWhatsAppUrl } from '../../utils/whatsappUtils';
+import { useGoBack } from '../../hooks/useGoBack';
 
 /**
  * A moment, written the way this app writes every other one: "22 Sep 2026, 11:21 am".
@@ -44,6 +45,7 @@ function whenExactly(value) {
 export default function ReturnDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const goBack = useGoBack('/returns');
   const queryClient = useQueryClient();
   const { can } = usePermission();
   const [inspectModalOpen, setInspectModalOpen] = useState(false);
@@ -199,10 +201,10 @@ export default function ReturnDetail() {
   return (
     <div style={{ maxWidth: '1400px', margin: '0 auto', paddingTop: '24px', flex: 1, minHeight: 0, overflowY: 'auto', paddingBottom: '64px', width: '100%', display: 'flex', flexDirection: 'column' }}>
       <button 
-        onClick={() => navigate('/returns')}
+        onClick={goBack}
         style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', marginBottom: '24px', padding: 0 }}
       >
-        <ArrowLeft size={16} /> Back to Returns
+        <ArrowLeft size={16} /> Back
       </button>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>

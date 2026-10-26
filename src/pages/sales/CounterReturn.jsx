@@ -7,6 +7,7 @@ import { useFindSales, useSaleForReturn, useReturnPreview, useCompleteCounterRet
 import { RETURN_REASONS } from '../../components/sales/labels';
 import { formatINRExact } from '../../utils/formatUtils';
 import Select from '../../components/common/Select';
+import { useGoBack } from '../../hooks/useGoBack';
 
 /**
  * Take a return at the counter: find the bill, choose what came back, and give the money back --
@@ -74,6 +75,7 @@ function BillPicker({ onPick }) {
 
 export default function CounterReturn() {
   const navigate = useNavigate();
+  const goBack = useGoBack('/returns');
   const [params, setParams] = useSearchParams();
   const orderId = params.get('order');
   const { currentLocation } = useLocationContext();
@@ -163,7 +165,7 @@ export default function CounterReturn() {
   return (
     <div style={{ display: 'grid', gap: 16, paddingTop: 16, paddingBottom: 32, maxWidth: 900, margin: '0 auto', width: '100%' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <button className="btn-icon" aria-label="Back to returns" onClick={() => navigate('/returns')}><ArrowLeft size={18} /></button>
+        <button className="btn-icon" aria-label="Back" onClick={goBack}><ArrowLeft size={18} /></button>
         <div>
           <h1 style={{ fontSize: 26, margin: 0 }}>Take a return</h1>
           <div style={{ color: 'var(--text-secondary)', fontSize: 14 }}>A customer has brought something back{currentLocation ? ` to ${currentLocation.name}` : ''}.</div>

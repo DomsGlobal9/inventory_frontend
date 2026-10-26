@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { Link } from 'react-router-dom';
 import { Plus, Trash2, Loader2, AlertCircle, Download, AlertTriangle, X, Copy, CheckCircle2, Printer, Info, Settings, Check, Truck, ImageOff, MapPinned } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
@@ -38,6 +39,14 @@ const CellNote = ({ children, color }) => (
     {children || '\u00a0'}
   </span>
 );
+
+/** Stock breakdown columns: location, on hand, held, free. */
+const GRID = '1fr 64px 52px 52px';
+const HEAD = { fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 };
+const HELD_COLOUR = 'var(--accent-warning, #b45309)';
+/** Where an order came from, as a shop says it. */
+const sourceLabel = (source) => ({ SHOPIFY: 'Shopify', POS: 'Till', ONLINE_SHOP: 'Online shop', ONLINE: 'Online', MANUAL: 'Added here' }[source]
+  ?? String(source).charAt(0) + String(source).slice(1).toLowerCase().replace(/_/g, ' '));
 
 /** The one size a saree comes in, spelled as the wizard spells it. */
 const FREE_SIZE = 'Free Size';
@@ -1066,14 +1075,28 @@ export default function VariantTable({ productId, productName, productCode, prod
                     <td style={{ fontWeight: '500' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         {v.totalQuantity !== undefined ? v.totalQuantity : v.quantity}
-                        <button 
+                        <button
                           onClick={() => setStockBreakdownVariant(v)}
                           style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '2px', color: 'var(--text-muted)' }}
-                          title="View Stock Breakdown"
+                          title="Where it is, and which orders it is held for"
+                          aria-label={`Stock breakdown for ${v.sku}`}
                         >
                           <Info size={14} />
                         </button>
                       </div>
+                      {/* On the shelf is not the same as free to sell: pieces promised to an order are
+                          still here but sold. Shopify shows only the free figure, which is why the two
+                          looked different (26 Oct). Said only when something is actually held. */}
+                      {v.totalReserved > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setStockBreakdownVariant(v)}
+                          title={`${v.totalReserved} held for ${v.heldFor?.length === 1 ? `order ${v.heldFor[0].orderNumber}` : `${v.heldFor?.length || 'open'} orders`}; ${v.totalAvailable} free to sell`}
+                          style={{ display: 'block', marginTop: '3px', padding: 0, background: 'none', border: 'none', cursor: 'pointer', fontSize: '11.5px', fontWeight: 500, color: 'var(--accent-warning, #b45309)', whiteSpace: 'nowrap', textAlign: 'left' }}
+                        >
+                          {v.totalReserved} held · {v.totalAvailable} free
+                        </button>
+                      )}
                     </td>
                     <td>
                       <span style={{
@@ -1484,16 +1507,20 @@ export default function VariantTable({ productId, productName, productCode, prod
             </div>
             
             <div style={{ background: 'var(--bg-input)', borderRadius: '8px', padding: '16px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid var(--border-light)' }}>
-                <span style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Location</span>
-                <span style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Qty</span>
+              <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: '6px', marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid var(--border-light)' }}>
+                <span style={HEAD}>Location</span>
+                <span title="Pieces on the shelf" style={{ ...HEAD, textAlign: 'right' }}>On hand</span>
+                <span title="Promised to an order, not yet sent" style={{ ...HEAD, textAlign: 'right' }}>Held</span>
+                <span title="Free to sell, here and online" style={{ ...HEAD, textAlign: 'right' }}>Free</span>
               </div>
-              
+
               {stockBreakdownVariant.stockByLocation?.length > 0 ? (
                 stockBreakdownVariant.stockByLocation.map((loc, i) => (
-                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < stockBreakdownVariant.stockByLocation.length - 1 ? '1px solid var(--border-light)' : 'none' }}>
-                    <span style={{ fontSize: '14px', color: 'var(--text-primary)' }}>{loc.name}</span>
-                    <span style={{ fontSize: '14px', fontWeight: 500 }}>{loc.quantity}</span>
+                  <div key={i} style={{ display: 'grid', gridTemplateColumns: GRID, gap: '6px', padding: '8px 0', borderBottom: i < stockBreakdownVariant.stockByLocation.length - 1 ? '1px solid var(--border-light)' : 'none' }}>
+                    <span style={{ fontSize: '14px', color: 'var(--text-primary)', minWidth: 0, overflowWrap: 'anywhere' }}>{loc.name}</span>
+                    <span style={{ fontSize: '14px', fontWeight: 500, textAlign: 'right' }}>{loc.quantity}</span>
+                    <span style={{ fontSize: '14px', fontWeight: 500, textAlign: 'right', color: loc.reserved > 0 ? HELD_COLOUR : 'var(--text-muted)' }}>{loc.reserved ?? 0}</span>
+                    <span style={{ fontSize: '14px', fontWeight: 600, textAlign: 'right' }}>{loc.available ?? loc.quantity}</span>
                   </div>
                 ))
               ) : (
@@ -1503,10 +1530,36 @@ export default function VariantTable({ productId, productName, productCode, prod
               )}
             </div>
             
-            <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'space-between', padding: '0 16px' }}>
+            <div style={{ marginTop: '16px', display: 'grid', gridTemplateColumns: GRID, gap: '6px', padding: '0 16px' }}>
               <span style={{ fontWeight: 600 }}>Total</span>
-              <span style={{ fontWeight: 600 }}>{stockBreakdownVariant.totalQuantity || 0}</span>
+              <span style={{ fontWeight: 600, textAlign: 'right' }}>{stockBreakdownVariant.totalQuantity || 0}</span>
+              <span style={{ fontWeight: 600, textAlign: 'right', color: stockBreakdownVariant.totalReserved > 0 ? HELD_COLOUR : 'var(--text-muted)' }}>{stockBreakdownVariant.totalReserved || 0}</span>
+              <span style={{ fontWeight: 700, textAlign: 'right' }}>{stockBreakdownVariant.totalAvailable ?? stockBreakdownVariant.totalQuantity ?? 0}</span>
             </div>
+
+            {/* Who the held pieces are for, so "why does Shopify show fewer?" answers itself. */}
+            {stockBreakdownVariant.heldFor?.length > 0 && (
+              <div style={{ marginTop: '18px' }}>
+                <div style={{ ...HEAD, marginBottom: '8px' }}>Held for</div>
+                <div style={{ display: 'grid', gap: '6px' }}>
+                  {stockBreakdownVariant.heldFor.map(h => (
+                    <Link key={h.orderId} to={`/orders/${h.orderId}`} onClick={() => setStockBreakdownVariant(null)}
+                      style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-light)', textDecoration: 'none', color: 'var(--text-primary)' }}>
+                      <span style={{ minWidth: 0 }}>
+                        <span style={{ fontWeight: 600, fontFamily: 'var(--font-mono)', fontSize: '13px' }}>{h.orderNumber}</span>
+                        <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>
+                          {h.customer ? ` · ${h.customer}` : ''}{h.source ? ` · ${sourceLabel(h.source)}` : ''}
+                        </span>
+                      </span>
+                      <span style={{ fontWeight: 600, fontSize: '13px', whiteSpace: 'nowrap' }}>{h.quantity} pc{h.quantity === 1 ? '' : 's'}</span>
+                    </Link>
+                  ))}
+                </div>
+                <p style={{ margin: '10px 0 0', fontSize: '12px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                  Held pieces are still on the shelf but already sold. Online stores, Shopify included, are told only the free number.
+                </p>
+              </div>
+            )}
           </div>
         </motion.div>
       </>, document.body)

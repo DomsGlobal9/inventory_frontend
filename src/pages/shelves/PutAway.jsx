@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { PackagePlus, PackageCheck, Settings2, ScanLine, CheckCircle2, Loader2 } from 'lucide-react';
 import { useLocationContext } from '../../contexts/LocationContext';
 import { usePermission } from '../../hooks/usePermission';
+import { api } from '../../lib/api';
 import { useNotShelved, useWhereIs, usePutAway, useSpotTree, isLabelScan, looksLikeAddress, resolveSpot } from '../../hooks/useShelves';
 import { ShelvesLayout, ScanInput, SpotChip, ItemThumb, EmptyState, Stepper, itemDetail, pieces } from '../../components/shelves/ShelfBits';
 import SpotPicker, { holdingSpots } from '../../components/shelves/SpotPicker';
@@ -39,16 +40,32 @@ export default function PutAway() {
     setParams(variantId ? { variant: variantId } : {}, { replace: true });
   };
 
-  const submitScan = (typed) => {
-    const exact = items.find(i => [i.barcode, i.sku, i.code].some(v => v && v.toLowerCase() === typed.toLowerCase()));
+  const sameCode = (i, typed) => [i.barcode, i.sku, i.code].some(v => v && v.toLowerCase() === typed.toLowerCase());
+  const submitScan = async (typed) => {
+    const exact = items.find(i => sameCode(i, typed));
     if (exact) { selectItem(exact.variantId); setText(''); return; }
     if (filtered.length === 1) { selectItem(filtered[0].variantId); setText(''); return; }
-    if (isLabelScan(typed)) toast.error('Scan the item first, then the shelf.');
-    else if (filtered.length === 0) toast.error(`"${typed}" is not waiting to be put away here.`);
+    if (isLabelScan(typed)) { toast.error('Scan the item first, then the shelf.'); return; }
+    if (filtered.length > 1) return;
+    /*
+     * The list is paged, and a tag scanned in front of the screen belongs to whatever page it is on: with
+     * more than a page waiting, every item past page 1 answered "not waiting" (27 Oct). The server knows
+     * every item, so it is asked.
+     */
+    try {
+      const found = ((await api.get('/shelves/find', { params: { q: typed, locationId } })).data?.items ?? []).filter(i => sameCode(i, typed));
+      if (found.length === 1) {
+        const here = found[0].places?.find(pl => pl.locationId === locationId);
+        if (here?.notShelved > 0) { setOnlyVariants([]); selectItem(found[0].variantId); setText(''); return; }
+        toast.error(`${found[0].title} is not waiting here: every piece of it is already on a shelf.`);
+        return;
+      }
+    } catch { /* falls through to the plain answer */ }
+    toast.error(`"${typed}" is not waiting to be put away here.`);
   };
 
   if (!can('shelf:putaway')) {
-    return <ShelvesLayout title="Put away" icon={PackagePlus}><div className="sh-card"><EmptyState icon={PackagePlus} title="You cannot put stock away" text="Ask whoever manages your team for the shelf work permission (put away, pick, move and count).between shelves." /></div></ShelvesLayout>;
+    return <ShelvesLayout title="Put away" icon={PackagePlus}><div className="sh-card"><EmptyState icon={PackagePlus} title="You cannot put stock away" text="Ask whoever manages your team for the shelf work permission (put away, pick, move and count)." /></div></ShelvesLayout>;
   }
 
   const noShelves = list.data && list.data.usesShelves === false;
@@ -96,7 +113,7 @@ export default function PutAway() {
                       </span>
                     </button>
                   ))}
-                  {filtered.length === 0 && <div className="sh-muted" style={{ padding: 8 }}>Nothing waiting matches "{text}".</div>}
+                  {filtered.length === 0 && <div className="sh-muted" style={{ padding: 8 }}>{(list.data?.pages ?? 1) > 1 ? `Nothing on this page matches "${text}". Press Enter to look through everything waiting.` : `Nothing waiting matches "${text}".`}</div>}
                 </div>
               )}
             {(list.data?.pages ?? 1) > 1 && (
@@ -163,7 +180,10 @@ function PutAwayPanel({ variantId, locationId, onDone, hasSpots }) {
     walk(tree.data?.spots, false);
     return [...out.filter(n => n.isShopFloor), ...out.filter(n => !n.isShopFloor)].slice(0, 3);
   }, [tree.data]);
-  useEffect(() => { if (!spot && !scanRefused && suggestions[0]) setSpot({ id: suggestions[0].spotId, address: suggestions[0].address, name: suggestions[0].name, colour: suggestions[0].colour, isShopFloor: suggestions[0].isShopFloor }); }, [suggestions, spot, scanRefused]);
+  // A return goes back to the shelf it was sold from, ahead of its twins elsewhere (27 Oct).
+  const cameOff = place?.cameOff ?? null;
+  const first = cameOff ?? suggestions[0];
+  useEffect(() => { if (!spot && !scanRefused && first) setSpot({ id: first.spotId, address: first.address, name: first.name, colour: first.colour, isShopFloor: first.isShopFloor }); }, [first, spot, scanRefused]);
 
   const scanShelf = async (typed) => {
     if (resolving || sending.current) return;
@@ -231,6 +251,17 @@ function PutAwayPanel({ variantId, locationId, onDone, hasSpots }) {
               placeholder="Scan the shelf label — it saves straight away" label="Scan the shelf label" />
           </div>
 
+          {cameOff && (
+            <div style={{ display: 'grid', gap: 6 }}>
+              <h3 className="sh-section-title">Returned: it came off</h3>
+              <button type="button" className={`sh-list-btn${spot?.id === cameOff.spotId ? ' selected' : ''}`} style={{ border: '1px solid var(--border-light)' }}
+                onClick={() => { setScanRefused(false); setSpot({ id: cameOff.spotId, address: cameOff.address, name: cameOff.name, colour: cameOff.colour, isShopFloor: cameOff.isShopFloor }); }}>
+                <span style={{ flex: 1 }}><SpotChip address={cameOff.address} name={cameOff.name} colour={cameOff.colour} isShopFloor={cameOff.isShopFloor} /></span>
+                <span className="sh-muted">{cameOff.leftAs === 'SALE' ? 'sold from here' : 'left from here'} {new Date(cameOff.leftAt).toLocaleDateString()}</span>
+              </button>
+            </div>
+          )}
+
           {suggestions.length > 0 && (
             <div style={{ display: 'grid', gap: 6 }}>
               <h3 className="sh-section-title">Already kept on</h3>
@@ -244,7 +275,7 @@ function PutAwayPanel({ variantId, locationId, onDone, hasSpots }) {
             </div>
           )}
 
-          {suggestions.length === 0 && emptyShelves.length > 0 && (
+          {suggestions.length === 0 && !cameOff && emptyShelves.length > 0 && (
             <div style={{ display: 'grid', gap: 6 }}>
               <h3 className="sh-section-title">Empty shelves</h3>
               {emptyShelves.map(s => (

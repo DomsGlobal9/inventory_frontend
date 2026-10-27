@@ -78,6 +78,7 @@ import PickList from './pages/shelves/PickList';
 import ShelfCount from './pages/shelves/ShelfCount';
 import FillShelves from './pages/shelves/FillShelves';
 import RackMap from './pages/shelves/RackMap';
+import RefillFloor from './pages/shelves/RefillFloor';
 
 // The Help Center is public and loads on its own, so the app never downloads the guide.
 const HelpLayout = lazy(() => import('./pages/help/HelpLayout'));
@@ -212,6 +213,7 @@ function App() {
           <Route path="/shelves/put-away" element={<Guard permission="shelf:putaway" what="put stock away"><PutAway /></Guard>} />
           <Route path="/shelves/move" element={<Guard permission="shelf:putaway" what="move stock between shelves"><MoveStock /></Guard>} />
           <Route path="/shelves/issues" element={<Guard permission="shelf:view" what="see shelf issues"><ShelfIssues /></Guard>} />
+          <Route path="/shelves/refill" element={<Guard permission="shelf:putaway" what="refill the shop floor"><RefillFloor /></Guard>} />
           <Route path="/shelves/pick" element={<Guard permission="shelf:putaway" what="pick orders"><PickList /></Guard>} />
           <Route path="/shelves/count" element={<Guard permission="shelf:putaway" what="count shelves"><ShelfCount /></Guard>} />
           <Route path="/shelves/fill" element={<Guard permission="shelf:putaway" what="fill shelves"><FillShelves /></Guard>} />

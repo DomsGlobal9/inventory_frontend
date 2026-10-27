@@ -1,6 +1,6 @@
 import React, { forwardRef, useEffect, useRef, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { ScanLine, Loader2, X, Minus, Plus, MapPin, Search, PackagePlus, ArrowRightLeft, TriangleAlert, Settings2, ClipboardList, ClipboardCheck, Boxes, Map as MapIcon, Camera } from 'lucide-react';
+import { ScanLine, Loader2, X, Minus, Plus, MapPin, Search, PackagePlus, ArrowRightLeft, TriangleAlert, Settings2, ClipboardList, ClipboardCheck, Boxes, Map as MapIcon, Camera, Store } from 'lucide-react';
 import BarcodeScanner, { scanningSupported } from '../BarcodeScanner';
 import { usePermission } from '../../hooks/usePermission';
 import { useLocationContext } from '../../contexts/LocationContext';
@@ -77,6 +77,7 @@ export function ShelfStyles() {
 const TABS = [
   { to: '/shelves', label: 'Where is it?', icon: Search, permission: 'shelf:view', end: true },
   { to: '/shelves/put-away', label: 'Put away', icon: PackagePlus, permission: 'shelf:putaway' },
+  { to: '/shelves/refill', label: 'Refill floor', icon: Store, permission: 'shelf:putaway' },
   { to: '/shelves/pick', label: 'Pick orders', icon: ClipboardList, permission: 'shelf:putaway' },
   { to: '/shelves/move', label: 'Move', icon: ArrowRightLeft, permission: 'shelf:putaway' },
   { to: '/shelves/count', label: 'Count', icon: ClipboardCheck, permission: 'shelf:putaway' },

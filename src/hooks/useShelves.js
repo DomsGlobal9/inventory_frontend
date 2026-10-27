@@ -21,7 +21,8 @@ export const SHELF_KEYS = {
   notShelved: (locationId, page) => ['shelves', 'not-shelved', locationId, page],
   issues: (status, locationId, page) => ['shelves', 'issues', status, locationId ?? 'all', page],
   labels: (locationId, ids) => ['shelves', 'labels', locationId, ids ?? 'all'],
-  fill: (locationId) => ['shelves', 'fill', locationId]
+  fill: (locationId) => ['shelves', 'fill', locationId],
+  refill: (locationId, min) => ['shelves', 'refill', locationId, min]
 };
 
 const refresh = (queryClient) => {
@@ -72,6 +73,15 @@ export const useSpotHistory = (spotId, enabled = true) => useQuery({
 export const useNotShelved = (locationId, page = 1) => useQuery({
   queryKey: SHELF_KEYS.notShelved(locationId, page),
   queryFn: async () => (await api.get(`/shelves/locations/${locationId}/not-shelved`, { params: { page } })).data,
+  enabled: !!locationId,
+  staleTime: 5_000,
+  placeholderData: (previous) => previous
+});
+
+/** What to carry from the back room to the shop floor. A suggestion: each line is done with an ordinary move. */
+export const useRefillList = (locationId, min) => useQuery({
+  queryKey: SHELF_KEYS.refill(locationId, min),
+  queryFn: async () => (await api.get(`/shelves/locations/${locationId}/refill`, { params: { min } })).data,
   enabled: !!locationId,
   staleTime: 5_000,
   placeholderData: (previous) => previous

@@ -32,15 +32,16 @@ const countedAgo = (at) => {
  * `byCount`: the Count screen's list -- each shelf says when it was last counted, and the longest-uncounted
  * come first (never counted, then oldest), so a shop counting a few shelves a day covers them all in turn.
  */
-export default function SpotPicker({ locationId, value, onChange, exclude = [], maxHeight = 320, emptyText, byCount = false }) {
+export default function SpotPicker({ locationId, value, onChange, exclude = [], maxHeight = 320, emptyText, byCount = false, only }) {
   const tree = useSpotTree(locationId);
   const [filter, setFilter] = useState('');
   const spots = useMemo(() => {
-    const list = holdingSpots(tree.data).filter(s => !exclude.includes(s.id));
+    // `only` narrows the choice, e.g. to shop-floor shelves when refilling the floor.
+    const list = holdingSpots(tree.data).filter(s => !exclude.includes(s.id) && (!only || only(s)));
     if (!byCount) return list;
     const age = (s) => (s.lastCountedAt ? new Date(s.lastCountedAt).getTime() : -1);
     return [...list].sort((a, b) => age(a) - age(b));
-  }, [tree.data, exclude, byCount]);
+  }, [tree.data, exclude, byCount, only]);
   const f = filter.trim().toUpperCase().replace(/\s+/g, '');
   const shown = f ? spots.filter(s => s.address.replace(/-/g, '').includes(f.replace(/-/g, '')) || (s.name ?? '').toUpperCase().includes(filter.trim().toUpperCase()) || (s.trail ?? '').toUpperCase().includes(filter.trim().toUpperCase())) : spots;
 

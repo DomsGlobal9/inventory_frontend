@@ -4,10 +4,10 @@ import toast from 'react-hot-toast';
 import { ClipboardCheck, Loader2, RotateCcw, Plus, Minus, CheckCircle2, TriangleAlert } from 'lucide-react';
 import { useLocationContext } from '../../contexts/LocationContext';
 import { usePermission } from '../../hooks/usePermission';
-import { useCountSpot, isLabelScan, looksLikeAddress, resolveSpot } from '../../hooks/useShelves';
+import { useCountSpot, useSpotTree, isLabelScan, looksLikeAddress, resolveSpot } from '../../hooks/useShelves';
 import { api } from '../../lib/api';
 import { ShelvesLayout, ScanInput, SpotChip, ItemThumb, EmptyState, itemDetail } from '../../components/shelves/ShelfBits';
-import SpotPicker from '../../components/shelves/SpotPicker';
+import SpotPicker, { holdingSpots } from '../../components/shelves/SpotPicker';
 
 /**
  * Count one shelf. Scan its label, then scan every piece on it (or type the numbers). What is recorded
@@ -37,11 +37,15 @@ export default function ShelfCount() {
     finally { setBusy(false); }
   };
 
+  const openById = async (spotId) => { setBusy(true); try { setShelf((await api.get(`/shelves/spots/${spotId}`)).data); } finally { setBusy(false); } };
+
   return (
     <ShelvesLayout title="Count a shelf" icon={ClipboardCheck} subtitle="Scan the shelf, then every piece on it. Anything that does not match what was recorded is listed under Problems.">
       {shelf ? (
         <CountSheet key={shelf.spot.id} shelf={shelf} onDone={() => setShelf(null)} />
       ) : (
+        <>
+        <TodayCounts locationId={locationId} onOpen={openById} />
         <div className="sh-grid-2">
           <section className="sh-card" style={{ display: 'grid', gap: 12 }}>
             <h2 className="sh-section-title" style={{ margin: 0 }}>1 · Which shelf</h2>
@@ -49,11 +53,76 @@ export default function ShelfCount() {
           </section>
           <section className="sh-card" style={{ display: 'grid', gap: 12 }}>
             <h2 className="sh-section-title" style={{ margin: 0 }}>Or choose it (not counted longest first)</h2>
-            <SpotPicker byCount locationId={locationId} onChange={async (s) => { setBusy(true); try { setShelf((await api.get(`/shelves/spots/${s.id}`)).data); } finally { setBusy(false); } }} />
+            <SpotPicker byCount locationId={locationId} onChange={(s) => openById(s.id)} />
           </section>
         </div>
+        </>
       )}
     </ShelvesLayout>
+  );
+}
+
+const CYCLE_DAYS = 30;
+const DAY_MS = 86_400_000;
+
+/**
+ * Today's counts: a few shelves a day, and every shelf gets counted once a month without a stock-take
+ * day. Built from each shelf's last-counted time, so it is the same for everyone counting in the store.
+ */
+function TodayCounts({ locationId, onOpen }) {
+  const tree = useSpotTree(locationId);
+  const summary = useMemo(() => {
+    const spots = holdingSpots(tree.data);
+    const today = new Date().toDateString();
+    const at = (s) => (s.lastCountedAt ? new Date(s.lastCountedAt) : null);
+    const countedToday = spots.filter(s => at(s)?.toDateString() === today);
+    const inCycle = spots.filter(s => at(s) && Date.now() - at(s).getTime() <= CYCLE_DAYS * DAY_MS);
+    const due = spots.filter(s => !at(s) || Date.now() - at(s).getTime() > CYCLE_DAYS * DAY_MS)
+      .sort((a, b) => (at(a)?.getTime() ?? -1) - (at(b)?.getTime() ?? -1));
+    // Enough a day to get round every shelf in the cycle.
+    const perDay = Math.max(1, Math.ceil(spots.length / CYCLE_DAYS));
+    return { total: spots.length, countedToday, inCycle: inCycle.length, due, perDay };
+  }, [tree.data]);
+
+  if (tree.isLoading || summary.total === 0) return null;
+  const { total, countedToday, inCycle, due, perDay } = summary;
+  const pct = Math.round((inCycle / total) * 100);
+  const left = Math.max(0, perDay - countedToday.length);
+  return (
+    <section className="sh-card" style={{ display: 'grid', gap: 12 }} aria-label="Today's counts">
+      <div className="sh-row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+        <div style={{ minWidth: 0 }}>
+          <h2 className="sh-section-title" style={{ margin: 0 }}>Today's counts</h2>
+          <div style={{ fontSize: 18, fontWeight: 700, marginTop: 4 }}>
+            {countedToday.length} {countedToday.length === 1 ? 'shelf' : 'shelves'} counted today
+            {left > 0 ? <span className="sh-muted" style={{ fontWeight: 500, fontSize: 14 }}> · {left} more to stay on track</span> : <span style={{ color: 'var(--accent-success)', fontWeight: 600, fontSize: 14 }}> · on track</span>}
+          </div>
+        </div>
+        <div style={{ minWidth: 200, flex: '0 1 280px' }}>
+          <div className="sh-muted">{inCycle} of {total} shelves counted in the last {CYCLE_DAYS} days</div>
+          <div role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Shelves counted this month" style={{ height: 8, borderRadius: 999, background: 'var(--bg-input)', marginTop: 6, overflow: 'hidden' }}>
+            <div style={{ width: `${pct}%`, height: '100%', background: 'var(--accent-primary)' }} />
+          </div>
+        </div>
+      </div>
+      {countedToday.length > 0 && (
+        <div className="sh-row" style={{ flexWrap: 'wrap', gap: 6 }}>
+          <span className="sh-muted">Done:</span>
+          {countedToday.map(s => <SpotChip key={s.id} address={s.address} name={s.name} isShopFloor={s.isShopFloor} showTag={false} />)}
+        </div>
+      )}
+      {due.length > 0 && (
+        <div className="sh-row" style={{ flexWrap: 'wrap', gap: 6 }}>
+          <span className="sh-muted">Count next:</span>
+          {due.slice(0, Math.max(3, left)).map(s => (
+            <button key={s.id} type="button" className="btn-secondary" onClick={() => onOpen(s.id)} title={s.lastCountedAt ? `Last counted ${new Date(s.lastCountedAt).toLocaleDateString()}` : 'Never counted'}
+              style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+              <span className="sh-addr">{s.address}</span>{!s.lastCountedAt && <span className="sh-tag muted">new</span>}
+            </button>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }
 

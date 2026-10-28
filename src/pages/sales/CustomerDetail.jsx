@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { useCustomerDetails } from '../../hooks/useCustomers';
-import { ArrowLeft, Mail, Phone, MapPin, Building, FileText, ShoppingBag, Truck, Loader2, X, Undo2, Edit2 } from 'lucide-react';
+import { ArrowLeft, Mail, Phone, MapPin, Building, FileText, ShoppingBag, Truck, Loader2, X, Undo2, Edit2, ExternalLink } from 'lucide-react';
 import { api } from '../../lib/api';
 import { usePermission } from '../../hooks/usePermission';
 import { formatINR } from '../../utils/formatUtils';
@@ -19,6 +19,7 @@ import { COUNTER_PHONE_QUERY } from '../../hooks/useCounterSale';
 import { ORDER_STATUS, DISPATCH_STATUS, CUSTOMER_STATUS, RETURN_REASONS, StatusPill } from '../../components/sales/labels';
 import { rowLink } from '../../components/common/rowLink';
 import { useGoBack } from '../../hooks/useGoBack';
+import { useCrm } from '../../hooks/useCrm';
 
 export default function CustomerDetail() {
   const { id } = useParams();
@@ -26,6 +27,7 @@ export default function CustomerDetail() {
   const goBack = useGoBack('/customers');
   const queryClient = useQueryClient();
   const { can } = usePermission();
+  const crm = useCrm();
   const { data: customer, isLoading, error } = useCustomerDetails(id);
 
   const [activeTab, setActiveTab] = useState('orders');
@@ -138,6 +140,12 @@ export default function CustomerDetail() {
           <p style={{ margin: '8px 0 0', color: 'var(--text-secondary)' }}>{customer.customerCode}</p>
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          {/* CRM on: notes, timeline and what they looked at online are there. */}
+          {crm.on && (
+            <a href={crm.customerUrl(customer.id)} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', textDecoration: 'none' }}>
+              <ExternalLink size={15} /> Open in CRM
+            </a>
+          )}
           {can('customer:update') && (
             <button className="btn-secondary" onClick={() => setEditing(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
               <Edit2 size={15} /> Edit

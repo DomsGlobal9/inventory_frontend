@@ -26,7 +26,7 @@ export function AuthProvider({ children }) {
         // /auth/session returns the tenant separately as client.id; it used to be thrown
         // away, leaving the app with no idea which tenant it was acting for. Fold it into
         // the stored user so there is exactly one place to read it from.
-        const hydrated = { ...res.user, clientId: res.user.clientId ?? res.client?.id ?? null };
+        const hydrated = { ...res.user, clientId: res.user.clientId ?? res.client?.id ?? null, modules: Array.isArray(res.modules) ? res.modules : ['inventory'] };
         setUser(hydrated);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(hydrated));
       } else {
@@ -60,9 +60,9 @@ export function AuthProvider({ children }) {
       try {
         const res = await api.get('/auth/session');
         if (res?.authenticated && res.user) {
-          const hydrated = { ...res.user, clientId: res.user.clientId ?? res.client?.id ?? null };
+          const hydrated = { ...res.user, clientId: res.user.clientId ?? res.client?.id ?? null, modules: Array.isArray(res.modules) ? res.modules : ['inventory'] };
           setUser(prev => {
-            const same = prev && JSON.stringify([prev.permissions, prev.roles]) === JSON.stringify([hydrated.permissions, hydrated.roles]);
+            const same = prev && JSON.stringify([prev.permissions, prev.roles, prev.modules]) === JSON.stringify([hydrated.permissions, hydrated.roles, hydrated.modules]);
             if (same) return prev;
             localStorage.setItem(STORAGE_KEY, JSON.stringify(hydrated));
             return hydrated;
@@ -95,6 +95,17 @@ export function AuthProvider({ children }) {
     const userData = response.data.user;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
     setUser(userData);
+    // Which ScaleEzy modules the shop has on (CRM shows "Open in CRM") comes with the session, not the
+    // login answer. Quietly, after: a failure just leaves it to the next session refresh.
+    api.get('/auth/session').then(res => {
+      if (!res?.authenticated || !Array.isArray(res.modules)) return;
+      setUser(prev => {
+        if (!prev || prev.id !== res.user?.id) return prev;
+        const next = { ...prev, modules: res.modules };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+        return next;
+      });
+    }).catch(() => {});
     return userData;
   }, []);
 

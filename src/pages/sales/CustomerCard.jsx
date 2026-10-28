@@ -10,6 +10,7 @@ import { useLocationContext } from '../../contexts/LocationContext';
 import CustomerModal from '../../components/sales/CustomerModal';
 import LoadFailed from '../../components/LoadFailed';
 import { useGoBack } from '../../hooks/useGoBack';
+import { useCrm } from '../../hooks/useCrm';
 
 /**
  * Customer card: the salesperson types the number at the door and sees who this is, the sizes and
@@ -32,6 +33,7 @@ export default function CustomerCard() {
   const navigate = useNavigate();
   const goBack = useGoBack('/customers');
   const { can } = usePermission();
+  const crm = useCrm();
   const { currentLocation } = useLocationContext();
   const queryClient = useQueryClient();
   const [typed, setTyped] = useState('');
@@ -189,8 +191,9 @@ export default function CustomerCard() {
             )}
           </div>
 
-          {/* Only shown when there is something: a server not yet sending these simply leaves them out. */}
-          {(d.lookedOnline ?? []).length > 0 && (
+          {/* Only shown when there is something: a server not yet sending these simply leaves them out.
+              With CRM on, what they looked at online is shown in CRM (Inventory still records it). */}
+          {!crm.on && (d.lookedOnline ?? []).length > 0 && (
             <div style={box}>
               <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}><Eye size={16} /> Looked at online lately</div>
               <div style={{ display: 'grid', gap: '8px' }}>
@@ -231,6 +234,15 @@ export default function CustomerCard() {
             </div>
           )}
 
+          {crm.on ? (
+            <div style={box}>
+              <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}><StickyNote size={16} /> Notes and online visits</div>
+              <p style={{ margin: '0 0 10px', color: 'var(--text-secondary)', fontSize: '14px' }}>Kept in ScaleEzy CRM for this shop: write notes and see what they looked at online there.</p>
+              <a href={crm.customerUrl(c.id)} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', textDecoration: 'none' }}>
+                <ExternalLink size={16} /> Open in CRM
+              </a>
+            </div>
+          ) : (
           <div style={box}>
             <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}><StickyNote size={16} /> Notes</div>
             {c.notes.length === 0
@@ -243,6 +255,7 @@ export default function CustomerCard() {
               </form>
             )}
           </div>
+          )}
 
           <Link to={`/customers/${c.id}`} className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', textDecoration: 'none' }}>
             <ExternalLink size={16} /> Open their full page

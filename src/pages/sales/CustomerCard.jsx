@@ -135,6 +135,8 @@ export default function CustomerCard() {
           <p style={{ margin: '0 0 12px', color: 'var(--text-secondary)', fontSize: '14px' }}>
             Nobody has this number yet. Ask what they are shopping for, and add them so the next visit has a card.
           </p>
+          {/* A first visit may already have tried things on (TryOn2Buy, the online shop): shown before they are added. */}
+          {(d.lookedOnline ?? []).length > 0 && <div style={{ margin: '0 0 12px' }}><LookedOnline items={d.lookedOnline} box={{ ...box, padding: 0, border: 'none', background: 'none' }} /></div>}
           {can('customer:create') && (
             <button type="button" className="btn-primary" onClick={() => setAdding(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
               <UserPlus size={16} /> Add customer
@@ -196,28 +198,7 @@ export default function CustomerCard() {
             )}
           </div>
 
-          {/* Only shown when there is something: a server not yet sending these simply leaves them out.
-              */}
-          {(d.lookedOnline ?? []).length > 0 && (
-            <div style={box}>
-              <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}><Eye size={16} /> Looked at online lately</div>
-              <div style={{ display: 'grid', gap: '8px' }}>
-                {d.lookedOnline.map(l => (
-                  <Link key={l.productId} to={`/products/${l.productId}`} style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', padding: '10px 12px', borderRadius: '10px', background: 'var(--bg-input)', textDecoration: 'none', color: 'var(--text-primary)' }}>
-                    <span style={{ minWidth: 0 }}>
-                      <span style={{ fontWeight: 600 }}>{l.title}</span>
-                      <span style={{ display: 'block', fontSize: '12.5px', color: 'var(--text-secondary)' }}>
-                        {[l.colour, l.views > 0 && `viewed ${l.views === 1 ? 'once' : `${l.views} times`}`, l.tryOns > 0 && `tried on${l.tryOns > 1 ? ` ${l.tryOns} times` : ''}`].filter(Boolean).join(' · ')}
-                        {' · '}{l.inStock > 0 ? `${l.inStock} here` : 'not in this store'}
-                      </span>
-                    </span>
-                    {l.shelf && <span style={{ fontSize: '12.5px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}><MapPin size={13} /> {l.shelf}</span>}
-                  </Link>
-                ))}
-              </div>
-              <p style={{ margin: '8px 0 0', fontSize: '12px', color: 'var(--text-secondary)' }}>From the online shop, after they confirmed this number there. Last 30 days; anything bought since is left out.</p>
-            </div>
-          )}
+          <LookedOnline items={d.lookedOnline} box={box} />
 
           {(d.othersAlsoBought ?? []).length > 0 && (
             <div style={box}>
@@ -267,6 +248,35 @@ export default function CustomerCard() {
 
       <CustomerModal isOpen={adding} onClose={() => setAdding(false)} initialPhone={typed}
         onSaved={() => { setAdding(false); card.refetch(); }} />
+    </div>
+  );
+}
+
+/**
+ * What this number looked at and tried on lately -- the online shop and TryOn2Buy, only after they
+ * proved the number there -- hearted pieces first (28 Oct). Shown for a customer, and for a number
+ * that is not a customer yet, so staff see a first visit's try-ons before adding them.
+ */
+function LookedOnline({ items, box }) {
+  if (!(items ?? []).length) return null;
+  return (
+    <div style={box}>
+      <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}><Eye size={16} /> Looked at and tried on lately</div>
+      <div style={{ display: 'grid', gap: '8px' }}>
+        {items.map(l => (
+          <Link key={l.productId} to={`/products/${l.productId}`} style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', padding: '10px 12px', borderRadius: '10px', background: 'var(--bg-input)', textDecoration: 'none', color: 'var(--text-primary)' }}>
+            <span style={{ minWidth: 0 }}>
+              <span style={{ fontWeight: 600 }}>{l.liked && <span aria-label="Liked" title="Liked" style={{ color: 'var(--accent-danger)', marginRight: 4 }}>♥</span>}{l.title}</span>
+              <span style={{ display: 'block', fontSize: '12.5px', color: 'var(--text-secondary)' }}>
+                {[l.colour, l.liked && 'liked', l.views > 0 && `viewed ${l.views === 1 ? 'once' : `${l.views} times`}`, l.tryOns > 0 && `tried on${l.tryOns > 1 ? ` ${l.tryOns} times` : ''}`].filter(Boolean).join(' · ')}
+                {' · '}{l.inStock > 0 ? `${l.inStock} here` : 'not in this store'}
+              </span>
+            </span>
+            {l.shelf && <span style={{ fontSize: '12.5px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}><MapPin size={13} /> {l.shelf}</span>}
+          </Link>
+        ))}
+      </div>
+      <p style={{ margin: '8px 0 0', fontSize: '12px', color: 'var(--text-secondary)' }}>From the online shop and try-on, after they confirmed this number there. Last 30 days; anything bought since is left out.</p>
     </div>
   );
 }

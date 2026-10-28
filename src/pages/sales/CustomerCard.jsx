@@ -51,7 +51,8 @@ export default function CustomerCard() {
   const arrivals = useQuery({
     queryKey: ['checkins', currentLocation?.id],
     queryFn: async () => (await api.get('/customers/checkins', { params: { locationId: currentLocation?.id } })).data,
-    enabled: !!currentLocation?.id, refetchInterval: 15000
+    // Not polled for a shop on CRM: its door check-ins are looked after in CRM's Counter.
+    enabled: !!currentLocation?.id && !crm.on, refetchInterval: 15000
   });
   const open = (e164) => { setTyped(e164.replace(/^\+91/, '')); setProblem(null); setPhone(e164); };
   const take = useMutation({
@@ -75,6 +76,36 @@ export default function CustomerCard() {
 
   const d = card.data;
   const c = d?.customer;
+
+  /*
+   * A shop on ScaleEzy CRM looks customers up and takes them from CRM's Counter (28 Oct, PLAN-crm §7),
+   * so a customer is "taken" in one place only. The door QR standee stays here: it depends on this
+   * shop's WhatsApp number.
+   */
+  if (crm.on) {
+    return (
+      <div style={{ maxWidth: '720px', margin: '0 auto', paddingTop: '24px', paddingBottom: '64px', width: '100%' }}>
+        <button type="button" onClick={goBack} className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>
+          <ArrowLeft size={16} /> Customers
+        </button>
+        <h1 style={{ fontSize: '28px', margin: '0 0 6px', color: 'var(--text-primary)' }}>Customer card</h1>
+        <div style={{ ...box, marginTop: '16px' }}>
+          <p style={{ margin: '0 0 14px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+            For this shop, the customer card and who is in the store now are in ScaleEzy CRM, on its Counter screen,
+            so each customer is looked after in one place.
+          </p>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <a href={crm.counterUrl} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', textDecoration: 'none' }}>
+              <ExternalLink size={16} /> Open Counter in CRM
+            </a>
+            <Link to="/customers/door-qr" className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', textDecoration: 'none' }}>
+              <QrCode size={16} /> Door QR
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ maxWidth: '720px', margin: '0 auto', paddingTop: '24px', paddingBottom: '64px', width: '100%', flex: 1, minHeight: 0, overflowY: 'auto' }}>

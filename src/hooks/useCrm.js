@@ -14,6 +14,8 @@ export function useCrm() {
   const on = !!CRM_APP && Array.isArray(user?.modules) && user.modules.includes('crm');
   return {
     on,
+    /** CRM's Counter: the customer card and who is in the store now, for a shop on CRM. */
+    counterUrl: on ? `${CRM_APP}/counter` : null,
     /** This customer's page in CRM, found by their Inventory id. */
     customerUrl: (inventoryCustomerId) => (on && inventoryCustomerId ? `${CRM_APP}/customers/from/inventory/${encodeURIComponent(inventoryCustomerId)}` : null)
   };

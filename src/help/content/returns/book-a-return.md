@@ -48,7 +48,7 @@ Click [[1]] **Book it in**.
 
 ## 5. Find it in Returns
 
-The return is now in **Returns** as [[1]] **Requested**. When the goods arrive, the stock room receives and checks it.
+The return is now in the **Returns** tab of **Orders** as [[1]] **Requested**. When the goods arrive, the stock room receives and checks it.
 
 ![The Customer Returns list. The new return for SO-000001, Requested, reason Faulty or badly made, is marked 1.](5-on-returns-list.webp "The list shows the reason in the same words as the return form.")
 
@@ -69,5 +69,5 @@ Choose a reason in **Why is it coming back?** before you click **Book it in**.
 :::
 
 :::faq I booked a return by mistake
-Open it in **Returns** and click **Turn down**. Nothing goes back into stock, and the pieces can be returned properly later.
+Open it in the **Returns** tab of **Orders** and click **Turn down**. Nothing goes back into stock, and the pieces can be returned properly later.
 :::

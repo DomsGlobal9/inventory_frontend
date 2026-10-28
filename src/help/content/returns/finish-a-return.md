@@ -13,15 +13,15 @@ A return moves through four steps: **Requested** (booked in) → **Received** (t
 To book a return in first, see [Book in a return](/help/returns/book-a-return).
 
 :::note Who can do this
-With the standard roles, **stock room staff, admins and the owner**. Sales staff and inventory managers do not see Returns.
+With the standard roles, **stock room staff, admins and the owner**. Sales staff and inventory managers do not see Returns. Someone who may see returns but not orders has **Returns** in the menu on the left instead.
 :::
 
 ## 1. Open the return
 
-1. In the menu on the left, click [[1]] **Returns**.
-2. Click [[2]] the return that has arrived. New returns say **Requested**.
+1. In the menu on the left, click [[1]] **Orders**, then the [[2]] **Returns** tab at the top.
+2. Click [[3]] the return that has arrived. New returns say **Requested**.
 
-![The Customer Returns list. Returns is marked 1 in the left menu and a Requested return for Lakshmi Narayanan is marked 2.](1-open.webp "The newest return is at the top.")
+![The Customer Returns list. Orders is marked 1 in the menu, the Returns tab 2 and a Requested return for Lakshmi Devi 3.](1-open.webp "The newest return is at the top.")
 
 ## 2. Mark it as received
 
@@ -74,8 +74,8 @@ Paid online through Razorpay? Then **Online (Razorpay)** is chosen first. Press 
 
 ## Common problems
 
-:::faq I don't see Returns in the menu
-Your role cannot see returns. Ask your shop owner.
+:::faq I don't see the Returns tab
+Returns are a tab at the top of **Orders**, not an entry in the menu. If there is no **Returns** tab, your role cannot see returns. Ask your shop owner.
 :::
 
 :::faq The customer is standing at the counter with the piece

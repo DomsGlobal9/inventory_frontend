@@ -14,14 +14,14 @@ When the customer is standing at the counter with the piece, you do not need the
 
 ## 1. Find the bill
 
-1. In the menu on the left, click [[1]] **Returns**, then [[2]] **Take a return**. Or, on the order or its receipt, click **Take a return**.
+1. In the menu on the left, click [[1]] **Orders**, then the [[2]] **Returns** tab at the top, then [[3]] **Take a return**. Or, on the order or its receipt, click **Take a return**.
 
-![The Returns page. Returns is marked 1 in the menu and Take a return 2.](1-open.webp "Sales staff can take returns at the counter too.")
+![The Customer Returns page. Orders is marked 1 in the menu, the Returns tab 2 and Take a return 3.](1-open.webp "Sales staff can take returns at the counter too.")
 
-2. [[3]] Type the bill number from the receipt (for example *SO-000123*, or just *123*), or the customer's phone number or name.
-3. [[4]] Click the right bill. It says how many pieces can still come back.
+2. [[4]] Type the bill number from the receipt (for example *SO-000123*, or just *123*), or the customer's phone number or name.
+3. [[5]] Click the right bill. It says how many pieces can still come back.
 
-![Find the bill. The search box with the bill number is marked 3 and the bill found, with 2 pieces that can come back, 4.](2-find-the-bill.webp "Bills with nothing left to return are grey.")
+![Find the bill. The search box with the name Lakshmi is marked 4 and the bill SO-000162, with 2 pieces that can come back, 5.](2-find-the-bill.webp "Bills with nothing left to return are grey.")
 
 ## 2. Choose what is coming back
 
@@ -70,13 +70,13 @@ Past either limit, the screen says a manager is needed, and why. A manager (anyo
 
 ## 6. Afterwards
 
-- The return is in **Returns**, marked as taken at the counter. Open it to print or send the return note.
+- The return is in the **Returns** tab of **Orders**, marked as taken at the counter. Open it to print or send the return note.
 - The bill shows what was paid back.
 - The **Day Book** shows money taken and paid back, and the cash that should be in the drawer.
 - A customer's page shows their **Store credit**. A manager can pay it out in money with **Pay out in money**.
 
 :::faq The bill says everything already came back
-Every piece has been returned already, or is on a return that is still open. Check **Returns**.
+Every piece has been returned already, or is on a return that is still open. Check the **Returns** tab in **Orders**.
 :::
 
 :::faq It says a manager needs to take this return

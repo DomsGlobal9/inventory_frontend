@@ -14,7 +14,7 @@ Every screen in ScaleEzy has the same frame around it. Learn these seven places 
 
 ## 1. The menu
 
-[[1]] The menu on the left takes you to each part of ScaleEzy: Dashboard, Products, Orders, Returns, Inventory, Shelves and so on.
+[[1]] The menu on the left takes you to each part of ScaleEzy: Dashboard, Products, Orders, Inventory, Shelves and so on. Returns are a tab inside **Orders**, and moving stock between stores is the **Move stock** box on **Inventory**.
 
 You only see the parts your job needs. If something is missing, your role doesn't include it. Ask your shop owner.
 

@@ -46,11 +46,9 @@ Every change to your stock is saved as its own line, with who did it and when. Y
 | Part | What it is for |
 |---|---|
 | **Products** | Everything you sell, with sizes, colours, prices, barcodes and photos |
-| **Orders** | Bills from the POS till, online orders and Shopify orders, and what was paid |
-| **Returns** | Items customers bring back |
-| **Inventory** | How much you have in each store, alerts for low stock, and stock counts |
+| **Orders** | Bills from the POS till, online orders and Shopify orders, and what was paid. Its **Returns** tab has the items customers bring back |
+| **Inventory** | How much you have in each store, alerts for low stock, stock counts, and **Move stock** to send stock between your stores |
 | **Shelves** | Which rack and shelf every piece is on |
-| **Transfers** | Moving stock between your stores |
 | **Purchase Orders** | Buying from suppliers and receiving deliveries |
 | **Offers** | Sales, discount codes and the till's discount limit |
 | **Customers** | Your customers and what they bought |

@@ -70,7 +70,7 @@ People whose role includes counter sales see the note, on a computer or tablet.
 
 What stays in Inventory:
 
-- **Returns** of bills made at Inventory's own counter: **Returns → Take a return**. See [Take a return at the counter](/help/returns/take-a-return). A bill made on the till is returned on the till, and that return reaches Inventory by itself.
+- **Returns** of bills made at Inventory's own counter: **Orders**, the **Returns** tab, then **Take a return**. See [Take a return at the counter](/help/returns/take-a-return). A bill made on the till is returned on the till, and that return reaches Inventory by itself.
 - Receipts of older bills made at Inventory's counter can still be printed again from the order. The till prints its own bills. See [Print or reprint a receipt](/help/orders/receipts).
 - Loyalty points, till rules and offer codes are still set here. See [Loyalty points](/help/customers/loyalty-points) and [Till rules](/help/offers/till-rules).
 

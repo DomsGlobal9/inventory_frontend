@@ -18,7 +18,9 @@ export default function ProductTryOnsCard({ productId }) {
     queryFn: async () => (await api.get(`/products/${productId}/try-ons`)).data,
     enabled: !!productId,
     staleTime: 60_000,
-    retry: false
+    retry: false,
+    // Optional: when the counts cannot be read the card simply is not there, with no error toast.
+    meta: { quiet: true }
   });
   if (!data || !data.triedOn) return null;
 

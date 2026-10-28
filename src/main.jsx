@@ -35,7 +35,10 @@ installGlobalErrorReporting();
  * connection once, not five times.
  */
 const queryCache = new QueryCache({
-  onError: (error) => {
+  onError: (error, query) => {
+    // An optional extra on a screen (meta.quiet) hides itself when it cannot load; a toast about
+    // something the person never asked for is only alarming.
+    if (query?.meta?.quiet) return;
     if (isPermissionError(error)) return;
     const status = error?.response?.status ?? error?.statusCode;
     if (status === 401 || status === 404) return;

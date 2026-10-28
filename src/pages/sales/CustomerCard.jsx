@@ -51,8 +51,7 @@ export default function CustomerCard() {
   const arrivals = useQuery({
     queryKey: ['checkins', currentLocation?.id],
     queryFn: async () => (await api.get('/customers/checkins', { params: { locationId: currentLocation?.id } })).data,
-    // Not polled for a shop on CRM: its door check-ins are looked after in CRM's Counter.
-    enabled: !!currentLocation?.id && !crm.on, refetchInterval: 15000
+    enabled: !!currentLocation?.id, refetchInterval: 15000
   });
   const open = (e164) => { setTyped(e164.replace(/^\+91/, '')); setProblem(null); setPhone(e164); };
   const take = useMutation({
@@ -78,35 +77,10 @@ export default function CustomerCard() {
   const c = d?.customer;
 
   /*
-   * A shop on ScaleEzy CRM looks customers up and takes them from CRM's Counter (28 Oct, PLAN-crm §7),
-   * so a customer is "taken" in one place only. The door QR standee stays here: it depends on this
-   * shop's WhatsApp number.
+   * The counter stays HERE for every shop, CRM or not (28 Oct): salespeople already have their
+   * Inventory sign-in and permissions, and a second app at the door slowed them down. What happens
+   * here -- check-ins and takes, notes, look-ups -- reaches CRM through the change feed.
    */
-  if (crm.on) {
-    return (
-      <div style={{ maxWidth: '720px', margin: '0 auto', paddingTop: '24px', paddingBottom: '64px', width: '100%' }}>
-        <button type="button" onClick={goBack} className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>
-          <ArrowLeft size={16} /> Customers
-        </button>
-        <h1 style={{ fontSize: '28px', margin: '0 0 6px', color: 'var(--text-primary)' }}>Customer card</h1>
-        <div style={{ ...box, marginTop: '16px' }}>
-          <p style={{ margin: '0 0 14px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-            For this shop, the customer card and who is in the store now are in ScaleEzy CRM, on its Counter screen,
-            so each customer is looked after in one place.
-          </p>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            <a href={crm.counterUrl} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', textDecoration: 'none' }}>
-              <ExternalLink size={16} /> Open Counter in CRM
-            </a>
-            <Link to="/customers/door-qr" className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', textDecoration: 'none' }}>
-              <QrCode size={16} /> Door QR
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div style={{ maxWidth: '720px', margin: '0 auto', paddingTop: '24px', paddingBottom: '64px', width: '100%', flex: 1, minHeight: 0, overflowY: 'auto' }}>
       <button type="button" onClick={goBack} className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>
@@ -223,8 +197,8 @@ export default function CustomerCard() {
           </div>
 
           {/* Only shown when there is something: a server not yet sending these simply leaves them out.
-              With CRM on, what they looked at online is shown in CRM (Inventory still records it). */}
-          {!crm.on && (d.lookedOnline ?? []).length > 0 && (
+              */}
+          {(d.lookedOnline ?? []).length > 0 && (
             <div style={box}>
               <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}><Eye size={16} /> Looked at online lately</div>
               <div style={{ display: 'grid', gap: '8px' }}>
@@ -265,15 +239,6 @@ export default function CustomerCard() {
             </div>
           )}
 
-          {crm.on ? (
-            <div style={box}>
-              <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}><StickyNote size={16} /> Notes and online visits</div>
-              <p style={{ margin: '0 0 10px', color: 'var(--text-secondary)', fontSize: '14px' }}>Kept in ScaleEzy CRM for this shop: write notes and see what they looked at online there.</p>
-              <a href={crm.customerUrl(c.id)} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', textDecoration: 'none' }}>
-                <ExternalLink size={16} /> Open in CRM
-              </a>
-            </div>
-          ) : (
           <div style={box}>
             <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}><StickyNote size={16} /> Notes</div>
             {c.notes.length === 0
@@ -286,6 +251,12 @@ export default function CustomerCard() {
               </form>
             )}
           </div>
+
+          {/* For a shop on CRM, the whole story (follow-ups, timeline) is one tap away -- optional. */}
+          {crm.on && (
+            <a href={crm.customerUrl(c.id)} target="_blank" rel="noopener noreferrer" className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', textDecoration: 'none' }}>
+              <ExternalLink size={16} /> Full profile in CRM
+            </a>
           )}
 
           <Link to={`/customers/${c.id}`} className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', textDecoration: 'none' }}>

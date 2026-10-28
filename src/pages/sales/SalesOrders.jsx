@@ -44,7 +44,12 @@ const whereFrom = (order) => order.atCounter ? 'Counter'
  * Not paid (23 Oct).
  */
 const paymentPill = (order) => {
-  if (order.sourceSystem === 'SHOPIFY') return null;
+  if (order.sourceSystem === 'SHOPIFY') {
+    // Cash on delivery: the money is still to collect until Shopify marks the order paid (28 Oct).
+    // Every other Shopify order is paid on Shopify, and older ones carry no payments here at all.
+    if (!order.payOnDelivery || order.status === 'CANCELLED') return null;
+    return order.payment?.due > 0 ? <Pill label={`${formatINRExact(order.payment.due)} to collect`} color="245, 158, 11" /> : null;
+  }
   if ((order.status === 'CANCELLED' || order.status === 'DRAFT') && !(order.payment?.paid > 0)) return null;
   if (order.payment?.status === 'PART_PAID' || order.payment?.status === 'UNPAID') {
     return <Pill label={`${formatINRExact(order.payment.due)} due`} color="245, 158, 11" />;

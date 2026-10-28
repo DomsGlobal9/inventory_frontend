@@ -22,6 +22,8 @@ keywords: pick picking pick list orders online shopify dispatch send out pack co
 
 ![The Pick screen with three orders waiting to go out from Main Store, all ticked. The Pick tab is marked 1, order SO-000003 is marked 2 and Pick 3 orders is marked 3.](1-choose-orders.webp "The big number on the right is how many pieces the order needs.")
 
+Picking just one online order? Open it in **Orders** and click **Pick from shelves**. The walking list opens for that order, at the order's own store, and you come back to the order when you finish.
+
 ## 2. Walk the shelves
 
 The list is in walking order. The shop floor comes first, then the back room.
@@ -48,6 +50,8 @@ Press **Not here** on that line. ScaleEzy:
 ![The line for Anarkali Suit Set on back room shelf STORE-R1-2, with the words 1 not found — reported marked 1.](3-not-here.webp "The order keeps waiting for that piece. Pick it again once it is found.")
 
 ## 4. Send out what you picked
+
+Under **Who is carrying them**, choose the courier and type each order's tracking number if you have it. See [Couriers, tracking and parcel labels](/help/orders/couriers).
 
 At the bottom, press [[1]] **Send out picked**. You do not have to finish the whole list first. Only the pieces you picked are sent.
 

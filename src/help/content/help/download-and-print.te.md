@@ -22,6 +22,9 @@ ScaleEzy లో "అన్నీ ఎక్స్‌పోర్ట్ చేయ�
 | ఒక పర్చేస్ ఆర్డర్ | **Download PDF** | ప్రింట్ చేయడానికి లేదా పంపడానికి పర్చేస్ ఆర్డర్ PDF | [పర్చేస్ ఆర్డర్ పెట్టి పంపండి](/help/purchase-orders/create-a-purchase-order) |
 | ఒక పర్చేస్ ఆర్డర్ | **Send on WhatsApp**, **Email to supplier** | ఆర్డర్‌ను సప్లయర్‌కు పంపుతుంది (డ్రాఫ్ట్ ఆర్డర్లు మాత్రమే) | [పర్చేస్ ఆర్డర్ పెట్టి పంపండి](/help/purchase-orders/create-a-purchase-order) |
 | ఒక పర్చేస్ ఆర్డర్ | **Download receipt PDF**, **Receipt PDF** | ఒక డెలివరీ గూడ్స్ రసీదు | [డెలివరీ రిసీవ్ చేసుకోండి](/help/purchase-orders/receive-a-delivery) |
+| **Orders** | **Export to Excel** | మీ సెర్చ్, ఫిల్టర్లకు సరిపోయే ప్రతి ఆర్డర్ Excel ఫైల్, కొరియర్ మరియు ట్రాకింగ్ నంబర్‌తో | [ఆర్డర్ వెతకండి](/help/orders/find-an-order) |
+| **Orders**, టిక్ చేసిన ఆర్డర్లు | **Print labels** | బాక్స్ కోసం పార్సెల్ లేబుల్స్, లేబుల్ ప్రింటర్ (4 × 6 in) లేదా A4 మీద | [కొరియర్లు, పార్సెల్ లేబుల్స్](/help/orders/couriers) |
+| పంపిన ఆర్డర్, **Parcel** | **Print label** | ఆ బాక్స్ పార్సెల్ లేబుల్ | [కొరియర్లు, పార్సెల్ లేబుల్స్](/help/orders/couriers) |
 | ఒక కౌంటర్ సేల్ | **Print receipt** | మీ బ్రౌజర్ నుండి ప్రింట్ చేసే 80 mm రసీదు | [రసీదు ప్రింట్ చేయండి](/help/orders/receipts) |
 | సింగిల్-యూజ్ కోడ్‌లు ఉన్న ఆఫర్ | **CSV**, **Copy unused** | ప్రతి కోడ్ ఒక స్ప్రెడ్‌షీట్‌లో, లేదా వాడని కోడ్‌లు కాపీ | [ఆఫర్ కోడ్‌లు](/help/offers/offer-codes) |
 | **Shelves → Racks & shelves** | **Print all labels**, **Labels** | మీ బ్రౌజర్ నుండి ప్రింట్ చేసే QR కోడ్ షెల్ఫ్ లేబుల్స్ | [ర్యాక్‌లు సెటప్ చేయండి](/help/shelves/set-up-racks) |
@@ -29,7 +32,7 @@ ScaleEzy లో "అన్నీ ఎక్స్‌పోర్ట్ చేయ�
 | **Settings → Connected websites** | **Save what we hold** | ఒక Shopify కస్టమర్ అడిగిన డేటా | [Shopify కనెక్ట్ చేయండి](/help/settings/connect-shopify) |
 
 :::note ఈ స్క్రీన్‌లలో డౌన్‌లోడ్ లేదు
-**Inventory**, లెడ్జర్ (**View Ledger**), **Orders**, **Returns**, **Customers**, **Purchase Orders** (లిస్ట్), **Suppliers**, **Transfers**, **Stock counts**, **Dashboard** లకు ఇంకా Export బటన్ లేదు.
+**Inventory**, లెడ్జర్ (**View Ledger**), **Orders** లోని **Returns** ట్యాబ్, **Customers**, **Purchase Orders** (లిస్ట్), **Suppliers**, **Stock counts**, **Dashboard** లకు ఇంకా Export బటన్ లేదు.
 :::
 
 ## స్ప్రెడ్‌షీట్‌లు (CSV ఫైల్స్)

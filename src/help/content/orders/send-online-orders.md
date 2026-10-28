@@ -35,7 +35,7 @@ When the parcel is packed, open the **Confirmed** [[1]] order and click [[2]] **
 ![A confirmed order SO-000003 for Farah Khan. The Confirmed label is marked 1 and the Create Dispatch button is marked 2.](3-create-dispatch.webp "Stock room staff, admins and owners see Create Dispatch.")
 
 :::tip Using shelves?
-Pick the pieces from their shelves first with [Pick online orders](/help/shelves/pick). The pick list can send the order out for you when you finish.
+Pick the pieces from their shelves first. On an online order, **Pick from shelves** (under **Create Dispatch**) opens the walking list for just this order; or pick many orders at once with [Pick online orders](/help/shelves/pick). The pick list can send the order out for you when you finish.
 :::
 
 ## 4. Say how many go now, then Dispatch Items
@@ -45,7 +45,9 @@ Pick the pieces from their shelves first with [Pick online orders](/help/shelves
 
 ![The Create Dispatch box. The table with SKU, REMAINING and DISPATCH NOW is marked 1, with 1 typed for both items. Dispatch Items is marked 2.](4-dispatch-items.webp "Leave an item at 0 if it is not in this parcel.")
 
-The pieces come off your stock straight away.
+Below the table, choose the **Courier** and type the **Tracking number** from the courier slip, if you have it. See [Couriers, tracking and parcel labels](/help/orders/couriers).
+
+The pieces come off your stock straight away. The order now shows a **Parcel** card, where you can print the label for the box.
 
 ## 5. If only part was sent
 

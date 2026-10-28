@@ -39,10 +39,10 @@ See [Taking orders](/help/online-shop/taking-orders) for how to turn ordering on
 Choosing an address and filling in the settings does not put anything on the web. Nothing is visible to anybody until you press **Open my shop**.
 :::
 
-## What it does not do yet
+## Paying and delivery
 
-- Paying online is not available yet. Customers pay when the order arrives, in cash or by UPI. The **Online** payment box is there but switched off.
-- Delivery tracking is not built in. You send the order the way you send any other.
+- Customers can pay online through your own Razorpay account, or when the order arrives. See [Take payments online](/help/online-shop/take-payments-online).
+- ScaleEzy does not book a courier for you. You send the parcel the way you always do, then write the courier and tracking number on the order. The customer then sees them on their order page, with a **Track** button. See [Couriers, tracking and parcel labels](/help/orders/couriers).
 
 ## Where to go next
 

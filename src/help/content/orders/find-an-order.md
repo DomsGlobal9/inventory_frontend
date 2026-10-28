@@ -32,6 +32,7 @@ Each row shows:
    - **Where from**: *POS till*, *Online shop*, *Shopify*, *Counter* or *Typed in*.
    - **Kept orders**: *Waiting for collection*, *Past the promised date* or *Handed over*.
    - **Store** (when you have more than one) and **Amount**.
+   - **Delivery**: *Tracking number missing*, *On the way* or *Delivered*. **Courier**: one courier's parcels. See [Couriers, tracking and parcel labels](/help/orders/couriers).
 3. [[3]] The line under the filters says how many orders match, what they come to **in sales** (cancelled orders and drafts are left out) and how much of it is still **due**.
 4. **Sort** puts them newest first, oldest first, by amount, or **Most due first**: the orders owing the most at the top.
 
@@ -47,7 +48,9 @@ The filters you choose are in the page's address. Copy it and send it, and the o
 
 ## 3. Download the list to Excel
 
-Click [[4]] **Export to Excel**. Every order that matches your search and filters is downloaded, not only the 50 on screen: order and bill number, date, store, where from, customer, status, pieces, total, paid, refunded, written off, due, payment, and for kept orders the promised day and when it was handed over.
+Click [[4]] **Export to Excel**. Every order that matches your search and filters is downloaded, not only the 50 on screen: order and bill number, date, store, where from, customer, status, pieces, total, paid, refunded, written off, due, payment, for kept orders the promised day and when it was handed over, and for parcels the courier, tracking number and the day it was delivered.
+
+The tick boxes on the left of each order are for printing parcel labels and marking orders delivered, many at once. See [Couriers, tracking and parcel labels](/help/orders/couriers).
 
 ## 4. Read the order
 
@@ -55,7 +58,7 @@ Click **View** on a row. The order page shows:
 
 1. [[1]] The order number, status, customer, date, store and who made it.
 2. [[2]] **Taken from shelves**: which shelf each piece was taken from. You only see this if your shop uses shelves.
-3. [[3]] **Line Items**: each item with how many were ordered, are still held (**RESERVED**) and were sent (**DISPATCHED**).
+3. [[3]] **Line Items**: each item with how many were ordered, are still held (**RESERVED**) and were sent (**DISPATCHED**). Click an item's code or name to open that product at that exact colour and size. An order with many items shows the first 6; **Show all** shows the rest.
 4. [[4]] **Summary**: the total, and every discount with its reason. **OFFER** is a running offer. **BY HAND** is a discount given by hand.
 5. [[5]] **Payments**: how it was paid, when and by whom. At the top right it says **Paid** or how much is **due**. A refund for a return is written on the return, not here.
 
@@ -66,7 +69,8 @@ A **kept order** from the till (goods kept in the shop for the customer to colle
 What you can do next depends on the order:
 
 - A bill made at Inventory's own counter: [Print or reprint a receipt](/help/orders/receipts). A till bill is printed by the till.
-- A confirmed order: [Send out an online order](/help/orders/send-online-orders).
+- A confirmed order: [Send out an online order](/help/orders/send-online-orders). An online order waiting to go out from a store that uses shelves also has **Pick from shelves**: see [Pick online orders](/help/shelves/pick).
+- A sent order: its **Parcel** card has the courier, tracking number, **Track**, **Print label** and **Mark delivered**. See [Couriers, tracking and parcel labels](/help/orders/couriers).
 - An order that is not needed: [Cancel an order](/help/orders/cancel-an-order).
 
 ## 5. Record money collected later

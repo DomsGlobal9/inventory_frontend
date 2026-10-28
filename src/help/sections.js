@@ -47,7 +47,7 @@ export const SECTIONS = [
       ta: 'கவுண்டர் விற்பனை, ரசீதுகள், ஆன்லைன் ஆர்டர்களை அனுப்புதல்.',
       kn: 'ಕೌಂಟರ್ ಮಾರಾಟ, ರಸೀದಿಗಳು, ಆನ್‌ಲೈನ್ ಆರ್ಡರ್‌ಗಳನ್ನು ಕಳುಹಿಸುವುದು.'
     },
-    pages: ['receipts', 'find-an-order', 'send-online-orders', 'cancel-an-order'] },
+    pages: ['receipts', 'find-an-order', 'send-online-orders', 'couriers', 'cancel-an-order'] },
   { id: 'returns', title: 'Returns', icon: 'Undo2',
     blurb: 'Book in what customers bring back, check it and finish it.',
     titles: { te: 'Returns (రిటర్న్‌లు)', hi: 'Returns (रिटर्न)', ta: 'Returns (ரிட்டர்ன்கள்)', kn: 'Returns (ರಿಟರ್ನ್‌ಗಳು)' },
@@ -78,9 +78,10 @@ export const SECTIONS = [
       kn: 'ಪ್ರತಿ ಪೀಸ್ ಯಾವ ಶೆಲ್ಫ್‌ನಲ್ಲಿದೆ ಎಂದು ನಿಖರವಾಗಿ ತಿಳಿಯಿರಿ.'
     },
     pages: ['how-shelves-work', 'set-up-racks', 'fill-shelves', 'put-away', 'where-is-it', 'move', 'pick', 'count', 'shelf-issues', 'map'] },
-  { id: 'transfers', title: 'Transfers', icon: 'ArrowLeftRight',
-    blurb: 'Move stock between your stores and godowns.',
-    titles: { te: 'Transfers (ట్రాన్స్‌ఫర్‌లు)', hi: 'Transfers (ट्रांसफ़र)', ta: 'Transfers (டிரான்ஸ்ஃபர்கள்)', kn: 'Transfers (ಟ್ರಾನ್ಸ್‌ಫರ್‌ಗಳು)' },
+  // The id stays 'transfers' so old links keep working; the app calls it Move stock (a box on Inventory) since Oct.
+  { id: 'transfers', title: 'Move stock', icon: 'ArrowLeftRight',
+    blurb: 'Move stock between your stores and godowns, from Inventory.',
+    titles: { te: 'Move stock (స్టాక్ మార్చడం)', hi: 'Move stock (स्टॉक भेजना)', ta: 'Move stock (ஸ்டாக் மாற்றுதல்)', kn: 'Move stock (ಸ್ಟಾಕ್ ಸಾಗಿಸುವುದು)' },
     blurbs: {
       te: 'మీ షాప్‌లు, గోడౌన్‌ల మధ్య స్టాక్ తరలించండి.',
       hi: 'अपनी दुकानों और गोदामों के बीच स्टॉक भेजें।',

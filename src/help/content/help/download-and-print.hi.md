@@ -22,6 +22,9 @@ ScaleEzy में "सब कुछ एक्सपोर्ट करें" �
 | कोई परचेज़ ऑर्डर | **Download PDF** | परचेज़ ऑर्डर की PDF, प्रिंट करने या भेजने के लिए | [परचेज़ ऑर्डर बनाएँ](/help/purchase-orders/create-a-purchase-order) |
 | कोई परचेज़ ऑर्डर | **Send on WhatsApp**, **Email to supplier** | ऑर्डर सप्लायर को भेजता है (सिर्फ़ ड्राफ़्ट ऑर्डर) | [परचेज़ ऑर्डर बनाएँ](/help/purchase-orders/create-a-purchase-order) |
 | कोई परचेज़ ऑर्डर | **Download receipt PDF**, **Receipt PDF** | एक डिलीवरी की माल रसीद (goods receipt) | [डिलीवरी लें](/help/purchase-orders/receive-a-delivery) |
+| **Orders** | **Export to Excel** | आपकी सर्च और फ़िल्टर से मिलने वाले हर ऑर्डर की Excel फ़ाइल, कूरियर और ट्रैकिंग नंबर के साथ | [ऑर्डर ढूँढें](/help/orders/find-an-order) |
+| **Orders**, टिक किए गए ऑर्डर | **Print labels** | डिब्बे के लिए पार्सल लेबल, लेबल प्रिंटर (4 × 6 इंच) या A4 पर | [कूरियर और पार्सल लेबल](/help/orders/couriers) |
+| भेजा गया ऑर्डर, **Parcel** | **Print label** | उस डिब्बे का पार्सल लेबल | [कूरियर और पार्सल लेबल](/help/orders/couriers) |
 | कोई काउंटर बिक्री | **Print receipt** | 80 mm की रसीद, आपके ब्राउज़र से प्रिंट होती है | [रसीद प्रिंट करें](/help/orders/receipts) |
 | एक बार इस्तेमाल होने वाले कोड वाला ऑफ़र | **CSV**, **Copy unused** | सारे कोड एक स्प्रेडशीट में, या बिना इस्तेमाल हुए कोड कॉपी | [ऑफ़र कोड](/help/offers/offer-codes) |
 | **Shelves → Racks & shelves** | **Print all labels**, **Labels** | QR कोड वाले शेल्फ़ लेबल, आपके ब्राउज़र से प्रिंट होते हैं | [रैक सेट करें](/help/shelves/set-up-racks) |
@@ -29,7 +32,7 @@ ScaleEzy में "सब कुछ एक्सपोर्ट करें" �
 | **Settings → Connected websites** | **Save what we hold** | वह डेटा जो किसी Shopify ग्राहक ने माँगा है | [Shopify जोड़ें](/help/settings/connect-shopify) |
 
 :::note इन स्क्रीन पर कोई डाउनलोड नहीं
-**Inventory**, लेजर (**View Ledger**), **Orders**, **Returns**, **Customers**, **Purchase Orders** (लिस्ट), **Suppliers**, **Transfers**, **Stock counts** और **Dashboard** पर अभी Export बटन नहीं है।
+**Inventory**, लेजर (**View Ledger**), **Orders** का **Returns** टैब, **Customers**, **Purchase Orders** (लिस्ट), **Suppliers**, **Stock counts** और **Dashboard** पर अभी Export बटन नहीं है।
 :::
 
 ## स्प्रेडशीट (CSV फ़ाइलें)

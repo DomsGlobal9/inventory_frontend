@@ -22,6 +22,9 @@ ScaleEzy-இல் "எல்லாவற்றையும் எக்ஸ்�
 | ஒரு பர்ச்சேஸ் ஆர்டர் | **Download PDF** | பிரிண்ட் செய்ய அல்லது அனுப்ப, பர்ச்சேஸ் ஆர்டர் PDF-ஆக | [பர்ச்சேஸ் ஆர்டர் போடுதல்](/help/purchase-orders/create-a-purchase-order) |
 | ஒரு பர்ச்சேஸ் ஆர்டர் | **Send on WhatsApp**, **Email to supplier** | ஆர்டரை சப்ளையருக்கு அனுப்பும் (டிராஃப்ட் ஆர்டர்கள் மட்டும்) | [பர்ச்சேஸ் ஆர்டர் போடுதல்](/help/purchase-orders/create-a-purchase-order) |
 | ஒரு பர்ச்சேஸ் ஆர்டர் | **Download receipt PDF**, **Receipt PDF** | ஒரு டெலிவரிக்கான சரக்கு ரசீது | [டெலிவரியைப் பெற்றுக்கொள்ளுதல்](/help/purchase-orders/receive-a-delivery) |
+| **Orders** | **Export to Excel** | உங்கள் தேடலுக்கும் ஃபில்டர்களுக்கும் பொருந்தும் எல்லா ஆர்டர்களின் Excel ஃபைல், கூரியர் மற்றும் டிராக்கிங் நம்பருடன் | [ஆர்டரைக் கண்டுபிடித்தல்](/help/orders/find-an-order) |
+| **Orders**, டிக் செய்த ஆர்டர்கள் | **Print labels** | பெட்டிக்கான பார்சல் லேபிள்கள், லேபிள் பிரிண்டரில் (4 × 6 in) அல்லது A4-இல் | [கூரியர்கள் மற்றும் பார்சல் லேபிள்கள்](/help/orders/couriers) |
+| அனுப்பிய ஆர்டர், **Parcel** | **Print label** | அந்தப் பெட்டிக்கான பார்சல் லேபிள் | [கூரியர்கள் மற்றும் பார்சல் லேபிள்கள்](/help/orders/couriers) |
 | ஒரு கவுண்டர் விற்பனை | **Print receipt** | உங்கள் பிரௌசரிலிருந்து பிரிண்ட் செய்யப்படும் 80 mm ரசீது | [ரசீதை பிரிண்ட் செய்தல்](/help/orders/receipts) |
 | ஒருமுறை மட்டும் பயன்படுத்தக்கூடிய கோடுகள் உள்ள ஆஃபர் | **CSV**, **Copy unused** | எல்லாக் கோடுகளும் ஒரு ஸ்ப்ரெட்ஷீட்டில், அல்லது பயன்படுத்தாத கோடுகள் காப்பி ஆகும் | [ஆஃபர் கோடுகள்](/help/offers/offer-codes) |
 | **Shelves → Racks & shelves** | **Print all labels**, **Labels** | QR கோடுடன் ஷெல்ஃப் லேபிள்கள், உங்கள் பிரௌசரிலிருந்து பிரிண்ட் செய்யப்படும் | [ரேக் அமைத்தல்](/help/shelves/set-up-racks) |
@@ -29,7 +32,7 @@ ScaleEzy-இல் "எல்லாவற்றையும் எக்ஸ்�
 | **Settings → Connected websites** | **Save what we hold** | ஒரு Shopify வாடிக்கையாளர் கேட்ட தரவு | [Shopify-ஐ இணைத்தல்](/help/settings/connect-shopify) |
 
 :::note இந்தத் திரைகளில் டவுன்லோட் இல்லை
-**Inventory**, லெட்ஜர் (**View Ledger**), **Orders**, **Returns**, **Customers**, **Purchase Orders** (லிஸ்ட்), **Suppliers**, **Transfers**, **Stock counts** மற்றும் **Dashboard** ஆகியவற்றில் இன்னும் Export பட்டன் இல்லை.
+**Inventory**, லெட்ஜர் (**View Ledger**), **Orders**-இன் **Returns** டேப், **Customers**, **Purchase Orders** (லிஸ்ட்), **Suppliers**, **Stock counts** மற்றும் **Dashboard** ஆகியவற்றில் இன்னும் Export பட்டன் இல்லை.
 :::
 
 ## ஸ்ப்ரெட்ஷீட்கள் (CSV ஃபைல்கள்)

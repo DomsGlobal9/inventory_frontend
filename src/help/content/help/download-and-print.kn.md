@@ -22,6 +22,9 @@ ScaleEzy ಯಲ್ಲಿ "ಎಲ್ಲವನ್ನೂ ಎಕ್ಸ್‌ಪೋ�
 | ಒಂದು ಖರೀದಿ ಆರ್ಡರ್ | **Download PDF** | ಪ್ರಿಂಟ್ ಮಾಡಲು ಅಥವಾ ಕಳುಹಿಸಲು ಖರೀದಿ ಆರ್ಡರ್‌ನ PDF | [ಖರೀದಿ ಆರ್ಡರ್ ಮಾಡಿ](/help/purchase-orders/create-a-purchase-order) |
 | ಒಂದು ಖರೀದಿ ಆರ್ಡರ್ | **Send on WhatsApp**, **Email to supplier** | ಆರ್ಡರ್ ಅನ್ನು ಸಪ್ಲೈಯರ್‌ಗೆ ಕಳುಹಿಸುತ್ತದೆ (ಡ್ರಾಫ್ಟ್ ಆರ್ಡರ್‌ಗಳು ಮಾತ್ರ) | [ಖರೀದಿ ಆರ್ಡರ್ ಮಾಡಿ](/help/purchase-orders/create-a-purchase-order) |
 | ಒಂದು ಖರೀದಿ ಆರ್ಡರ್ | **Download receipt PDF**, **Receipt PDF** | ಒಂದು ಡೆಲಿವರಿಯ ಗೂಡ್ಸ್ ರಸೀದಿ (goods receipt) | [ಡೆಲಿವರಿ ಸ್ವೀಕರಿಸಿ](/help/purchase-orders/receive-a-delivery) |
+| **Orders** | **Export to Excel** | ನಿಮ್ಮ ಹುಡುಕಾಟ ಮತ್ತು ಫಿಲ್ಟರ್‌ಗಳಿಗೆ ಹೊಂದುವ ಎಲ್ಲಾ ಆರ್ಡರ್‌ಗಳ Excel ಫೈಲ್, ಕೊರಿಯರ್ ಮತ್ತು ಟ್ರ್ಯಾಕಿಂಗ್ ನಂಬರ್ ಜೊತೆಗೆ | [ಆರ್ಡರ್ ಹುಡುಕಿ](/help/orders/find-an-order) |
+| **Orders**, ಟಿಕ್ ಮಾಡಿದ ಆರ್ಡರ್‌ಗಳು | **Print labels** | ಬಾಕ್ಸ್‌ಗೆ ಅಂಟಿಸುವ ಪಾರ್ಸೆಲ್ ಲೇಬಲ್‌ಗಳು, ಲೇಬಲ್ ಪ್ರಿಂಟರ್‌ನಲ್ಲಿ (4 × 6 in) ಅಥವಾ A4 | [ಕೊರಿಯರ್ ಮತ್ತು ಪಾರ್ಸೆಲ್ ಲೇಬಲ್‌ಗಳು](/help/orders/couriers) |
+| ಕಳುಹಿಸಿದ ಆರ್ಡರ್, **Parcel** | **Print label** | ಆ ಬಾಕ್ಸ್‌ನ ಪಾರ್ಸೆಲ್ ಲೇಬಲ್ | [ಕೊರಿಯರ್ ಮತ್ತು ಪಾರ್ಸೆಲ್ ಲೇಬಲ್‌ಗಳು](/help/orders/couriers) |
 | ಒಂದು ಕೌಂಟರ್ ಮಾರಾಟ | **Print receipt** | ನಿಮ್ಮ ಬ್ರೌಸರ್‌ನಿಂದ ಪ್ರಿಂಟ್ ಆಗುವ 80 mm ರಸೀದಿ | [ರಸೀದಿ ಪ್ರಿಂಟ್ ಮಾಡಿ](/help/orders/receipts) |
 | ಒಮ್ಮೆ ಮಾತ್ರ ಬಳಸುವ ಕೋಡ್‌ಗಳಿರುವ ಆಫರ್ | **CSV**, **Copy unused** | ಎಲ್ಲಾ ಕೋಡ್‌ಗಳ ಸ್ಪ್ರೆಡ್‌ಶೀಟ್, ಅಥವಾ ಬಳಸದ ಕೋಡ್‌ಗಳ ಕಾಪಿ | [ಆಫರ್ ಕೋಡ್‌ಗಳು](/help/offers/offer-codes) |
 | **Shelves → Racks & shelves** | **Print all labels**, **Labels** | ನಿಮ್ಮ ಬ್ರೌಸರ್‌ನಿಂದ ಪ್ರಿಂಟ್ ಆಗುವ, ಕ್ಯೂಆರ್ ಕೋಡ್ ಇರುವ ಶೆಲ್ಫ್ ಲೇಬಲ್‌ಗಳು | [ರ್ಯಾಕ್ ಸೆಟ್ ಮಾಡಿ](/help/shelves/set-up-racks) |
@@ -29,7 +32,7 @@ ScaleEzy ಯಲ್ಲಿ "ಎಲ್ಲವನ್ನೂ ಎಕ್ಸ್‌ಪೋ�
 | **Settings → Connected websites** | **Save what we hold** | Shopify ಗ್ರಾಹಕರೊಬ್ಬರು ಕೇಳಿದ ಅವರ ಡೇಟಾ | [Shopify ಕನೆಕ್ಟ್ ಮಾಡಿ](/help/settings/connect-shopify) |
 
 :::note ಈ ಸ್ಕ್ರೀನ್‌ಗಳಲ್ಲಿ ಡೌನ್‌ಲೋಡ್ ಇಲ್ಲ
-**Inventory**, ಲೆಡ್ಜರ್ (**View Ledger**), **Orders**, **Returns**, **Customers**, **Purchase Orders** (ಪಟ್ಟಿ), **Suppliers**, **Transfers**, **Stock counts** ಮತ್ತು **Dashboard** ನಲ್ಲಿ ಇನ್ನೂ Export ಬಟನ್ ಇಲ್ಲ.
+**Inventory**, ಲೆಡ್ಜರ್ (**View Ledger**), **Orders** ನ **Returns** ಟ್ಯಾಬ್, **Customers**, **Purchase Orders** (ಪಟ್ಟಿ), **Suppliers**, **Stock counts** ಮತ್ತು **Dashboard** ನಲ್ಲಿ ಇನ್ನೂ Export ಬಟನ್ ಇಲ್ಲ.
 :::
 
 ## ಸ್ಪ್ರೆಡ್‌ಶೀಟ್‌ಗಳು (CSV ಫೈಲ್‌ಗಳು)

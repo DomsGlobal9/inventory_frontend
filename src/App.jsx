@@ -57,8 +57,6 @@ import GiftVouchers from './pages/sales/GiftVouchers';
 import SalesOrders from './pages/sales/SalesOrders';
 import SalesOrderDetail from './pages/sales/SalesOrderDetail';
 import Receipt from './pages/sales/Receipt';
-import ParcelLabel from './pages/sales/ParcelLabel';
-import ParcelLabels from './pages/sales/ParcelLabels';
 import ReturnsList from './pages/sales/ReturnsList';
 import ReturnDetail from './pages/sales/ReturnDetail';
 import Login from './pages/Login';
@@ -150,9 +148,6 @@ function App() {
         <Route element={<ProtectedRoute />}>
         {/* Outside the app's frame: a receipt is printed on its own, with nothing around it. */}
         <Route path="/orders/:id/receipt" element={<Guard permission="sales_order:view"><Receipt /></Guard>} />
-        {/* The label for a parcel's box, also printed on its own. */}
-        <Route path="/dispatches/:id/label" element={<Guard permission="sales_order:view"><ParcelLabel /></Guard>} />
-        <Route path="/labels/print" element={<Guard permission="sales_order:view"><ParcelLabels /></Guard>} />
         {/* Shelf labels print on their own too. */}
         <Route path="/shelves/labels" element={<Guard permission="shelf:manage" what="print shelf labels"><ShelfLabels /></Guard>} />
         <Route element={<MainLayout />}>

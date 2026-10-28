@@ -1,17 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import toast from 'react-hot-toast';
-import { Truck, ExternalLink, Copy, CheckCircle2, MessageCircle, Pencil, Printer } from 'lucide-react';
-import CourierFields, { courierForDispatch } from './CourierFields';
-import { useParcelChange } from '../../hooks/useShipping';
-import { usePermission } from '../../hooks/usePermission';
+import { Truck, ExternalLink, Copy, MessageCircle, Printer, Loader2 } from 'lucide-react';
 import { buildWhatsAppUrl } from '../../utils/whatsappUtils';
 
 /**
- * The order's parcels: each dispatch, who carried it, its tracking number, and whether it arrived.
+ * An order's parcels, read-only (28 Oct 2026).
  *
- * Not shown for a till or counter bill -- those are handed over in the shop, there is no parcel.
- * Tracking: a courier page that takes the number in its link opens straight on the parcel; any
- * other opens its tracking page with the number already copied, said in a toast.
+ * Shipping is done by ScaleEzy Logistics: it books the courier through Shiprocket, makes the label and
+ * reports pickup and delivery, all of which lands here. Inventory no longer chooses couriers, types
+ * tracking numbers, marks parcels delivered or prints its own labels. Parcels sent before, and
+ * Shopify's own fulfilments, still show who carried them.
  */
 const day = (d) => new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 
@@ -19,12 +17,14 @@ const copy = async (text) => {
   try { await navigator.clipboard.writeText(text); return true; } catch { return false; }
 };
 
+const LOGISTICS_WORDS = {
+  READY: 'Packed — waiting for Logistics to book the courier',
+  BOOKED: 'Booked', PICKED_UP: 'Picked up', IN_TRANSIT: 'On the way', OUT_FOR_DELIVERY: 'Out for delivery',
+  DELIVERED: 'Delivered', FAILED_ATTEMPT: 'Delivery attempt failed', RTO_INITIATED: 'Coming back to you',
+  RTO_DELIVERED: 'Returned to you — check it in from Returns', CANCELLED: 'Cancelled by Logistics', LOST: 'Lost in transit'
+};
+
 export default function Parcels({ order }) {
-  const { can } = usePermission();
-  const mayEdit = can('dispatch:create');
-  const change = useParcelChange(order.id);
-  const [editing, setEditing] = useState(null);
-  const [draft, setDraft] = useState({});
   const parcels = order.parcels ?? [];
   if (!parcels.length) return null;
   const phone = order.customerPhone || order.customer?.phone;
@@ -37,23 +37,10 @@ export default function Parcels({ order }) {
     }
     window.open(p.trackingUrl, '_blank', 'noopener');
   };
-  const startEdit = (p) => { setEditing(p.id); setDraft({ courierId: p.courierId ?? '', trackingNumber: p.trackingNumber ?? '' }); };
-  const save = (p) => {
-    const body = courierForDispatch(draft);
-    change.mutate(body ? { id: p.id, ...body } : { id: p.id, courierId: null }, {
-      onSuccess: () => { setEditing(null); toast.success('Saved'); }
-    });
-  };
-  // The label for the box: its own page, printed at 4 × 6 inches (pages/sales/ParcelLabel).
-  const printLabel = (p) => window.open(`/dispatches/${p.id}/label?print=1`, '_blank', 'noopener');
-  const labelButton = (p) => (
-    <button type="button" className="btn-secondary" onClick={() => printLabel(p)} style={{ padding: '6px 10px', fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-      <Printer size={14} /> Print label
-    </button>
-  );
   const message = (p) => `Hello${name ? ` ${name}` : ''}, your order ${order.orderNumber} is on its way with ${p.courierName}.`
     + (p.trackingNumber ? ` Tracking number: ${p.trackingNumber}.` : '')
     + (p.trackingUrl ? ` Track it here: ${p.trackingUrl}` : '');
+  const small = { padding: '6px 10px', fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' };
 
   return (
     <div className="card" style={{ padding: 24 }} aria-label="Parcels">
@@ -62,87 +49,47 @@ export default function Parcels({ order }) {
       </h3>
       {parcels.map((p, i) => {
         const delivered = p.status === 'DELIVERED';
+        const l = p.logistics;
         const wa = p.courierName && buildWhatsAppUrl(phone, message(p));
         return (
           <div key={p.id} data-parcel={p.dispatchNumber} style={{ padding: '12px 0', borderTop: i ? '1px solid var(--border-light)' : 'none', display: 'grid', gap: 8, fontSize: 14 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap', alignItems: 'baseline' }}>
               <span style={{ color: 'var(--text-secondary)', fontSize: 13 }}>
                 {p.dispatchNumber} · {p.pieces} {p.pieces === 1 ? 'piece' : 'pieces'} · sent {day(p.sentAt)}
+                {l ? ` · ${l.box ?? 'own box'}, ${l.weightKg} kg` : ''}
               </span>
-              {p.courierName && (
+              {(p.courierName || l) && (
                 <span data-state={delivered ? 'delivered' : 'on-the-way'} style={{ fontSize: 12, fontWeight: 600, color: delivered ? 'var(--accent-success)' : 'var(--accent-warning)' }}>
-                  {delivered ? `Delivered ${day(p.deliveredAt)}` : 'On the way'}
+                  {delivered ? `Delivered ${p.deliveredAt ? day(p.deliveredAt) : ''}` : l ? (LOGISTICS_WORDS[l.status] ?? l.status) : 'On the way'}
                 </span>
               )}
             </div>
-
-            {editing === p.id ? (
-              <div style={{ display: 'grid', gap: 10 }}>
-                <CourierFields value={draft} onChange={setDraft} idPrefix={`pc-${i}`} />
-                <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                  <button type="button" className="btn-secondary" onClick={() => setEditing(null)} disabled={change.isPending}>Cancel</button>
-                  <button type="button" className="btn-primary" onClick={() => save(p)} disabled={change.isPending || draft.courierId === undefined}>Save</button>
-                </div>
-              </div>
-            ) : p.courierName ? (
-              <>
-                {/* Courier and number on the left, what can be done on the right; one under the other when narrow. */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                  <b>{p.courierName}</b>
-                  {p.trackingNumber
-                    ? <span style={{ fontFamily: 'var(--font-mono)' }} data-tracking>{p.trackingNumber}</span>
-                    : p.needsNumber && <span style={{ color: 'var(--accent-warning)', fontSize: 13 }}>No tracking number yet</span>}
-                  {p.trackingNumber && (
-                    <button type="button" aria-label="Copy tracking number" title="Copy" className="btn-ghost-icon"
-                      onClick={async () => { if (await copy(p.trackingNumber)) toast.success('Copied'); }}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 2, display: 'inline-flex' }}>
-                      <Copy size={14} />
-                    </button>
-                  )}
-                </div>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                  {labelButton(p)}
-                  {p.trackingUrl && (
-                    <button type="button" className="btn-secondary" onClick={() => track(p)} style={{ padding: '6px 10px', fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                      <ExternalLink size={14} /> Track
-                    </button>
-                  )}
-                  {wa && (
-                    <a className="btn-secondary" href={wa} target="_blank" rel="noopener noreferrer" style={{ padding: '6px 10px', fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}>
-                      <MessageCircle size={14} /> Send on WhatsApp
-                    </a>
-                  )}
-                  {mayEdit && !delivered && (
-                    <button type="button" className="btn-primary" disabled={change.isPending}
-                      onClick={() => change.mutate({ id: p.id, delivered: true }, { onSuccess: () => toast.success('Marked delivered') })}
-                      style={{ padding: '6px 10px', fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                      <CheckCircle2 size={14} /> Mark delivered
-                    </button>
-                  )}
-                  {mayEdit && (
-                    <button type="button" className="btn-secondary" onClick={() => startEdit(p)} style={{ padding: '6px 10px', fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                      <Pencil size={14} /> {p.trackingNumber || !p.needsNumber ? 'Change' : 'Add tracking number'}
-                    </button>
-                  )}
-                </div>
-                </div>
-                {mayEdit && delivered && (
-                  <button type="button" onClick={() => change.mutate({ id: p.id, delivered: false }, { onSuccess: () => toast.success('Marked not delivered') })}
-                    style={{ justifySelf: 'start', background: 'none', border: 'none', padding: 0, fontSize: 12, color: 'var(--text-secondary)', textDecoration: 'underline', cursor: 'pointer' }}>
-                    Not delivered yet? Undo
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                {p.courierName ? <b>{p.courierName}</b> : l ? (
+                  <span style={{ color: 'var(--text-secondary)', display: 'inline-flex', gap: 6, alignItems: 'center' }}><Loader2 size={14} className="animate-spin" /> ScaleEzy Logistics is booking the courier</span>
+                ) : <span style={{ color: 'var(--text-secondary)' }}>Handed over (no courier)</span>}
+                {p.trackingNumber && <span style={{ fontFamily: 'var(--font-mono)' }} data-tracking>{p.trackingNumber}</span>}
+                {p.trackingNumber && (
+                  <button type="button" aria-label="Copy tracking number" title="Copy" className="btn-ghost-icon"
+                    onClick={async () => { if (await copy(p.trackingNumber)) toast.success('Copied'); }}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 2, display: 'inline-flex' }}>
+                    <Copy size={14} />
                   </button>
                 )}
-              </>
-            ) : (
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                <span style={{ color: 'var(--text-secondary)' }}>No courier written down</span>
-                <span style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  {labelButton(p)}
-                  {mayEdit && <button type="button" className="btn-secondary" onClick={() => startEdit(p)} style={{ padding: '6px 10px', fontSize: 13 }}>Add courier</button>}
-                </span>
               </div>
-            )}
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                {l?.labelUrl && (
+                  <a className="btn-secondary" href={l.labelUrl} target="_blank" rel="noopener noreferrer" style={small}><Printer size={14} /> Print label</a>
+                )}
+                {p.trackingUrl && (
+                  <button type="button" className="btn-secondary" onClick={() => track(p)} style={small}><ExternalLink size={14} /> Track</button>
+                )}
+                {wa && (
+                  <a className="btn-secondary" href={wa} target="_blank" rel="noopener noreferrer" style={small}><MessageCircle size={14} /> Send on WhatsApp</a>
+                )}
+              </div>
+            </div>
           </div>
         );
       })}

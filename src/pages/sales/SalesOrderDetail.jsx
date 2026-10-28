@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useSalesOrderDetails, useConfirmOrder, useCancelOrder } from '../../hooks/useSalesOrders';
 import { useCreateDispatch } from '../../hooks/useDispatches';
-import { ArrowLeft, Loader2, CheckCircle, XCircle, Truck, Printer, Undo2 } from 'lucide-react';
+import { ArrowLeft, Loader2, CheckCircle, XCircle, Truck, Printer, Undo2, Package } from 'lucide-react';
 import { usePermission, canTakeReturn } from '../../hooks/usePermission';
 /*
  * Exact throughout this page, not rounded.
@@ -24,7 +24,7 @@ import { ORDER_STATUS, StatusPill } from '../../components/sales/labels';
 import { useDialog } from '../../hooks/useDialog';
 import WhatsAppSendButton from '../../components/whatsapp/WhatsAppSendButton';
 import RecordPaymentModal from '../../components/sales/RecordPaymentModal';
-import CourierFields, { courierForDispatch } from '../../components/shipping/CourierFields';
+import { useLogistics } from '../../components/logistics/PackOrders';
 import Parcels from '../../components/shipping/Parcels';
 import UndoPaymentModal from '../../components/sales/UndoPaymentModal';
 import { useAuth } from '../../context/AuthContext';
@@ -83,8 +83,9 @@ export default function SalesOrderDetail() {
   // Undo a recorded payment is the account owner's alone (the server checks it too).
   const isOwner = holdsEverything({ permissions: myPermissions, roles: myRoles });
   const [dispatchQuantities, setDispatchQuantities] = useState({});
-  // Who is carrying this parcel and its tracking number (components/shipping). Optional.
-  const [courier, setCourier] = useState({});
+  // A shop on ScaleEzy Logistics sends orders out by picking and packing them (28 Oct), not from here.
+  const logistics = useLogistics(can('dispatch:create'));
+  const onLogistics = logistics.data?.on === true;
   // Which irreversible action is waiting on a yes: 'confirm', 'cancel', or none.
   // One piece of state rather than a boolean each, because the two can never be open at once
   // and a single value cannot drift into a state where both are true.
@@ -194,7 +195,6 @@ export default function SalesOrderDetail() {
       initialQs[item.id] = 0;
     });
     setDispatchQuantities(initialQs);
-    setCourier({});
     setIsDispatching(true);
   };
 
@@ -230,7 +230,7 @@ export default function SalesOrderDetail() {
       return;
     }
 
-    dispatchMutation.mutate({ salesOrderId: id, items: itemsToDispatch, courier: courierForDispatch(courier) }, {
+    dispatchMutation.mutate({ salesOrderId: id, items: itemsToDispatch }, {
       onSuccess: () => setIsDispatching(false),
       // Released on failure only. After a success the modal closes, and handleOpenDispatch
       // clears it again the next time it is opened.
@@ -554,7 +554,17 @@ export default function SalesOrderDetail() {
 
             {(order.status === 'CONFIRMED' || order.status === 'PARTIALLY_DISPATCHED') && (
               <div style={{ marginTop: '32px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {can('dispatch:create') && (
+                {can('dispatch:create') && onLogistics && (
+                  can('shelf:putaway') ? (
+                    <Link to={`/shelves/pick?order=${order.id}&loc=${order.locationId}`} className="btn-primary"
+                      style={{ width: '100%', padding: '12px', fontSize: '15px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
+                      <Package size={18} /> Pick and pack
+                    </Link>
+                  ) : (
+                    <p style={{ margin: 0, fontSize: 13, color: 'var(--text-secondary)', textAlign: 'center' }}>This shop ships with ScaleEzy Logistics: the order is picked and packed from Shelves → Pick. Ask for the shelf work permission to do it.</p>
+                  )
+                )}
+                {can('dispatch:create') && !onLogistics && logistics.isSuccess && (
                   <button
                     className="btn-primary"
                     style={{ width: '100%', padding: '12px', fontSize: '15px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}
@@ -565,7 +575,7 @@ export default function SalesOrderDetail() {
                   </button>
                 )}
                 {/* An online order: pick it off the shelves from here (only where the store uses shelves). */}
-                <PickThisOrder order={order} />
+                {!onLogistics && <PickThisOrder order={order} />}
                 {can('sales_order:cancel') && (
                   <button
                     className="btn-secondary"
@@ -733,11 +743,7 @@ export default function SalesOrderDetail() {
               </tbody>
             </table>
 
-            {/* A parcel going to an address starts with the shop's default courier chosen. */}
-            <div style={{ marginBottom: '24px' }}>
-              <CourierFields value={courier} onChange={setCourier} idPrefix="cd"
-                startWithDefault={!!order.shippingAddress || ['SCALEEZY_SHOP', 'SHOPIFY'].includes(order.sourceSystem) || order.channel === 'ONLINE'} />
-            </div>
+            <p style={{ margin: '0 0 24px', fontSize: 13, color: 'var(--text-secondary)' }}>Couriers are booked by ScaleEzy Logistics, not here.</p>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
               <button type="button" className="btn-secondary" onClick={closeDispatch}>Cancel</button>

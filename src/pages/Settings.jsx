@@ -19,8 +19,8 @@ import PosTills from '../components/settings/PosTills';
 import SettingsHub, { groupOf } from '../components/settings/SettingsHub';
 import ReturnRulesPanel from '../components/sales/ReturnRulesPanel';
 import CustomerGroupsPanel from '../components/settings/CustomerGroupsPanel';
-import CouriersPanel from '../components/shipping/CouriersPanel';
 import BoxSizesPanel from '../components/logistics/BoxSizesPanel';
+import { useLogistics } from '../components/logistics/PackOrders';
 import { holdsEverything } from '../lib/authority';
 import { useAuth } from '../context/AuthContext';
 import { usePermission } from '../hooks/usePermission';
@@ -32,7 +32,9 @@ const SETTINGS_DOMAINS = [
   { id: 'DAYBOOK', label: 'Day Book', icon: BookOpen, permission: 'report:financial' },
   { id: 'STOREFRONT', label: 'Connected websites', icon: Globe, permission: 'admin:locations' },
   { id: 'ONLINE_SHOP', label: 'Online shop', icon: Globe, permission: 'admin:online_shop' },
-  { id: 'COURIERS', label: 'Couriers', icon: Truck, permission: 'dispatch:create' },
+  // Packing for ScaleEzy Logistics: the box sizes. Only for a shop on Logistics, which chooses the
+  // courier itself (28 Oct); the id stays COURIERS so older links still land here.
+  { id: 'COURIERS', label: 'Packing', icon: Truck, permission: 'dispatch:create', needsLogistics: true },
   // Its own place: the shop's Razorpay account, what has been paid online and money back. The
   // server guards all of it with admin:online_shop, so the menu does too.
   { id: 'PAYMENTS', label: 'Payments', icon: CreditCard, permission: 'admin:online_shop' },
@@ -91,7 +93,8 @@ export default function Settings() {
   const [searchParams, setSearchParams] = useSearchParams();
   const asked = searchParams.get('section');
   const part = searchParams.get('part');
-  const canOpen = (id) => { const d = SETTINGS_DOMAINS.find(x => x.id === id); return !!d && can(d.permission); };
+  const logistics = useLogistics(can('dispatch:create'));
+  const canOpen = (id) => { const d = SETTINGS_DOMAINS.find(x => x.id === id); return !!d && can(d.permission) && (!d.needsLogistics || logistics.data?.on === true); };
   const activeDomain = asked && canOpen(asked) ? asked : null;
   const open = (section, nextPart) => setSearchParams(nextPart ? { section, part: nextPart } : { section });
   const back = () => setSearchParams({});
@@ -264,7 +267,6 @@ export default function Settings() {
 
           {activeDomain === 'COURIERS' && (
             <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '32px' }}>
-              <CouriersPanel />
               <BoxSizesPanel />
             </div>
           )}

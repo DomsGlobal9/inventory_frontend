@@ -1365,15 +1365,7 @@ input[type="password"]::-ms-reveal, input[type="password"]::-ms-clear { display:
 .orders-tabs a:hover { color: var(--text-primary); }
 .orders-tabs a.active { color: var(--text-primary); font-weight: 600; border-bottom-color: var(--accent-primary, currentColor); }
 
-/* Ticked orders on the Orders page: what can be done to them (components/sales/OrdersBulkBar). */
-.orders-bulk {
-  display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;
-  margin-top: 10px; padding: 10px 14px; border-radius: 12px;
-  background: var(--bg-card); border: 1px solid var(--accent-primary);
-}
-.orders-bulk button.btn-secondary { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 13px; }
-.order-tick { display: flex; align-items: center; padding: 0 4px; cursor: pointer; }
-.order-tick input, .table-container input[type='checkbox'] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent-primary); }
+.table-container input[type='checkbox'] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent-primary); }
 
 /* The order page's Line Items: room to breathe on a wide screen, tighter on a laptop so every column fits;
    cards on a phone (pages/sales/SalesOrderDetail). */

@@ -6,7 +6,7 @@ import { api } from '../../lib/api';
 import { useLogistics } from './PackOrders';
 
 /**
- * Settings → Couriers → Box sizes (28 Oct). The boxes staff choose from when packing for ScaleEzy
+ * Settings → Packing → Box sizes (28 Oct). The boxes staff choose from when packing for ScaleEzy
  * Logistics; their size goes to the courier with the real weight. Shown only for a shop on Logistics.
  */
 export default function BoxSizesPanel() {
@@ -35,10 +35,10 @@ export default function BoxSizesPanel() {
   const cell = { width: '100%', minWidth: 0 };
 
   return (
-    <section style={{ marginTop: 32, display: 'grid', gap: 12 }} aria-label="Box sizes">
+    <section style={{ display: 'grid', gap: 12 }} aria-label="Box sizes">
       <div>
         <h3 style={{ fontSize: 18, margin: 0 }}>Box sizes</h3>
-        <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: '4px 0 0' }}>The boxes you pack parcels in for ScaleEzy Logistics, in cm. Staff pick one and weigh the parcel.</p>
+        <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: '4px 0 0' }}>The boxes you pack parcels in, in cm. Staff pick one and weigh the parcel; ScaleEzy Logistics chooses the courier and sends the label.</p>
       </div>
       <div style={{ display: 'grid', gap: 8 }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,2fr) repeat(3, minmax(0,1fr)) 36px', gap: 6, fontSize: 12, color: 'var(--text-secondary)' }}>

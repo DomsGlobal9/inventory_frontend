@@ -22,14 +22,14 @@ const NAMES = {
   payment: { PAID: 'Paid', PART_PAID: 'Part paid', UNPAID: 'Not paid', WRITTEN_OFF: 'Written off', REFUNDED: 'Refunded' },
   source: { TILL: 'POS till', ONLINE_SHOP: 'Online shop', SHOPIFY: 'Shopify', COUNTER: 'Counter (before 6 Oct)', MANUAL: 'Typed in' },
   kept: { WAITING: 'Waiting for collection', OVERDUE: 'Past the promised date', HANDED_OVER: 'Handed over' },
-  delivery: { NO_NUMBER: 'Tracking number missing', ON_THE_WAY: 'On the way', DELIVERED: 'Delivered' }
+  delivery: { ON_THE_WAY: 'On the way', DELIVERED: 'Delivered' }
 };
 // The order each list is shown in: the way a shop thinks of them, not by count.
 const ORDER = {
   payment: ['UNPAID', 'PART_PAID', 'PAID', 'WRITTEN_OFF', 'REFUNDED'],
   source: ['TILL', 'ONLINE_SHOP', 'SHOPIFY', 'COUNTER', 'MANUAL'],
   kept: ['WAITING', 'OVERDUE', 'HANDED_OVER'],
-  delivery: ['NO_NUMBER', 'ON_THE_WAY', 'DELIVERED'],
+  delivery: ['ON_THE_WAY', 'DELIVERED'],
   status: Object.keys(ORDER_STATUS)
 };
 

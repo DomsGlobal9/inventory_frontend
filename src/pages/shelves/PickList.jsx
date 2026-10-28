@@ -9,8 +9,6 @@ import { usePermission } from '../../hooks/usePermission';
 import { usePickOrders, usePickList, useReportNotFound, isLabelScan } from '../../hooks/useShelves';
 import { api } from '../../lib/api';
 import { invalidateDerivedViews } from '../../lib/invalidate';
-import Select from '../../components/common/Select';
-import { useCouriers } from '../../hooks/useShipping';
 import PackOrders, { useLogistics } from '../../components/logistics/PackOrders';
 import { ShelvesLayout, ScanInput, SpotChip, ItemThumb, EmptyState, itemDetail, pieces } from '../../components/shelves/ShelfBits';
 
@@ -97,19 +95,9 @@ function PickWalk({ locationId, orderIds, onBack, onDone, canDispatch, backLabel
   useUnsavedWork(Object.keys(picked).length > 0, 'a pick walk that has not been sent out'); // eslint-disable-line react-hooks/exhaustive-deps
   const [scan, setScan] = useState('');
   const [sending, setSending] = useState(false);
-  /*
-   * Who carries this walk's parcels, and each order's tracking number (components/shipping). Picked orders
-   * used to go out with no courier, to be added later on each order page one by one (26 Oct). One courier
-   * for the walk -- a batch usually goes to one pickup -- the shop's default chosen already; numbers optional.
-   */
-  const couriers = useCouriers(canDispatch);
   // A shop on ScaleEzy Logistics packs each order here instead (box, weight, Packed); Logistics books the courier.
   const logistics = useLogistics(canDispatch);
   const onLogistics = logistics.data?.on === true;
-  const [courierId, setCourierId] = useState(undefined);
-  const [numbers, setNumbers] = useState({});
-  const courierList = couriers.data?.couriers ?? [];
-  const chosenCourier = courierId === undefined ? (courierList.find(c => c.isDefault)?.id ?? '') : courierId;
   const data = pick.data;
 
   const tasks = useMemo(() => {
@@ -177,8 +165,7 @@ function PickWalk({ locationId, orderIds, onBack, onDone, canDispatch, backLabel
       try {
         await api.post('/dispatches', {
           salesOrderId: order.id,
-          items,
-          courier: chosenCourier ? { courierId: chosenCourier, trackingNumber: (numbers[order.id] ?? '').trim() || null } : null
+          items
         });
         sent++;
       } catch (err) {
@@ -246,31 +233,6 @@ function PickWalk({ locationId, orderIds, onBack, onDone, canDispatch, backLabel
         <PackOrders orders={data.orders} linesOf={linesOf} boxes={logistics.data?.boxes ?? []} onAllDone={onDone} />
       )}
 
-      {canDispatch && readyPieces > 0 && !onLogistics && (
-        <section className="sh-card" style={{ display: 'grid', gap: 10 }} aria-label="Courier">
-          <h3 className="sh-section-title" style={{ margin: 0 }}>Who is carrying them</h3>
-          <div style={{ maxWidth: 360 }}>
-            <Select id="pick-courier" className="input-field" value={chosenCourier} onChange={(e) => setCourierId(e.target.value)} style={{ width: '100%' }}>
-              <option value="">No courier (handed over)</option>
-              {courierList.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </Select>
-          </div>
-          {chosenCourier && courierList.find(c => c.id === chosenCourier)?.needsNumber !== false && (
-            <div style={{ display: 'grid', gap: 6 }}>
-              {data.orders.map(o => (
-                <label key={o.id} className="sh-row" style={{ gap: 10, flexWrap: 'wrap' }}>
-                  <span style={{ minWidth: 110, fontWeight: 600 }}>{o.orderNumber}</span>
-                  <input className="input-field" style={{ flex: 1, minWidth: 180, fontFamily: 'var(--font-mono)' }} maxLength={40}
-                    placeholder="Tracking number (optional)" aria-label={`Tracking number for ${o.orderNumber}`}
-                    value={numbers[o.id] ?? ''} onChange={(e) => setNumbers(n => ({ ...n, [o.id]: e.target.value }))} />
-                </label>
-              ))}
-              <span className="sh-muted" style={{ fontSize: 12 }}>No number yet? Send them out now and add it on each order later.</span>
-            </div>
-          )}
-          {courierList.length === 0 && !couriers.isLoading && <span className="sh-muted" style={{ fontSize: 13 }}>No couriers yet: add them in Settings, Couriers.</span>}
-        </section>
-      )}
 
       <div className="sh-card sh-row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', position: 'sticky', bottom: 0 }}>
         <span className="sh-muted">{allDone ? (readyPieces ? 'Everything is picked.' : 'Nothing was found to send out.') : `${tasks.length - done} still to pick. You can send out what is picked.`}</span>

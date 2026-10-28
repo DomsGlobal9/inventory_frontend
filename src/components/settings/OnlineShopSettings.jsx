@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import ShopBanners from './ShopBanners';
 import ShopIcon from './ShopIcon';
 import { useLocationContext } from '../../contexts/LocationContext';
+import { useWhatsAppOverview } from '../../hooks/useWhatsApp';
 
 /**
  * Settings -> Online shop: the owner claims an address, says which stores sell online, and opens
@@ -25,6 +26,9 @@ const label = { display: 'block', fontSize: '12px', color: 'var(--text-secondary
 
 export default function OnlineShopSettings() {
   const { data: shop, isLoading } = useOnlineShop();
+  // Whether the shop's WhatsApp is linked: it sends the code customers prove their number with before a try-on.
+  const { data: whatsapp, isSuccess: whatsappReady } = useWhatsAppOverview();
+  const whatsappLinked = whatsapp?.account?.status === 'CONNECTED';
   const { locations } = useLocationContext();
   const chooseAddress = useChooseShopAddress();
   const save = useSaveOnlineShop();
@@ -237,6 +241,13 @@ export default function OnlineShopSettings() {
             </span>
           </span>
         </label>
+        {/* Customers prove their WhatsApp number before a try-on, so you know who tried what -- only
+            when your WhatsApp is connected (it sends the code). Without it try-ons still work, anonymous. */}
+        {form.tryOn && whatsappReady && !whatsappLinked && (
+          <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '6px 0 0 25px' }}>
+            <Link to="/settings?section=WHATSAPP">Connect WhatsApp</Link> to know who tried what. Until then, try-ons work without a number.
+          </p>
+        )}
 
         <label style={{ display: 'flex', gap: '9px', alignItems: 'flex-start', marginTop: '16px', cursor: 'pointer' }}>
           <input type="checkbox" checked={form.hideOutOfStock} onChange={(e) => set('hideOutOfStock', e.target.checked)}

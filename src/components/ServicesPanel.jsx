@@ -1,6 +1,7 @@
 import React from 'react';
 import { Loader2, Sparkles, ShieldCheck, QrCode } from 'lucide-react';
 import { useMyServices, useMyTryOnUsage } from '../hooks/useTeam';
+import CatalogUsageTiles from './tryon/CatalogUsageTiles';
 
 /**
  * Settings -> APIs & Services, as a merchant sees it.
@@ -34,7 +35,7 @@ const ICONS = {
  * "generations" would be accurate and useless.
  */
 const UNIT_FOR = {
-  CATALOG_TRYON: { noun: 'generations', showViews: true },
+  CATALOG_TRYON: { noun: 'generations', showViews: true, split: true },
   SHOPPER_TRYON: { noun: 'try-ons', showViews: false }
 };
 
@@ -62,6 +63,14 @@ function UsageBar({ usage, unit = UNIT_FOR.CATALOG_TRYON }) {
         </div>
       )}
 
+      {/* The same split the Platform Console shows (shared component), so the shop and
+          ScaleEzy read one month the same way. */}
+      {unit.split && (
+        <div style={{ marginTop: limited ? '12px' : 0 }}>
+          <CatalogUsageTiles usage={usage} />
+        </div>
+      )}
+
       {usage.overLimit && (
         <p style={{ margin: '10px 0 0', fontSize: '12.5px', color: 'var(--accent-danger,#ef4444)' }}>
           You have used this month's allowance. Ask Scaleezy to raise it to carry on generating.
@@ -81,7 +90,7 @@ function UsageBar({ usage, unit = UNIT_FOR.CATALOG_TRYON }) {
             count would only ever repeat the number above it. */}
         {unit.showViews ? `${usage.viewsGenerated} views produced` : `${usage.completed} completed`}
         {usage.failed > 0 ? ` · ${usage.failed} run${usage.failed === 1 ? '' : 's'} failed` : ''}
-        {usage.cancelled > 0 ? ` · ${usage.cancelled} cancelled (not counted)` : ''}
+        {!unit.split && usage.cancelled > 0 ? ` · ${usage.cancelled} cancelled (not counted)` : ''}
       </p>
     </div>
   );

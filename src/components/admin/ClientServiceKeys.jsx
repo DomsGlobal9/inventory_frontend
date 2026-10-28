@@ -7,6 +7,7 @@ import {
   useClientServiceKeys, useSetClientServiceKey, useRevokeClientServiceKey,
   useClientTryOnUsage, useSetClientTryOnLimit
 } from '../../hooks/admin/useAdminConsole';
+import CatalogUsageTiles, { formatRupees } from '../tryon/CatalogUsageTiles';
 
 /**
  * A client's keys for platform services, on their console page.
@@ -47,6 +48,45 @@ const SERVICE_UNITS = {
  * A blank field means unlimited, and zero means zero. Those are opposite intentions and the
  * input keeps them apart rather than treating an empty box as a number.
  */
+/** "2026-10" -> "October 2026". */
+function monthLabel(month) {
+  const [y, m] = String(month || '').split('-').map(Number);
+  if (!y || !m) return month || '';
+  return new Date(y, m - 1, 1).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+}
+
+/**
+ * What this month has cost at ScaleEzy's prices, read server-side from the Gateway with the
+ * shop's OWN key. Every state is one plain sentence; a Gateway that cannot answer is never an
+ * error on this screen.
+ */
+function ChargesLine({ charges }) {
+  if (!charges) return null;
+  let text;
+  if (charges.state === 'ON') {
+    text = (
+      <>
+        This month at ScaleEzy's prices: <strong>{formatRupees(charges.totalPaise)}</strong>
+        {charges.gstPaise !== null ? ` (incl. GST ${formatRupees(charges.gstPaise)})` : ' (no GST)'}
+      </>
+    );
+  } else if (charges.state === 'SHARED_KEY') {
+    text = "Uses ScaleEzy's shared key: give this shop its own key to see its charges.";
+  } else if (charges.state === 'NO_KEY') {
+    text = 'No catalog key for this shop yet, so there are no charges to show.';
+  } else {
+    text = 'Prices show here once billing is switched on.';
+  }
+  return (
+    <p data-testid="usage-charges" style={{
+      margin: '12px 0 0', fontSize: '12.5px', lineHeight: 1.45,
+      color: charges.state === 'ON' ? 'var(--text-primary)' : 'var(--text-secondary)'
+    }}>
+      {text}
+    </p>
+  );
+}
+
 function UsageAndLimit({ clientId, service }) {
   const { data, isLoading } = useClientTryOnUsage(clientId, service);
   const setLimit = useSetClientTryOnLimit();
@@ -71,18 +111,29 @@ function UsageAndLimit({ clientId, service }) {
     setEditing(false);
   };
 
+  const catalog = service === 'CATALOG_TRYON';
+  const limited = u.monthlyLimit !== null;
+  const fraction = limited && u.monthlyLimit > 0 ? Math.min(u.generations / u.monthlyLimit, 1) : (limited ? 1 : 0);
+  const tone = u.overLimit ? 'var(--accent-danger,#ef4444)' : u.approachingLimit ? 'var(--accent-warning,#f59e0b)' : 'var(--brand-solid)';
+
   return (
-    <div style={{
+    <div data-testid={`usage-${service}`} style={{
       background: 'var(--bg-input)', borderRadius: '10px', padding: '14px 16px', marginBottom: '16px'
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-        <div style={{ fontSize: '13px' }}>
-          <strong>{u.generations}</strong>
-          {u.monthlyLimit === null ? ` ${unit}` : ` of ${u.monthlyLimit}`} this month
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: catalog ? '12px' : 0 }}>
+        <div style={{ fontSize: '13px', minWidth: 0 }}>
+          {catalog ? (
+            <strong>This month · {monthLabel(u.month)}</strong>
+          ) : (
+            <>
+              <strong>{u.generations}</strong>
+              {u.monthlyLimit === null ? ` ${unit}` : ` of ${u.monthlyLimit}`} this month
+            </>
+          )}
           <span style={{ color: 'var(--text-muted)' }}>
             {' · '}{u.viewsGenerated} views
             {u.failed > 0 && <>{' · '}<Link to={`/platformconsole/errors?tab=tryon&shop=${encodeURIComponent(clientId)}&service=${service}&days=30`} style={{ color: 'var(--accent-danger)' }}>{u.failed} failed — see why</Link></>}
-            {u.cancelled > 0 ? ` · ${u.cancelled} cancelled` : ''}
+            {!catalog && u.cancelled > 0 ? ` · ${u.cancelled} cancelled` : ''}
           </span>
         </div>
 
@@ -93,6 +144,27 @@ function UsageAndLimit({ clientId, service }) {
           </button>
         )}
       </div>
+
+      {catalog && <CatalogUsageTiles usage={u} />}
+
+      {/* The allowance counts completed AND failed runs (it always has); only the Gateway's
+          bill leaves failures out. Said under the bar so the two numbers do not look wrong. */}
+      {catalog && limited && (
+        <div style={{ marginTop: '12px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', fontSize: '12.5px', marginBottom: '6px', flexWrap: 'wrap' }}>
+            <span style={{ color: 'var(--text-secondary)' }}>Allowance</span>
+            <strong data-testid="usage-allowance">{u.generations} of {u.monthlyLimit} used</strong>
+          </div>
+          <div style={{ height: '6px', borderRadius: '3px', background: 'var(--bg-card)', overflow: 'hidden' }}>
+            <div style={{ width: `${fraction * 100}%`, height: '100%', background: tone, transition: 'width .3s' }} />
+          </div>
+          <p style={{ margin: '6px 0 0', fontSize: '11.5px', color: 'var(--text-muted)' }}>
+            Completed and failed runs count against the allowance.
+          </p>
+        </div>
+      )}
+
+      {catalog && <ChargesLine charges={data.charges} />}
 
       {/* Unlimited is a real state, and a quiet one -- try-on is GPU work, so a client with no
           ceiling is worth naming rather than leaving as an absence on the screen. */}

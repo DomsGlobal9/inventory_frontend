@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { QRCodeSVG } from 'qrcode.react';
 import { ArrowLeft, Printer, Loader2, ScanLine, Send, Sparkles } from 'lucide-react';
@@ -25,7 +25,18 @@ const corner = (pos) => ({ position: 'absolute', width: '26px', height: '26px', 
 export default function DoorQr() {
   const navigate = useNavigate();
   const goBack = useGoBack('/customers/card');
-  const { currentLocation } = useLocationContext();
+  const { currentLocation: topBarStore, locations } = useLocationContext();
+  /*
+   * The store can come in the link (?locationId=), as CRM's Counter sends it: the standee must be for
+   * the store the person is standing in, not whichever store Inventory's top bar last remembered --
+   * a standee printed for the wrong store sends that door's customers to the other store's list
+   * (28 Oct). A link naming a store this shop does not have shows no QR at all.
+   */
+  const [params] = useSearchParams();
+  const asked = params.get('locationId');
+  const fromLink = asked ? (locations ?? []).find(l => l.id === asked) ?? null : null;
+  const unknownStore = !!asked && (locations ?? []).length > 0 && !fromLink;
+  const currentLocation = asked ? fromLink : topBarStore;
   const q = useQuery({
     queryKey: ['door-qr', currentLocation?.id],
     queryFn: async () => (await api.get('/customers/door-qr', { params: { locationId: currentLocation?.id } })).data,
@@ -42,7 +53,9 @@ export default function DoorQr() {
           </button>
           <h1 style={{ fontSize: '28px', margin: '0 0 6px', color: 'var(--text-primary)' }}>Door QR</h1>
           <p style={{ color: 'var(--text-secondary)', margin: '0 0 20px' }}>
-            Print it and stand it at the door of {currentLocation?.name ?? 'this store'}.
+            {unknownStore
+              ? 'This link is for a store that is not part of this shop, so there is no QR to print. Open Door QR from the store you are in.'
+              : <>Print it and stand it at the door of <strong style={{ color: 'var(--text-primary)' }}>{currentLocation?.name ?? 'this store'}</strong>.</>}
           </p>
           <ol style={{ listStyle: 'none', padding: 0, margin: '0 0 24px', display: 'grid', gap: '14px' }}>
             {[

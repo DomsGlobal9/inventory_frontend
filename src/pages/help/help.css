@@ -263,6 +263,19 @@ html[data-theme='dark'] .hp-box-warning .hp-box-title { color: #fcd34d; }
   .hp-hero .hp-search-btn { width: 100%; flex: 1; justify-content: flex-start; padding: 0 16px; margin: 0 auto; }
   .hp-hero .hp-search-btn span { display: block; }
   .hp-header .hp-cta { padding: 0 12px; font-size: 13px; }
+}
+/* The whole header is one row; on a 360-390px phone it was ~25-55px too wide and "Open the app" ran off
+   the right edge with no way to reach it (28 Oct). A narrower logo and a slimmer button make it fit. */
+@media (max-width: 420px) {
+  .hp-header { gap: 6px; }
+  .hp-brand svg, .hp-brand img { max-width: 78px; }
+  .hp-header .hp-cta { padding: 0 10px; font-size: 12.5px; gap: 0; }
+  .hp-header .hp-cta svg { display: none; }
+}
+@media (max-width: 380px) {
+  .hp-header { gap: 4px; padding: 0 8px; }
+  .hp-brand svg, .hp-brand img { max-width: 64px; }
+  .hp-header .hp-icon-btn, .hp-header .hp-search-btn { width: 34px; height: 34px; flex-basis: 34px; }
   .hp-article-wrap { padding: 20px 16px 64px; }
   .hp-home { padding: 32px 16px 64px; }
   .hp-hero h1 { font-size: 30px; }

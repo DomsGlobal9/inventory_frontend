@@ -378,9 +378,20 @@ button {
 }
 
 /* Main Content Area */
+/*
+ * The content pane scrolls up and down when a page is taller than the screen (28 Oct).
+ *
+ * It used to be `overflow: hidden` everywhere above phone width, and every page had to bring its
+ * own scroll box (.page-scroll, .table-container). Pages that did not -- all of Shelves, Settings >
+ * Locations, the Returns list -- were simply cut off on a laptop: Previous/Next, the last rows, the
+ * bottom of the map, with no way to reach them. Phones never showed it because below 768px this
+ * pane already scrolls. Pages that do bring their own box fill the pane exactly, so nothing
+ * overflows here and they behave as before. Sideways stays locked: no page scrolls left-right.
+ */
 .main-content {
   flex: 1;
-  overflow: hidden; /* Zero global scroll */
+  overflow-x: hidden;
+  overflow-y: auto;
   padding: 16px 32px;
   display: flex;
   flex-direction: column;

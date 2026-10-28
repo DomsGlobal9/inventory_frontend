@@ -69,7 +69,12 @@ export default function ReturnsList() {
           ))}
         </div>
       ) : (
-      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+      <div
+        className="card"
+        // flexShrink 0: in this scrolling column a card that hides its overflow was squeezed to the
+        // height left on screen, cutting off its own rows with nothing to scroll (28 Oct).
+        style={{ padding: 0, overflow: 'hidden', flexShrink: 0 }}
+      >
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>

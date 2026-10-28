@@ -227,7 +227,7 @@ export default function CustomerDetail() {
 
             {activeTab === 'orders' && (
               customer.salesOrders && customer.salesOrders.length > 0 ? (
-                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                 <div style={{ overflowX: 'auto' }}>{/* wide tables scroll sideways inside the card instead of being cut off on a phone */}<table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                   <thead>
                     <tr style={{ backgroundColor: 'var(--bg-hover)' }}>
                       <th style={{ padding: '12px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px' }}>ORDER #</th>
@@ -262,7 +262,7 @@ export default function CustomerDetail() {
                       </tr>
                     ))}
                   </tbody>
-                 </table>
+                 </table></div>
               ) : (
                 <div style={{ padding: '48px', textAlign: 'center', color: 'var(--text-secondary)' }}>
                   No sales orders found for this customer.
@@ -285,7 +285,7 @@ export default function CustomerDetail() {
                 }
 
                 return (
-                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                  <div style={{ overflowX: 'auto' }}>{/* wide tables scroll sideways inside the card instead of being cut off on a phone */}<table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                     <thead>
                       <tr style={{ backgroundColor: 'var(--bg-hover)' }}>
                         <th style={{ padding: '12px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px' }}>DISPATCH #</th>
@@ -336,7 +336,7 @@ export default function CustomerDetail() {
                         </tr>
                       ))}
                     </tbody>
-                  </table>
+                  </table></div>
                 );
               })()
             )}

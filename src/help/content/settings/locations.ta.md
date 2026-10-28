@@ -100,7 +100,7 @@ keywords: லொகேஷன் ஸ்டோர் கிளை பிராஞ�
 
 ![Active Status ஆஃப் செய்யப்பட்ட Main Store-க்கான Edit Location படிவம், 1 எனக் குறிக்கப்பட்ட சிவப்பு மெசேஜ்: This store still has 62 pieces in stock and 2 open purchase orders. Move the stock and finish or move the orders before switching it off.](7-switch-off-refused.webp "மாற்றம் இல்லாமல் படிவத்தை மூட Cancel அழுத்துங்கள்.")
 
-முதலில் [டிரான்ஸ்ஃபர்](/help/transfers/transfers) மூலம் ஸ்டாக்கை நகர்த்துங்கள், பர்ச்சேஸ் ஆர்டர்களைப் பெற்றுக்கொள்ளுங்கள், கேன்சல் செய்யுங்கள் அல்லது வேறு இடத்துக்கு மாற்றுங்கள். பிறகு ஆஃப் செய்யுங்கள்.
+முதலில் [Move stock](/help/transfers/transfers) மூலம் ஸ்டாக்கை வெளியே நகர்த்துங்கள், பர்ச்சேஸ் ஆர்டர்களைப் பெற்றுக்கொள்ளுங்கள், கேன்சல் செய்யுங்கள் அல்லது வேறு இடத்துக்கு மாற்றுங்கள். பிறகு ஆஃப் செய்யுங்கள்.
 
 ## லொகேஷனை டெலீட் செய்தல்
 

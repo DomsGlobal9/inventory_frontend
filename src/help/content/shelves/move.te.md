@@ -68,7 +68,7 @@ keywords: మార్చు షిఫ్ట్ మూవ్ షెల్ఫ్ 
 :::
 
 :::faq "… is in another location. Use a transfer for that." అని వస్తోంది
-Move ఒకే స్టోర్ లోపల మాత్రమే పనిచేస్తుంది. పీస్‌లను గోడౌన్‌కు లేదా వేరే బ్రాంచ్‌కు పంపడానికి [ట్రాన్స్‌ఫర్](/help/transfers/transfers) చేయండి.
+Move ఒకే స్టోర్ లోపల మాత్రమే పనిచేస్తుంది. పీస్‌లను గోడౌన్‌కు లేదా వేరే బ్రాంచ్‌కు పంపడానికి Inventory లో [Move stock](/help/transfers/transfers) వాడండి.
 :::
 
 :::faq "… has shelves inside it. Scan one of those." అని వస్తోంది

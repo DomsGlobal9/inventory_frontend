@@ -61,13 +61,13 @@ These do not change when you switch store:
 
 ## 4. Screens where you choose the store yourself
 
-- **Transfers**: you choose where the stock comes from and where it goes. See [Move stock between stores](/help/transfers/transfers).
+- **Move stock** (on **Inventory**): you choose where the stock comes from and where it goes. See [Move stock between stores](/help/transfers/transfers).
 - **Day Book**: choose a store, or all of them, on the Day Book itself. See [Day Book (close the day)](/help/settings/day-book).
 - **Import Products**: imported stock always goes to **one** store, the switched-on store whose code comes first in A to Z order. It does not use the store at the top of the screen. See [Import products from a sheet](/help/products/import-products).
 
 ## Godowns and shops
 
-Each store has a type: **Retail Store**, **Warehouse** or **Online / Virtual**. Inside ScaleEzy a godown works just like a shop: it has its own stock, shelves and alerts, and you can even sell from it. To move pieces from the godown to the shop, use a [transfer](/help/transfers/transfers).
+Each store has a type: **Retail Store**, **Warehouse** or **Online / Virtual**. Inside ScaleEzy a godown works just like a shop: it has its own stock, shelves and alerts, and you can even sell from it. To move pieces from the godown to the shop, use [Move stock](/help/transfers/transfers).
 
 ## Common problems
 

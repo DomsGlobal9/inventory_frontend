@@ -92,8 +92,8 @@ Check its reorder level: an item with a reorder level of 0 is never marked low, 
 Each item has its own reorder level, the number at which it counts as low. It is the same in every store. Change it from a spreadsheet with a **reorderLevel** column in **Import Updates** on Products. [Full answer](/help/inventory/low-stock-alerts#set-the-reorder-level)
 :::
 
-:::faq "No stock available at this location to transfer"
-The store you chose to move from has no pieces. Check the **Origin Location**. [Full answer](/help/transfers/transfers#no-stock-available-at-this-location-to-transfer)
+:::faq Nothing with stock matches what I type in Move stock
+Only items with stock at the **From** store are found. Check you chose the right **From** store. [Full answer](/help/transfers/transfers#nothing-with-stock-matches-what-i-type)
 :::
 
 ## Shelves

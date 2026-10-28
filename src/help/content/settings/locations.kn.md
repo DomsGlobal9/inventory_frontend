@@ -100,7 +100,7 @@ keywords: ಲೊಕೇಶನ್ ಲೊಕೇಶನ್‌ಗಳು ಸ್ಟೋ�
 
 ![Active Status ಆಫ್ ಮಾಡಿದ Main Store ನ Edit Location ಫಾರ್ಮ್, ಮತ್ತು 1 ಎಂದು ಗುರುತಿಸಿದ ಕೆಂಪು ಸಂದೇಶ: This store still has 62 pieces in stock and 2 open purchase orders. Move the stock and finish or move the orders before switching it off.](7-switch-off-refused.webp "ಏನೂ ಬದಲಿಸದೆ ಫಾರ್ಮ್ ಮುಚ್ಚಲು Cancel ಒತ್ತಿರಿ.")
 
-ಮೊದಲು [ಟ್ರಾನ್ಸ್‌ಫರ್](/help/transfers/transfers) ಮೂಲಕ ಸ್ಟಾಕ್ ಸಾಗಿಸಿ, ಮತ್ತು ಖರೀದಿ ಆರ್ಡರ್‌ಗಳನ್ನು ರಿಸೀವ್ ಮಾಡಿ, ಕ್ಯಾನ್ಸಲ್ ಮಾಡಿ ಅಥವಾ ಬೇರೆಡೆಗೆ ಬದಲಿಸಿ. ನಂತರ ನಿಲ್ಲಿಸಿ.
+ಮೊದಲು [Move stock](/help/transfers/transfers) ಮೂಲಕ ಸ್ಟಾಕ್ ಅನ್ನು ಹೊರಗೆ ಸಾಗಿಸಿ, ಮತ್ತು ಖರೀದಿ ಆರ್ಡರ್‌ಗಳನ್ನು ರಿಸೀವ್ ಮಾಡಿ, ಕ್ಯಾನ್ಸಲ್ ಮಾಡಿ ಅಥವಾ ಬೇರೆಡೆಗೆ ಬದಲಿಸಿ. ನಂತರ ನಿಲ್ಲಿಸಿ.
 
 ## ಲೊಕೇಶನ್ ಡಿಲೀಟ್ ಮಾಡಿ
 

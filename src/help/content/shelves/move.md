@@ -69,7 +69,7 @@ You scanned the same shelf the pieces are on. Scan the shelf they are going to.
 :::
 
 :::faq "… is in another location. Use a transfer for that."
-Moves only work inside one store. To send pieces to the godown or another branch, make a [transfer](/help/transfers/transfers).
+Moves only work inside one store. To send pieces to the godown or another branch, use [Move stock](/help/transfers/transfers) on Inventory.
 :::
 
 :::faq "… has shelves inside it. Scan one of those."

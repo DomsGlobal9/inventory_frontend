@@ -68,7 +68,7 @@ keywords: शेल्फ़ बदलें हटाएँ रैक जगह
 :::
 
 :::faq "… is in another location. Use a transfer for that." लिखा आ रहा है
-शेल्फ़ बदलना सिर्फ़ एक स्टोर के अंदर होता है। गोदाम या दूसरी ब्रांच में पीस भेजने के लिए [ट्रांसफ़र](/help/transfers/transfers) बनाएँ।
+शेल्फ़ बदलना सिर्फ़ एक स्टोर के अंदर होता है। गोदाम या दूसरी ब्रांच में पीस भेजने के लिए Inventory पर [Move stock](/help/transfers/transfers) इस्तेमाल करें।
 :::
 
 :::faq "… has shelves inside it. Scan one of those." लिखा आ रहा है

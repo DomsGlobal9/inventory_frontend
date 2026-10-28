@@ -100,7 +100,7 @@ keywords: లొకేషన్ లొకేషన్లు స్టోర్ �
 
 ![Active Status ఆఫ్ చేసిన Main Store యొక్క Edit Location ఫారమ్, 1 గా గుర్తించబడిన ఎరుపు మెసేజ్: This store still has 62 pieces in stock and 2 open purchase orders. Move the stock and finish or move the orders before switching it off.](7-switch-off-refused.webp "ఏమీ మార్చకుండా ఫారమ్ మూసేయడానికి Cancel నొక్కండి.")
 
-ముందు [ట్రాన్స్‌ఫర్](/help/transfers/transfers) తో స్టాక్ మార్చండి, పర్చేస్ ఆర్డర్లను రిసీవ్ చేసుకోండి, క్యాన్సల్ చేయండి లేదా వేరే చోటికి మార్చండి. తర్వాత ఆఫ్ చేయండి.
+ముందు [Move stock](/help/transfers/transfers) తో స్టాక్‌ను బయటకు మార్చండి, పర్చేస్ ఆర్డర్లను రిసీవ్ చేసుకోండి, క్యాన్సల్ చేయండి లేదా వేరే చోటికి మార్చండి. తర్వాత ఆఫ్ చేయండి.
 
 ## లొకేషన్ డిలీట్ చేయండి
 

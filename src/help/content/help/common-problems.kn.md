@@ -92,8 +92,8 @@ ScaleEzy POS ಟಿಲ್‌ನಲ್ಲಿ, Inventory ಯಲ್ಲಿ ಅಲ್
 ಪ್ರತಿ ಐಟಂಗೆ ತನ್ನದೇ ರೀಆರ್ಡರ್ ಲೆವೆಲ್ ಇರುತ್ತದೆ, ಅಂದರೆ ಎಷ್ಟಕ್ಕೆ ಬಂದಾಗ ಅದು ಕಡಿಮೆ ಎಂದು ಲೆಕ್ಕ ಆಗುತ್ತದೆಯೋ ಆ ಸಂಖ್ಯೆ. ಎಲ್ಲಾ ಸ್ಟೋರ್‌ಗಳಲ್ಲಿ ಅದು ಒಂದೇ. Products ನಲ್ಲಿ **Import Updates** ಮೂಲಕ, **reorderLevel** ಕಾಲಂ ಇರುವ ಸ್ಪ್ರೆಡ್‌ಶೀಟ್‌ನಿಂದ ಅದನ್ನು ಬದಲಿಸಿ. [ಪೂರ್ತಿ ಉತ್ತರ](/help/inventory/low-stock-alerts#set-the-reorder-level)
 :::
 
-:::faq "No stock available at this location to transfer" ಎಂದು ಬರುತ್ತಿದೆ
-ನೀವು ಎಲ್ಲಿಂದ ಸಾಗಿಸಲು ಆರಿಸಿದ್ದೀರೋ ಆ ಸ್ಟೋರ್‌ನಲ್ಲಿ ಪೀಸ್‌ಗಳಿಲ್ಲ. **Origin Location** ನೋಡಿ. [ಪೂರ್ತಿ ಉತ್ತರ](/help/transfers/transfers#no-stock-available-at-this-location-to-transfer)
+:::faq Move stock ನಲ್ಲಿ ನಾನು ಟೈಪ್ ಮಾಡಿದ್ದಕ್ಕೆ ಸ್ಟಾಕ್ ಇರುವ ಯಾವುದೂ ಸಿಗುತ್ತಿಲ್ಲ
+**From** ಸ್ಟೋರ್‌ನಲ್ಲಿ ಸ್ಟಾಕ್ ಇರುವ ಐಟಂಗಳು ಮಾತ್ರ ಸಿಗುತ್ತವೆ. ಸರಿಯಾದ **From** ಸ್ಟೋರ್ ಆರಿಸಿದ್ದೀರಾ ಎಂದು ನೋಡಿ. [ಪೂರ್ತಿ ಉತ್ತರ](/help/transfers/transfers#nothing-with-stock-matches-what-i-type)
 :::
 
 ## ಶೆಲ್ಫ್‌ಗಳು

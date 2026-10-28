@@ -84,7 +84,7 @@ New products are **drafts**. At the top of **Products**, choose **Drafts only** 
 Next: add photos and publish them. See [Product photos](/help/products/photos) and [Publish, archive and delete](/help/products/publish-archive-delete).
 
 :::warning Check which store got the stock
-Imported stock goes into **one** location: the active store whose code comes first in A to Z order. It does not use the store chosen at the top of the screen. In a shop with *GODOWN* and *MAIN*, the stock goes to the Godown. Check in **Inventory**, and use a [transfer](/help/transfers/transfers) to move it if needed.
+Imported stock goes into **one** location: the active store whose code comes first in A to Z order. It does not use the store chosen at the top of the screen. In a shop with *GODOWN* and *MAIN*, the stock goes to the Godown. Check in **Inventory**, and use [Move stock](/help/transfers/transfers) to move it if needed.
 :::
 
 ## Common problems

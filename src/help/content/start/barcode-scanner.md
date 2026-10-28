@@ -94,7 +94,7 @@ The scanner may not be sending **Enter**. Test it in Notepad (step 1). If the co
 :::
 
 :::faq A shelf label says it is in another location
-That shelf belongs to a different store. Switch to that store at the top of the screen, or use a [transfer](/help/transfers/transfers) to move the stock.
+That shelf belongs to a different store. Switch to that store at the top of the screen, or use [Move stock](/help/transfers/transfers) to move it there.
 :::
 
 :::faq The scanner reads price tags but not shelf labels

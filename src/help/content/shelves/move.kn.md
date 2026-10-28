@@ -68,7 +68,7 @@ keywords: ಮೂವ್ ಜಾಗ ಬದಲಿಸಿ ಶೆಲ್ಫ್ ರ್ಯ
 :::
 
 :::faq "… is in another location. Use a transfer for that." ಎಂದು ಬರುತ್ತಿದೆ
-ಮೂವ್ ಒಂದೇ ಸ್ಟೋರ್‌ನ ಒಳಗೆ ಮಾತ್ರ ಕೆಲಸ ಮಾಡುತ್ತದೆ. ಪೀಸ್‌ಗಳನ್ನು ಗೋಡೌನ್ ಅಥವಾ ಬೇರೆ ಬ್ರಾಂಚ್‌ಗೆ ಕಳುಹಿಸಲು [ಟ್ರಾನ್ಸ್‌ಫರ್](/help/transfers/transfers) ಮಾಡಿ.
+ಮೂವ್ ಒಂದೇ ಸ್ಟೋರ್‌ನ ಒಳಗೆ ಮಾತ್ರ ಕೆಲಸ ಮಾಡುತ್ತದೆ. ಪೀಸ್‌ಗಳನ್ನು ಗೋಡೌನ್ ಅಥವಾ ಬೇರೆ ಬ್ರಾಂಚ್‌ಗೆ ಕಳುಹಿಸಲು Inventory ಯಲ್ಲಿ [Move stock](/help/transfers/transfers) ಬಳಸಿ.
 :::
 
 :::faq "… has shelves inside it. Scan one of those." ಎಂದು ಬರುತ್ತಿದೆ

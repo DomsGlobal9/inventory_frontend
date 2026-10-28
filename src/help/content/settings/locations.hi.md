@@ -100,7 +100,7 @@ keywords: लोकेशन स्टोर ब्रांच गोदाम 
 
 ![Main Store का Edit Location फ़ॉर्म, Active Status बंद किया हुआ, और लाल मैसेज पर 1 का निशान है: This store still has 62 pieces in stock and 2 open purchase orders. Move the stock and finish or move the orders before switching it off.](7-switch-off-refused.webp "बिना बदले फ़ॉर्म बंद करने के लिए Cancel दबाएँ।")
 
-पहले [स्टोरों के बीच स्टॉक भेजें](/help/transfers/transfers) वाले ट्रांसफ़र से स्टॉक दूसरी जगह भेजें, और परचेज़ ऑर्डर की डिलीवरी लें, उन्हें कैंसल करें या दूसरी जगह भेजें। फिर इसे बंद करें।
+पहले [Move stock](/help/transfers/transfers) से स्टॉक बाहर भेजें, और परचेज़ ऑर्डर की डिलीवरी लें, उन्हें कैंसल करें या दूसरी जगह भेजें। फिर इसे बंद करें।
 
 ## लोकेशन डिलीट करें
 

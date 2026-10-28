@@ -92,8 +92,8 @@ ScaleEzy POS टिल पर, Inventory में नहीं। **Settings �
 हर आइटम का अपना रीऑर्डर लेवल होता है, यानी वह संख्या जिस पर वह कम माना जाता है। यह हर स्टोर में एक जैसा होता है। इसे Products में **Import Updates** से, **reorderLevel** कॉलम वाली स्प्रेडशीट से बदलें। [पूरा जवाब](/help/inventory/low-stock-alerts#set-the-reorder-level)
 :::
 
-:::faq "No stock available at this location to transfer" लिखा आ रहा है
-जिस स्टोर से आप माल भेजना चाहते हैं, उसमें कोई पीस नहीं है। **Origin Location** जाँचें। [पूरा जवाब](/help/transfers/transfers#no-stock-available-at-this-location-to-transfer)
+:::faq Move stock में जो लिखता हूँ, उससे स्टॉक वाला कुछ नहीं मिलता
+सिर्फ़ वही आइटम मिलते हैं जिनका स्टॉक **From** (जहाँ से) वाले स्टोर में है। जाँचें कि आपने सही **From** स्टोर चुना है। [पूरा जवाब](/help/transfers/transfers#nothing-with-stock-matches-what-i-type)
 :::
 
 ## शेल्फ़

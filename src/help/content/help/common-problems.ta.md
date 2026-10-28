@@ -92,8 +92,8 @@ ScaleEzy POS டில்லில், Inventory-யில் அல்ல. **Se
 ஒவ்வொரு பொருளுக்கும் தனி ரீஆர்டர் லெவல் உண்டு, அந்த எண்ணுக்கு வந்தால் அது குறைவு என்று கணக்கிடப்படும். எல்லா ஸ்டோர்களிலும் அது ஒன்றுதான். Products-இல் **Import Updates**-இல் **reorderLevel** காலம் உள்ள ஸ்ப்ரெட்ஷீட் மூலம் அதை மாற்றுங்கள். [முழுப் பதில்](/help/inventory/low-stock-alerts#set-the-reorder-level)
 :::
 
-:::faq "No stock available at this location to transfer" என்று வருகிறது
-நீங்கள் எந்த ஸ்டோரிலிருந்து மாற்றத் தேர்ந்தெடுத்தீர்களோ அங்கே பீஸ்கள் இல்லை. **Origin Location**-ஐப் பாருங்கள். [முழுப் பதில்](/help/transfers/transfers#no-stock-available-at-this-location-to-transfer)
+:::faq Move stock-இல் நான் டைப் செய்வதற்கு ஸ்டாக் உள்ள எதுவும் பொருந்தவில்லை
+**From** ஸ்டோரில் ஸ்டாக் உள்ள பொருட்கள் மட்டுமே கிடைக்கும். சரியான **From** ஸ்டோரைத் தேர்ந்தெடுத்தீர்களா என்று பாருங்கள். [முழுப் பதில்](/help/transfers/transfers#nothing-with-stock-matches-what-i-type)
 :::
 
 ## ஷெல்ஃப்கள்

@@ -68,7 +68,7 @@ keywords: மாற்று மூவ் ஷிஃப்ட் ஷெல்ஃ�
 :::
 
 :::faq "… is in another location. Use a transfer for that." என்று வருகிறது
-மாற்றம் ஒரே ஸ்டோருக்குள் மட்டுமே வேலை செய்யும். குடோனுக்கோ வேறு கிளைக்கோ பீஸ்களை அனுப்ப, ஒரு [டிரான்ஸ்ஃபர்](/help/transfers/transfers) செய்யுங்கள்.
+மாற்றம் ஒரே ஸ்டோருக்குள் மட்டுமே வேலை செய்யும். குடோனுக்கோ வேறு கிளைக்கோ பீஸ்களை அனுப்ப, Inventory-இல் உள்ள [Move stock](/help/transfers/transfers) பயன்படுத்துங்கள்.
 :::
 
 :::faq "… has shelves inside it. Scan one of those." என்று வருகிறது

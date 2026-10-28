@@ -92,8 +92,8 @@ ScaleEzy POS టిల్ మీద, Inventory లో కాదు. **Settings �
 ప్రతి వస్తువుకు దాని సొంత రీఆర్డర్ లెవెల్ ఉంటుంది, ఏ నంబర్ దగ్గర అది తక్కువ స్టాక్‌గా లెక్కించబడుతుందో ఆ నంబర్. అది అన్ని స్టోర్‌లలో ఒకటే. Products లోని **Import Updates** లో **reorderLevel** కాలమ్ ఉన్న స్ప్రెడ్‌షీట్‌తో దాన్ని మార్చండి. [పూర్తి జవాబు](/help/inventory/low-stock-alerts#set-the-reorder-level)
 :::
 
-:::faq "No stock available at this location to transfer" అని వస్తోంది
-మీరు ఏ స్టోర్ నుండి మార్చాలని ఎంచుకున్నారో, అక్కడ పీస్‌లు లేవు. **Origin Location** చెక్ చేయండి. [పూర్తి జవాబు](/help/transfers/transfers#no-stock-available-at-this-location-to-transfer)
+:::faq Move stock లో నేను టైప్ చేసేదానికి స్టాక్ ఉన్న ఏ ఐటమ్ రావడం లేదు
+**From** స్టోర్‌లో స్టాక్ ఉన్న ఐటమ్‌లే దొరుకుతాయి. సరైన **From** స్టోర్ ఎంచుకున్నారో చూడండి. [పూర్తి జవాబు](/help/transfers/transfers#nothing-with-stock-matches-what-i-type)
 :::
 
 ## షెల్ఫ్‌లు

@@ -101,7 +101,7 @@ ScaleEzy **refuses** to switch a location off while it still has **stock**, or h
 
 ![The Edit Location form for Main Store with Active Status turned off, and a red message marked 1: This store still has 62 pieces in stock and 2 open purchase orders. Move the stock and finish or move the orders before switching it off.](7-switch-off-refused.webp "Press Cancel to close the form without changes.")
 
-First move the stock with a [transfer](/help/transfers/transfers), and receive, cancel or move the purchase orders. Then switch it off.
+First move the stock out with [Move stock](/help/transfers/transfers), and receive, cancel or move the purchase orders. Then switch it off.
 
 ## Delete a location
 

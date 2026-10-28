@@ -62,7 +62,11 @@ export const authPrimary = (busy) => ({
   transition: 'transform .18s ease, opacity .18s ease'
 });
 
-export default function AuthShell({ eyebrow, title, subtitle, points = [], children, footer }) {
+/**
+ * `scene`: a picture of what the product does, shown under the words in place of the bullet points
+ * (the sign-in page passes the Inventory scene). Hidden on phones with the points, so the form comes first.
+ */
+export default function AuthShell({ eyebrow, title, subtitle, points = [], scene = null, children, footer }) {
   return (
     <div className="auth-page">
       <style>{`
@@ -196,6 +200,7 @@ export default function AuthShell({ eyebrow, title, subtitle, points = [], child
           .auth-say { max-width: 34ch; text-align: center; }
           .auth-sub { max-width: none; }
           .auth-points { display: none; }
+          .auth-scene { display: none; }
           .auth-right { width: 100%; max-width: 460px; }
         }
         @media (prefers-reduced-motion: reduce) { .auth-primary:hover { transform: none; } }
@@ -214,7 +219,9 @@ export default function AuthShell({ eyebrow, title, subtitle, points = [], child
           <h1 className="auth-title">{title}</h1>
           {subtitle && <p className="auth-sub">{subtitle}</p>}
 
-          {points.length > 0 && (
+          {scene}
+
+          {!scene && points.length > 0 && (
             <ul className="auth-points">
               {points.map((p, i) => (
                 <li key={i} className="auth-point">

@@ -4,6 +4,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Loader2, ArrowRight, Building2, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import AuthShell, { authField, authLabel, authPrimary } from '../components/AuthShell';
+import AuthScene from '../components/auth/AuthScene';
 import { firstLandingPath } from '../lib/access';
 
 export default function Login() {
@@ -90,6 +91,7 @@ export default function Login() {
 
   return (
     <AuthShell
+      scene={<AuthScene />}
       eyebrow="Welcome back"
       title="Sign in to your shop"
       subtitle="Your stock, your costs and your margins, exactly where you left them."

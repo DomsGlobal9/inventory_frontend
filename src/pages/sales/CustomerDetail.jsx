@@ -20,6 +20,7 @@ import { ORDER_STATUS, DISPATCH_STATUS, CUSTOMER_STATUS, RETURN_REASONS, StatusP
 import { rowLink } from '../../components/common/rowLink';
 import { useGoBack } from '../../hooks/useGoBack';
 import { useCrm } from '../../hooks/useCrm';
+import DeleteCustomer from '../../components/sales/DeleteCustomer';
 
 export default function CustomerDetail() {
   const { id } = useParams();
@@ -208,6 +209,9 @@ export default function CustomerDetail() {
               </div>
             </div>
           </div>
+
+          {/* The owner only: the danger zone, last in the column. */}
+          <DeleteCustomer customer={customer} />
         </div>
 
         {/* Right Content: Tabs / Orders. minWidth 0, or the orders table sizes the whole grid to its own width. */}

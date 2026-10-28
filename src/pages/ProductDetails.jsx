@@ -23,6 +23,7 @@ import PageLoader from '../components/PageLoader';
 import ConfirmModal from '../components/ConfirmModal';
 import CounterTryOn from '../components/CounterTryOn';
 import ProductShopifyCard from '../components/ProductShopifyCard';
+import ProductTryOnsCard from '../components/ProductTryOnsCard';
 import { usePermission } from '../hooks/usePermission';
 import { useGoBack } from '../hooks/useGoBack';
 
@@ -387,6 +388,10 @@ export default function ProductDetails() {
 
       <motion.div variants={item} style={{ flexShrink: 0 }}>
         <ProductShopifyCard productId={product.id} canEdit={canEdit} isService={!!product.isService} />
+      </motion.div>
+
+      <motion.div variants={item} style={{ flexShrink: 0 }}>
+        <ProductTryOnsCard productId={product.id} />
       </motion.div>
 
       {/* Tabs */}

@@ -181,7 +181,9 @@ export default function AlertCenter() {
                 }}
               >
                 <td>
-                  <div style={{ fontWeight: !v.isRead ? '700' : '500', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  {/* A floor under the name: on a phone the six columns shared the width and the name
+                      wrapped to four lines; now the other columns scroll sideways instead. */}
+                  <div style={{ fontWeight: !v.isRead ? '700' : '500', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px', minWidth: '170px' }}>
                     {!v.isRead && <span title="Unread" style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--accent-danger)', flexShrink: 0 }} />}
                     {v.isPinned && <Pin size={12} style={{ color: 'var(--accent-gold)' }} fill="var(--accent-gold)" />}
                     {v.productTitle}

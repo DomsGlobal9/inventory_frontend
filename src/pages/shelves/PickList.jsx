@@ -11,6 +11,7 @@ import { api } from '../../lib/api';
 import { invalidateDerivedViews } from '../../lib/invalidate';
 import Select from '../../components/common/Select';
 import { useCouriers } from '../../hooks/useShipping';
+import PackOrders, { useLogistics } from '../../components/logistics/PackOrders';
 import { ShelvesLayout, ScanInput, SpotChip, ItemThumb, EmptyState, itemDetail, pieces } from '../../components/shelves/ShelfBits';
 
 const when = (iso) => new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
@@ -102,6 +103,9 @@ function PickWalk({ locationId, orderIds, onBack, onDone, canDispatch, backLabel
    * for the walk -- a batch usually goes to one pickup -- the shop's default chosen already; numbers optional.
    */
   const couriers = useCouriers(canDispatch);
+  // A shop on ScaleEzy Logistics packs each order here instead (box, weight, Packed); Logistics books the courier.
+  const logistics = useLogistics(canDispatch);
+  const onLogistics = logistics.data?.on === true;
   const [courierId, setCourierId] = useState(undefined);
   const [numbers, setNumbers] = useState({});
   const courierList = couriers.data?.couriers ?? [];
@@ -145,6 +149,20 @@ function PickWalk({ locationId, orderIds, onBack, onDone, canDispatch, backLabel
     });
   };
 
+  // What was picked for one order, as a dispatch takes it: each line once, with the shelves it came from.
+  const linesOf = (orderId) => {
+    const lines = new Map();
+    for (const t of tasks.filter(t => t.orderId === orderId)) {
+      const got = Math.max(0, (picked[t.key] ?? 0) - (picked[`${t.key}|missing`] ?? 0));
+      if (got === 0) continue;
+      const line = lines.get(t.salesOrderItemId) ?? { salesOrderItemId: t.salesOrderItemId, quantity: 0, fromSpots: [] };
+      line.quantity += got;
+      if (t.stop) line.fromSpots.push({ spotId: t.stop.spotId, quantity: got });
+      lines.set(t.salesOrderItemId, line);
+    }
+    return [...lines.values()].map(l => ({ ...l, fromSpots: l.fromSpots.length ? l.fromSpots : undefined }));
+  };
+
   const inFlight = useRef(false);
   const sendOut = async () => {
     // Two presses before the button disables would send the orders twice.
@@ -154,20 +172,12 @@ function PickWalk({ locationId, orderIds, onBack, onDone, canDispatch, backLabel
     let sent = 0;
     const problems = [];
     for (const order of data.orders) {
-      const lines = new Map();
-      for (const t of tasks.filter(t => t.orderId === order.id)) {
-        const got = Math.max(0, (picked[t.key] ?? 0) - (picked[`${t.key}|missing`] ?? 0));
-        if (got === 0) continue;
-        const line = lines.get(t.salesOrderItemId) ?? { salesOrderItemId: t.salesOrderItemId, quantity: 0, fromSpots: [] };
-        line.quantity += got;
-        if (t.stop) line.fromSpots.push({ spotId: t.stop.spotId, quantity: got });
-        lines.set(t.salesOrderItemId, line);
-      }
-      if (lines.size === 0) continue;
+      const items = linesOf(order.id);
+      if (items.length === 0) continue;
       try {
         await api.post('/dispatches', {
           salesOrderId: order.id,
-          items: [...lines.values()].map(l => ({ ...l, fromSpots: l.fromSpots.length ? l.fromSpots : undefined })),
+          items,
           courier: chosenCourier ? { courierId: chosenCourier, trackingNumber: (numbers[order.id] ?? '').trim() || null } : null
         });
         sent++;
@@ -232,7 +242,11 @@ function PickWalk({ locationId, orderIds, onBack, onDone, canDispatch, backLabel
         </section>
       )}
 
-      {canDispatch && readyPieces > 0 && (
+      {canDispatch && readyPieces > 0 && onLogistics && (
+        <PackOrders orders={data.orders} linesOf={linesOf} boxes={logistics.data?.boxes ?? []} onAllDone={onDone} />
+      )}
+
+      {canDispatch && readyPieces > 0 && !onLogistics && (
         <section className="sh-card" style={{ display: 'grid', gap: 10 }} aria-label="Courier">
           <h3 className="sh-section-title" style={{ margin: 0 }}>Who is carrying them</h3>
           <div style={{ maxWidth: 360 }}>
@@ -260,7 +274,9 @@ function PickWalk({ locationId, orderIds, onBack, onDone, canDispatch, backLabel
 
       <div className="sh-card sh-row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', position: 'sticky', bottom: 0 }}>
         <span className="sh-muted">{allDone ? (readyPieces ? 'Everything is picked.' : 'Nothing was found to send out.') : `${tasks.length - done} still to pick. You can send out what is picked.`}</span>
-        {canDispatch ? (
+        {canDispatch && onLogistics ? (
+          <span className="sh-muted">{readyPieces ? 'Pack each order above.' : ''}</span>
+        ) : canDispatch ? (
           <button type="button" className="btn-primary" disabled={readyPieces === 0 || sending} onClick={sendOut} style={{ display: 'flex', gap: 8, alignItems: 'center', minHeight: 44 }}>
             {sending ? <Loader2 size={16} className="animate-spin" /> : <Truck size={18} />} Send out picked
           </button>

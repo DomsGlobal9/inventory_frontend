@@ -20,6 +20,7 @@ import SettingsHub, { groupOf } from '../components/settings/SettingsHub';
 import ReturnRulesPanel from '../components/sales/ReturnRulesPanel';
 import CustomerGroupsPanel from '../components/settings/CustomerGroupsPanel';
 import CouriersPanel from '../components/shipping/CouriersPanel';
+import BoxSizesPanel from '../components/logistics/BoxSizesPanel';
 import { holdsEverything } from '../lib/authority';
 import { useAuth } from '../context/AuthContext';
 import { usePermission } from '../hooks/usePermission';
@@ -264,6 +265,7 @@ export default function Settings() {
           {activeDomain === 'COURIERS' && (
             <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '32px' }}>
               <CouriersPanel />
+              <BoxSizesPanel />
             </div>
           )}
 

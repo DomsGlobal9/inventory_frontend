@@ -25,6 +25,23 @@ import Select from '../common/Select';
 const MAX_BANNERS = 6;
 const MAX_BYTES = 15 * 1024 * 1024;
 
+/* One banner shape (29 Oct), the server's rule said early: 3 times as wide as tall, a tenth either way,
+   1200 across at least. Checked before uploading so a wrong picture is refused at once, not after it. */
+const SHAPE = { ratio: 3, give: 0.1, minWidth: 1200, example: '1920 × 640' };
+const rightShape = (w, h) => w / h >= SHAPE.ratio * (1 - SHAPE.give) && w / h <= SHAPE.ratio * (1 + SHAPE.give);
+function shapeProblem(w, h) {
+  if (!rightShape(w, h)) return `A banner must be 3 times as wide as it is tall, for example ${SHAPE.example} pixels. This picture is ${w} × ${h}. Crop it to that shape and choose it again.`;
+  if (w < SHAPE.minWidth) return `This picture is ${w} × ${h}, too small to stay sharp on a laptop. Use one at least ${SHAPE.minWidth} pixels wide, for example ${SHAPE.example}.`;
+  return null;
+}
+/* The size it is SHOWN at: the browser turns a sideways phone photo the right way up, as the server does. */
+const sizeOf = (dataUrl) => new Promise((resolve) => {
+  const img = new Image();
+  img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight });
+  img.onerror = () => resolve(null); // unreadable: the server says why
+  img.src = dataUrl;
+});
+
 const readAsDataUrl = (file) => new Promise((resolve, reject) => {
   const r = new FileReader();
   r.onload = () => resolve(r.result);
@@ -171,13 +188,19 @@ function Row({ banner, index, count, onMove, busy }) {
       marginBottom: '10px', opacity: banner.active ? 1 : 0.62
     }}>
       <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
-        {/* The same 16:9 the shop page gives it, so what is seen here is what customers get. */}
+        {/* The banner shape, whole, as the shop page shows it. */}
         <div style={{ flex: '0 0 auto', width: '168px' }}>
           <img src={banner.imageUrl} alt=""
-            style={{ width: '100%', aspectRatio: '16 / 9', objectFit: 'cover', borderRadius: '7px', border: '1px solid var(--border-light)', display: 'block' }} />
+            style={{ width: '100%', aspectRatio: '3 / 1', objectFit: 'contain', background: 'var(--bg-secondary, #f4f4f5)', borderRadius: '7px', border: '1px solid var(--border-light)', display: 'block' }} />
           <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
             {banner.width} × {banner.height}
           </div>
+          {/* Put up before the one-shape rule: it still shows, whole, with bands at its sides. */}
+          {!rightShape(banner.width, banner.height) ? (
+            <div style={{ fontSize: '11px', color: 'var(--warning, #b45309)', marginTop: '4px', lineHeight: 1.35 }}>
+              Not the banner shape. Replace it with a {SHAPE.example} picture so it fills the banner.
+            </div>
+          ) : null}
           <div style={{ marginTop: '6px' }}><StateTag state={banner.state} from={banner.showFrom} /></div>
         </div>
 
@@ -261,8 +284,13 @@ export default function ShopBanners() {
     if (/heic|heif/i.test(file.type) || /\.(heic|heif)$/i.test(file.name)) {
       return toast.error('This is an iPhone HEIC photo. Share it as a JPEG (or set the camera to "Most Compatible") and choose it again.');
     }
-    try { setPicked({ dataUrl: await readAsDataUrl(file), name: file.name }); }
-    catch (err) { toast.error(err?.message || 'That picture could not be read.'); }
+    try {
+      const dataUrl = await readAsDataUrl(file);
+      const size = await sizeOf(dataUrl);
+      const problem = size && shapeProblem(size.w, size.h);
+      if (problem) return toast.error(problem);
+      setPicked({ dataUrl, name: file.name });
+    } catch (err) { toast.error(err?.message || 'That picture could not be read.'); }
   };
 
   const put = () => {
@@ -291,9 +319,9 @@ export default function ShopBanners() {
       <h3 style={h3}><ImageIcon size={16} /> Banners</h3>
       <p style={hint}>
         Pictures on your shop. Choose where each one shows — the slider at the top of the home page,
-        between the products, or on every product page — and, if you like, the days it shows. Use a wide
-        photograph — the shape is like a television, not a portrait — and put the words you want on
-        top of it here rather than writing them into the picture, so they stay readable on a phone.
+        between the products, or on every product page — and, if you like, the days it shows. Every banner
+        is one shape: <strong>3 times as wide as it is tall, 1920 × 640 pixels is best</strong> (at least
+        1200 wide). Pictures of other shapes are refused, so the whole banner shows on every phone and laptop.
       </p>
 
       {list.length > 0 && (
@@ -310,7 +338,7 @@ export default function ShopBanners() {
           <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
             <div style={{ flex: '0 0 auto', width: '168px' }}>
               <img src={picked.dataUrl} alt="The banner you chose"
-                style={{ width: '100%', aspectRatio: '16 / 9', objectFit: 'cover', borderRadius: '7px', border: '1px solid var(--border-light)', display: 'block' }} />
+                style={{ width: '100%', aspectRatio: '3 / 1', objectFit: 'contain', background: 'var(--bg-secondary, #f4f4f5)', borderRadius: '7px', border: '1px solid var(--border-light)', display: 'block' }} />
               <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px', overflowWrap: 'anywhere' }}>{picked.name}</div>
             </div>
             <div style={{ flex: '1 1 280px', minWidth: 0, display: 'grid', gap: '10px' }}>

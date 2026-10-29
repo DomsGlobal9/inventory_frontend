@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Globe, Check, Loader2, AlertTriangle, ExternalLink, Copy, Share2, Printer, ShoppingBag } from 'lucide-react';
+import { Globe, Check, Loader2, AlertTriangle, ExternalLink, Copy, Share2, Printer, ShoppingBag, UserRound } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import toast from 'react-hot-toast';
 import { useOnlineShop, useChooseShopAddress, useSaveOnlineShop, useSetShopOpen, useShopPayments } from '../../hooks/useOnlineShop';
@@ -8,6 +8,7 @@ import ShopBanners from './ShopBanners';
 import ShopIcon from './ShopIcon';
 import { useLocationContext } from '../../contexts/LocationContext';
 import { useWhatsAppOverview } from '../../hooks/useWhatsApp';
+import { useLoyaltySettings } from '../../hooks/useCampaigns';
 
 /**
  * Settings -> Online shop: the owner claims an address, says which stores sell online, and opens
@@ -38,6 +39,8 @@ export default function OnlineShopSettings() {
   const payReady = !!payments?.readyForCustomers;
   const toPayments = <Link to="/settings?section=PAYMENTS">Settings → Razorpay account</Link>;
   const setOpen = useSetShopOpen();
+  const { data: loyalty } = useLoyaltySettings();
+  const loyaltyOn = !!loyalty?.enabled;
 
   const [slug, setSlug] = useState('');
   const [form, setForm] = useState(null);
@@ -61,6 +64,10 @@ export default function OnlineShopSettings() {
       deliverPincodes: (shop.deliverPincodes ?? []).join(', '),
       tryOn: !!shop.tryOn,
       showAllPhotos: shop.showAllPhotos !== false,
+      // On unless the shop said no (the columns' own default), so Save never switches them off.
+      accounts: shop.accounts !== false,
+      wishlist: shop.wishlist !== false,
+      showBalances: shop.showBalances !== false,
       returnPolicy: shop.returnPolicy ?? '',
       grievanceName: shop.grievanceName ?? '',
       grievancePhone: shop.grievancePhone ?? '',
@@ -395,6 +402,67 @@ export default function OnlineShopSettings() {
         )}
       </div>
 
+
+      {/* ── Customer accounts ─────────────────────────────────────────────────────────
+          "Sign in with WhatsApp" on the shop (29 Oct): no password, a code from the shop's own number.
+          Each switch is the server's rule too (routes/shop-public, online-shop/account), not just a
+          screen hiding a button. */}
+      <div id="os-accounts" className="card" style={{ ...card, scrollMarginTop: 12 }}>
+        <h3 style={h3}><UserRound size={16} /> Customer accounts</h3>
+        <p style={hint}>
+          Customers sign in with their WhatsApp number and a code, with no password, and stay signed in on
+          their phone for 90 days. Signed in, they see every order they placed with that number, from any
+          phone, and their saved addresses, and they skip the code at the checkout. A customer who
+          confirms their number while ordering is signed in automatically.
+        </p>
+
+        <label style={{ display: 'flex', gap: '9px', alignItems: 'flex-start', cursor: 'pointer' }}>
+          <input type="checkbox" checked={form.accounts} onChange={(e) => set('accounts', e.target.checked)}
+            aria-label="Let customers sign in with their WhatsApp number" style={{ width: '16px', height: '16px', marginTop: '2px' }} />
+          <span style={{ fontSize: '13px' }}>
+            Let customers sign in with their WhatsApp number
+            <span style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)' }}>
+              Each sign-in code is one message from your WhatsApp number's daily allowance. Off: no Sign in
+              on your shop; customers order and follow their order from its link, as before.
+            </span>
+          </span>
+        </label>
+        {form.accounts && whatsappReady && !whatsappLinked && (
+          <p role="alert" style={{ fontSize: '12px', color: 'var(--accent-danger, #b42318)', margin: '6px 0 0 25px' }}>
+            Signing in needs your WhatsApp to send the code. <Link to="/settings?section=WHATSAPP">Connect WhatsApp</Link> —
+            until then customers see "this shop cannot send codes just now".
+          </p>
+        )}
+
+        <div style={{ marginLeft: '25px', opacity: form.accounts ? 1 : 0.5 }}>
+          <label style={{ display: 'flex', gap: '9px', alignItems: 'flex-start', marginTop: '14px', cursor: form.accounts ? 'pointer' : 'not-allowed' }}>
+            <input type="checkbox" checked={form.accounts && form.wishlist} disabled={!form.accounts}
+              onChange={(e) => set('wishlist', e.target.checked)}
+              aria-label="Let customers save pieces to a wishlist" style={{ width: '16px', height: '16px', marginTop: '2px' }} />
+            <span style={{ fontSize: '13px' }}>
+              Let customers save pieces to a wishlist
+              <span style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)' }}>
+                A heart on every piece, kept until they take it off. Pieces they heart lately also show on
+                their Customer card.
+              </span>
+            </span>
+          </label>
+          <label style={{ display: 'flex', gap: '9px', alignItems: 'flex-start', marginTop: '14px', cursor: form.accounts ? 'pointer' : 'not-allowed' }}>
+            <input type="checkbox" checked={form.accounts && form.showBalances} disabled={!form.accounts}
+              onChange={(e) => set('showBalances', e.target.checked)}
+              aria-label="Show customers their points and store credit" style={{ width: '16px', height: '16px', marginTop: '2px' }} />
+            <span style={{ fontSize: '13px' }}>
+              Show customers their points and store credit
+              <span style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)' }}>
+                {loyaltyOn
+                  ? 'On their account page, to use at your counter. Store credit shows only when they have some.'
+                  : <>Points show only while loyalty is on (<Link to="/settings?section=LOYALTY">Settings → Loyalty</Link>, now off). Store credit shows only when they have some.</>}
+              </span>
+            </span>
+          </label>
+        </div>
+      </div>
+
       {/* ── Banners ─────────────────────────────────────────────────────────────────
           Only once there is an address. Before that there is no shop for a banner to sit on,
           and a picture uploaded to nothing is work the owner would have to do again. */}
@@ -435,7 +503,7 @@ export default function OnlineShopSettings() {
       </div>
 
       <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '20px' }}>
-        <button className="btn-primary" disabled={!shop.slug || save.isPending} onClick={() => save.mutate({
+        <button id="os-save" className="btn-primary" disabled={!shop.slug || save.isPending} onClick={() => save.mutate({
           ...form,
           // Typed as "500029, 500034" and saved as a list; the server keeps only real PIN codes.
           deliverPincodes: String(form.deliverPincodes ?? '').split(/[^0-9]+/).filter(Boolean)

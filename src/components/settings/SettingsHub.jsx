@@ -39,6 +39,7 @@ export const GROUPS = [
   { id: 'ONLINE', label: 'Selling online', icon: Globe, links: [
     { label: 'Online shop', section: 'ONLINE_SHOP' },
     { label: 'Orders and delivery', section: 'ONLINE_SHOP', part: 'os-orders' },
+    { label: 'Customer accounts and wishlist', section: 'ONLINE_SHOP', part: 'os-accounts' },
     { label: 'Banners', section: 'ONLINE_SHOP', part: 'os-banners' },
     { label: 'Share your shop', section: 'ONLINE_SHOP', part: 'os-share' },
     { label: 'Packing (box sizes)', section: 'COURIERS' },

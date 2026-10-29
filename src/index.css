@@ -1454,3 +1454,22 @@ input[type="password"]::-ms-reveal, input[type="password"]::-ms-clear { display:
   .bp-foot button { flex: 1 1 auto; justify-content: center; }
 }
 @media (prefers-reduced-motion: reduce) { .bp-bar i { transition: none; } }
+
+/* ---- What Shopify was told about an order (ShopifyUpdates, 29 Oct) ---------------------- */
+.su { padding: 24px; }
+.su h3 { margin: 0; font-size: 18px; font-weight: 600; }
+.su-sub { margin: 4px 0 14px; font-size: 13px; color: var(--text-secondary); }
+.su-notice { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; margin-bottom: 12px; border-radius: 10px;
+  font-size: 13px; line-height: 1.5; color: var(--text-primary); background: color-mix(in srgb, var(--accent-warning) 12%, transparent); border: 1px solid color-mix(in srgb, var(--accent-warning) 40%, transparent); }
+.su-notice svg { color: var(--accent-warning); flex: 0 0 auto; margin-top: 2px; }
+.su-list { list-style: none; margin: 0; padding: 0; }
+.su-row { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-top: 1px solid var(--border-light); font-size: 13px; color: var(--text-primary); }
+.su-row:first-child { border-top: none; }
+.su-icon { flex: 0 0 auto; margin-top: 1px; color: var(--accent-success); }
+.su-row.stuck .su-icon { color: var(--accent-warning); }
+.su-what { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.su-muted { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.su-why { font-size: 12px; color: var(--text-secondary); margin-top: 2px; line-height: 1.5; }
+.su-why a { color: var(--brand-ink); }
+.su-btn { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px !important; font-size: 12px !important; }
+@media (max-width: 560px) { .su { padding: 16px; } .su-row { flex-wrap: wrap; } .su-btn { margin-left: 26px; } }

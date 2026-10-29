@@ -26,6 +26,7 @@ import WhatsAppSendButton from '../../components/whatsapp/WhatsAppSendButton';
 import RecordPaymentModal from '../../components/sales/RecordPaymentModal';
 import { useLogistics } from '../../components/logistics/PackOrders';
 import Parcels from '../../components/shipping/Parcels';
+import ShopifyUpdates from '../../components/shipping/ShopifyUpdates';
 import UndoPaymentModal from '../../components/sales/UndoPaymentModal';
 import { useAuth } from '../../context/AuthContext';
 import { holdsEverything } from '../../lib/authority';
@@ -453,6 +454,8 @@ export default function SalesOrderDetail() {
               wide column had room, while the right one had grown into a long scroll (24 Oct). None for a
               till or counter bill. */}
           {!order.atCounter && order.sourceSystem !== 'SCALEEZY_POS' && <Parcels order={order} />}
+          {/* A Shopify order: what the store has been told (shipped, delivered, paid) and anything to do. */}
+          {order.sourceSystem === 'SHOPIFY' && <ShopifyUpdates order={order} canRetry={can('sales_order:update')} />}
         </div>
 
         {/* Right Sidebar: Summary */}

@@ -40,12 +40,25 @@ const COLUMN_MAP = {
 
 const NUMERIC = new Set(['basePrice', 'quantity', 'costPrice', 'sellingPrice', 'reorderLevel']);
 
+/**
+ * Photo links: one "Photos" cell with several links (separated by spaces, commas, semicolons or new
+ * lines), or one link per column as Photo1..Photo5 / Image1..Image5. Both end up as row.photos.
+ */
+const PHOTO_LIST = new Set(['photos', 'photo', 'photolinks', 'photolink', 'images', 'image', 'imagelinks', 'imageurls', 'photourls']);
+const PHOTO_ONE = /^(photo|image|picture)\d{1,2}$/;
+const splitLinks = (v) => String(v).split(/[\s,;]+/).map(x => x.trim()).filter(Boolean);
+
 function toRow(raw, index) {
   const row = { rowNumber: index + 2 }; // +2: one for the header, one because people count from 1
   for (const [key, value] of Object.entries(raw)) {
-    const field = COLUMN_MAP[normaliseHeader(key)];
-    if (!field) continue;
+    const head = normaliseHeader(key);
     const v = typeof value === 'string' ? value.trim() : value;
+    if (PHOTO_LIST.has(head) || PHOTO_ONE.test(head)) {
+      if (v !== '' && v !== null && v !== undefined) row.photos = [...(row.photos || []), ...splitLinks(v)];
+      continue;
+    }
+    const field = COLUMN_MAP[head];
+    if (!field) continue;
     // An empty cell is not a value. It must reach the server as absent rather than as "",
     // because absent means "leave this alone" and "" would be a change.
     if (v === '' || v === null || v === undefined) continue;
@@ -111,7 +124,7 @@ export async function parseImportFile(file) {
 /** The columns, in the order the template writes them. */
 export const TEMPLATE_COLUMNS = [
   'ProductCode', 'ProductKey', 'Title', 'Category', 'DressType', 'Fabric', 'Brand',
-  'BasePrice', 'SKU', 'Size', 'Color', 'Quantity', 'CostPrice', 'SellingPrice', 'ReorderLevel'
+  'BasePrice', 'SKU', 'Size', 'Color', 'Quantity', 'CostPrice', 'SellingPrice', 'ReorderLevel', 'Photos'
 ];
 
 /**
@@ -123,9 +136,10 @@ export const TEMPLATE_COLUMNS = [
  */
 export function buildTemplateCsv() {
   const example = [
-    ['', 'kanchi-silk', 'Kanchipuram Silk Saree', 'WOMEN', 'Saree', 'Silk', '', '12500', '', 'Free Size', 'Red', '4', '8000', '', '5'],
-    ['', 'kanchi-silk', '', '', '', '', '', '', '', 'Free Size', 'Blue', '3', '8000', '', '5'],
-    ['', 'mysore-crepe', 'Mysore Crepe Saree', 'WOMEN', 'Saree', 'Crepe', '', '6500', '', 'Free Size', 'Green', '6', '4200', '', '5']
+    // Photos is optional: a public https link (or several, separated by spaces). Leave it blank and add photos from a folder after.
+    ['', 'kanchi-silk', 'Kanchipuram Silk Saree', 'WOMEN', 'Saree', 'Silk', '', '12500', '', 'Free Size', 'Red', '4', '8000', '', '5', ''],
+    ['', 'kanchi-silk', '', '', '', '', '', '', '', 'Free Size', 'Blue', '3', '8000', '', '5', ''],
+    ['', 'mysore-crepe', 'Mysore Crepe Saree', 'WOMEN', 'Saree', 'Crepe', '', '6500', '', 'Free Size', 'Green', '6', '4200', '', '5', '']
   ];
   return [TEMPLATE_COLUMNS.join(','), ...example.map(r => r.join(','))].join('\n');
 }

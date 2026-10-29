@@ -53,7 +53,7 @@ const IssueList = ({ items, tone, icon: Icon, title, limit = 8 }) => {
   );
 };
 
-export default function ProductImportModal({ isOpen, onClose, onImported }) {
+export default function ProductImportModal({ isOpen, onClose, onImported, onAddPhotos }) {
   const queryClient = useQueryClient();
   const [file, setFile] = useState(null);
   const [rows, setRows] = useState(null);
@@ -61,11 +61,13 @@ export default function ProductImportModal({ isOpen, onClose, onImported }) {
   const [busy, setBusy] = useState(false);
   const [acceptWarnings, setAcceptWarnings] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  /** What the import did, kept on screen so the next step (photos) can be offered. */
+  const [done, setDone] = useState(null);
   const inputRef = useRef(null);
 
   if (!isOpen) return null;
 
-  const reset = () => { setFile(null); setRows(null); setPlan(null); setAcceptWarnings(false); };
+  const reset = () => { setFile(null); setRows(null); setPlan(null); setAcceptWarnings(false); setDone(null); };
 
   const close = () => { reset(); onClose(); };
 
@@ -109,6 +111,10 @@ export default function ProductImportModal({ isOpen, onClose, onImported }) {
       // server, and every screen that shows them asks again.
       invalidateDerivedViews(queryClient);
       onImported?.();
+      // The sheet had photo links: straight on to adding them, with progress. Otherwise new drafts
+      // are offered their photos; an update-only file just closes as before.
+      if (onAddPhotos && d.photoLinks?.length) { reset(); onAddPhotos(d.photoLinks); return; }
+      if (onAddPhotos && d.createdProducts > 0) { setDone(d); return; }
       close();
     } catch (err) {
       toast.error(err?.response?.data?.message || err?.message || 'The import could not be completed.');
@@ -180,7 +186,22 @@ export default function ProductImportModal({ isOpen, onClose, onImported }) {
             </>
           )}
 
-          {plan && (
+          {done && (
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+              <CheckCircle2 size={22} color="var(--accent-success)" style={{ flex: '0 0 auto', marginTop: '2px' }} />
+              <div>
+                <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                  {done.createdProducts} new {done.createdProducts === 1 ? 'product is' : 'products are'} in, as drafts.
+                </div>
+                <p style={{ margin: '6px 0 0', fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                  Add their photos next: choose a folder of photos named by SKU or product code (like KS-104.jpg),
+                  and they are matched for you. Then publish the ones with photos.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {plan && !done && (
             <>
               <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                 <Stat label="New" products={s.newProducts} variants={s.newVariants} tone="var(--accent-success)" />
@@ -208,6 +229,12 @@ export default function ProductImportModal({ isOpen, onClose, onImported }) {
         </div>
 
         <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border-light)', display: 'flex', justifyContent: 'flex-end', gap: '10px', flexWrap: 'wrap' }}>
+          {done ? <>
+            <button className="btn-secondary" onClick={close}>Later</button>
+            <button className="btn-primary" onClick={() => { reset(); onAddPhotos([]); }} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              Add their photos now
+            </button>
+          </> : <>
           <button className="btn-secondary" onClick={plan ? reset : close} disabled={busy}>
             {plan ? 'Choose another file' : 'Cancel'}
           </button>
@@ -222,6 +249,7 @@ export default function ProductImportModal({ isOpen, onClose, onImported }) {
               Import {s.newVariants + s.updatedVariants} {s.newVariants + s.updatedVariants === 1 ? 'variant' : 'variants'}
             </button>
           )}
+          </>}
         </div>
       </div>
     </>, document.body)

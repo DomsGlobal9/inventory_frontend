@@ -1,7 +1,7 @@
 import React from 'react';
 import LoadFailed from '../components/LoadFailed';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Plus, Package, FileOutput, FileInput, FileSpreadsheet, LayoutGrid, List, Search } from 'lucide-react';
+import { Plus, Package, FileOutput, FileInput, FileSpreadsheet, LayoutGrid, List, Search, Images } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { useProductSearch, useBulkSetProductStatus } from '../hooks/useProducts';
@@ -10,6 +10,7 @@ import { useProduct } from '../context/ProductContext';
 import { rowLink } from '../components/common/rowLink';
 import BulkUpdateModal from '../components/BulkUpdateModal';
 import ProductImportModal from '../components/ProductImportModal';
+import BulkPhotosModal from '../components/BulkPhotosModal';
 import PageLoader from '../components/PageLoader';
 import Select from '../components/common/Select';
 import ConfirmModal from '../components/ConfirmModal';
@@ -98,6 +99,8 @@ export default function Products() {
 
   const [isBulkUpdateModalOpen, setIsBulkUpdateModalOpen] = React.useState(false);
   const [isImportOpen, setIsImportOpen] = React.useState(false);
+  // null: closed. An array: open, with the sheet's photo links (empty when opened from the button).
+  const [photosFor, setPhotosFor] = React.useState(null);
   const [selected, setSelected] = React.useState(() => new Set());
   const [confirmState, setConfirmState] = React.useState({ isOpen: false });
   const bulkStatus = useBulkSetProductStatus();
@@ -276,6 +279,16 @@ export default function Products() {
           >
             <FileSpreadsheet size={16} />
             Import Products
+          </button>
+          )}
+          {canEdit && (
+          <button
+            className="btn-secondary"
+            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+            onClick={() => setPhotosFor([])}
+          >
+            <Images size={16} />
+            Add photos
           </button>
           )}
           {can('product:create') && (
@@ -502,6 +515,14 @@ export default function Products() {
         isOpen={isImportOpen}
         onClose={() => setIsImportOpen(false)}
         onImported={() => refetch?.()}
+        onAddPhotos={canEdit ? (links) => { setIsImportOpen(false); setPhotosFor(links || []); } : undefined}
+      />
+
+      <BulkPhotosModal
+        isOpen={photosFor !== null}
+        photoLinks={photosFor || []}
+        onClose={() => { setPhotosFor(null); refetch?.(); }}
+        onDone={() => refetch?.()}
       />
     </div>
   );

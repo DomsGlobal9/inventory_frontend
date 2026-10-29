@@ -13,8 +13,8 @@ import Select from '../common/Select';
  * "429 monthly spending cap" here, not in a server log that has already rolled away.
  */
 
-const SERVICE = { CATALOG_TRYON: 'Four-view photos', SHOPPER_TRYON: 'Customer try-on' };
-const PLACE = { PHOTO_JOB: 'Photo job', CATALOG_STREAM: 'Four-view (live)', SHOP_PAGE: 'Online shop', COUNTER: 'Counter', STOREFRONT: 'Website' };
+const SERVICE = { CATALOG_TRYON: 'Model photos', SHOPPER_TRYON: 'Customer try-on' };
+const PLACE = { PHOTO_JOB: 'Photo job', CATALOG_STREAM: 'Model photos (live)', SHOP_PAGE: 'Online shop', COUNTER: 'Counter', STOREFRONT: 'Website' };
 const when = (at) => new Date(at).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 const cell = { padding: '10px 14px', verticalAlign: 'top' };
 
@@ -47,7 +47,7 @@ export default function TryOnFailures() {
 
       {day && (
         <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '14px', display: 'grid', gap: '4px' }}>
-          <div><b style={{ color: 'var(--text-primary)' }}>Last 24 h:</b> {day.total} failure{day.total === 1 ? '' : 's'} · Four-view photos {day.byService.CATALOG_TRYON} · Customer try-on {day.byService.SHOPPER_TRYON}</div>
+          <div><b style={{ color: 'var(--text-primary)' }}>Last 24 h:</b> {day.total} failure{day.total === 1 ? '' : 's'} · Model photos {day.byService.CATALOG_TRYON} · Customer try-on {day.byService.SHOPPER_TRYON}</div>
           {day.topReasons.length > 0 && (
             <div><b style={{ color: 'var(--text-primary)' }}>Top reasons:</b> {day.topReasons.map(r => `${r.reason} (${r.count})`).join(' · ')}</div>
           )}
@@ -57,7 +57,7 @@ export default function TryOnFailures() {
       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '14px' }}>
         <Select className="input-field" aria-label="Service" value={service} onChange={e => setService(e.target.value)} style={{ width: 'auto' }}>
           <option value="">All services</option>
-          <option value="CATALOG_TRYON">Four-view photos</option>
+          <option value="CATALOG_TRYON">Model photos</option>
           <option value="SHOPPER_TRYON">Customer try-on</option>
         </Select>
         <input className="input-field" aria-label="Shop id" placeholder="Shop id (all shops)" value={clientId} onChange={e => setClientId(e.target.value)} style={{ width: '220px' }} />

@@ -22,13 +22,13 @@ import CatalogUsageTiles, { formatRupees } from '../tryon/CatalogUsageTiles';
  */
 
 const SERVICE_LABELS = {
-  CATALOG_TRYON: '4-View Catalog Try-On',
+  CATALOG_TRYON: 'Catalog Try-On',
   SHOPPER_TRYON: 'Try-On'
 };
 
 /** What each service does, so an admin pasting a key knows which one they are pasting into. */
 const SERVICE_BLURBS = {
-  CATALOG_TRYON: 'Staff turn one garment photograph into four catalogue views, inside the app.',
+  CATALOG_TRYON: 'Staff turn one garment photograph into three catalogue views, inside the app.',
   SHOPPER_TRYON: 'Customers scan the QR code on a garment and see themselves wearing it.'
 };
 

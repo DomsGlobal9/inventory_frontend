@@ -30,7 +30,7 @@ While it runs you see **Making the Bottle Green one…** and how many are done. 
 
 ## 3. Check them before your customers do
 
-While it runs the card says **Making the Bottle Green one…** and counts them off. When it finishes it says **Made: Bottle Green, Indigo.** and the new photographs appear in the gallery against those colours — the same four views the first colour has.
+While it runs the card says **Making the Bottle Green one…** and counts them off. When it finishes it says **Made: Bottle Green, Indigo.** and the new photographs appear in the gallery against those colours — the same three views the first colour has.
 
 :::warning Look at every one
 These are made by a machine from your photograph. Most come out right; some do not. Look at each one before you leave the screen, and delete any that is wrong — a wrong photograph on your shop is worse than none at all, because the customer only finds out when the parcel arrives.

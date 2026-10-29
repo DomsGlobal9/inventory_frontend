@@ -19,7 +19,7 @@ import { useMediaQuery } from '../hooks/useMediaQuery';
 import ImageLightbox from '../components/ImageLightbox';
 import { usePermission } from '../hooks/usePermission';
 
-const VIEW_ORDER = ['front', 'left', 'right', 'back'];
+const VIEW_ORDER = ['front', 'left', 'right'];
 
 export default function ProductPreview() {
   const { productData, resetProductData } = useProduct();

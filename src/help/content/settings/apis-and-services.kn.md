@@ -7,7 +7,7 @@ appLabel: Settings
 keywords: ಎಪಿಐ ಸೇವೆಗಳು ಸರ್ವೀಸ್ ಕೀ ಟ್ರೈ-ಆನ್ ಕ್ಯಾಟಲಾಗ್ ಲಿಮಿಟ್ ಬಳಕೆ ಮಿತಿ ಆಕ್ಟಿವ್ ಆನ್ ಪ್ಲಾಟ್‌ಫಾರ್ಮ್
 ---
 
-**4-View Catalog Try-On** ನಂತಹ ಕೆಲವು ಹೆಚ್ಚುವರಿ ಸೇವೆಗಳು ScaleEzy ಯಿಂದ ಬರುತ್ತವೆ. ScaleEzy ಅವನ್ನು ನಿಮ್ಮ ಅಂಗಡಿಗೆ ಆನ್ ಮಾಡಿ ನೋಡಿಕೊಳ್ಳುತ್ತದೆ. ಈ ಸ್ಕ್ರೀನ್ ಅವನ್ನು ತೋರಿಸುತ್ತದೆ ಅಷ್ಟೇ. **ಇಲ್ಲಿ ಸೆಟ್ ಮಾಡುವುದು ಅಥವಾ ಬದಲಿಸುವುದು ಏನೂ ಇಲ್ಲ.**
+**Catalog Try-On** ನಂತಹ ಕೆಲವು ಹೆಚ್ಚುವರಿ ಸೇವೆಗಳು ScaleEzy ಯಿಂದ ಬರುತ್ತವೆ. ScaleEzy ಅವನ್ನು ನಿಮ್ಮ ಅಂಗಡಿಗೆ ಆನ್ ಮಾಡಿ ನೋಡಿಕೊಳ್ಳುತ್ತದೆ. ಈ ಸ್ಕ್ರೀನ್ ಅವನ್ನು ತೋರಿಸುತ್ತದೆ ಅಷ್ಟೇ. **ಇಲ್ಲಿ ಸೆಟ್ ಮಾಡುವುದು ಅಥವಾ ಬದಲಿಸುವುದು ಏನೂ ಇಲ್ಲ.**
 
 ಮಾಲೀಕರು ಮತ್ತು **Manage the team and their roles** ಅನುಮತಿ ಇರುವವರಿಗೆ ಮಾತ್ರ **APIs and services** ಕಾಣುತ್ತದೆ.
 
@@ -15,7 +15,7 @@ keywords: ಎಪಿಐ ಸೇವೆಗಳು ಸರ್ವೀಸ್ ಕೀ ಟ್
 
 **Settings** ತೆರೆಯಿರಿ. **Developers** ಕೆಳಗೆ **APIs and services** ಒತ್ತಿರಿ. [[1]] ಮೇಲಿನ ಸಾಲು ನೀವು ಎಲ್ಲಿದ್ದೀರಿ ಎಂದು ತೋರಿಸುತ್ತದೆ: *Settings / Developers / APIs and services*.
 
-![ಎರಡು ಸೇವೆ ಕಾರ್ಡ್‌ಗಳಿರುವ APIs and services ಸ್ಕ್ರೀನ್, 4-View Catalog Try-On ಮತ್ತು Try-On. Settings / Developers / APIs and services ಸಾಲು 1 ಎಂದು ಗುರುತಿಸಲಾಗಿದೆ.](1-open.webp "ಪ್ರತಿ ಸೇವೆಗೆ ತನ್ನದೇ ಕಾರ್ಡ್ ಇದೆ.")
+![ಎರಡು ಸೇವೆ ಕಾರ್ಡ್‌ಗಳಿರುವ APIs and services ಸ್ಕ್ರೀನ್, Catalog Try-On ಮತ್ತು Try-On. Settings / Developers / APIs and services ಸಾಲು 1 ಎಂದು ಗುರುತಿಸಲಾಗಿದೆ.](1-open.webp "ಪ್ರತಿ ಸೇವೆಗೆ ತನ್ನದೇ ಕಾರ್ಡ್ ಇದೆ.")
 
 ಯಾವ ಸೇವೆಯೂ ಆನ್ ಆಗಿಲ್ಲದಿದ್ದರೆ, ಸ್ಕ್ರೀನ್‌ನಲ್ಲಿ *No platform services are switched on for this workspace yet.* ಎಂದು ಬರುತ್ತದೆ.
 
@@ -25,13 +25,13 @@ keywords: ಎಪಿಐ ಸೇವೆಗಳು ಸರ್ವೀಸ್ ಕೀ ಟ್
 2. [[2]] **Last used**: ಸೇವೆಯನ್ನು ಕೊನೆಯದಾಗಿ ಬಳಸಿದ ದಿನ, **Used this month**, ಅಥವಾ **Not used yet**.
 3. [[3]] **This month**: ಈ ತಿಂಗಳು ಎಷ್ಟು ಬಳಸಿದ್ದೀರಿ. ScaleEzy ತಿಂಗಳ ಮಿತಿ ಇಟ್ಟಿದ್ದರೆ, ಮಿತಿ ಮತ್ತು ಅದರಲ್ಲಿ ಎಷ್ಟು ಬಳಸಲಾಗಿದೆ ಎಂದೂ ಕಾಣುತ್ತದೆ.
 
-![4-View Catalog Try-On ಕಾರ್ಡ್. ACTIVE 1, Last used Not used yet 2 ಮತ್ತು This month 0 generations 3 ಎಂದು ಗುರುತಿಸಲಾಗಿದೆ.](2-a-service.webp "Managed by Scaleezy ಎಂದರೆ ScaleEzy ಇದನ್ನು ನಿಮಗಾಗಿ ನೋಡಿಕೊಳ್ಳುತ್ತದೆ.")
+![Catalog Try-On ಕಾರ್ಡ್. ACTIVE 1, Last used Not used yet 2 ಮತ್ತು This month 0 generations 3 ಎಂದು ಗುರುತಿಸಲಾಗಿದೆ.](2-a-service.webp "Managed by Scaleezy ಎಂದರೆ ScaleEzy ಇದನ್ನು ನಿಮಗಾಗಿ ನೋಡಿಕೊಳ್ಳುತ್ತದೆ.")
 
 ಕೆಲವು ಕಾರ್ಡ್‌ಗಳಲ್ಲಿ **Key** ಕೂಡ ಇರುತ್ತದೆ: ಸೇವೆಯ ಕೀಯ ಮೊದಲ ಕೆಲವು ಅಕ್ಷರಗಳು ಮಾತ್ರ, ನಂತರ ಚುಕ್ಕೆಗಳು. ನೀವು ಯಾವ ಕೀ ಬಗ್ಗೆ ಹೇಳುತ್ತಿದ್ದೀರಿ ಎಂದು ScaleEzy ಸಪೋರ್ಟ್‌ಗೆ ತಿಳಿಯಲು ಇದು ಸಹಾಯ ಮಾಡುತ್ತದೆ. ಪೂರ್ತಿ ಕೀ ಎಂದಿಗೂ ಕಾಣುವುದಿಲ್ಲ.
 
 | ಸೇವೆ | ಇದು ಏನು ಮಾಡುತ್ತದೆ | ಹೀಗೆ ಎಣಿಸಲಾಗುತ್ತದೆ |
 |---|---|---|
-| **4-View Catalog Try-On** | ScaleEzy ಯ ಒಳಗೇ, ಒಂದು ಬಟ್ಟೆಯ ಫೋಟೋದಿಂದ ನಾಲ್ಕು ಕ್ಯಾಟಲಾಗ್ ಚಿತ್ರಗಳನ್ನು ಮಾಡುತ್ತದೆ. | generations |
+| **Catalog Try-On** | ScaleEzy ಯ ಒಳಗೇ, ಒಂದು ಬಟ್ಟೆಯ ಫೋಟೋದಿಂದ ಮೂರು ಕ್ಯಾಟಲಾಗ್ ಚಿತ್ರಗಳನ್ನು ಮಾಡುತ್ತದೆ. | generations |
 | **Try-On** | ಗ್ರಾಹಕರು ಬಟ್ಟೆಯ ಮೇಲಿನ ಕ್ಯೂಆರ್ ಕೋಡ್ ಸ್ಕ್ಯಾನ್ ಮಾಡಿ, ಅದನ್ನು ತಾವೇ ಧರಿಸಿದಂತೆ ನೋಡುತ್ತಾರೆ. | try-ons |
 
 :::tip ಮುಗಿಯುತ್ತಾ ಬಂದಿದೆಯೇ?

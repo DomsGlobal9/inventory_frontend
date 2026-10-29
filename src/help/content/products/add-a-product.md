@@ -67,7 +67,7 @@ The photo appears with **Ready**. Click [[1]] **REVIEW & PUBLISH PRODUCT**.
 :::note What you see here depends on the dress type
 For sarees, lehengas, anarkalis, shararas and kurtis you get named photo boxes. Under them, **Your own photos of the Red one** takes any other photos you want shoppers to see: press **CHOOSE**, and several at once is fine. For other items you get one **Add photos** box.
 
-Tick **Make the four catalog views for the Red one** if you want model photos made from your photo. They are made after you publish, so you do not wait here. It is optional. See [Product photos](/help/products/photos).
+Tick **Make the three catalog views for the Red one** if you want model photos made from your photo. They are made after you publish, so you do not wait here. It is optional. See [Product photos](/help/products/photos).
 
 A colour without a photo does not stop you: the product's **Images** tab can fill it in later.
 :::

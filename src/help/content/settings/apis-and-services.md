@@ -8,7 +8,7 @@ appLabel: Settings
 keywords: api apis services key try-on catalog tryon allowance usage limit generations active switched on platform
 ---
 
-Some extra services, such as **4-View Catalog Try-On**, come from ScaleEzy. ScaleEzy switches them on and looks after them for your shop. This screen only shows them. **There is nothing to set up or change here.**
+Some extra services, such as **Catalog Try-On**, come from ScaleEzy. ScaleEzy switches them on and looks after them for your shop. This screen only shows them. **There is nothing to set up or change here.**
 
 Only the owner and people who can **Manage the team and their roles** see **APIs and services**.
 
@@ -16,7 +16,7 @@ Only the owner and people who can **Manage the team and their roles** see **APIs
 
 Open **Settings**. Under **Developers**, click **APIs and services**. [[1]] The line at the top shows where you are: *Settings / Developers / APIs and services*.
 
-![The APIs and services screen with two service cards, 4-View Catalog Try-On and Try-On. The line Settings / Developers / APIs and services is marked 1.](1-open.webp "Each service has its own card.")
+![The APIs and services screen with two service cards, Catalog Try-On and Try-On. The line Settings / Developers / APIs and services is marked 1.](1-open.webp "Each service has its own card.")
 
 If no service is on, the screen says *No platform services are switched on for this workspace yet.*
 
@@ -26,13 +26,13 @@ If no service is on, the screen says *No platform services are switched on for t
 2. [[2]] **Last used**: the last day the service was used, **Used this month**, or **Not used yet**.
 3. [[3]] **This month**: how much you used this month. When ScaleEzy has set a monthly limit, you also see the limit and how much is used.
 
-![The 4-View Catalog Try-On card. ACTIVE is marked 1, Last used Not used yet 2 and This month 0 generations 3.](2-a-service.webp "Managed by Scaleezy means ScaleEzy looks after it for you.")
+![The Catalog Try-On card. ACTIVE is marked 1, Last used Not used yet 2 and This month 0 generations 3.](2-a-service.webp "Managed by Scaleezy means ScaleEzy looks after it for you.")
 
 Some cards also show **Key**: only the first few characters of the service key, followed by dots. It helps ScaleEzy support know which key you mean. The full key is never shown.
 
 | Service | What it does | Counted as |
 |---|---|---|
-| **4-View Catalog Try-On** | Turns one garment photo into four catalogue pictures, inside ScaleEzy. | generations |
+| **Catalog Try-On** | Turns one garment photo into three catalogue pictures, inside ScaleEzy. | generations |
 | **Try-On** | Customers scan the QR code on a garment and see themselves wearing it. | try-ons |
 
 :::tip Running out?

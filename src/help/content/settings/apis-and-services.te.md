@@ -7,7 +7,7 @@ appLabel: Settings
 keywords: ఏపీఐ ఏపీఐలు సర్వీసులు సర్వీస్ కీ ట్రై-ఆన్ ట్రైఆన్ క్యాటలాగ్ లిమిట్ వాడకం జనరేషన్లు యాక్టివ్ ఆన్ ప్లాట్‌ఫామ్
 ---
 
-**4-View Catalog Try-On** లాంటి కొన్ని అదనపు సర్వీసులు ScaleEzy నుండి వస్తాయి. ScaleEzy వాటిని మీ షాప్ కోసం ఆన్ చేసి చూసుకుంటుంది. ఈ స్క్రీన్ వాటిని చూపిస్తుంది అంతే. **ఇక్కడ సెటప్ చేయాల్సింది కానీ, మార్చాల్సింది కానీ ఏమీ లేదు.**
+**Catalog Try-On** లాంటి కొన్ని అదనపు సర్వీసులు ScaleEzy నుండి వస్తాయి. ScaleEzy వాటిని మీ షాప్ కోసం ఆన్ చేసి చూసుకుంటుంది. ఈ స్క్రీన్ వాటిని చూపిస్తుంది అంతే. **ఇక్కడ సెటప్ చేయాల్సింది కానీ, మార్చాల్సింది కానీ ఏమీ లేదు.**
 
 యజమాని, **Manage the team and their roles** పర్మిషన్ ఉన్నవారు మాత్రమే **APIs and services** చూడగలరు.
 
@@ -15,7 +15,7 @@ keywords: ఏపీఐ ఏపీఐలు సర్వీసులు సర్�
 
 **Settings** తెరవండి. **Developers** కింద **APIs and services** నొక్కండి. [[1]] మీరు ఎక్కడ ఉన్నారో పైన ఉన్న లైన్ చూపిస్తుంది: *Settings / Developers / APIs and services*.
 
-![4-View Catalog Try-On, Try-On అనే రెండు సర్వీస్ కార్డ్‌లతో APIs and services స్క్రీన్. Settings / Developers / APIs and services లైన్ 1 గా గుర్తించబడింది.](1-open.webp "ప్రతి సర్వీస్‌కు దాని సొంత కార్డ్ ఉంటుంది.")
+![Catalog Try-On, Try-On అనే రెండు సర్వీస్ కార్డ్‌లతో APIs and services స్క్రీన్. Settings / Developers / APIs and services లైన్ 1 గా గుర్తించబడింది.](1-open.webp "ప్రతి సర్వీస్‌కు దాని సొంత కార్డ్ ఉంటుంది.")
 
 ఏ సర్వీస్ ఆన్‌లో లేకపోతే, స్క్రీన్ మీద *No platform services are switched on for this workspace yet.* అని ఉంటుంది.
 
@@ -25,13 +25,13 @@ keywords: ఏపీఐ ఏపీఐలు సర్వీసులు సర్�
 2. [[2]] **Last used**: సర్వీస్ చివరిసారి వాడిన రోజు, **Used this month**, లేదా **Not used yet**.
 3. [[3]] **This month**: ఈ నెల మీరు ఎంత వాడారు. ScaleEzy నెలవారీ లిమిట్ పెట్టి ఉంటే, లిమిట్, ఎంత వాడారో కూడా కనిపిస్తాయి.
 
-![4-View Catalog Try-On కార్డ్. ACTIVE 1, Last used Not used yet 2, This month 0 generations 3 గా గుర్తించబడ్డాయి.](2-a-service.webp "Managed by Scaleezy అంటే ScaleEzy దీన్ని మీ కోసం చూసుకుంటుంది.")
+![Catalog Try-On కార్డ్. ACTIVE 1, Last used Not used yet 2, This month 0 generations 3 గా గుర్తించబడ్డాయి.](2-a-service.webp "Managed by Scaleezy అంటే ScaleEzy దీన్ని మీ కోసం చూసుకుంటుంది.")
 
 కొన్ని కార్డ్‌లలో **Key** కూడా కనిపిస్తుంది: సర్వీస్ కీ లోని మొదటి కొన్ని అక్షరాలు మాత్రమే, తర్వాత చుక్కలు. మీరు ఏ కీ గురించి చెబుతున్నారో ScaleEzy సపోర్ట్‌కు తెలియడానికి ఇది సహాయపడుతుంది. పూర్తి కీ ఎప్పుడూ కనిపించదు.
 
 | సర్వీస్ | ఇది ఏమి చేస్తుంది | దేనిగా లెక్కిస్తారు |
 |---|---|---|
-| **4-View Catalog Try-On** | ఒక బట్ట ఫోటో నుండి, ScaleEzy లోపలే, నాలుగు క్యాటలాగ్ బొమ్మలు తయారు చేస్తుంది. | generations |
+| **Catalog Try-On** | ఒక బట్ట ఫోటో నుండి, ScaleEzy లోపలే, మూడు క్యాటలాగ్ బొమ్మలు తయారు చేస్తుంది. | generations |
 | **Try-On** | కస్టమర్లు బట్ట మీద ఉన్న QR కోడ్ స్కాన్ చేసి, అది వేసుకుంటే తాము ఎలా ఉంటారో చూస్తారు. | try-ons |
 
 :::tip అయిపోవస్తోందా?

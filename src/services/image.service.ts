@@ -33,7 +33,7 @@ export interface ImageOpts {
   /** The flat-lay a generated view was made from, so "where did this come from" has an answer. */
   generatedFromId?: string;
   /** Which of the four generated views this is. Try-on asks for the front one by name. */
-  view?: 'front' | 'left' | 'right' | 'back';
+  view?: 'front' | 'left' | 'right';
   /**
    * Which garment piece the shop photographed: the slot on the photos step it came from.
    *

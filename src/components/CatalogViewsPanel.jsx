@@ -12,7 +12,7 @@ import { usePermission } from '../hooks/usePermission';
 import Select from './common/Select';
 
 /**
- * The four catalog views, made from a photograph the shop already has.
+ * The three catalog views, made from a photograph the shop already has.
  *
  * Until recently this only existed in the Add a product wizard, which meant it only existed
  * during the one minute somebody was first typing a product in. Everything afterwards -- a
@@ -195,7 +195,7 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
         <Camera size={18} />
         <h3 style={{ fontSize: '15px', fontWeight: 600, margin: 0 }}>
-          {madeSoFar > 0 ? 'Finish the catalog views' : 'Make the four catalog views'}
+          {madeSoFar > 0 ? 'Finish the catalog views' : 'Make the three catalog views'}
         </h3>
       </div>
 
@@ -218,7 +218,7 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
           </>
         ) : source ? (
           <>
-            We take your photograph of the <b>{target.name}</b> one and make the four views a
+            We take your photograph of the <b>{target.name}</b> one and make the three views a
             catalogue wants &mdash; front, left, right and back &mdash; on a model.{' '}
             {source.imageType === 'RAW_UPLOAD'
               ? 'Your flat-lay stays out of your shop.'
@@ -228,7 +228,7 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
         ) : (
           <>
             <b>{target.name}</b> has no photograph yet. Give us a flat-lay of it &mdash; the piece
-            laid out flat on a table &mdash; and we make the four views from that. The flat-lay is
+            laid out flat on a table &mdash; and we make the three views from that. The flat-lay is
             kept as a reference and <b>is not shown in your shop</b>, so a picture of cloth on a
             table never ends up in your shop window.
           </>
@@ -260,7 +260,7 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
             disabled={uploading || start.isPending}
             style={{ padding: '9px 16px', borderRadius: '8px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
             {source
-              ? (start.isPending ? 'STARTING…' : (madeSoFar > 0 ? 'MAKE THE WHOLE SET' : 'MAKE THE FOUR VIEWS'))
+              ? (start.isPending ? 'STARTING…' : (madeSoFar > 0 ? 'MAKE THE WHOLE SET' : 'MAKE THE THREE VIEWS'))
               : <><Upload size={15} /> {uploading ? 'UPLOADING…' : 'CHOOSE A FLAT-LAY'}</>}
           </button>
         </>
@@ -313,7 +313,7 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
             <h3 style={{ fontSize: '15px', fontWeight: 600, margin: 0 }}>Not happy with a set?</h3>
           </div>
           <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 12px' }}>
-            {redoTarget.name} has all four views. Making them again replaces them with a fresh set
+            {redoTarget.name} has all three views. Making them again replaces them with a fresh set
             {sourceForViews(redoTarget)?.generated
               ? ', worked from the front view it already has.'
               : ', worked from your own photograph again.'}{' '}

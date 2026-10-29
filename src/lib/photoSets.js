@@ -17,8 +17,9 @@
  * that way is what lets scripts/verify-photo-sets.mjs run it under plain node.
  */
 
-/** The four views a catalogue wants, in the order a set is shown in. */
-export const VIEW_ORDER = ['front', 'left', 'right', 'back'];
+/** The views a catalogue wants, in the order a set is shown in (three since 29 Oct: no back). */
+// No back view since 29 Oct: a set is three. Must match backend photo-jobs/catalog.ts.
+export const VIEW_ORDER = ['front', 'left', 'right'];
 
 /**
  * Which model family a garment belongs to, or nothing.
@@ -75,12 +76,13 @@ export function ownPhotosOf(images) {
   return (images || []).filter(i => !i.generated);
 }
 
-/** Which of the four views have actually been made. */
+/** Which of the views have actually been made. */
 export function viewsMadeFor(images) {
-  return new Set((images || []).filter(i => i.generated && i.view).map(i => i.view));
+  // Only the views a set has: an old back view is not counted as one of the three.
+  return new Set((images || []).filter(i => i.generated && VIEW_ORDER.includes(i.view)).map(i => i.view));
 }
 
-/** A finished set: all four. Anything less is worth offering to complete. */
+/** A finished set: all three. Anything less is worth offering to complete. */
 export function hasWholeSet(images) {
   const made = viewsMadeFor(images);
   return VIEW_ORDER.every(v => made.has(v));

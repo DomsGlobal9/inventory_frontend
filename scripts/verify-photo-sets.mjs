@@ -81,17 +81,25 @@ for (const dressType of ['Dupatta', 'Salwar Suit', 'Wedding', 'Shirt', 'Palazzo'
 // ── Counting a set ────────────────────────────────────────────────────────────────────────────
 console.log('WHAT COUNTS AS FINISHED');
 
-check('four different views is a finished set',
-  hasWholeSet(colour('A', { views: VIEW_ORDER }).images));
-check('three of them is not',
-  !hasWholeSet(colour('A', { views: ['front', 'left', 'right'] }).images));
-check('four copies of the front is not a set either',
-  !hasWholeSet(colour('A', { views: ['front', 'front', 'front', 'front'] }).images),
+// Three views since 29 Oct: front, left (sitting) and right (side). No back.
+check('three different views is a finished set',
+  hasWholeSet(colour('A', { views: VIEW_ORDER }).images) && VIEW_ORDER.join() === 'front,left,right');
+check('two of them is not',
+  !hasWholeSet(colour('A', { views: ['front', 'left'] }).images));
+check('an old set that also has a back view is still finished',
+  hasWholeSet(colour('A', { views: ['front', 'left', 'right', 'back'] }).images));
+check('an old back view is not counted towards the three',
+  progressText(colour('A', { views: ['front', 'back'] })) === '1 of 3',
+  progressText(colour('A', { views: ['front', 'back'] })));
+check('a back view does not stand in for a missing one',
+  !hasWholeSet(colour('A', { views: ['front', 'left', 'back'] }).images));
+check('three copies of the front is not a set either',
+  !hasWholeSet(colour('A', { views: ['front', 'front', 'front'] }).images),
   'counted rows instead of views');
 check('the shop\'s own photographs are not views',
   !hasWholeSet(colour('A', { own: 4 }).images));
 check('a half-made colour can say where it got to',
-  progressText(colour('A', { views: ['front', 'left'] })) === '2 of 4',
+  progressText(colour('A', { views: ['front', 'left'] })) === '2 of 3',
   progressText(colour('A', { views: ['front', 'left'] })));
 
 // ── The ordinary shapes ───────────────────────────────────────────────────────────────────────

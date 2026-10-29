@@ -32,8 +32,8 @@ export default function CatalogUsageTiles({ usage }) {
   if (!usage) return null;
   return (
     <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-      <Tile testId="usage-catalogs" value={usage.catalogs ?? 0} label="Four-view catalogs"
-        note="Four views from one photo" accent="var(--brand-solid)" />
+      <Tile testId="usage-catalogs" value={usage.catalogs ?? 0} label="Catalogs"
+        note="Three views from one photo" accent="var(--brand-solid)" />
       <Tile testId="usage-colours" value={usage.colourVariants ?? 0} label="Colour variants"
         note="A colour made from a finished front view" accent="var(--brand)" />
       <Tile testId="usage-not-charged" value={usage.notCharged ?? 0} label="Failed / cancelled"

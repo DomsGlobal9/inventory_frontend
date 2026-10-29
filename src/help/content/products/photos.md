@@ -44,18 +44,18 @@ The first photo in each part becomes the main photo.
 The photo is removed from the product and from storage. To get it back you must upload it again.
 :::
 
-## Make model photos (the four catalog views)
+## Make model photos (the three catalog views)
 
-ScaleEzy can turn your own photo of a garment into four catalogue pictures of a model wearing it: **Front**, **Sitting**, **Right** and **Back**. Your own photo stays as it is.
+ScaleEzy can turn your own photo of a garment into three catalogue pictures of a model wearing it: **Front**, **Sitting** and **Right**. Your own photo stays as it is.
 
 It works for sarees, lehengas, anarkalis, shararas and kurtis (or kurtas).
 
-**When you add a product:** on the photo step, tick **Make the four catalog views for the Red one** (the colour's name). They are made after you publish. You do not have to wait. See [Add a product](/help/products/add-a-product).
+**When you add a product:** on the photo step, tick **Make the three catalog views for the Red one** (the colour's name). They are made after you publish. You do not have to wait. See [Add a product](/help/products/add-a-product).
 
-**For a product you already have:** on its **Images** tab, in **Make the four catalog views**:
+**For a product you already have:** on its **Images** tab, in **Make the three catalog views**:
 
 1. Choose **Which colour to photograph**.
-2. Press **MAKE THE FOUR VIEWS**.
+2. Press **MAKE THE THREE VIEWS**.
 
 You can carry on with other work. The card says how far it is, for example *Making the Red views… 1 of 4 done*, and ScaleEzy tells you when they are ready. When one colour is done, the other colours can be made from it.
 
@@ -74,7 +74,7 @@ Your shop makes one set at a time, and each takes about a minute. Other sets wai
 Press **Stop** to stop a set. Views already made are kept. A set you stop is not counted against your allowance.
 
 :::note Who can use it, and how many
-It uses the **4-View Catalog Try-On** service, which ScaleEzy switches on for your shop. Only people with the permission **Generate try-on images** can use it: the owner, an admin or an inventory manager. Each run that finishes, or fails, counts against your shop's monthly allowance. A run you stop is not counted. See [APIs and services](/help/settings/apis-and-services).
+It uses the **Catalog Try-On** service, which ScaleEzy switches on for your shop. Only people with the permission **Generate try-on images** can use it: the owner, an admin or an inventory manager. Each run that finishes, or fails, counts against your shop's monthly allowance. A run you stop is not counted. See [APIs and services](/help/settings/apis-and-services).
 :::
 
 ## Common problems
@@ -91,8 +91,8 @@ Each size and colour needs its own photo, not only the product as a whole. Look 
 Adding and deleting photos needs permission to change products. The owner, an admin or an inventory manager can do it.
 :::
 
-:::faq "3 of 4 views were made"
-The photo studio stopped part-way. The views it made are kept. To make the rest, choose that colour again and press **MAKE THE FOUR VIEWS**. It uses one generation.
+:::faq "2 of 3 views were made"
+The photo studio stopped part-way. The views it made are kept. To make the rest, choose that colour again and press **MAKE THE THREE VIEWS**. It uses one generation.
 :::
 
 :::faq "The photo studio could not be reached just now" or "stopped responding"

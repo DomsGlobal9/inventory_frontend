@@ -424,7 +424,7 @@ export default function GarmentPhotoshootUploader({ colorCode = '', colorLabel }
           {colorLabel ? `Photos of the ${colorLabel} one` : 'Catalog Draping AI'}
         </h3>
         <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
-          Lay the garment out flat and photograph it. We make four model shots from that one photo, and
+          Lay the garment out flat and photograph it. We make three model shots from that one photo, and
           keep your own photo alongside them.
         </p>
       </div>
@@ -658,10 +658,10 @@ export default function GarmentPhotoshootUploader({ colorCode = '', colorLabel }
           <span style={{ minWidth: 0 }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)' }}>
               <ImageIcon size={16} style={{ color: 'var(--accent-gold)' }} />
-              Make the four catalog views{colorLabel ? ` for the ${colorLabel} one` : ''}
+              Make the three catalog views{colorLabel ? ` for the ${colorLabel} one` : ''}
             </span>
             <span style={{ display: 'block', fontSize: '13px', color: 'var(--text-secondary)', marginTop: '6px', lineHeight: 1.55 }}>
-              Front, left, right and back, on a model, made from the photograph above. We start
+              Front, left and right, on a model, made from the photograph above. We start
               the moment you publish and tell you when they are ready &mdash;{' '}
               <b>you do not have to wait here.</b> Your own photograph stays exactly where it is.
             </span>

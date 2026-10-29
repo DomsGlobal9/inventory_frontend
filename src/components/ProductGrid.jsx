@@ -204,7 +204,7 @@ function ProductCard({ product, stagger, reduceMotion, isSelected, onToggle, onO
   const jobs = Array.isArray(product.generating) ? product.generating : [];
   const job = (colour ? jobs.find(j => (j.variantIds ?? []).includes(colour.id)) : jobs[0]) ?? null;
   const jobText = job
-    ? (job.status === 'QUEUED' ? 'Waiting to start…' : `Making photos ${job.viewsDone ?? 0}/${job.viewsTotal ?? 4}`)
+    ? (job.status === 'QUEUED' ? 'Waiting to start…' : `Making photos ${job.viewsDone ?? 0}/${job.viewsTotal ?? 3}`)
     : null;
 
   const rawUnits = colour ? colour.units : product.variantSummary?.totalUnits;

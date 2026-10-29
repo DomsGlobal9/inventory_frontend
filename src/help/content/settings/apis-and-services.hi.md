@@ -7,7 +7,7 @@ appLabel: Settings
 keywords: एपीआई सर्विस की ट्राई-ऑन ट्रायऑन कैटलॉग लिमिट इस्तेमाल यूसेज महीना चालू एक्टिव फ़ोटो
 ---
 
-कुछ एक्स्ट्रा सर्विस, जैसे **4-View Catalog Try-On**, ScaleEzy की तरफ़ से आती हैं। ScaleEzy इन्हें आपकी दुकान के लिए चालू करता है और इनका ध्यान रखता है। यह स्क्रीन सिर्फ़ इन्हें दिखाती है। **यहाँ कुछ सेट करना या बदलना नहीं है।**
+कुछ एक्स्ट्रा सर्विस, जैसे **Catalog Try-On**, ScaleEzy की तरफ़ से आती हैं। ScaleEzy इन्हें आपकी दुकान के लिए चालू करता है और इनका ध्यान रखता है। यह स्क्रीन सिर्फ़ इन्हें दिखाती है। **यहाँ कुछ सेट करना या बदलना नहीं है।**
 
 **APIs and services** सिर्फ़ मालिक और उन लोगों को दिखता है जिनके पास **Manage the team and their roles** की इजाज़त है।
 
@@ -15,7 +15,7 @@ keywords: एपीआई सर्विस की ट्राई-ऑन ट�
 
 **Settings** खोलें। **Developers** के नीचे **APIs and services** दबाएँ। [[1]] सबसे ऊपर की लाइन बताती है कि आप कहाँ हैं: *Settings / Developers / APIs and services*।
 
-![APIs and services स्क्रीन, जिसमें दो सर्विस कार्ड हैं, 4-View Catalog Try-On और Try-On। Settings / Developers / APIs and services वाली लाइन पर 1 का निशान है।](1-open.webp "हर सर्विस का अपना कार्ड है।")
+![APIs and services स्क्रीन, जिसमें दो सर्विस कार्ड हैं, Catalog Try-On और Try-On। Settings / Developers / APIs and services वाली लाइन पर 1 का निशान है।](1-open.webp "हर सर्विस का अपना कार्ड है।")
 
 अगर कोई सर्विस चालू नहीं है, तो स्क्रीन पर *No platform services are switched on for this workspace yet.* लिखा आता है।
 
@@ -25,13 +25,13 @@ keywords: एपीआई सर्विस की ट्राई-ऑन ट�
 2. [[2]] **Last used**: सर्विस आखिरी बार किस दिन इस्तेमाल हुई, या **Used this month**, या **Not used yet**।
 3. [[3]] **This month**: इस महीने आपने कितना इस्तेमाल किया। अगर ScaleEzy ने महीने की लिमिट रखी है, तो लिमिट और उसमें से कितना इस्तेमाल हुआ, यह भी दिखता है।
 
-![4-View Catalog Try-On कार्ड। ACTIVE पर 1, Last used Not used yet पर 2 और This month 0 generations पर 3 का निशान है।](2-a-service.webp "Managed by Scaleezy का मतलब है कि ScaleEzy आपके लिए इसका ध्यान रखता है।")
+![Catalog Try-On कार्ड। ACTIVE पर 1, Last used Not used yet पर 2 और This month 0 generations पर 3 का निशान है।](2-a-service.webp "Managed by Scaleezy का मतलब है कि ScaleEzy आपके लिए इसका ध्यान रखता है।")
 
 कुछ कार्ड पर **Key** भी दिखती है: सर्विस की की के सिर्फ़ शुरू के कुछ अक्षर, उसके बाद बिंदु। इससे ScaleEzy सपोर्ट को पता चलता है कि आप किस की की बात कर रहे हैं। पूरी की कभी नहीं दिखती।
 
 | सर्विस | क्या करती है | किस रूप में गिनी जाती है |
 |---|---|---|
-| **4-View Catalog Try-On** | ScaleEzy के अंदर ही, कपड़े की एक फ़ोटो से कैटलॉग की चार फ़ोटो बनाती है। | generations |
+| **Catalog Try-On** | ScaleEzy के अंदर ही, कपड़े की एक फ़ोटो से कैटलॉग की तीन फ़ोटो बनाती है। | generations |
 | **Try-On** | ग्राहक कपड़े पर लगा QR कोड स्कैन करते हैं और खुद को वह पहने हुए देखते हैं। | try-ons |
 
 :::tip खत्म होने वाला है?

@@ -7,6 +7,7 @@ import { Trash2, Loader2, X, AlertTriangle } from 'lucide-react';
 import { api } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
 import { holdsEverything } from '../../lib/authority';
+import { useCrm } from '../../hooks/useCrm';
 
 /**
  * Delete a customer -- the shop owner only (29 Oct). The server decides how (services/customer-delete):
@@ -17,6 +18,7 @@ import { holdsEverything } from '../../lib/authority';
  */
 export default function DeleteCustomer({ customer }) {
   const user = useAuth();
+  const crm = useCrm();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -26,11 +28,21 @@ export default function DeleteCustomer({ customer }) {
   const preview = useQuery({
     queryKey: ['customer-delete-preview', customer.id],
     queryFn: async () => (await api.get(`/customers/${customer.id}/delete-preview`)).data,
-    enabled: open,
+    enabled: open && !crm.profileMoved,
     staleTime: 0,
     meta: { quiet: true }
   });
   if (!holdsEverything(user)) return null;
+  // The shop deletes customers in CRM now: the way there, nothing to press here.
+  if (crm.profileMoved) {
+    return (
+      <div style={{ border: '1px solid var(--border-color)', borderRadius: '14px', padding: '16px' }} aria-label="Delete customer">
+        <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>Delete customer</div>
+        <p style={{ margin: '0 0 8px', fontSize: '13px', color: 'var(--text-secondary)' }}>Your shop deletes customers in CRM.</p>
+        <a href={crm.customerUrl(customer.id)} target="_blank" rel="noopener noreferrer" style={{ fontSize: '13px', fontWeight: 600, color: 'var(--brand-deep, #164B1E)' }}>Open them in CRM</a>
+      </div>
+    );
+  }
 
   const p = preview.data;
   const asks = p?.phoneLast4 ? 'the last 4 digits of their number' : 'their name';

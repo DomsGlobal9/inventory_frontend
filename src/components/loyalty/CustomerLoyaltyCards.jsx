@@ -6,6 +6,7 @@ import { Gift, MessageCircle, Cake, Heart, Plus, Minus, Ban } from 'lucide-react
 import { useCustomerPoints, useAdjustPoints, useOffersConsent, useSetOffersConsent } from '../../hooks/useCampaigns';
 import { useUpdateCustomer } from '../../hooks/useCustomers';
 import { usePermission } from '../../hooks/usePermission';
+import { useCrm } from '../../hooks/useCrm';
 import Select from '../common/Select';
 
 /**
@@ -40,7 +41,9 @@ function DayPicker({ id, label, value, onChange, disabled }) {
 
 export function CustomerOffersCard({ customer }) {
   const { can } = usePermission();
-  const edit = can('customer:update');
+  const crm = useCrm();
+  // Changed in CRM once the shop moved them there: shown here, read only, with the way to CRM.
+  const edit = can('customer:update') && !crm.profileMoved;
   const { data } = useOffersConsent(customer.id);
   const setConsent = useSetOffersConsent(customer.id);
   const update = useUpdateCustomer();
@@ -77,6 +80,7 @@ export function CustomerOffersCard({ customer }) {
             <span style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>
               {!customer.phone ? 'Add a phone number first.'
                 : data.changedAt ? `${data.agreed ? 'Agreed' : 'Said no'} on ${dateOf(data.changedAt)}${data.changedBy ? `, recorded by ${data.changedBy}` : ''}.`
+                : crm.profileMoved ? 'Changed in CRM.'
                 : 'Tick only if the customer said yes.'}
             </span>
           </span>
@@ -101,6 +105,12 @@ export function CustomerOffersCard({ customer }) {
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)' }}><Heart size={15} /> {dayWords(data.anniversary) ?? 'No anniversary'}</div>
             {edit && <button className="btn-secondary" style={{ alignSelf: 'flex-start', padding: '4px 12px', fontSize: '13px' }}
               onClick={() => setDays({ birthday: data.birthday, anniversary: data.anniversary })}>Change dates</button>}
+            {crm.profileMoved && (
+              <a href={crm.customerUrl(customer.id)} target="_blank" rel="noopener noreferrer"
+                style={{ alignSelf: 'flex-start', fontSize: '13px', fontWeight: 600, color: 'var(--brand-deep, #164B1E)' }}>
+                Change offers and dates in CRM
+              </a>
+            )}
           </>
         )}
       </div>

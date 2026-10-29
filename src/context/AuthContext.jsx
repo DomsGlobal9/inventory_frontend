@@ -26,7 +26,7 @@ export function AuthProvider({ children }) {
         // /auth/session returns the tenant separately as client.id; it used to be thrown
         // away, leaving the app with no idea which tenant it was acting for. Fold it into
         // the stored user so there is exactly one place to read it from.
-        const hydrated = { ...res.user, clientId: res.user.clientId ?? res.client?.id ?? null, modules: Array.isArray(res.modules) ? res.modules : ['inventory'] };
+        const hydrated = { ...res.user, clientId: res.user.clientId ?? res.client?.id ?? null, modules: Array.isArray(res.modules) ? res.modules : ['inventory'], crmMoved: res.crmMoved ?? null };
         setUser(hydrated);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(hydrated));
       } else {
@@ -60,9 +60,9 @@ export function AuthProvider({ children }) {
       try {
         const res = await api.get('/auth/session');
         if (res?.authenticated && res.user) {
-          const hydrated = { ...res.user, clientId: res.user.clientId ?? res.client?.id ?? null, modules: Array.isArray(res.modules) ? res.modules : ['inventory'] };
+          const hydrated = { ...res.user, clientId: res.user.clientId ?? res.client?.id ?? null, modules: Array.isArray(res.modules) ? res.modules : ['inventory'], crmMoved: res.crmMoved ?? null };
           setUser(prev => {
-            const same = prev && JSON.stringify([prev.permissions, prev.roles, prev.modules]) === JSON.stringify([hydrated.permissions, hydrated.roles, hydrated.modules]);
+            const same = prev && JSON.stringify([prev.permissions, prev.roles, prev.modules, prev.crmMoved]) === JSON.stringify([hydrated.permissions, hydrated.roles, hydrated.modules, hydrated.crmMoved]);
             if (same) return prev;
             localStorage.setItem(STORAGE_KEY, JSON.stringify(hydrated));
             return hydrated;
@@ -101,7 +101,7 @@ export function AuthProvider({ children }) {
       if (!res?.authenticated || !Array.isArray(res.modules)) return;
       setUser(prev => {
         if (!prev || prev.id !== res.user?.id) return prev;
-        const next = { ...prev, modules: res.modules };
+        const next = { ...prev, modules: res.modules, crmMoved: res.crmMoved ?? null };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
         return next;
       });

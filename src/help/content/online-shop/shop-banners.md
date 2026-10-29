@@ -22,7 +22,7 @@ In **Settings → Online shop**, scroll down to [[1]] **Banners**. The **Top ann
 
 Click **Add a banner** and pick a picture from your computer or phone.
 
-Use a **wide** photograph — the shape is like a television, not a portrait. A portrait photo will be cut down to a strip and you will lose the top and bottom of it.
+Every banner is one shape: **3 times as wide as it is tall**. **1920 × 640 pixels** is best; it must be at least 1200 pixels wide. A picture of any other shape is refused when you pick it, so the whole banner shows on every phone and laptop.
 
 :::warning iPhone photos
 If the picture is an iPhone **HEIC** photo it cannot be read. Share it as a JPEG, or set the camera to **Most Compatible**, and choose it again. The largest a picture can be is 15 MB.
@@ -93,6 +93,6 @@ It shows on the home page with nothing searched or filtered, once there are more
 Choose a picture with a plain, darker area where the words sit — the sky, a wall, a blurred background. Words typed on a busy pattern are hard to read whatever we do behind them.
 :::
 
-:::faq The banner is cut off
-It is a wide shape. A tall photo loses its top and bottom. Crop it wide before you upload it.
+:::faq My picture was refused
+It is not the banner shape. Crop it to 3 times as wide as it is tall — 1920 × 640 pixels — and choose it again. A banner added before this rule shows a note in the list: replace it with a 1920 × 640 picture so it fills the banner.
 :::

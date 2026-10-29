@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import InStoreNow from '../../components/sales/InStoreNow';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
@@ -74,11 +75,6 @@ export default function CustomerCard() {
     enabled: !!currentLocation?.id, refetchInterval: 15000
   });
   const open = (e164) => { setTyped(e164.replace(/^\+91/, '')); setProblem(null); setPhone(e164); };
-  const take = useMutation({
-    mutationFn: async (id) => (await api.post(`/customers/checkins/${id}/take`)).data,
-    onSuccess: (r) => { open(r.phone); arrivals.refetch(); },
-    onError: (e) => { toast.error(e?.message || 'That did not work. Try again.'); arrivals.refetch(); }
-  });
   const addNote = useMutation({
     mutationFn: async ({ id, text }) => (await api.post(`/customers/${id}/notes`, { note: text })).data,
     onSuccess: () => { setNote(''); toast.success('Note added'); queryClient.invalidateQueries({ queryKey: ['customer-card'] }); }
@@ -96,7 +92,6 @@ export default function CustomerCard() {
   const d = card.data;
   const c = d?.customer;
   const store = currentLocation?.name ?? 'this store';
-  const waiting = arrivals.data ?? [];
 
   /*
    * The counter stays HERE for every shop, CRM or not (28 Oct): salespeople already have their
@@ -126,22 +121,8 @@ export default function CustomerCard() {
         </form>
         {problem && <p role="alert" style={{ color: 'var(--accent-danger)', fontSize: '13px', margin: '8px 0 0' }}>{problem}</p>}
 
-        {/* Who is at the door: small chips, the newest first, one tap to take them. */}
-        <div style={{ marginTop: '12px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}><DoorOpen size={15} /><span>In the store now</span></span>
-          {waiting.length === 0 ? (
-            <span style={muted}>When a customer scans the QR at the door, they show here.</span>
-          ) : waiting.map(a => (
-            <span key={a.id} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '5px 6px 5px 12px', borderRadius: '999px', background: 'var(--bg-input)', fontSize: '13px' }}>
-              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{a.customer ? a.customer.name : `New · ${a.maskedPhone}`}</span>
-              {a.customer?.groups.map(g => <span key={g} style={{ fontSize: '11px', fontWeight: 600, padding: '1px 7px', borderRadius: '999px', background: 'var(--accent-gold)', color: '#1a1a1a' }}>{g}</span>)}
-              <span style={{ color: 'var(--text-secondary)' }}>{minutesAgo(a.at)}{a.takenBy && ` · ${a.takenBy} is with them`}</span>
-              {a.takenBy
-                ? <button type="button" className="btn-secondary" style={{ fontSize: '12px', padding: '4px 10px', borderRadius: '999px' }} onClick={() => open(a.phone)}>Open card</button>
-                : <button type="button" className="btn-primary" style={{ fontSize: '12px', padding: '4px 10px', borderRadius: '999px' }} disabled={take.isPending} onClick={() => take.mutate(a.id)}>I'll take them</button>}
-            </span>
-          ))}
-        </div>
+        {/* Who is at the door, who is with whom, asked-for and passing on (components/sales/InStoreNow). */}
+        <InStoreNow data={arrivals.data} onOpen={open} onChanged={() => arrivals.refetch()} />
       </div>
 
       {card.isError && <LoadFailed what="the customer card" error={card.error} onRetry={card.refetch} />}

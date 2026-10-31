@@ -204,12 +204,20 @@ export default function AuthShell({ eyebrow, title, subtitle, points = [], scene
           .auth-right { width: 100%; max-width: 460px; }
         }
         @media (prefers-reduced-motion: reduce) { .auth-primary:hover { transform: none; } }
+        .auth-logo { --h: 26px; display: block; position: relative; overflow: hidden;
+          height: var(--h); width: calc(var(--h) * 926 / 142); }
+        .auth-logo img { position: absolute; max-width: none; width: auto;
+          height: calc(var(--h) * 422 / 142); left: calc(var(--h) * -49 / 142); top: calc(var(--h) * -150 / 142); }
+        @media (max-width: 640px) { .auth-logo { --h: 22px; } }
       `}</style>
 
       <header className="auth-head">
-        <Link to="/" aria-label="Scaleezy home" style={{ display: 'inline-flex' }}>
-          <img src="/scaleezy-logo.png" alt="Scaleezy" className="logo-on-light" style={{ height: '34px', objectFit: 'contain' }} />
-          <img src="/scaleezy-logo-dark.png" alt="Scaleezy" className="logo-on-dark" style={{ height: '34px', objectFit: 'contain' }} />
+        {/* Cropped to the wordmark (31 Oct, owner: "increase logo size"). The file is 1024x422 with
+            the drawing in a 926x142 band at (49,150) -- a third of its height -- so a 34px-tall image
+            showed an 11px wordmark. --h is now the wordmark's own height. */}
+        <Link to="/" aria-label="Scaleezy home" className="auth-logo">
+          <img src="/scaleezy-logo.png" alt="Scaleezy" className="logo-on-light" />
+          <img src="/scaleezy-logo-dark.png" alt="Scaleezy" className="logo-on-dark" />
         </Link>
       </header>
 

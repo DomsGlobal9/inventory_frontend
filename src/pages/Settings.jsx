@@ -20,6 +20,7 @@ import SettingsHub, { groupOf } from '../components/settings/SettingsHub';
 import ReturnRulesPanel from '../components/sales/ReturnRulesPanel';
 import CustomerGroupsPanel from '../components/settings/CustomerGroupsPanel';
 import BoxSizesPanel from '../components/logistics/BoxSizesPanel';
+import LogisticsSwitch from '../components/logistics/LogisticsSwitch';
 import { useLogistics } from '../components/logistics/PackOrders';
 import { holdsEverything } from '../lib/authority';
 import { useAuth } from '../context/AuthContext';
@@ -32,9 +33,10 @@ const SETTINGS_DOMAINS = [
   { id: 'DAYBOOK', label: 'Day Book', icon: BookOpen, permission: 'report:financial' },
   { id: 'STOREFRONT', label: 'Connected websites', icon: Globe, permission: 'admin:locations' },
   { id: 'ONLINE_SHOP', label: 'Online shop', icon: Globe, permission: 'admin:online_shop' },
-  // Packing for ScaleEzy Logistics: the box sizes. Only for a shop on Logistics, which chooses the
-  // courier itself (28 Oct); the id stays COURIERS so older links still land here.
-  { id: 'COURIERS', label: 'Packing', icon: Truck, permission: 'dispatch:create', needsLogistics: true },
+  // Shipping with ScaleEzy Logistics: the shop's own on/off switch (3 Nov), then the box sizes once it
+  // is on. Shown whether on or off -- a shop that is off has to be able to find the switch. The id stays
+  // COURIERS so older links still land here.
+  { id: 'COURIERS', label: 'Shipping', icon: Truck, permission: 'dispatch:create' },
   // Its own place: the shop's Razorpay account, what has been paid online and money back. The
   // server guards all of it with admin:online_shop, so the menu does too.
   { id: 'PAYMENTS', label: 'Payments', icon: CreditCard, permission: 'admin:online_shop' },
@@ -267,7 +269,8 @@ export default function Settings() {
 
           {activeDomain === 'COURIERS' && (
             <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '32px' }}>
-              <BoxSizesPanel />
+              <LogisticsSwitch />
+              {logistics.data?.on === true ? <BoxSizesPanel /> : null}
             </div>
           )}
 

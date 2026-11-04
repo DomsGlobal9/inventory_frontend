@@ -153,16 +153,25 @@ export default function ProductFilters({ facets, value, onChange }) {
 function PriceBoxes({ value, span, onChange }) {
   const [from, setFrom] = React.useState(value.min ?? '');
   const [to, setTo] = React.useState(value.max ?? '');
+
+  React.useEffect(() => {
+    setFrom(value.min ?? '');
+    setTo(value.max ?? '');
+  }, [value.min, value.max]);
+
   const apply = () => {
     const n = (x) => (String(x).trim() === '' ? undefined : Math.max(0, Number(String(x).replace(/[^\d.]/g, '')) || 0));
     onChange({ ...value, min: n(from), max: n(to) });
   };
   return (
-    <div className="pf-prices">
-      <label htmlFor="pf-from">From ₹<input id="pf-from" inputMode="numeric" value={from} placeholder={String(Math.floor(span.lo ?? 0))}
-        onChange={(e) => setFrom(e.target.value)} onBlur={apply} onKeyDown={(e) => e.key === 'Enter' && apply()} /></label>
-      <label htmlFor="pf-to">To ₹<input id="pf-to" inputMode="numeric" value={to} placeholder={String(Math.ceil(span.hi ?? 0))}
-        onChange={(e) => setTo(e.target.value)} onBlur={apply} onKeyDown={(e) => e.key === 'Enter' && apply()} /></label>
+    <div className="pf-prices" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+        <label htmlFor="pf-from" style={{ flex: 1 }}>From ₹<input id="pf-from" inputMode="numeric" value={from} placeholder={String(Math.floor(span.lo ?? 0))}
+          onChange={(e) => setFrom(e.target.value)} onBlur={apply} onKeyDown={(e) => e.key === 'Enter' && apply()} /></label>
+        <label htmlFor="pf-to" style={{ flex: 1 }}>To ₹<input id="pf-to" inputMode="numeric" value={to} placeholder={String(Math.ceil(span.hi ?? 0))}
+          onChange={(e) => setTo(e.target.value)} onBlur={apply} onKeyDown={(e) => e.key === 'Enter' && apply()} /></label>
+      </div>
+      <button type="button" className="pf-apply" onClick={apply} style={{ padding: '6px 14px', fontSize: '12px', fontWeight: 600, borderRadius: '6px', background: 'var(--accent, #6366f1)', color: '#fff', border: 'none', cursor: 'pointer', alignSelf: 'flex-end' }}>Apply</button>
     </div>
   );
 }

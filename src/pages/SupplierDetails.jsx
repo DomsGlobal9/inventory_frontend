@@ -503,7 +503,7 @@ export default function SupplierDetails() {
               )}
             </div>
           ) : (
-            <table style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse', textAlign: 'left' }}>
+            <table className="phone-cards" style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse', textAlign: 'left' }}>
               <thead style={{ position: 'sticky', top: 0, backgroundColor: 'var(--bg-card)', zIndex: 10, borderBottom: '1px solid var(--border-light)' }}>
                 <tr>
                   <th style={{ padding: '12px 20px', fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>PO Number</th>
@@ -526,7 +526,7 @@ export default function SupplierDetails() {
                         {po.poNumber}
                       </span>
                     </td>
-                    <td style={{ padding: '14px 16px' }}>
+                    <td data-label="Status" style={{ padding: '14px 16px' }}>
                       <span style={{
                         padding: '3px 8px',
                         borderRadius: '6px',
@@ -552,18 +552,18 @@ export default function SupplierDetails() {
                         {po.status.replace('_', ' ')}
                       </span>
                     </td>
-                    <td style={{ padding: '14px 16px' }}>
+                    <td data-label="Date Created" style={{ padding: '14px 16px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)', fontSize: '13px' }}>
                         <Clock size={13} style={{ color: 'var(--text-muted)' }} />
                         {new Date(po.createdAt).toLocaleDateString()}
                       </div>
                     </td>
-                    <td style={{ padding: '14px 16px', textAlign: 'right' }}>
+                    <td data-label="Total Amount" style={{ padding: '14px 16px', textAlign: 'right' }}>
                       <span style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)' }}>
                         ₹{Number(po.totalAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </span>
                     </td>
-                    <td style={{ padding: '14px 20px', textAlign: 'right' }}>
+                    <td className="phone-actions" style={{ padding: '14px 20px', textAlign: 'right' }}>
                       <button
                         className="btn-secondary"
                         style={{ padding: '4px 10px', fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}

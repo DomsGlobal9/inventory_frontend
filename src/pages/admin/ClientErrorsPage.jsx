@@ -54,7 +54,7 @@ function AppErrors() {
         </div>
       ) : (
         <div className="table-container" style={{ border: '1px solid var(--border-light)', borderRadius: '12px', overflow: 'auto hidden', background: 'var(--bg-card)' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+          <table className="phone-cards" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
               <tr style={{ background: 'var(--bg-input)' }}>
                 {['', 'Time', 'Client', 'Source', 'Message', 'Route', 'User'].map(h => (
@@ -79,10 +79,10 @@ function AppErrors() {
                       <td style={{ padding: '10px 16px', color: 'var(--text-muted)', width: '20px' }}>
                         {err.stack && (isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />)}
                       </td>
-                      <td style={{ padding: '10px 16px', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
+                      <td data-label="Time" style={{ padding: '10px 16px', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
                         {new Date(err.createdAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                       </td>
-                      <td style={{ padding: '10px 16px' }}>
+                      <td data-label="Client" style={{ padding: '10px 16px' }}>
                         {err.clientId ? (
                           <button
                             onClick={(e) => { e.stopPropagation(); navigate(`/platformconsole/clients/${err.clientId}`); }}
@@ -96,18 +96,18 @@ function AppErrors() {
                           <span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>Unknown</span>
                         )}
                       </td>
-                      <td style={{ padding: '10px 16px' }}>
+                      <td data-label="Source" style={{ padding: '10px 16px' }}>
                         <span style={{ display: 'inline-flex', alignItems: 'center', padding: '2px 8px', background: style.bg, color: style.color, borderRadius: '6px', fontSize: '11px', fontWeight: 600 }}>
                           {err.source}{err.statusCode ? ` ${err.statusCode}` : ''}
                         </span>
                       </td>
-                      <td style={{ padding: '10px 16px', color: 'var(--text-primary)', maxWidth: '360px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={err.message}>
+                      <td data-label="Message" style={{ padding: '10px 16px', color: 'var(--text-primary)', maxWidth: '360px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={err.message}>
                         {err.message}
                       </td>
-                      <td style={{ padding: '10px 16px', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: '12px' }}>
+                      <td data-label="Route" style={{ padding: '10px 16px', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: '12px' }}>
                         {err.route || '—'}
                       </td>
-                      <td style={{ padding: '10px 16px', color: 'var(--text-secondary)', fontSize: '12px' }}>
+                      <td data-label="User" style={{ padding: '10px 16px', color: 'var(--text-secondary)', fontSize: '12px' }}>
                         {err.userEmail || '—'}
                       </td>
                     </tr>

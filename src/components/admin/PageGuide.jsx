@@ -22,6 +22,7 @@ export default function PageGuide({ title = "How it works", children }) {
   return (
     <div ref={containerRef}>
       <button 
+        className="page-guide-fab"
         onClick={() => setIsOpen(true)}
         style={{
           position: 'fixed',
@@ -49,7 +50,7 @@ export default function PageGuide({ title = "How it works", children }) {
       </button>
 
       {isOpen && (
-        <div style={{
+        <div className="page-guide-panel" style={{
           position: 'fixed',
           bottom: '90px',
           right: '32px',

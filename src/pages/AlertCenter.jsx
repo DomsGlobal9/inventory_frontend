@@ -160,7 +160,7 @@ export default function AlertCenter() {
       {/* Content */}
       {activeTab !== 'other' && (
       <motion.div variants={item} className="table-container mobile-no-scroll" style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+        <table className="phone-cards" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
             <tr>
               <th>Product</th>
@@ -189,17 +189,17 @@ export default function AlertCenter() {
                     {v.productTitle}
                   </div>
                 </td>
-                <td>
+                <td data-label="Identifiers">
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: '13px' }}>{v.sku}</div>
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-secondary)' }}>{v.variantCode}</div>
                 </td>
-                <td>
+                <td data-label="Color / Size">
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     {v.hexCode && <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: v.hexCode }} />}
                     <span>{v.colorName} • {v.size}</span>
                   </div>
                 </td>
-                <td>
+                <td data-label="Current Stock">
                   <span style={{
                     fontWeight: '600',
                     color: v.quantity <= 0 ? 'var(--accent-danger)' : 'var(--accent-gold)'
@@ -207,10 +207,10 @@ export default function AlertCenter() {
                     {v.quantity}
                   </span>
                 </td>
-                <td>
+                <td data-label="Reorder Level">
                   <span style={{ color: 'var(--text-secondary)' }}>{v.reorderLevel}</span>
                 </td>
-                <td style={{ textAlign: 'right' }}>
+                <td className="phone-actions" style={{ textAlign: 'right' }}>
                   <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', alignItems: 'center' }}>
                     <button
                       className="btn-icon"

@@ -710,14 +710,15 @@ tr:hover td {
     top: 0;
     bottom: 0;
     background: var(--bg-card);
-    box-shadow: 2px 0 12px rgba(0,0,0,0.1);
     transform: translateX(-100%);
     transition: transform 0.3s ease;
     padding-bottom: env(safe-area-inset-bottom);
   }
 
+  /* The shadow only when open: closed, it showed as a grey band down the screen's left edge. */
   .sidebar.open {
     transform: translateX(0);
+    box-shadow: 2px 0 12px rgba(0,0,0,0.1);
   }
 
   .sidebar-overlay {
@@ -1473,3 +1474,31 @@ input[type="password"]::-ms-reveal, input[type="password"]::-ms-clear { display:
 .su-why a { color: var(--brand-ink); }
 .su-btn { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px !important; font-size: 12px !important; }
 @media (max-width: 560px) { .su { padding: 16px; } .su-row { flex-wrap: wrap; } .su-btn { margin-left: 26px; } }
+
+/* The console's ⓘ on a phone: smaller and in the corner, and its panel fits the screen (5 Nov). */
+@media (max-width: 720px) {
+  .page-guide-fab { bottom: 16px !important; right: 16px !important; width: 44px !important; height: 44px !important; }
+  .page-guide-panel { left: 16px !important; right: 16px !important; bottom: 72px !important; width: auto !important; max-width: none !important; max-height: 70dvh !important; overflow-y: auto; }
+}
+
+/*
+ * Tables with buttons in their last column, as cards on a phone (5 Nov, owner: "some buttons are not visible").
+ * As a table the buttons began 500px off to the right, with nothing to say they were there. Every value keeps its
+ * heading (data-label), and a button that is only an icon on a laptop says what it does here.
+ */
+@media (max-width: 768px) {
+  table.phone-cards, table.phone-cards tbody { display: block; width: 100%; min-width: 0 !important; }
+  /* A row's own wrapper may scroll sideways on a laptop; here nothing is left to scroll. */
+  div:has(> table.phone-cards) { overflow-x: visible !important; }
+  table.phone-cards thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  table.phone-cards tbody > tr { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; padding: 14px; border-bottom: 1px solid var(--border-light); }
+  table.phone-cards tbody > tr > td { display: block; position: static !important; min-width: 0 !important; width: auto !important; max-width: none !important; padding: 0 !important; border: 0 !important; background: none !important; text-align: left !important; white-space: normal !important; overflow-wrap: anywhere; box-shadow: none !important; }
+  table.phone-cards tbody > tr > td:first-child, table.phone-cards tbody > tr > td[colspan] { grid-column: 1 / -1; }
+  table.phone-cards tbody > tr > td[colspan] { padding: 32px 8px !important; text-align: center !important; }
+  table.phone-cards td[data-label]::before { content: attr(data-label); display: block; margin-bottom: 2px; font-size: 11px; font-weight: 600; color: var(--text-muted); }
+  table.phone-cards td.phone-actions { grid-column: 1 / -1; padding-top: 10px !important; border-top: 1px solid var(--border-light) !important; }
+  table.phone-cards td.phone-actions > * { justify-content: flex-start !important; flex-wrap: wrap; gap: 8px !important; }
+  table.phone-cards td.phone-actions .btn-icon { width: auto !important; min-height: 40px; padding: 0 10px; display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border-light); border-radius: 8px; }
+  table.phone-cards td.phone-actions .btn-icon[title]::after { content: attr(title); font-size: 12px; font-weight: 500; }
+  .table-container:has(> table.phone-cards) { overflow-x: visible !important; }
+}

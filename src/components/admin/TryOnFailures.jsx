@@ -74,7 +74,7 @@ export default function TryOnFailures() {
         <p style={{ color: 'var(--text-muted)', fontSize: '14px', padding: '24px 0' }}>No try-on failed in this period. Failures are recorded from 15 Oct 2026; earlier ones were not kept.</p>
       ) : (
         <div className="table-container" style={{ border: '1px solid var(--border-light)', borderRadius: '12px', overflow: 'auto hidden', background: 'var(--bg-card)' }}>
-          <table style={{ width: '100%', minWidth: '760px', borderCollapse: 'collapse', fontSize: '13px' }}>
+          <table className="phone-cards" style={{ width: '100%', minWidth: '760px', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
               <tr style={{ background: 'var(--bg-input)' }}>
                 {['', 'When', 'Shop', 'Service', 'Where', 'Real error', 'Shop was told'].map(h => (
@@ -94,15 +94,15 @@ export default function TryOnFailures() {
                           {isOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                         </button>
                       </td>
-                      <td style={{ ...cell, whiteSpace: 'nowrap', color: 'var(--text-secondary)' }}>{when(f.createdAt)}</td>
-                      <td style={{ ...cell, fontFamily: 'monospace', color: 'var(--accent-gold)' }}>{f.clientId}</td>
-                      <td style={cell}>{f.jobKind === 'COLOUR' ? 'Colour photos' : SERVICE[f.service] ?? f.service}</td>
-                      <td style={{ ...cell, color: 'var(--text-secondary)' }}>{PLACE[f.place] ?? f.place}</td>
-                      <td style={{ ...cell, maxWidth: '360px' }}>
+                      <td data-label="When" style={{ ...cell, whiteSpace: 'nowrap', color: 'var(--text-secondary)' }}>{when(f.createdAt)}</td>
+                      <td data-label="Shop" style={{ ...cell, fontFamily: 'monospace', color: 'var(--accent-gold)' }}>{f.clientId}</td>
+                      <td data-label="Service" style={cell}>{f.jobKind === 'COLOUR' ? 'Colour photos' : SERVICE[f.service] ?? f.service}</td>
+                      <td data-label="Where" style={{ ...cell, color: 'var(--text-secondary)' }}>{PLACE[f.place] ?? f.place}</td>
+                      <td data-label="Real error" style={{ ...cell, maxWidth: '360px' }}>
                         {(f.httpStatus || f.code) && <span style={{ fontWeight: 600 }}>{[f.httpStatus, f.code].filter(Boolean).join(' · ')} </span>}
                         <span style={{ color: 'var(--text-secondary)' }}>{f.error.length > 140 && !isOpen ? `${f.error.slice(0, 140)}…` : (isOpen ? '' : f.error)}</span>
                       </td>
-                      <td style={{ ...cell, color: 'var(--text-muted)', maxWidth: '260px' }}>{f.shownMessage || '—'}</td>
+                      <td data-label="Shop was told" style={{ ...cell, color: 'var(--text-muted)', maxWidth: '260px' }}>{f.shownMessage || '—'}</td>
                     </tr>
                     {isOpen && (
                       <tr>

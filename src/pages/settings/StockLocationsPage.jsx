@@ -198,7 +198,7 @@ export default function StockLocationsPage() {
       </div>
 
       <div className="table-container" style={{ borderRadius: '12px', border: '1px solid var(--border-light)', overflow: 'auto hidden', background: 'var(--bg-card)' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+        <table className="phone-cards" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
             <tr style={{ background: 'var(--bg-input)', borderBottom: '1px solid var(--border-light)' }}>
               <th style={{ padding: '16px', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Location Details</th>
@@ -219,7 +219,7 @@ export default function StockLocationsPage() {
                     </div>
                   )}
                 </td>
-                <td style={{ padding: '16px' }}>
+                <td data-label="Type" style={{ padding: '16px' }}>
                   <span style={{
                     display: 'inline-flex', alignItems: 'center', padding: '4px 10px',
                     background: 'var(--bg-hover)', color: 'var(--text-secondary)',
@@ -228,7 +228,7 @@ export default function StockLocationsPage() {
                     {loc.type}
                   </span>
                 </td>
-                <td style={{ padding: '16px' }}>
+                <td data-label="Status" style={{ padding: '16px' }}>
                   <span style={{
                     display: 'inline-flex', alignItems: 'center', padding: '4px 10px',
                     background: loc.active ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
@@ -240,7 +240,7 @@ export default function StockLocationsPage() {
                   </span>
                 </td>
                 {canManage && (
-                  <td style={{ padding: '16px', textAlign: 'right' }}>
+                  <td className="phone-actions" style={{ padding: '16px', textAlign: 'right' }}>
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
                       <button
                         onClick={() => openEditModal(loc)}

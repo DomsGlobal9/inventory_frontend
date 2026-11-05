@@ -67,6 +67,7 @@ export default function OnlineShopSettings() {
       // On unless the shop said no (the columns' own default), so Save never switches them off.
       accounts: shop.accounts !== false,
       wishlist: shop.wishlist !== false,
+      reviews: shop.reviews !== false,
       showBalances: shop.showBalances !== false,
       returnPolicy: shop.returnPolicy ?? '',
       grievanceName: shop.grievanceName ?? '',
@@ -444,6 +445,18 @@ export default function OnlineShopSettings() {
               <span style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)' }}>
                 A heart on every piece, kept until they take it off. Pieces they heart lately also show on
                 their Customer card.
+              </span>
+            </span>
+          </label>
+          <label style={{ display: 'flex', gap: '9px', alignItems: 'flex-start', marginTop: '14px', cursor: form.accounts ? 'pointer' : 'not-allowed' }}>
+            <input type="checkbox" checked={form.accounts && form.reviews} disabled={!form.accounts}
+              onChange={(e) => set('reviews', e.target.checked)}
+              aria-label="Let customers review what they bought" style={{ width: '16px', height: '16px', marginTop: '2px' }} />
+            <span style={{ fontSize: '13px' }}>
+              Let customers review what they bought
+              <span style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)' }}>
+                Ratings, words and photos on each product page, only from customers whose order was delivered.
+                You reply to them, and hide any that break the rules, in ScaleEzy CRM.
               </span>
             </span>
           </label>

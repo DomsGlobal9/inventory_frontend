@@ -80,7 +80,7 @@ export default function AuditList() {
             <p>Start your first stock count to ensure inventory accuracy.</p>
           </div>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+          <table className="phone-cards" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr>
                 <th>Audit Name</th>
@@ -101,21 +101,21 @@ export default function AuditList() {
                   <td>
                     <div style={{ fontWeight: '500', color: 'var(--text-primary)' }}>{audit.name}</div>
                   </td>
-                  <td>
+                  <td data-label="Status">
                     <StatusPill status={audit.status} />
                   </td>
-                  <td>
+                  <td data-label="Date">
                     <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>
                       {new Date(audit.createdAt).toLocaleDateString()}
                     </span>
                   </td>
-                  <td>
+                  <td data-label="Items">
                     <span style={{ color: 'var(--text-secondary)' }}>
                       {/* A cancelled count lets go of its lines; how many it held is kept. */}
                       {(audit.status === 'CANCELLED' ? audit.totalItems : audit._count?.items) || 0} items
                     </span>
                   </td>
-                  <td>
+                  <td data-label="Accuracy">
                     {audit.accuracy ? (
                       <span style={{ 
                         color: Number(audit.accuracy) >= 95 ? 'var(--accent-success)' : 'var(--accent-danger)',
@@ -129,7 +129,7 @@ export default function AuditList() {
                       <span style={{ color: 'var(--text-muted)' }}>-</span>
                     )}
                   </td>
-                  <td style={{ textAlign: 'right' }}>
+                  <td className="phone-actions" style={{ textAlign: 'right' }}>
                     {/* Did nothing of its own and had no name, so a screen reader announced "button". */}
                     <button
                       className="btn-secondary"

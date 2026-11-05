@@ -55,7 +55,7 @@ export default function UsersPage() {
         </div>
       ) : (
         <div className="table-container" style={{ borderRadius: '12px', border: '1px solid var(--border-light)', overflow: 'auto hidden', background: 'var(--bg-card)' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+          <table className="phone-cards" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ background: 'var(--bg-input)', borderBottom: '1px solid var(--border-light)' }}>
                 <th style={{ padding: '16px', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>User Details</th>
@@ -78,7 +78,7 @@ export default function UsersPage() {
                       <Mail size={12} /> {u.email}
                     </div>
                   </td>
-                  <td style={{ padding: '16px' }}>
+                  <td data-label="Client Scope" style={{ padding: '16px' }}>
                     <button
                       onClick={() => navigate(`/platformconsole/clients/${u.clientId}`)}
                       title={`View ${u.clientId} overview`}
@@ -90,7 +90,7 @@ export default function UsersPage() {
                       <span style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}>{u.clientId}</span>
                     </button>
                   </td>
-                  <td style={{ padding: '16px' }}>
+                  <td data-label="Roles" style={{ padding: '16px' }}>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                       {u.roles.map(r => (
                         <span key={r.role.name} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', background: 'var(--bg-input)', color: 'var(--text-secondary)', borderRadius: '4px', fontSize: '11px', fontWeight: 500 }}>
@@ -99,7 +99,7 @@ export default function UsersPage() {
                       ))}
                     </div>
                   </td>
-                  <td style={{ padding: '16px' }}>
+                  <td data-label="Status" style={{ padding: '16px' }}>
                     <span style={{ 
                       display: 'inline-flex', alignItems: 'center', padding: '4px 10px', 
                       background: u.status === 'ACTIVE' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', 
@@ -110,7 +110,7 @@ export default function UsersPage() {
                       {u.status}
                     </span>
                   </td>
-                  <td style={{ padding: '16px', textAlign: 'right', color: 'var(--text-muted)', fontSize: '13px' }}>
+                  <td data-label="Last Activity" style={{ padding: '16px', textAlign: 'right', color: 'var(--text-muted)', fontSize: '13px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
                       <Clock size={12} />
                       {(() => {

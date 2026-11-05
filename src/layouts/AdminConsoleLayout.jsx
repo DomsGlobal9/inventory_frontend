@@ -62,17 +62,35 @@ export default function AdminConsoleLayout() {
             position: fixed; top: 0; bottom: 0; left: 0; z-index: 1001;
             transform: translateX(-100%);
             transition: transform 0.25s ease;
-            box-shadow: 2px 0 16px rgba(0,0,0,0.28);
             padding-left: env(safe-area-inset-left);
           }
-          .console-aside.open { transform: translateX(0); }
+          /* The shadow only when open: closed, it showed as a grey band down the screen's left edge. */
+          .console-aside.open { transform: translateX(0); box-shadow: 2px 0 16px rgba(0,0,0,0.28); }
+          /* The menu scrolls, so Sign Out at its foot can always be reached. dvh: the phone's own bars do
+             not hide the bottom of it. */
+          .console-shell { height: 100dvh !important; }
+          .console-aside nav { overflow-y: auto; min-height: 0; overscroll-behavior: contain; }
           .console-scrim {
             display: block; position: fixed; inset: 0; z-index: 1000;
             background: rgba(0,0,0,0.5); backdrop-filter: blur(2px);
           }
           .console-main {
-            padding: 68px max(16px, env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)) !important;
+            padding: 68px max(16px, env(safe-area-inset-right)) calc(84px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)) !important;
           }
+        }
+        /* Tables whose buttons matter become cards on a phone: Password was cut off by the box around the
+           team table, with nothing to scroll it into view (5 Nov, owner). */
+        @media (max-width: 720px) {
+          .console-cards, .console-cards tbody, .console-cards tr, .console-cards td { display: block; width: 100%; }
+          .console-cards thead { display: none; }
+          .console-cards tr { padding: 12px 0; }
+          .console-cards td { padding: 6px 16px !important; text-align: left !important; max-width: none !important; overflow-wrap: anywhere; white-space: normal !important; }
+          .console-cards td button { min-height: 44px; }
+          .console-cards td:empty { display: none; }
+          .console-two { grid-template-columns: minmax(0, 1fr) !important; }
+          .console-row { flex-wrap: wrap; gap: 12px !important; }
+          .console-row > * { min-width: 0 !important; flex: 1 1 100% !important; width: auto !important; text-align: left !important; }
+          .console-row button { flex: 1 1 0; justify-content: center; min-height: 44px; }
         }
         @media (prefers-reduced-motion: reduce) { .console-aside { transition: none; } }
       `}</style>

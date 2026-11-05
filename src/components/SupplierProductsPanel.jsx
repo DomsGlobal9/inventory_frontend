@@ -251,7 +251,7 @@ export default function SupplierProductsPanel({ supplierId, supplierName, suppli
           </div>
         ) : (
           <div className="table-container" style={{ overflowX: 'auto', border: 'none', borderRadius: 0, background: 'transparent' }}>
-            <table style={{ width: '100%', minWidth: '700px', borderCollapse: 'collapse', textAlign: 'left' }}>
+            <table className="phone-cards" style={{ width: '100%', minWidth: '700px', borderCollapse: 'collapse', textAlign: 'left' }}>
               <thead style={{ position: 'sticky', top: 0, backgroundColor: 'var(--bg-card)', zIndex: 10, borderBottom: '1px solid var(--border-light)' }}>
                 <tr>
                   <th style={{ padding: '12px 20px', fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Item Details</th>
@@ -320,7 +320,7 @@ export default function SupplierProductsPanel({ supplierId, supplierName, suppli
                       </td>
 
                       {/* Supplier SKU */}
-                      <td style={{ padding: '14px 16px', fontFamily: 'var(--font-mono)', fontSize: '13px', color: 'var(--text-secondary)' }}>
+                      <td data-label="Their Code" style={{ padding: '14px 16px', fontFamily: 'var(--font-mono)', fontSize: '13px', color: 'var(--text-secondary)' }}>
                         {link.supplierSku ? (
                           <span style={{ background: 'var(--bg-input)', padding: '3px 7px', borderRadius: '4px', border: '1px solid var(--border-light)' }}>
                             {link.supplierSku}
@@ -331,12 +331,12 @@ export default function SupplierProductsPanel({ supplierId, supplierName, suppli
                       </td>
 
                       {/* Cost Price */}
-                      <td style={{ padding: '14px 16px', textAlign: 'right', fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)' }}>
+                      <td data-label="Their Price" style={{ padding: '14px 16px', textAlign: 'right', fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)' }}>
                         {formatMoney(link.costPrice) || <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>—</span>}
                       </td>
 
                       {/* Stock Level */}
-                      <td style={{ padding: '14px 16px', textAlign: 'right' }}>
+                      <td data-label="In Stock" style={{ padding: '14px 16px', textAlign: 'right' }}>
                         <span style={{
                           display: 'inline-flex',
                           alignItems: 'center',
@@ -355,7 +355,7 @@ export default function SupplierProductsPanel({ supplierId, supplierName, suppli
                       </td>
 
                       {/* Terms */}
-                      <td style={{ padding: '14px 16px', fontSize: '12px', color: 'var(--text-secondary)' }}>
+                      <td data-label="Terms" style={{ padding: '14px 16px', fontSize: '12px', color: 'var(--text-secondary)' }}>
                         {[
                           link.leadTimeDays != null ? `${link.leadTimeDays}d lead` : null,
                           link.minOrderQty != null ? `min ${link.minOrderQty}` : null
@@ -363,7 +363,7 @@ export default function SupplierProductsPanel({ supplierId, supplierName, suppli
                       </td>
 
                       {/* Actions */}
-                      <td style={{ padding: '14px 20px', textAlign: 'right' }}>
+                      <td className="phone-actions" style={{ padding: '14px 20px', textAlign: 'right' }}>
                         <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end', alignItems: 'center' }}>
                           {canOrder && (
                             <button

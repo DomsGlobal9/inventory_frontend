@@ -99,7 +99,7 @@ export default function PutAway() {
             {list.isLoading ? <div className="sh-muted">Loading…</div>
               : items.length === 0 ? <EmptyState icon={PackageCheck} title="Everything is on a shelf" text="New stock, returns and transfers into this location will appear here." />
               : (
-                <div style={{ display: 'grid', gap: 4, maxHeight: 'min(62vh, 640px)', overflowY: 'auto' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: 4, maxHeight: 'min(62vh, 640px)', overflowY: 'auto', overflowX: 'hidden' }}>
                   {filtered.map(i => (
                     <button key={i.variantId} type="button" className={`sh-list-btn${selectedId === i.variantId ? ' selected' : ''}`} onClick={() => selectItem(i.variantId)}>
                       <ItemThumb url={i.imageUrl} size={44} />

@@ -70,7 +70,7 @@ export default function AdminLogin() {
             <div style={{ position: 'relative' }}>
               <Mail size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
               <input
-                type="email" value={email} onChange={e => setEmail(e.target.value)}
+                type="email" autoCapitalize="none" autoCorrect="off" spellCheck={false} value={email} onChange={e => setEmail(e.target.value)}
                 placeholder="platform-admin@scaleezy.com" autoFocus required
                 className="input-field"
                 style={{ width: '100%', padding: '0 14px 0 42px', height: '48px', background: 'var(--bg-input)', border: '1px solid var(--border-light)', borderRadius: '12px', color: 'var(--text-primary)', fontSize: '14px', outline: 'none', transition: 'border-color 0.2s' }}
@@ -84,7 +84,7 @@ export default function AdminLogin() {
             <div style={{ position: 'relative' }}>
               <Lock size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
               <input
-                type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)}
+                type={showPassword ? "text" : "password"} autoCapitalize="none" autoCorrect="off" spellCheck={false} value={password} onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••" required
                 className="input-field"
                 style={{ width: '100%', padding: '0 42px 0 42px', height: '48px', background: 'var(--bg-input)', border: '1px solid var(--border-light)', borderRadius: '12px', color: 'var(--text-primary)', fontSize: '14px', outline: 'none', transition: 'border-color 0.2s' }}

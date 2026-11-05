@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback, useId } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect, useCallback, useId } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronDown, Check } from 'lucide-react';
 
@@ -75,6 +75,11 @@ const styles = `
        set from JS against the real viewport instead. */
     position: fixed;
     overflow-y: auto;
+    overflow-x: hidden;
+    /* A swipe that reaches the end of the list stops there, rather than moving the page behind it. */
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
     background: var(--bg-card, #0a0a0a);
     border: 1px solid var(--border-light, rgba(255, 255, 255, 0.1));
     border-radius: 8px;
@@ -120,6 +125,14 @@ const styles = `
   .custom-select-option.selected {
     color: var(--accent-gold, #e2c171);
     background: rgba(226, 193, 113, 0.1);
+  }
+
+  .custom-select-label { white-space: nowrap; }
+
+  /* A finger: options big enough to hit, and a long one wraps rather than being cut at the screen's edge. */
+  @media (pointer: coarse), (max-width: 768px) {
+    .custom-select-option { padding: 11px 12px; }
+    .custom-select-label { white-space: normal; overflow-wrap: anywhere; }
   }
 `;
 
@@ -193,7 +206,7 @@ export default function Select({
     const openUp = spaceBelow < Math.min(IDEAL, spaceAbove);
     const maxHeight = Math.max(Math.min(IDEAL, openUp ? spaceAbove : spaceBelow), 96);
 
-    setMenuBox({
+    const next = {
       left: r.left,
       width: r.width,
       /*
@@ -205,16 +218,26 @@ export default function Select({
        * you could not read them. The field itself can stay narrow; the menu is floating over
        * the page and costs nothing by being wider.
        *
-       * Bounded by the distance to the right edge so a long option cannot push the menu off
-       * screen, which would hide the end of it just as effectively.
+       * Never wider than the screen; once its real width is known it is moved in from the right
+       * edge if it has to be (see the layout effect), so a long option is never pushed off screen.
        */
-      maxWidth: Math.max(r.width, window.innerWidth - r.left - MARGIN),
+      maxWidth: window.innerWidth - MARGIN * 2,
       maxHeight,
       openUp,
       top: openUp ? null : r.bottom + GAP,
       bottom: openUp ? window.innerHeight - r.top + GAP : null
-    });
+    };
+    // Nothing moved, nothing to redraw.
+    setMenuBox(was => (was && Object.keys(next).every(k => was[k] === next[k]) ? was : next));
   }, []);
+
+  // Moved in from the right edge once the menu's real width is known.
+  useLayoutEffect(() => {
+    const menu = dropdownRef.current;
+    if (!isOpen || !menu || !menuBox) return;
+    const MARGIN = 8;
+    menu.style.left = `${Math.max(MARGIN, Math.min(menuBox.left, window.innerWidth - MARGIN - menu.offsetWidth))}px`;
+  }, [isOpen, menuBox]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -222,7 +245,13 @@ export default function Select({
     // The field can move out from under the menu: a modal body scrolls, the window resizes,
     // the page behind scrolls. Capture phase, so scrolls inside any container are caught and
     // not just those on window.
-    const onMove = () => positionMenu();
+    // Not for the list's own scrolling: the field has not moved, and redrawing for it put the highlighted
+    // option back in sight, which snapped the list back under a finger on every swipe (5 Nov, owner). A mouse
+    // hid this, because hovering moves the highlight along with the scroll; a finger does not.
+    const onMove = (e) => {
+      if (e?.target instanceof Node && dropdownRef.current?.contains(e.target)) return;
+      positionMenu();
+    };
     window.addEventListener('scroll', onMove, true);
     window.addEventListener('resize', onMove);
     return () => {
@@ -231,11 +260,17 @@ export default function Select({
     };
   }, [isOpen, positionMenu]);
 
-  // Keep the highlighted option in sight in a long list (a store's variants, say).
+  // Keep the highlighted option in sight in a long list (a store's variants, say): when the list opens and
+  // when the arrow keys move, never because a swipe moved it. Only the list scrolls, not the page around it.
+  const menuReady = Boolean(menuBox);
   useEffect(() => {
-    if (!isOpen || active < 0) return;
-    document.getElementById(optionId(active))?.scrollIntoView?.({ block: 'nearest' });
-  }, [isOpen, active, menuBox]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!isOpen || active < 0 || !menuReady) return;
+    const list = dropdownRef.current, option = document.getElementById(optionId(active));
+    if (!list || !option) return;
+    const top = option.offsetTop, bottom = top + option.offsetHeight;
+    if (top < list.scrollTop) list.scrollTop = top;
+    else if (bottom > list.scrollTop + list.clientHeight) list.scrollTop = bottom - list.clientHeight;
+  }, [isOpen, active, menuReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /*
    * A <label htmlFor> names a real form field, but the field here is a div, so the label would name
@@ -411,7 +446,7 @@ export default function Select({
                   onMouseEnter={() => { if (!opt.disabled) setActive(i); }}
                   onClick={() => { if (!opt.disabled) handleSelect(opt.value); }}
                 >
-                  <span style={{ whiteSpace: 'nowrap' }}>
+                  <span className="custom-select-label">
                     {opt.label}
                   </span>
                   {isSelected && <Check size={14} />}

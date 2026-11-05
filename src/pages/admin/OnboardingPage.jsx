@@ -57,6 +57,7 @@ export default function OnboardingPage() {
   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
   const [result, setResult] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [copiedPassword, setCopiedPassword] = useState(false);
 
   const byStatus = (status) => (data || []).filter(c => c.onboardingStatus === status);
 
@@ -77,6 +78,17 @@ export default function OnboardingPage() {
 
   const handleSendEmail = () => {
     window.location.href = buildOnboardingMailto(result);
+  };
+
+  // Only the password, to paste straight into a password box. "Copy Details" copies all three lines.
+  const handleCopyPassword = async () => {
+    try {
+      await navigator.clipboard.writeText(result.tempPassword);
+      setCopiedPassword(true);
+      setTimeout(() => setCopiedPassword(false), 2000);
+    } catch (error) {
+      toast.error('Could not copy to clipboard — your browser may have blocked it.');
+    }
   };
 
   const handleCopy = async () => {
@@ -145,7 +157,7 @@ export default function OnboardingPage() {
               <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.06em', marginTop: '4px' }}>OWNER (LOGS IN FIRST)</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
                 <Field label="Name *"><input type="text" required value={form.adminName} onChange={set('adminName')} placeholder="Lakshmi Narayanan" className="input-field" style={INPUT} /></Field>
-                <Field label="Email *"><input type="email" required value={form.adminEmail} onChange={set('adminEmail')} placeholder="owner@lakshmisilks.in" className="input-field" style={INPUT} /></Field>
+                <Field label="Email *"><input type="email" autoCapitalize="none" autoCorrect="off" spellCheck={false} required value={form.adminEmail} onChange={set('adminEmail')} placeholder="owner@lakshmisilks.in" className="input-field" style={INPUT} /></Field>
               </div>
               <Field label="Mobile (WhatsApp) *" hint="For login help and the nightly Day Book on WhatsApp.">
                 <input type="tel" required value={form.ownerPhone} onChange={set('ownerPhone')} placeholder="98480 22338" className="input-field" style={INPUT} />
@@ -205,9 +217,15 @@ export default function OnboardingPage() {
                     <div style={{ color: 'var(--text-secondary)', fontSize: '13px', fontWeight: 500 }}>Admin Email</div>
                     <div style={{ color: 'var(--text-primary)', fontSize: '14px', fontWeight: 500 }}>{result.adminEmail}</div>
                   </div>
-                  <div style={{ padding: '14px 16px', background: 'var(--bg-input)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ padding: '14px 16px', background: 'var(--bg-input)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
                     <div style={{ color: 'var(--text-secondary)', fontSize: '13px', fontWeight: 500 }}>Temp Password</div>
-                    <div style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-primary)', fontSize: '15px', fontWeight: 600, letterSpacing: '1px' }}>{result.tempPassword}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                      <div data-testid="temp-password" style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-primary)', fontSize: '15px', fontWeight: 600, letterSpacing: '1px', userSelect: 'all', overflowWrap: 'anywhere' }}>{result.tempPassword}</div>
+                      <button type="button" onClick={handleCopyPassword} aria-label="Copy password" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', minHeight: '36px', padding: '6px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '8px', color: 'var(--text-primary)', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+                        {copiedPassword ? <CheckCircle2 size={14} color="var(--accent-success)" /> : <Copy size={14} />}
+                        {copiedPassword ? 'Copied' : 'Copy password'}
+                      </button>
+                    </div>
                   </div>
                 </div>
 

@@ -163,7 +163,7 @@ export default function MoveStockModal({ onClose, startWith = null }) {
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 1000, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '5vh 16px', overflowY: 'auto' }}
       onClick={(e) => { if (e.target === e.currentTarget && !saving) onClose(); }}>
       <div ref={box} role="dialog" aria-modal="true" aria-labelledby="move-stock-title" className="card"
-        style={{ width: 660, maxWidth: '100%', padding: 22, display: 'grid', gap: 14 }}>
+        style={{ width: 660, maxWidth: '100%', minWidth: 0, boxSizing: 'border-box', padding: 22, display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: 14 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
           <h2 id="move-stock-title" style={{ margin: 0, fontSize: 19, fontWeight: 600 }}>Move stock between locations</h2>
           <button type="button" className="btn-secondary" onClick={onClose} aria-label="Close" style={{ padding: 6 }} disabled={saving}><X size={16} /></button>
@@ -243,13 +243,13 @@ export default function MoveStockModal({ onClose, startWith = null }) {
         </div>
 
         {items.length > 0 && (
-          <div style={{ display: 'grid', gap: 2 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: 2 }}>
             {items.map(i => (
-              <div key={i.variantId} data-move-row style={{ display: 'grid', gap: 6, padding: '8px 0', borderBottom: '1px solid var(--border-light)' }}>
+              <div key={i.variantId} data-move-row style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: 6, padding: '8px 0', borderBottom: '1px solid var(--border-light)' }}>
                 <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                   <div style={{ flex: 1, minWidth: 0, fontSize: 14 }}>
                     <div style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{i.title}</div>
-                    <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{i.sku} · {i.available} at {fromName}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', overflowWrap: 'anywhere' }}>{i.sku} · {i.available} at {fromName}</div>
                   </div>
                   <input aria-label={`How many of ${i.sku} to move`} className="input-field" type="number" min="1" max={i.available} value={i.quantity}
                     onChange={(e) => { setQty(i.variantId, e.target.value); setProblem(''); }} style={{ width: 84, textAlign: 'center' }} />

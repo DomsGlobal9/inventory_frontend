@@ -239,7 +239,7 @@ export default function CustomerDetail() {
 
             {activeTab === 'orders' && (
               customer.salesOrders && customer.salesOrders.length > 0 ? (
-                 <div style={{ overflowX: 'auto' }}>{/* wide tables scroll sideways inside the card instead of being cut off on a phone */}<table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                 <div style={{ overflowX: 'auto' }}>{/* wide tables scroll sideways inside the card instead of being cut off on a phone */}<table className="phone-cards" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                   <thead>
                     <tr style={{ backgroundColor: 'var(--bg-hover)' }}>
                       <th style={{ padding: '12px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px' }}>ORDER #</th>
@@ -257,12 +257,12 @@ export default function CustomerDetail() {
                         {...rowLink(() => navigate(`/orders/${order.id}`), { label: `Open ${order.orderNumber}` })}
                       >
                         <td style={{ padding: '16px 24px', fontWeight: '500' }}>{order.orderNumber}</td>
-                        <td style={{ padding: '16px 24px', color: 'var(--text-secondary)' }}>{new Date(order.createdAt).toLocaleDateString()}</td>
-                        <td style={{ padding: '16px 24px' }}>
+                        <td data-label="DATE" style={{ padding: '16px 24px', color: 'var(--text-secondary)' }}>{new Date(order.createdAt).toLocaleDateString()}</td>
+                        <td data-label="STATUS" style={{ padding: '16px 24px' }}>
                           <StatusPill map={ORDER_STATUS} value={order.status} />
                         </td>
-                        <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '500' }}>{formatINR(Number(order.total))}</td>
-                        <td style={{ padding: '16px 24px', textAlign: 'right' }}>
+                        <td data-label="TOTAL" style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '500' }}>{formatINR(Number(order.total))}</td>
+                        <td className="phone-actions" style={{ padding: '16px 24px', textAlign: 'right' }}>
                           <button
                             className="btn-secondary"
                             onClick={() => navigate(`/orders/${order.id}`)}
@@ -297,7 +297,7 @@ export default function CustomerDetail() {
                 }
 
                 return (
-                  <div style={{ overflowX: 'auto' }}>{/* wide tables scroll sideways inside the card instead of being cut off on a phone */}<table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                  <div style={{ overflowX: 'auto' }}>{/* wide tables scroll sideways inside the card instead of being cut off on a phone */}<table className="phone-cards" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                     <thead>
                       <tr style={{ backgroundColor: 'var(--bg-hover)' }}>
                         <th style={{ padding: '12px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px' }}>DISPATCH #</th>
@@ -311,12 +311,12 @@ export default function CustomerDetail() {
                       {allDispatches.map(dispatch => (
                         <tr key={dispatch.id} style={{ borderBottom: '1px solid var(--border-light)' }}>
                           <td style={{ padding: '16px 24px', fontWeight: '500' }}>{dispatch.dispatchNumber}</td>
-                          <td style={{ padding: '16px 24px' }}>{dispatch.orderNumber}</td>
-                          <td style={{ padding: '16px 24px', color: 'var(--text-secondary)' }}>{new Date(dispatch.createdAt).toLocaleDateString()}</td>
-                          <td style={{ padding: '16px 24px' }}>
+                          <td data-label="ORDER #" style={{ padding: '16px 24px' }}>{dispatch.orderNumber}</td>
+                          <td data-label="DATE" style={{ padding: '16px 24px', color: 'var(--text-secondary)' }}>{new Date(dispatch.createdAt).toLocaleDateString()}</td>
+                          <td data-label="STATUS" style={{ padding: '16px 24px' }}>
                             <StatusPill map={DISPATCH_STATUS} value={dispatch.status} />
                           </td>
-                          <td style={{ padding: '16px 24px', textAlign: 'right' }}>
+                          <td className="phone-actions" style={{ padding: '16px 24px', textAlign: 'right' }}>
                             {can('return:create') && (() => {
                               // A Return button on a dispatch that is already fully back is a
                               // dead end: it opens a modal, takes a note, and refuses on the

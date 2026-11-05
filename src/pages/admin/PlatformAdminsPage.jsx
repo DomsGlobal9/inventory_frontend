@@ -297,7 +297,7 @@ export default function PlatformAdminsPage() {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {admins.map((admin) => (
-            <div key={admin.id} style={{
+            <div className="console-row" key={admin.id} style={{
               background: 'var(--bg-card)',
               border: '1px solid var(--border-light)',
               borderRadius: '16px',

@@ -199,7 +199,7 @@ export default function InventoryOverview() {
             No inventory records found.
           </div>
         ) : (
-          <motion.table variants={container} initial="hidden" animate="show" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+          <motion.table className="phone-cards" variants={container} initial="hidden" animate="show" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr>
                 <th>Product & SKU</th>
@@ -220,9 +220,9 @@ export default function InventoryOverview() {
                       <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{variant.sku}</span>
                     </div>
                   </td>
-                  <td>{variant.category}</td>
-                  <td>{getStatusBadge(variant.inventoryStatus)}</td>
-                  <td style={{ textAlign: 'right', fontWeight: '600', color: variant.quantity <= 0 ? 'var(--accent-danger)' : 'inherit' }}>
+                  <td data-label="Category">{variant.category}</td>
+                  <td data-label="Status">{getStatusBadge(variant.inventoryStatus)}</td>
+                  <td data-label="Stock Qty" style={{ textAlign: 'right', fontWeight: '600', color: variant.quantity <= 0 ? 'var(--accent-danger)' : 'inherit' }}>
                     {variant.quantity}
                   </td>
                   {/*
@@ -234,7 +234,7 @@ export default function InventoryOverview() {
                     * unmarked estimate would only swap one silent wrong number for another.
                     */}
                   {showCost && (
-                    <td style={{ textAlign: 'right' }} title={costNote(variant)}>
+                    <td data-label="Avg Cost" style={{ textAlign: 'right' }} title={costNote(variant)}>
                       {/* Indian grouping, like every other money figure in the app. toFixed
                           alone printed a lakh as 1376334.00, which has to be counted by eye. */}
                       {formatRupees(variant.averageCost ?? 0)}
@@ -242,12 +242,12 @@ export default function InventoryOverview() {
                     </td>
                   )}
                   {showCost && (
-                    <td style={{ textAlign: 'right', fontWeight: '500' }} title={costNote(variant)}>
+                    <td data-label="Total Value" style={{ textAlign: 'right', fontWeight: '500' }} title={costNote(variant)}>
                       {formatRupees(variant.inventoryValue ?? 0)}
                       {variant.costIsEstimate && <Est />}
                     </td>
                   )}
-                  <td>
+                  <td className="phone-actions">
                     <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
                       {can('inventory:receive') && (
                         <button title="Receive Stock" className="btn-icon" onClick={() => setModalState({ type: 'IN', variant })}>

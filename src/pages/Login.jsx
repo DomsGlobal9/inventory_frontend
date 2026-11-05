@@ -154,6 +154,9 @@ export default function Login() {
               className="auth-field"
               style={authField}
               autoComplete="email"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
               autoFocus
               required
             />
@@ -173,6 +176,9 @@ export default function Login() {
                 className="auth-field"
                 style={{ ...authField, paddingRight: '52px' }}
                 autoComplete="current-password"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
                 required
               />
               <button

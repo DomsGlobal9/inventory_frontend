@@ -86,11 +86,12 @@ export default function DeleteCustomer({ customer }) {
               <>
                 {p.mode === 'REMOVE' ? (
                   <p style={{ fontSize: '14px', lineHeight: 1.55, margin: '0 0 12px' }}>
-                    They have no bills, so they are <b>deleted for good</b>: their details, notes, addresses, and what they looked at and tried on. This cannot be undone.
+                    {p.pastBills > 0 ? <>They have no bills in ScaleEzy, so they are <b>deleted for good</b>: their details, notes, addresses, what they looked at and tried on, and their {p.pastBills} earlier bill{p.pastBills === 1 ? '' : 's'} here.</> : <>They have no bills, so they are <b>deleted for good</b>: their details, notes, addresses, and what they looked at and tried on.</>} This cannot be undone.
                   </p>
                 ) : (
                   <p style={{ fontSize: '14px', lineHeight: 1.55, margin: '0 0 12px' }}>
                     They have <b>{p.bills} bill{p.bills === 1 ? '' : 's'}</b>, which the law says you keep. So their <b>personal details are erased</b> (name, phone, email, addresses, birthday, notes, groups), what they looked at and tried on is removed, and they leave every list. The bills stay as they were printed.
+                    {p.pastBills > 0 && <> Their {p.pastBills} earlier bill{p.pastBills === 1 ? '' : 's'} from before ScaleEzy {p.pastBills === 1 ? 'goes' : 'go'} too.</>}
                     {p.loyaltyPoints > 0 && <> Their {p.loyaltyPoints.toLocaleString('en-IN')} points go with them.</>} This cannot be undone.
                   </p>
                 )}

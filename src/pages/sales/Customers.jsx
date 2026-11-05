@@ -14,6 +14,7 @@ import toast from 'react-hot-toast';
 import { api } from '../../lib/api';
 import Select from '../../components/common/Select';
 
+const PAGE = 100;
 
 export default function Customers() {
   const navigate = useNavigate();
@@ -43,7 +44,15 @@ export default function Customers() {
    * list as no filter at all. A filter with nothing to filter was only a way to hide customers.
    */
   const [group, setGroup] = useState('');
-  const { data: customers, isLoading, isError, error, refetch } = useCustomers({ search, group });
+  // A screenful at a time: a shop can hold thousands of customers, and search reaches all of them.
+  const [limit, setLimit] = useState(PAGE);
+  useEffect(() => { setLimit(PAGE); }, [search, group]);
+  const { data: customers, isLoading, isError, isFetching, error, refetch } = useCustomers({ search, group, limit });
+  const showMore = customers?.length === limit && (
+    <div style={{ textAlign: 'center', padding: '14px 0' }}>
+      <button type="button" className="btn-secondary" disabled={isFetching} onClick={() => setLimit(n => n + PAGE)}>{isFetching ? 'Loading...' : 'Show more'}</button>
+    </div>
+  );
 
   // Groups: filter the list by one, and put ticked customers in one (an existing group or a new name).
   const canGroup = can('customer:update');
@@ -160,6 +169,7 @@ export default function Customers() {
                 )}
               </button>
             ))}
+          {showMore}
         </div>
       ) : (
       <div className="card" style={{ padding: 0, overflow: 'hidden', flexShrink: 0 }}>
@@ -203,7 +213,8 @@ export default function Customers() {
                     <td style={{ padding: '16px 24px', fontWeight: '500' }}>{customer.customerCode}</td>
                     <td style={{ padding: '16px 24px' }}>
                       <div style={{ fontWeight: '500' }}>{customer.name}</div>
-                      <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Created {new Date(customer.createdAt).toLocaleDateString()}</div>
+                      {/* The day of a load is not the day they became a customer. */}
+                      <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{customer.importSource ? "From the shop's earlier records" : `Created ${new Date(customer.createdAt).toLocaleDateString()}`}</div>
                     </td>
                     <td style={{ padding: '16px 24px', color: 'var(--text-secondary)' }}>
                       <div style={{ whiteSpace: 'nowrap' }}>
@@ -235,6 +246,7 @@ export default function Customers() {
             </tbody>
           </table>
         </div>
+        {showMore}
       </div>
       )}
 

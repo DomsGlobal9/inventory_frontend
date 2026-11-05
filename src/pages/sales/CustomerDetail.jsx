@@ -3,7 +3,8 @@ import { createPortal } from 'react-dom';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { useCustomerDetails } from '../../hooks/useCustomers';
-import { ArrowLeft, Mail, Phone, MapPin, Building, FileText, ShoppingBag, Truck, Loader2, X, Undo2, Edit2, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Mail, Phone, MapPin, Building, FileText, ShoppingBag, Truck, Loader2, X, Undo2, Edit2, ExternalLink, History } from 'lucide-react';
+import { PastBills, usePastPurchases } from '../../components/sales/PastPurchases';
 import { api } from '../../lib/api';
 import { usePermission } from '../../hooks/usePermission';
 import { formatINR } from '../../utils/formatUtils';
@@ -31,7 +32,10 @@ export default function CustomerDetail() {
   const crm = useCrm();
   const { data: customer, isLoading, error } = useCustomerDetails(id);
 
-  const [activeTab, setActiveTab] = useState('orders');
+  const past = usePastPurchases(id);
+  const pastBills = past.data?.bills ?? [];
+  // Nothing chosen yet: their sales orders, or their past bills when those are all they have.
+  const [chosenTab, setActiveTab] = useState(null);
   const [returnModalOpen, setReturnModalOpen] = useState(false);
   const [selectedDispatch, setSelectedDispatch] = useState(null);
   const [returnNotes, setReturnNotes] = useState('');
@@ -125,6 +129,8 @@ export default function CustomerDetail() {
     return <div style={{ padding: '48px', textAlign: 'center', color: 'red' }}>Error loading customer details</div>;
   }
 
+  const activeTab = chosenTab ?? (!customer.salesOrders?.length && pastBills.length ? 'past' : 'orders');
+
   return (
     <div style={{ maxWidth: '1400px', margin: '0 auto', paddingTop: '24px', flex: 1, minHeight: 0, overflowY: 'auto', paddingBottom: '64px', width: '100%', display: 'flex', flexDirection: 'column' }}>
 
@@ -217,7 +223,7 @@ export default function CustomerDetail() {
         {/* Right Content: Tabs / Orders. minWidth 0, or the orders table sizes the whole grid to its own width. */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', minWidth: 0 }}>
 
-          <div style={{ display: 'flex', borderBottom: '1px solid var(--border-light)', gap: '32px' }}>
+          <div style={{ display: 'flex', borderBottom: '1px solid var(--border-light)', gap: '32px', flexWrap: 'wrap', rowGap: 0 }}>
             <button
               onClick={() => setActiveTab('orders')}
               style={{ padding: '12px 0', border: 'none', background: 'transparent', borderBottom: activeTab === 'orders' ? '2px solid var(--accent-primary)' : '2px solid transparent', color: activeTab === 'orders' ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: '500', fontSize: '15px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
@@ -228,14 +234,23 @@ export default function CustomerDetail() {
               style={{ padding: '12px 0', border: 'none', background: 'transparent', borderBottom: activeTab === 'dispatches' ? '2px solid var(--accent-primary)' : '2px solid transparent', color: activeTab === 'dispatches' ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: '500', fontSize: '15px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
               <Truck size={18} /> Dispatches
             </button>
+            {pastBills.length > 0 && (
+              <button
+                onClick={() => setActiveTab('past')}
+                style={{ padding: '12px 0', border: 'none', background: 'transparent', borderBottom: activeTab === 'past' ? '2px solid var(--accent-primary)' : '2px solid transparent', color: activeTab === 'past' ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: '500', fontSize: '15px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                <History size={18} /> Past purchases ({pastBills.length})
+              </button>
+            )}
           </div>
 
           <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
             <div className="table-container" style={{ padding: '24px', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3 style={{ margin: 0, fontSize: '18px', color: 'var(--text-primary)' }}>
-                {activeTab === 'orders' ? 'Sales Orders' : 'Dispatches'}
+                {activeTab === 'orders' ? 'Sales Orders' : activeTab === 'past' ? 'Past purchases' : 'Dispatches'}
               </h3>
             </div>
+
+            {activeTab === 'past' && <PastBills bills={pastBills} />}
 
             {activeTab === 'orders' && (
               customer.salesOrders && customer.salesOrders.length > 0 ? (

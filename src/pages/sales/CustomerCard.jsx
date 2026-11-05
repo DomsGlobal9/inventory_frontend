@@ -12,6 +12,7 @@ import CustomerModal from '../../components/sales/CustomerModal';
 import LoadFailed from '../../components/LoadFailed';
 import { useGoBack } from '../../hooks/useGoBack';
 import { useCrm } from '../../hooks/useCrm';
+import { billsLabel } from '../../components/sales/PastPurchases';
 
 /**
  * Customer card: the salesperson types the number at the door and sees who this is, the sizes and
@@ -159,8 +160,10 @@ export default function CustomerCard() {
                 {c.groups.map(g => <span key={g} style={{ fontSize: '12px', fontWeight: 700, padding: '2px 9px', borderRadius: '999px', background: 'var(--brand)', color: 'var(--brand-deep)' }}>{g}</span>)}
               </div>
               <div style={{ fontSize: '13px', opacity: 0.85, marginTop: '2px' }}>
-                {ago(d.visits.lastVisit)} · {d.visits.bills} bill{d.visits.bills === 1 ? '' : 's'}
+                {/* Past bills have no dates, so they never say "last visit": someone with only those is a past customer, not "no bills yet". */}
+                {d.past && !d.visits.bills ? 'Past customer' : <>{ago(d.visits.lastVisit)} · {d.visits.bills} bill{d.visits.bills === 1 ? '' : 's'}</>}
                 {d.visits.online > 0 && ` (${d.visits.inStore} in store, ${d.visits.online} online)`}
+                {d.past && ` · ${billsLabel(d.past.allBills)}`}
               </div>
             </div>
             <div style={{ display: 'flex', gap: '8px' }}>
@@ -200,7 +203,7 @@ export default function CustomerCard() {
               <div style={sectionTitle}><Sparkles size={16} /> In {store} today, in their size</div>
               {d.picks.length === 0 ? (
                 <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '14px' }}>
-                  {d.visits.bills ? 'Nothing here in their size that they do not already have. Ask what they need today.' : 'No bills yet, so no sizes to match. Ask what they are looking for.'}
+                  {d.visits.bills ? 'Nothing here in their size that they do not already have. Ask what they need today.' : d.past ? 'Their earlier bills have no sizes to match. Ask what they are looking for.' : 'No bills yet, so no sizes to match. Ask what they are looking for.'}
                 </p>
               ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '12px' }}>

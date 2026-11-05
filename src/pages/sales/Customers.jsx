@@ -12,20 +12,32 @@ import { rowLink } from '../../components/common/rowLink';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { api } from '../../lib/api';
-import Select from '../../components/common/Select';
+import CustomerFilters, { ActiveCustomerFilters } from '../../components/sales/CustomerFilters';
 
 const PAGE = 10;
+const FILTER_KEYS = ['group', 'bought', 'source', 'phone', 'offers', 'added', 'sort'];
 
 export default function Customers() {
   const navigate = useNavigate();
   const { can } = usePermission();
-  const [searchTerm, setSearchTerm] = useState('');
-  // The search sent to the server waits for typing to pause: a phone number is ten keystrokes, and
-  // each one used to be its own request.
-  const [search, setSearch] = useState('');
   // ?new=1 (the Dashboard's + Customer) opens the form at once; the address is then tidied, so a refresh
   // does not open it again.
   const [linkParams, setLinkParams] = useSearchParams();
+  // Search, filters, sort and page live in the page address, as on Products and Orders: Back from a
+  // customer returns to the same page of the same list.
+  const filters = Object.fromEntries(FILTER_KEYS.map(k => [k, linkParams.get(k) ?? '']));
+  const page = Math.max(1, Number(linkParams.get('page')) || 1);
+  /** Change some of them. Anything but the page itself starts again from page 1. */
+  const setAddress = (changes) => setLinkParams(p => {
+    for (const [k, v] of Object.entries(changes)) { if (v === '' || v === null || v === undefined) p.delete(k); else p.set(k, String(v)); }
+    if (!('page' in changes)) p.delete('page');
+    return p;
+  }, { replace: true });
+  const setPage = (n) => setAddress({ page: n > 1 ? n : '' });
+  const [searchTerm, setSearchTerm] = useState(() => linkParams.get('q') ?? '');
+  // The search sent to the server waits for typing to pause: a phone number is ten keystrokes, and
+  // each one used to be its own request.
+  const search = linkParams.get('q') ?? '';
   const [adding, setAdding] = useState(() => linkParams.get('new') === '1');
   React.useEffect(() => { if (linkParams.get('new')) setLinkParams(p => { p.delete('new'); return p; }, { replace: true }); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   // A card per customer on a phone. The table was 774px wide, so STATUS and the View button --
@@ -33,9 +45,9 @@ export default function Customers() {
   const narrow = useMediaQuery('(max-width: 760px)');
 
   useEffect(() => {
-    const t = setTimeout(() => setSearch(searchTerm.trim()), 300);
+    const t = setTimeout(() => { if (searchTerm.trim() !== search) setAddress({ q: searchTerm.trim() }); }, 300);
     return () => clearTimeout(t);
-  }, [searchTerm]);
+  }, [searchTerm]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /*
    * No status filter. It offered Active, Inactive and Archived, but nothing in ScaleEzy can make a
@@ -43,15 +55,13 @@ export default function Customers() {
    * so two of its three choices always answered "No customers found", and the third was the same
    * list as no filter at all. A filter with nothing to filter was only a way to hide customers.
    */
-  const [group, setGroup] = useState('');
+  const group = filters.group;
   // Ten at a time: a shop can hold thousands of customers, and search reaches all of them.
-  const [page, setPage] = useState(1);
-  useEffect(() => { setPage(1); }, [search, group]);
-  const { data, isLoading, isError, isFetching, error, refetch } = useCustomers({ search, group, page, limit: PAGE });
+  const { data, isLoading, isError, isFetching, error, refetch } = useCustomers({ search, ...filters, page, limit: PAGE });
   const customers = data?.customers;
   const meta = data?.meta;
   // Somebody deleted while on the last page: that page no longer exists, so go to the one that does.
-  useEffect(() => { if (meta && page > meta.totalPages) setPage(meta.totalPages); }, [meta, page]);
+  useEffect(() => { if (meta && page > meta.totalPages) setPage(meta.totalPages); }, [meta, page]); // eslint-disable-line react-hooks/exhaustive-deps
   // What is being typed in the page box; null shows the page we are on.
   const [typedPage, setTypedPage] = useState(null);
   const goTo = () => {
@@ -60,14 +70,14 @@ export default function Customers() {
     if (typedPage !== '' && n >= 1 && meta) setPage(Math.min(n, meta.totalPages));
     setTypedPage(null);
   };
-  const pager =meta && meta.total > 0 && (
+  const pager = meta && meta.total > 0 && (
     <nav aria-label="Customer pages" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', padding: '14px 16px' }}>
       <span aria-live="polite" style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
         {(meta.page - 1) * meta.limit + 1}–{Math.min(meta.page * meta.limit, meta.total)} of {meta.total.toLocaleString('en-IN')} customers
       </span>
       {meta.totalPages > 1 && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <button type="button" className="btn-secondary" disabled={page <= 1 || isFetching} onClick={() => setPage(p => Math.max(1, p - 1))}>Previous</button>
+          <button type="button" className="btn-secondary" disabled={page <= 1 || isFetching} onClick={() => setPage(page - 1)}>Previous</button>
           {/* Type a page and press Enter, or click away: straight there, kept within the pages there are. */}
           <form onSubmit={(e) => { e.preventDefault(); goTo(); e.currentTarget.querySelector('input')?.blur(); }} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
             <label htmlFor="customer-page">Page</label>
@@ -76,7 +86,7 @@ export default function Customers() {
               style={{ width: '64px', minWidth: 0, textAlign: 'center', padding: '6px 4px', fontSize: '16px' }} />
             <span>of {meta.totalPages.toLocaleString('en-IN')}</span>
           </form>
-          <button type="button" className="btn-secondary" disabled={page >= meta.totalPages || isFetching} onClick={() => setPage(p => p + 1)}>Next</button>
+          <button type="button" className="btn-secondary" disabled={page >= meta.totalPages || isFetching} onClick={() => setPage(page + 1)}>Next</button>
         </div>
       )}
     </nav>
@@ -88,7 +98,8 @@ export default function Customers() {
   const { data: groups = [] } = useQuery({ queryKey: ['customer-groups'], queryFn: async () => (await api.get('/customer-groups')).data || [] });
   const [picked, setPicked] = useState(() => new Set());
   const [target, setTarget] = useState('');
-  useEffect(() => { setPicked(new Set()); }, [search, group]);
+  // A new list: ticks made on the old one do not carry over. The page and sort are the same list.
+  useEffect(() => { setPicked(new Set()); }, [search, group, filters.bought, filters.source, filters.phone, filters.offers, filters.added]);
   const toggle = (id) => setPicked(s => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
   const addToGroup = useMutation({
     mutationFn: async () => (await api.post('/customer-groups/members', { group: target, customerIds: [...picked] })).data,
@@ -134,8 +145,8 @@ export default function Customers() {
       </div>
 
       {/* Filters section */}
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap' }}>
-        <div style={{ position: 'relative', flex: '1 1 260px', minWidth: 0 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: '12px', marginBottom: '20px' }}>
+        <div style={{ position: 'relative', minWidth: 0 }}>
           <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
           <input
             type="text"
@@ -147,13 +158,9 @@ export default function Customers() {
             aria-label="Search customers"
           />
         </div>
-        {groups.length > 0 && (
-          <Select className="input-field" value={group} onChange={e => setGroup(e.target.value)} aria-label="Group" style={{ flex: '0 1 220px' }}>
-            <option value="">All groups</option>
-            {groups.map(g => <option key={g.key} value={g.name}>{g.name} ({g.count})</option>)}
-          </Select>
-        )}
-
+        <CustomerFilters value={filters} groups={groups} onChange={setAddress} />
+        <ActiveCustomerFilters value={filters} onChange={setAddress}
+          onClearAll={() => setAddress(Object.fromEntries(FILTER_KEYS.filter(k => k !== 'sort').map(k => [k, ''])))} />
       </div>
 
       {picked.size > 0 && (

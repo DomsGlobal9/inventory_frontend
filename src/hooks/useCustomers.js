@@ -9,6 +9,7 @@ export const useCustomers = (filters = {}) => {
       if (filters.search) params.search = filters.search;
       if (filters.status) params.status = filters.status;
       if (filters.group) params.group = filters.group;
+      for (const k of ['bought', 'source', 'phone', 'offers', 'added', 'sort']) if (filters[k]) params[k] = filters[k];
       if (filters.page) { params.page = filters.page; params.limit = filters.limit; }
 
       return api.get('/customers', { params });
@@ -16,7 +17,8 @@ export const useCustomers = (filters = {}) => {
     // The next page keeps the rows on screen while it loads. A new search or group does not.
     placeholderData: (previous, query) => {
       const was = query?.queryKey?.[1];
-      return was && was.search === filters.search && was.group === filters.group ? previous : undefined;
+      const sameList = was && ['search', 'group', 'bought', 'source', 'phone', 'offers', 'added', 'sort'].every(k => was[k] === filters[k]);
+      return sameList ? previous : undefined;
     }
   });
 };

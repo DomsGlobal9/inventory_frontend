@@ -14,7 +14,7 @@ import toast from 'react-hot-toast';
 import { api } from '../../lib/api';
 import Select from '../../components/common/Select';
 
-const PAGE = 100;
+const PAGE = 10;
 
 export default function Customers() {
   const navigate = useNavigate();
@@ -44,14 +44,42 @@ export default function Customers() {
    * list as no filter at all. A filter with nothing to filter was only a way to hide customers.
    */
   const [group, setGroup] = useState('');
-  // A screenful at a time: a shop can hold thousands of customers, and search reaches all of them.
-  const [limit, setLimit] = useState(PAGE);
-  useEffect(() => { setLimit(PAGE); }, [search, group]);
-  const { data: customers, isLoading, isError, isFetching, error, refetch } = useCustomers({ search, group, limit });
-  const showMore = customers?.length === limit && (
-    <div style={{ textAlign: 'center', padding: '14px 0' }}>
-      <button type="button" className="btn-secondary" disabled={isFetching} onClick={() => setLimit(n => n + PAGE)}>{isFetching ? 'Loading...' : 'Show more'}</button>
-    </div>
+  // Ten at a time: a shop can hold thousands of customers, and search reaches all of them.
+  const [page, setPage] = useState(1);
+  useEffect(() => { setPage(1); }, [search, group]);
+  const { data, isLoading, isError, isFetching, error, refetch } = useCustomers({ search, group, page, limit: PAGE });
+  const customers = data?.customers;
+  const meta = data?.meta;
+  // Somebody deleted while on the last page: that page no longer exists, so go to the one that does.
+  useEffect(() => { if (meta && page > meta.totalPages) setPage(meta.totalPages); }, [meta, page]);
+  // What is being typed in the page box; null shows the page we are on.
+  const [typedPage, setTypedPage] = useState(null);
+  const goTo = () => {
+    if (typedPage === null) return;
+    const n = Number(typedPage);
+    if (typedPage !== '' && n >= 1 && meta) setPage(Math.min(n, meta.totalPages));
+    setTypedPage(null);
+  };
+  const pager =meta && meta.total > 0 && (
+    <nav aria-label="Customer pages" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', padding: '14px 16px' }}>
+      <span aria-live="polite" style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+        {(meta.page - 1) * meta.limit + 1}–{Math.min(meta.page * meta.limit, meta.total)} of {meta.total.toLocaleString('en-IN')} customers
+      </span>
+      {meta.totalPages > 1 && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <button type="button" className="btn-secondary" disabled={page <= 1 || isFetching} onClick={() => setPage(p => Math.max(1, p - 1))}>Previous</button>
+          {/* Type a page and press Enter, or click away: straight there, kept within the pages there are. */}
+          <form onSubmit={(e) => { e.preventDefault(); goTo(); e.currentTarget.querySelector('input')?.blur(); }} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
+            <label htmlFor="customer-page">Page</label>
+            <input id="customer-page" className="input-field" inputMode="numeric" autoComplete="off" aria-label={`Go to page, 1 to ${meta.totalPages}`}
+              value={typedPage ?? String(meta.page)} onChange={e => setTypedPage(e.target.value.replace(/\D/g, '').slice(0, 7))} onBlur={goTo} onFocus={e => e.target.select()}
+              style={{ width: '64px', minWidth: 0, textAlign: 'center', padding: '6px 4px', fontSize: '16px' }} />
+            <span>of {meta.totalPages.toLocaleString('en-IN')}</span>
+          </form>
+          <button type="button" className="btn-secondary" disabled={page >= meta.totalPages || isFetching} onClick={() => setPage(p => p + 1)}>Next</button>
+        </div>
+      )}
+    </nav>
   );
 
   // Groups: filter the list by one, and put ticked customers in one (an existing group or a new name).
@@ -169,7 +197,7 @@ export default function Customers() {
                 )}
               </button>
             ))}
-          {showMore}
+          {pager}
         </div>
       ) : (
       <div className="card" style={{ padding: 0, overflow: 'hidden', flexShrink: 0 }}>
@@ -246,7 +274,7 @@ export default function Customers() {
             </tbody>
           </table>
         </div>
-        {showMore}
+        {pager}
       </div>
       )}
 

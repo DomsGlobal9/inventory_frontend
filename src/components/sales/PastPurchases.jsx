@@ -33,11 +33,13 @@ function linesOf(bill) {
     const qty = Math.abs(l.quantity) || 1;
     const each = Math.abs(l.amount) / qty;
     const back = l.amount < 0;
-    const key = `${l.kind}|${each}|${back}`;
+    // Whatever the shop's records hold about the item, in its own words.
+    const what = [l.title || l.kind, l.craft, l.fabric && !l.title ? l.fabric : null, l.colour, l.size].filter(Boolean).join(', ');
+    const key = `${what}|${each}|${back}`;
     const g = groups.get(key);
-    if (g) g.qty += qty; else groups.set(key, { kind: l.kind, each, back, qty });
+    if (g) g.qty += qty; else groups.set(key, { what, each, back, qty });
   }
-  return [...groups.values()].map(g => `${g.back ? 'Returned: ' : ''}${g.kind} ${pastMoney(g.each)}${g.qty > 1 ? ` × ${g.qty}` : ''}`);
+  return [...groups.values()].map(g => `${g.back ? 'Returned: ' : ''}${g.what} ${pastMoney(g.each)}${g.qty > 1 ? ` × ${g.qty}` : ''}`);
 }
 
 const head = { padding: '12px 24px', fontWeight: 500, color: 'var(--text-secondary)', fontSize: '13px' };

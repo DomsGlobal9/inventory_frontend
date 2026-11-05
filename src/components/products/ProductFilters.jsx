@@ -171,7 +171,7 @@ function PriceBoxes({ value, span, onChange }) {
         <label htmlFor="pf-to" style={{ flex: 1 }}>To ₹<input id="pf-to" inputMode="numeric" value={to} placeholder={String(Math.ceil(span.hi ?? 0))}
           onChange={(e) => setTo(e.target.value)} onBlur={apply} onKeyDown={(e) => e.key === 'Enter' && apply()} /></label>
       </div>
-      <button type="button" className="pf-apply" onClick={apply} style={{ padding: '6px 14px', fontSize: '12px', fontWeight: 600, borderRadius: '6px', background: 'var(--accent, #6366f1)', color: '#fff', border: 'none', cursor: 'pointer', alignSelf: 'flex-end' }}>Apply</button>
+      <button type="button" className="pf-apply" onClick={apply} style={{ padding: '6px 14px', fontSize: '12px', fontWeight: 600, borderRadius: '6px', background: 'var(--accent-primary)', color: 'var(--accent-primary-on)', border: 'none', cursor: 'pointer', alignSelf: 'flex-end' }}>Apply</button>
     </div>
   );
 }

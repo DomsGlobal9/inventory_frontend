@@ -268,8 +268,9 @@ export default function Select({
     const list = dropdownRef.current, option = document.getElementById(optionId(active));
     if (!list || !option) return;
     const top = option.offsetTop, bottom = top + option.offsetHeight;
-    if (top < list.scrollTop) list.scrollTop = top;
-    else if (bottom > list.scrollTop + list.clientHeight) list.scrollTop = bottom - list.clientHeight;
+    const PAD = 6;   // the list's own padding and the option's margin, so the first option reaches the very top
+    if (top - PAD < list.scrollTop) list.scrollTop = Math.max(0, top - PAD);
+    else if (bottom + PAD > list.scrollTop + list.clientHeight) list.scrollTop = bottom + PAD - list.clientHeight;
   }, [isOpen, active, menuReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /*

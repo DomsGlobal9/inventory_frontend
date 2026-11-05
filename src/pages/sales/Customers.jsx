@@ -150,7 +150,7 @@ export default function Customers() {
           <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
           <input
             type="text"
-            placeholder="Search by phone, name, code or email..." 
+            placeholder="Search by phone, name, code, email or bill number..."
             className="input-field"
             style={{ paddingLeft: '44px', width: '100%' }}
             value={searchTerm}

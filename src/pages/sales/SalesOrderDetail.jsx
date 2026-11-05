@@ -335,7 +335,10 @@ export default function SalesOrderDetail() {
             <StatusPill map={ORDER_STATUS} value={order.status} />
           </div>
           <p style={{ margin: '8px 0 0', color: 'var(--text-secondary)' }}>
-            Customer: {order.customer?.name} | Created: {new Date(order.createdAt).toLocaleDateString()}
+            {/* From the bill straight to whose bill it is, for anyone allowed to see customers. */}
+            Customer: {order.customerId && can('customer:view')
+              ? <Link to={`/customers/${order.customerId}`} style={{ color: 'inherit', textDecoration: 'underline' }}>{order.customer?.name}</Link>
+              : order.customer?.name} | Created: {new Date(order.createdAt).toLocaleDateString()}
             {order.atCounter && ' | Sold at the counter'}
             {order.location?.name && ` | ${order.location.name}`}
             {order.createdBy?.name && ` | By ${order.createdBy.name}`}

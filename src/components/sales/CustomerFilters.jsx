@@ -9,7 +9,7 @@ import { Menu, useOutside } from '../products/ProductFilters';
  */
 export const CUSTOMER_FILTERS = [
   { key: 'bought', label: 'Bought', options: { has: 'Has bills', none: 'No bills yet' } },
-  { key: 'source', label: 'Where from', options: { earlier: "Shop's earlier records", new: 'New in ScaleEzy' } },
+  { key: 'source', label: 'Where from', options: { earlier: 'Earlier records', new: 'New in shop' } },
   { key: 'phone', label: 'Phone', options: { has: 'Has a phone', none: 'No phone' } },
   { key: 'offers', label: 'WhatsApp offers', options: { agreed: 'Agreed', not: 'Not agreed', stopped: 'Said STOP' } },
   { key: 'added', label: 'Added', options: { today: 'Today', week: 'Last 7 days', month: 'Last 30 days' } }

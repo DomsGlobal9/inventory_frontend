@@ -20,7 +20,7 @@
  */
 import {
   VIEW_ORDER, groupByColour, hasWholeSet, resolveTryOnCategory,
-  sourceForViews, sourceForColours, viewsCandidates, colourTargets, progressText
+  sourceForViews, sourceForColours, viewsCandidates, colourTargets, progressText, photosToChooseFrom
 } from '../src/lib/photoSets.js';
 
 let passed = 0, failed = 0;
@@ -29,6 +29,8 @@ const check = (name, ok, detail) => {
   if (ok) { passed++; console.log(`  [PASS] ${name}`); }
   else { failed++; failures.push(name); console.log(`  [FAIL] ${name}${detail ? `  -> ${detail}` : ''}`); }
 };
+
+const eqList = (name, got, want) => check(name, JSON.stringify(got) === JSON.stringify(want), JSON.stringify(got));
 
 let nextId = 1;
 const id = () => `img-${nextId++}`;
@@ -230,6 +232,19 @@ for (const ownA of [0, 1]) {
     }
   }
 }
+
+console.log('\nWhich photograph, and which can be chosen');
+const slotted = (slots) => ({ name: 'S', hex: null, variantIds: ['v'], images: slots.map((slot, i) => ({ id: slot ?? `none${i}`, variantId: 'v', generated: false, view: null, imageType: 'GALLERY', isPrimary: false, slot })) });
+check('the photograph marked as the saree comes first, whatever the order', sourceForViews(slotted(['blouse', null, 'saree']))?.id === 'saree');
+check('a blouse uploaded first is never the garment', sourceForViews(slotted(['blouse', null]))?.id === 'none1');
+check('with only a blouse there is nothing of the garment to work from', sourceForViews(slotted(['blouse'])) === null);
+const flatFirst = slotted([null, null]); flatFirst.images[1].imageType = 'RAW_UPLOAD'; flatFirst.images[0].isPrimary = true;
+check('a flat-lay beats the main photo, as on the server', sourceForViews(flatFirst)?.id === 'none1');
+eqList('pieces are not offered as the photo to use', photosToChooseFrom(slotted(['saree', 'blouse', 'top', 'top-front', 'top-back', 'bottom', null])).map(i => i.id), ['saree', 'none6']);
+const madeToo = slotted(['saree', null]); madeToo.images.push({ id: 'made', variantId: 'v', generated: true, view: 'front', imageType: 'GALLERY', isPrimary: true });
+eqList('photos we generated are not offered, only their own', photosToChooseFrom(madeToo).map(i => i.id), ['saree', 'none1']);
+eqList('no colour at all is safe', photosToChooseFrom(undefined), []);
+check('whatever is default is always one of the choices, when there are several', [['saree', null], [null, null], ['blouse', null, null]].every(sl => { const c = slotted(sl); return photosToChooseFrom(c).some(i => i.id === sourceForViews(c)?.id); }));
 
 check(`no colour is ever offered by both panels (${combos} shapes)`,
   bothPanels === 0, JSON.stringify(examples.both));

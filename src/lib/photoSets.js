@@ -103,24 +103,35 @@ export function canWorkAlone(colour) {
 /**
  * What to generate this colour FROM, in the order that respects what the shop meant.
  *
- * A flat-lay handed over for the job comes first, then the main photograph, then any other
- * photograph of theirs -- and only after all of those, the front view we made earlier. Their own
- * picture always wins: generating from a generated picture copies its mistakes, and a shop that
- * uploaded a photograph expects that photograph to be the one used.
+ * The photograph marked as the garment comes first, then a flat-lay handed over for the job, then
+ * the main photograph, then any other of theirs -- and only after all of those, the front view we
+ * made earlier. Their own picture always wins: generating from a generated picture copies its
+ * mistakes, and a shop that uploaded a photograph expects that photograph to be the one used. A
+ * blouse piece is never the garment.
  *
  * The server works this out again for itself, because it runs with nobody here. The two must stay
  * the same, or the picture named on screen and the picture the job used would be different ones.
  */
 export function sourceForViews(colour) {
   const own = ownPhotosOf(colour.images);
-  return own.find(i => i.imageType === 'RAW_UPLOAD')
-    ?? own.find(i => i.isPrimary)
-    ?? own[0]
+  const notBlouse = own.filter(i => i.slot !== 'blouse');
+  return own.find(i => i.slot === 'saree' || i.slot === 'full-dress')
+    ?? notBlouse.find(i => i.imageType === 'RAW_UPLOAD')
+    ?? notBlouse.find(i => i.isPrimary)
+    ?? notBlouse[0]
     // Nothing of its own left -- either it never had one, or the shop deleted the photograph
     // after generating from it. The front view is then the best likeness we hold.
     ?? colour.images.find(i => i.generated && i.view === 'front')
-    ?? colour.images[0]
+    ?? colour.images.find(i => i.slot !== 'blouse')
     ?? null;
+}
+
+/** Photographs of one piece that goes with the garment: sent as references, never made into views. */
+const PIECE_SLOTS = ['blouse', 'top', 'top-front', 'top-back', 'bottom'];
+
+/** The shop's own photographs of this colour that views can be made from, for them to choose between. */
+export function photosToChooseFrom(colour) {
+  return ownPhotosOf(colour?.images).filter(i => !PIECE_SLOTS.includes(i.slot));
 }
 
 /**

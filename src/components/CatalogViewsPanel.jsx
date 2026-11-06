@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Camera, StopCircle, Upload, RefreshCw } from 'lucide-react';
+import { Camera, Check, StopCircle, Upload, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { uploadImageFile } from '../services/image.service';
 import {
   resolveTryOnCategory, groupByColour, viewsCandidates, sourceForViews, viewsMadeFor, progressText,
-  wholeSetColours
+  wholeSetColours, photosToChooseFrom
 } from '../lib/photoSets';
 import { usePhotoJobs, useStartPhotoJobs, useCancelPhotoJob } from '../hooks/usePhotoJobs';
 import PhotoJobOutcome from './PhotoJobOutcome';
@@ -39,6 +39,35 @@ import Select from './common/Select';
  * Which colours it offers is decided in lib/photoSets.js, shared with the colours panel, so the
  * two cannot disagree about what still needs doing.
  */
+/** "Use this photo": shown only when a colour has more than one to choose between. */
+function PhotoChoice({ colour, chosen, onChoose }) {
+  const photos = photosToChooseFrom(colour);
+  if (photos.length < 2) return null;
+  return (
+    <div style={{ marginBottom: '12px' }}>
+      <div id={`photo-choice-${colour.name}`} style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '6px' }}>
+        Which photo of the {colour.name} one to use
+      </div>
+      <div role="radiogroup" aria-labelledby={`photo-choice-${colour.name}`} style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+        {photos.map((image, index) => {
+          const on = image.id === chosen;
+          return (
+            <button key={image.id} type="button" role="radio" aria-checked={on} aria-label={`Use photo ${index + 1}`} onClick={() => onChoose(colour.name, image.id)}
+              style={{ position: 'relative', width: '64px', height: '84px', padding: 0, borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', background: 'var(--bg-hover)', border: on ? '2px solid var(--brand-deep, #164B1E)' : '1px solid var(--border-light)' }}>
+              <img src={image.url} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              {on && (
+                <span aria-hidden="true" style={{ position: 'absolute', top: '4px', right: '4px', width: '18px', height: '18px', borderRadius: '50%', background: 'var(--brand-deep, #164B1E)', color: '#fff', display: 'grid', placeItems: 'center' }}>
+                  <Check size={12} />
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function CatalogViewsPanel({ productId, dressType, variants, images, onChanged }) {
   const category = useMemo(() => resolveTryOnCategory(dressType), [dressType]);
   // Progress and outcomes are for everyone; starting, redoing and stopping need the permission.
@@ -54,6 +83,17 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
   const [chosen, setChosen] = useState(null);
   const [uploading, setUploading] = useState(false);
   const flatLayRef = useRef(null);
+
+  // Which of a colour's photographs to work from, when it has several: what the shop picked, or else
+  // the one the server would choose by itself. A picked photograph that has since been deleted is forgotten.
+  const [pickedPhotos, setPickedPhotos] = useState({});
+  const choosePhoto = (colourName, imageId) => setPickedPhotos(p => ({ ...p, [colourName]: imageId }));
+  const photoOf = (colour) => {
+    const photos = photosToChooseFrom(colour);
+    if (photos.length < 2) return undefined;
+    const picked = pickedPhotos[colour.name];
+    return photos.some(i => i.id === picked) ? picked : sourceForViews(colour)?.id;
+  };
 
   /*
    * Colours whose four views are done, and can only be MADE AGAIN.
@@ -219,7 +259,7 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
         ) : source ? (
           <>
             We take your photograph of the <b>{target.name}</b> one and make the three views a
-            catalogue wants &mdash; front, left, right and back &mdash; on a model.{' '}
+            catalogue wants &mdash; front, left and right &mdash; on a model.{' '}
             {source.imageType === 'RAW_UPLOAD'
               ? 'Your flat-lay stays out of your shop.'
               : 'Your own photograph stays exactly where it is.'}{' '}
@@ -251,12 +291,14 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
         </div>
       )}
 
+      {canMake && !job && <PhotoChoice colour={target} chosen={photoOf(target)} onChoose={choosePhoto} />}
+
       {canMake && !job && (
         <>
           <input ref={flatLayRef} type="file" accept="image/png,image/jpeg,image/webp"
             onChange={chooseFlatLay} style={{ display: 'none' }} />
           <button type="button" className="btn btn-primary"
-            onClick={() => (source ? run() : flatLayRef.current?.click())}
+            onClick={() => (source ? run(photoOf(target)) : flatLayRef.current?.click())}
             disabled={uploading || start.isPending}
             style={{ padding: '9px 16px', borderRadius: '8px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
             {source
@@ -267,8 +309,9 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
       )}
       </>)}
 
-      {job && (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+      {/* Every set being made, not only the colour picked above: one being made again is not that colour. */}
+      {mine.map(job => (
+        <div key={job.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', marginTop: '10px' }}>
           <p style={{ fontSize: '14px', margin: 0 }}>
             {/*
               Our words, not the far end's. It reports things like "Starting AI Generation
@@ -289,7 +332,7 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
             <StopCircle size={16} /> Stop
           </button>}
         </div>
-      )}
+      ))}
 
       {/*
         * MAKE THEM AGAIN.
@@ -333,10 +376,12 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
             </div>
           )}
 
+          <PhotoChoice colour={redoTarget} chosen={photoOf(redoTarget)} onChoose={choosePhoto} />
+
           {redoArmed ? (
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               <button type="button" className="btn btn-primary"
-                onClick={async () => { setRedoArmed(false); await run(undefined, redoTarget.name); }}
+                onClick={async () => { setRedoArmed(false); await run(photoOf(redoTarget), redoTarget.name); }}
                 disabled={start.isPending}
                 style={{ padding: '9px 16px', borderRadius: '8px' }}>
                 {start.isPending ? 'STARTING…' : `YES, REPLACE THE ${redoTarget.name.toUpperCase()} SET`}

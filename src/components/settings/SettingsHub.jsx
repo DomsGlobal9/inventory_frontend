@@ -42,7 +42,7 @@ export const GROUPS = [
     { label: 'Customer accounts and wishlist', section: 'ONLINE_SHOP', part: 'os-accounts' },
     { label: 'Banners', section: 'ONLINE_SHOP', part: 'os-banners' },
     { label: 'Share your shop', section: 'ONLINE_SHOP', part: 'os-share' },
-    { label: 'Packing (box sizes)', section: 'COURIERS' },
+    { label: 'Shipping with ScaleEzy Logistics', section: 'COURIERS' },
     { label: 'Connected websites', section: 'STOREFRONT' }
   ] },
   { id: 'MONEY', label: 'Money', icon: IndianRupee, links: [

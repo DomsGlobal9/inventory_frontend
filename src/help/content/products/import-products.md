@@ -41,6 +41,7 @@ Use this when you have many products to add, for example your whole catalogue fr
 | **SellingPrice** | Only if this colour or size sells at a different price from BasePrice. |
 | **ReorderLevel** | Warn me when stock falls to this number. |
 | **SKU** | Leave empty. ScaleEzy makes one. |
+| **Photos** | Optional. A public link to a photo starting with *https*, or several separated by spaces. Each photo is fetched after the import, with a result for each. Leave it empty and add photos from a folder afterwards. |
 | **ProductCode** | Leave empty for new products. To add sizes and colours to a product you already have, or to change their prices, type its product code here (for example *PRD-000012*, shown under the product name). |
 
 :::tip An empty cell changes nothing
@@ -61,7 +62,7 @@ ScaleEzy reads the file and shows you what it will do. Nothing is saved yet.
 2. [[2]] **Worth checking** lists things you should read. **Must be fixed** (in red) lists mistakes. The row number tells you which line of your sheet to fix.
 3. When there are warnings, read them and tick [[3]] **I have read the warnings above and want to import anyway.**
 
-![The preview. New shows 3 variants and 2 products, marked 1. The warning list is marked 2 and the tick box 3.](3-check-the-preview.webp "New products always arrive as drafts, because a sheet cannot carry photos.")
+![The preview. New shows 3 variants and 2 products, marked 1. The warning list is marked 2 and the tick box 3.](3-check-the-preview.webp "New products always arrive as drafts, so you can add their photos before customers see them.")
 
 :::note Something must be fixed?
 Fix the rows in your sheet, save it, and press **Choose another file** to load it again.
@@ -81,7 +82,7 @@ New products are **drafts**. At the top of **Products**, choose **Drafts only** 
 
 ![The Products list filtered to Drafts only, with Printed Cotton Kurti and Chanderi Cotton Saree marked 1.](5-drafts.webp "Status DRAFT: not on sale yet.")
 
-Next: add photos and publish them. See [Product photos](/help/products/photos) and [Publish, archive and delete](/help/products/publish-archive-delete).
+Next: add photos and publish them. The last step of the import offers to add photos from a folder, each named by its SKU or product code. See [Add photos for many products at once](/help/products/photos#add-photos-for-many-products-at-once) and [Publish, archive and delete](/help/products/publish-archive-delete).
 
 :::warning Check which store got the stock
 Imported stock goes into **one** location: the active store whose code comes first in A to Z order. It does not use the store chosen at the top of the screen. In a shop with *GODOWN* and *MAIN*, the stock goes to the Godown. Check in **Inventory**, and use [Move stock](/help/transfers/transfers) to move it if needed.

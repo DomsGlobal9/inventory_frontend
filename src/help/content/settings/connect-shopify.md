@@ -1,14 +1,14 @@
 ---
 title: Connect Shopify
-summary: Link your Shopify store to ScaleEzy, so Shopify sales arrive here as orders and take stock from the right store.
+summary: Link your Shopify store to ScaleEzy, so Shopify sales arrive here as orders, and your products, prices and stock go to Shopify from here.
 for: Owners, admins and inventory managers
 minutes: 4
 app: /settings
 appLabel: Settings
-keywords: shopify connect link online store website myshopify orders sync waiting orders privacy pair locations match products sku claim store
+keywords: put on shopify put all products archive archived changed in shopify put back bell stock sync price gst taxable shipped tracking fulfilment fulfil delivered cod paid shopify connect link online store website myshopify orders sync waiting orders privacy pair locations match products sku claim store
 ---
 
-When Shopify is connected, **every Shopify sale arrives in ScaleEzy as an order**. For that to work, ScaleEzy must know which of your stores each Shopify location is, and which of your products each Shopify product is. This page shows how.
+When Shopify is connected, **every Shopify sale arrives in ScaleEzy as an order**. For that to work, ScaleEzy must know which of your stores each Shopify location is, and which of your products each Shopify product is. This page shows how. Once connected, ScaleEzy also puts the products you choose on Shopify and keeps them up to date.
 
 Only people who can **Add and change shops and warehouses** see **Connected websites**. In the ready roles: the owner, **ADMIN** and **INVENTORY_MANAGER**.
 
@@ -44,7 +44,7 @@ Then the card shows **Installed from Shopify, waiting to be claimed** with the s
 
 ## 4. After connecting: the four parts
 
-Under your connected store you see four parts. Click a heading to open or close it.
+Under your connected store you see four parts. Click a heading to open or close it. The **Products** part does two jobs, shown below: matching by SKU, and putting products on Shopify.
 
 ### Locations: pair them first
 
@@ -63,6 +63,15 @@ A Shopify sale takes stock from the store it is paired with. The heading shows, 
 3. It shows how many are **In Shopify**, **Newly matched**, **Already matched** and **No SKU in Shopify**.
 
 Nothing in your Shopify store is changed. Products that **exist only in Shopify** are listed: add them in ScaleEzy with the same SKU, then match again.
+
+### Products: put them on Shopify
+
+1. Press **Put all products on Shopify**. The button says how many more would go.
+2. Or put one product at a time: on the product's page, switch **On Shopify** on. See [The product page](/help/products/product-page).
+
+Each goes with its photos, sizes, price and stock, and stays up to date. If any could not be sent, the count says so, with the reason under each, and a button to try them again.
+
+Pair a Shopify location first, so Shopify knows where the stock is.
 
 ### Waiting orders
 
@@ -93,14 +102,20 @@ Only someone who can see customers can save the file.
 
 ## What stays in step, and what does not
 
-The connection mostly works in one direction: from Shopify to ScaleEzy.
+**ScaleEzy decides.** Your products, prices, GST, stock and offers are kept in ScaleEzy, and Shopify follows.
 
 | What | Does it move? |
 |---|---|
-| Shopify sales | **Yes.** Each one comes into ScaleEzy as an order and takes stock from the paired store. |
-| Your stock numbers | **No.** ScaleEzy does not send stock levels to Shopify. Keep them right in Shopify yourself. |
-| New products and changes to products | **No.** ScaleEzy does not add or change products on Shopify. Add them in Shopify too, with the same SKU, then match again. |
-| Offers | **Yes, if you choose.** An offer made in ScaleEzy can be put on your Shopify store. See [Offers on Shopify](/help/offers/offers-on-shopify). |
+| Shopify sales | **Yes.** Each one comes into ScaleEzy as an order and takes stock from the paired store. ScaleEzy works out its GST, not Shopify. |
+| Products | **Yes, the ones you choose.** Put a product on Shopify and it goes there with its photos, sizes, price and stock. Switched off or deleted here, it is archived in Shopify, never deleted. |
+| Stock numbers | **Yes**, for products on Shopify and products matched by SKU, from your paired store only. |
+| Prices | **Yes.** The price on Shopify is the final price the customer pays, GST included. Shopify adds no GST of its own. |
+| Offers | **Yes, if you choose.** See [Offers on Shopify](/help/offers/offers-on-shopify). |
+| Sending the parcel | **Yes**, for shops on [ScaleEzy Logistics](/help/orders/couriers). Shopify is told the order is shipped, with the tracking number, and Shopify emails the customer. It is also told when it is delivered, and when cash on delivery was collected. |
+
+**A change made inside Shopify is put back.** If someone changes or deletes a product, its stock or an offer in Shopify, ScaleEzy puts its own version back and rings the bell, for example *Changed in Shopify: Kanjivaram Silk Saree*. Make the change in ScaleEzy instead.
+
+A product made by hand in Shopify and matched by SKU keeps its own title and photos. Only its price and stock follow ScaleEzy.
 
 ## Common problems
 

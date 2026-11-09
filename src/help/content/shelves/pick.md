@@ -51,9 +51,9 @@ Press **Not here** on that line. ScaleEzy:
 
 ## 4. Send out what you picked
 
-Under **Who is carrying them**, choose the courier and type each order's tracking number if you have it. See [Couriers, tracking and parcel labels](/help/orders/couriers).
+If your shop ships with ScaleEzy Logistics, **Pack each order** shows here in place of **Send out picked**: choose the box, type the weight and press **Packed — send to Logistics**. See [Shipping with ScaleEzy Logistics](/help/orders/couriers).
 
-At the bottom, press [[1]] **Send out picked**. You do not have to finish the whole list first. Only the pieces you picked are sent.
+Otherwise, at the bottom, press [[1]] **Send out picked**. You do not have to finish the whole list first. Only the pieces you picked are sent.
 
 ![The bottom bar says Everything is picked. The Send out picked button is marked 1.](4-send-out-picked.webp "The shelves each piece came from are recorded on the order.")
 

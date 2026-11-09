@@ -5,7 +5,7 @@ for: Owners, admins and inventory managers. Other roles see less.
 minutes: 4
 app: /products
 appLabel: Products
-keywords: product page details stock breakdown per store location total stock history ledger movements record transaction stock movement suppliers who supplies cheapest preferred product code copy tiles
+keywords: tried on try on tryon tried sold colour shopify on shopify switch archive product page details stock breakdown per store location total stock history ledger movements record transaction stock movement suppliers who supplies cheapest preferred product code copy tiles
 ---
 
 Each product has its own page. It shows the product's numbers at the top and has four tabs: **Overview**, **Variants**, **Images** and **Inventory History**.
@@ -125,6 +125,22 @@ The message *Transaction recorded successfully* shows, and [[1]] the new movemen
 
 ![The Edit details form on the Overview tab. Product name is marked 1, GST rate 2, Global price 3 and Save changes 4.](10-edit-details.webp "Changing the name also changes the product's web address.")
 
+## Tried on
+
+On the **Overview** tab, a **Tried on** card shows how often shoppers tried this garment on in the last 30 days: at the counter, in your online shop and from the QR on its tag. Under it, each colour with how many times it was **tried** and how many **sold** in the same days.
+
+A colour tried often and sold little is worth a look: the price, the photo or the fit. Only counts are shown, never who tried it. A garment nobody has tried on has no card.
+
+## On Shopify
+
+When your shop has [Shopify connected](/help/settings/connect-shopify), the **Overview** tab has an **On Shopify** switch.
+
+- Switch it **on** to put the product on Shopify with its photos, sizes, price and stock. While it is being sent it says *Sending to Shopify…*, then when it was last kept in step and a link to it in Shopify.
+- Switch it **off** to take it off Shopify. It is archived there, never deleted.
+- A product made by hand in Shopify and matched by SKU shows that instead of a switch: its price and stock follow this product, and its title and photos stay as written in Shopify.
+
+If Shopify did not accept it, the reason is written under the switch. Services such as stitching are not sent to Shopify.
+
 ## Who can do what
 
 | Part | Who |
@@ -135,6 +151,7 @@ The message *Transaction recorded successfully* shows, and [[1]] the new movemen
 | Save a **Record Transaction** | People who can correct stock: the owner, an admin or an inventory manager |
 | The supplier list | People who can see suppliers: the owner, an admin or an inventory manager |
 | **Create PO**, the star and the bin in the supplier list | People who can raise orders and change suppliers |
+| The **On Shopify** switch | People who can change product details |
 
 ## Common problems
 

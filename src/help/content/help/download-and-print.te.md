@@ -3,7 +3,7 @@ title: డౌన్‌లోడ్, ప్రింట్, షేర్ చే�
 summary: ScaleEzy లో స్ప్రెడ్‌షీట్ డౌన్‌లోడ్ చేయగలిగే, PDF సేవ్ చేయగలిగే, ప్రింట్ లేదా షేర్ చేయగలిగే ప్రతి చోటు, ప్రతి ఫైల్‌లో ఏముంటుందో.
 for: అందరికీ
 minutes: 4
-keywords: ఎక్స్‌పోర్ట్ డౌన్‌లోడ్ CSV ఎక్సెల్ స్ప్రెడ్‌షీట్ గూగుల్ షీట్స్ PDF ప్రింట్ ప్రింటర్ షేర్ వాట్సాప్ రిపోర్ట్ ఫైల్ సేవ్ లేబుల్స్ బార్‌కోడ్ రసీదు డే బుక్ పర్చేస్ ఆర్డర్ కోడ్‌లు బ్యాకప్ లిస్ట్
+keywords: ఎక్స్‌పోర్ట్ డౌన్‌లోడ్ CSV ఎక్సెల్ స్ప్రెడ్‌షీట్ గూగుల్ షీట్స్ PDF ప్రింట్ ప్రింటర్ షేర్ వాట్సాప్ రిపోర్ట్ ఫైల్ సేవ్ లేబుల్స్ బార్‌కోడ్ రసీదు డే బుక్ పర్చేస్ ఆర్డర్ కోడ్‌లు బ్యాకప్ లిస్ట్ export download csv excel spreadsheet google sheets pdf print printer share whatsapp report file save labels barcode receipt day book purchase order codes backup list
 ---
 
 ScaleEzy లో "అన్నీ ఎక్స్‌పోర్ట్ చేయండి" అనే ఒకే పెద్ద బటన్ లేదు. ఫైల్ ఇవ్వగలిగే ప్రతి స్క్రీన్‌కు దాని సొంత బటన్ ఉంటుంది. ఈ పేజీ అవన్నీ చూపిస్తుంది. మీ రోల్ తెరవగలిగేవి మాత్రమే మీకు కనిపిస్తాయి.
@@ -23,8 +23,7 @@ ScaleEzy లో "అన్నీ ఎక్స్‌పోర్ట్ చేయ�
 | ఒక పర్చేస్ ఆర్డర్ | **Send on WhatsApp**, **Email to supplier** | ఆర్డర్‌ను సప్లయర్‌కు పంపుతుంది (డ్రాఫ్ట్ ఆర్డర్లు మాత్రమే) | [పర్చేస్ ఆర్డర్ పెట్టి పంపండి](/help/purchase-orders/create-a-purchase-order) |
 | ఒక పర్చేస్ ఆర్డర్ | **Download receipt PDF**, **Receipt PDF** | ఒక డెలివరీ గూడ్స్ రసీదు | [డెలివరీ రిసీవ్ చేసుకోండి](/help/purchase-orders/receive-a-delivery) |
 | **Orders** | **Export to Excel** | మీ సెర్చ్, ఫిల్టర్లకు సరిపోయే ప్రతి ఆర్డర్ Excel ఫైల్, కొరియర్ మరియు ట్రాకింగ్ నంబర్‌తో | [ఆర్డర్ వెతకండి](/help/orders/find-an-order) |
-| **Orders**, టిక్ చేసిన ఆర్డర్లు | **Print labels** | బాక్స్ కోసం పార్సెల్ లేబుల్స్, లేబుల్ ప్రింటర్ (4 × 6 in) లేదా A4 మీద | [కొరియర్లు, పార్సెల్ లేబుల్స్](/help/orders/couriers) |
-| పంపిన ఆర్డర్, **Parcel** | **Print label** | ఆ బాక్స్ పార్సెల్ లేబుల్ | [కొరియర్లు, పార్సెల్ లేబుల్స్](/help/orders/couriers) |
+| ScaleEzy Logistics తో పంపిన ఆర్డర్, **Parcel** | **Print label** | ఆ బాక్స్ కోసం కొరియర్ లేబుల్, Logistics తయారు చేసింది | [ScaleEzy Logistics తో పార్సెల్ పంపడం](/help/orders/couriers) |
 | ఒక కౌంటర్ సేల్ | **Print receipt** | మీ బ్రౌజర్ నుండి ప్రింట్ చేసే 80 mm రసీదు | [రసీదు ప్రింట్ చేయండి](/help/orders/receipts) |
 | సింగిల్-యూజ్ కోడ్‌లు ఉన్న ఆఫర్ | **CSV**, **Copy unused** | ప్రతి కోడ్ ఒక స్ప్రెడ్‌షీట్‌లో, లేదా వాడని కోడ్‌లు కాపీ | [ఆఫర్ కోడ్‌లు](/help/offers/offer-codes) |
 | **Shelves → Racks & shelves** | **Print all labels**, **Labels** | మీ బ్రౌజర్ నుండి ప్రింట్ చేసే QR కోడ్ షెల్ఫ్ లేబుల్స్ | [ర్యాక్‌లు సెటప్ చేయండి](/help/shelves/set-up-racks) |

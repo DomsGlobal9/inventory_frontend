@@ -6,7 +6,45 @@ minutes: 2
 keywords: updates release changes new features announcements latest
 ---
 
+## November 2026
+
+### Customers: pages, filters and bill numbers
+
+The Customers list shows 10 at a time, with **Previous**, **Next** and a box to jump to a page. New filters: **Bought**, **Where from**, **Phone**, **WhatsApp offers** and **Added**. Search finds a customer by a bill number too, and the customer's name on an order opens them. See [Customers](/help/customers/customers).
+
+### Your bills from before ScaleEzy
+
+A shop's old customer list and bills can be loaded once. Those customers show as **Earlier records**, with a **Past purchases** tab, and their Customer card says *Past customer*. See [Customers](/help/customers/customers#bills-from-before-scaleezy).
+
+### Reviews on your online shop
+
+Customers whose order was delivered can rate and review what they bought, with photos. Switch it on in **Settings → Online shop → Customer accounts**. See [What customers see](/help/online-shop/what-customers-see).
+
+### Choose the photo for model photos
+
+When a colour has several photos, choose which one the three catalog views are made from. See [Product photos](/help/products/photos).
+
 ## October 2026
+
+### Shipping with ScaleEzy Logistics
+
+Couriers, labels and **Mark delivered** have left Inventory. Switch on **ScaleEzy Logistics** in **Settings → Shipping**: you pack and weigh the parcel, and Logistics books the courier and sends the label and tracking back to the order. See [Shipping with ScaleEzy Logistics](/help/orders/couriers).
+
+### Your products on Shopify
+
+Put your products on Shopify from ScaleEzy, with their photos, sizes, price and stock, and they stay up to date. A change made inside Shopify is put back, with a bell. See [Connect Shopify](/help/settings/connect-shopify).
+
+### Who is in the store
+
+**In the store now** on the Customer card shows how long each customer has waited, who is free, who they asked for, and lets you pass a customer on or press **Done**. Customers can also sign in to your online shop with their WhatsApp number and keep a wishlist. See [Customer card](/help/customers/customer-card).
+
+### Photos for many products at once
+
+On **Products**, **Add photos** takes a whole folder of photos named by SKU or product code and matches them for you. See [Product photos](/help/products/photos#add-photos-for-many-products-at-once).
+
+### Tried on
+
+A product's page shows how often it was tried on in the last 30 days, by colour, next to how many sold. See [The product page](/help/products/product-page).
 
 ### Bank transfer and cheque at the POS till
 

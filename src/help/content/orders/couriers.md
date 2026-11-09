@@ -1,121 +1,78 @@
 ---
-title: Couriers, tracking and parcel labels
-summary: Keep a list of the couriers you send parcels with, write the courier and tracking number when an order goes out, print a label for the box, and mark parcels delivered.
+title: Shipping with ScaleEzy Logistics
+summary: Switch on ScaleEzy Logistics, keep your box sizes, pack each order, and let Logistics book the courier and send the label and tracking back to the order.
 for: Stock room staff, admins and owners
-minutes: 4
+minutes: 3
 app: /settings?section=COURIERS
-appLabel: Couriers
-keywords: courier couriers dtdc delhivery blue dart india post xpressbees own delivery bike tracking number awb consignment track parcel label sticker 4x6 a4 print labels mark delivered delivered on the way whatsapp send number delivery filter cash on delivery cod prepaid
+appLabel: Shipping
+keywords: shipping ship courier couriers logistics scaleezy logistics shiprocket delhivery blue dart dtdc tracking number awb track parcel label print label box box size weight weigh pack packed pick and pack on the way delivered out for delivery returned rto lost whatsapp send number delivery filter
 ---
 
-ScaleEzy does not book couriers for you. It keeps **who took the parcel and the tracking number**, so anyone in the shop can answer "where is my order?", and it prints a label for the box.
+ScaleEzy does not have a list of couriers any more. **ScaleEzy Logistics** books the courier for you. You pack the parcel and weigh it, and Logistics sends the courier, the tracking number and the label back to the order.
 
-## 1. Add your couriers
+A shop that does not use Logistics sends its parcels as it always has, with **Create Dispatch** on the order. See [Send out an online order](/help/orders/send-online-orders).
 
-In **Settings**, under **Selling online**, open **Couriers**.
+## 1. Switch on ScaleEzy Logistics
 
-1. [[1]] **Add with one tap**: Delhivery, Blue Dart, India Post, Xpressbees or **Own delivery**.
-2. [[2]] Or type the name of any other courier, and its tracking page if you know it.
-3. Click [[3]] **Add courier**.
-4. [[4]] Your list. **Make default** chooses the courier that is filled in first on online orders. The pencil changes a courier, the bin removes it.
+In **Settings**, under **Selling online**, open **Shipping**.
 
-![Settings, Couriers. Add with one tap is marked 1, Or type a courier 2, Add courier 3 and the list of couriers 4.](1-settings-couriers.webp "A courier you remove keeps its name on parcels already sent.")
+1. [[1]] Switch on **Ship with ScaleEzy Logistics**. Logistics can then see your products, so it can fill in each shipment. Only people who can add and change shops and warehouses can switch it: the owner, **ADMIN** and **INVENTORY_MANAGER**.
+2. [[2]] **Box sizes**: the boxes you pack parcels in, in cm. Give each a name you know it by, for example *Saree box*, and press **Add a box** for more. Logistics sends the courier the box size with the real weight. Keep at least one box.
 
-Tick **No tracking number (own delivery)** for your own delivery boy, who has no slip. You can also add a courier while sending an order out: choose **+ Add a courier** in the **Courier** list.
+![Settings, Shipping. The Ship with ScaleEzy Logistics switch is marked 1 and the Box sizes list 2.](1-settings-shipping.webp "Box sizes show once the switch is on.")
 
-## 2. Write the courier when the order goes out
+You cannot switch Logistics off while parcels are still with it. Wait until they are delivered or come back.
 
-In the **Create Dispatch** box of an order (see [Send out an online order](/help/orders/send-online-orders)):
+## 2. Pick and pack the order
 
-1. [[1]] **Courier**: who is taking the parcel. Online orders start with your default courier. Choose **No courier (handed over)** if the customer collected it.
-2. [[2]] **Tracking number**: the number on the courier slip. No number yet? Send it now and add the number on the order later.
-3. Click [[3]] **Dispatch Items**.
+On a confirmed order, click [[1]] **Pick and pack**. It opens the pick list for this order, so the pieces are taken off their shelves first. See [Pick online orders](/help/shelves/pick).
 
-![The Create Dispatch box with 2 pieces to send. Courier DTDC is marked 1, the tracking number D55443322 2 and Dispatch Items 3.](2-dispatch-box.webp "The same tracking number cannot be used on two parcels of one courier.")
+![A confirmed online order. The Pick and pack button is marked 1.](2-pick-and-pack.webp "With Logistics on, the order has Pick and pack in place of Create Dispatch.")
 
-When you send orders out from a pick list, the same choice is at the bottom, under **Who is carrying them**. See [Pick online orders](/help/shelves/pick).
+When everything is picked, **Pack each order** shows under the list. For each order:
+
+1. [[1]] Choose the box.
+2. [[2]] Type the **Weight on the scale**, in kg.
+3. Press [[3]] **Packed — send to Logistics**.
+
+![Pack each order on the pick list. The box is marked 1, the weight 2 and Packed 3.](3-pack.webp "The pieces come off your stock when you press it.")
+
+The order then says *Waiting for Logistics to book the courier…*. A few moments later the courier and the tracking number show, with **Print label**. Print it and stick it on the box.
 
 ## 3. The Parcel card on the order
 
-Every parcel shows on its order, under **Line Items**, with **On the way** or **Delivered** at the top right.
+Every parcel shows on its order, under **Line Items**:
 
-1. [[1]] The courier and tracking number. The small button beside it copies the number.
-2. [[2]] **Print label**: the label for this box (step 4).
-3. [[3]] **Track**: opens the courier's tracking page. If the page cannot open on the parcel itself, the number is copied so you can paste it there.
-4. [[4]] **Send on WhatsApp**: a message to the customer, ready with the order number, courier and tracking number. You press send in WhatsApp.
-5. [[5]] **Mark delivered** when the parcel has reached the customer. If it was by mistake, click **Not delivered yet? Undo**.
-6. [[6]] **Change**: correct the courier or the number, or **Add tracking number** later.
+1. [[1]] The box and its weight, and what is happening now: *Booked*, *Picked up*, *On the way*, *Out for delivery*, *Delivered*, and so on. Logistics changes it by itself; nobody in the shop marks it.
+2. [[2]] The courier and the tracking number. The small button beside it copies the number.
+3. [[3]] **Print label**, **Track** (the courier's own tracking page) and **Send on WhatsApp**: a message to the customer with the order number, courier and tracking number, ready for you to press send.
 
-![The Parcel card for DSP-000086, On the way. The tracking number D55443322 is marked 1, Print label 2, Track 3, Send on WhatsApp 4, Mark delivered 5 and Change 6.](3-parcel.webp "Marking delivered never changes the sale, the stock or the Day Book.")
+![The Parcel card for an order sent with ScaleEzy Logistics. The status and box are marked 1, the courier and tracking number 2, and the Print label, Track and Send on WhatsApp buttons 3.](4-parcel.webp "The customer sees the same tracking on their order in your online shop.")
 
-## 4. Print the label
+If a parcel comes back, the card says *Returned to you — check it in from Returns*. See [Take a return](/help/returns/take-a-return).
 
-**Print label** opens a 4 × 6 inch label for the parcel box: the courier, a barcode of the tracking number, who it goes to with address and phone, the order and dispatch number, and your shop's address to return it to.
+## 4. Find parcels in Orders
 
-![A parcel label: courier DTDC, the barcode of D55443322, Deliver to Lakshmi Devi with address and phone, PREPAID, order SO-000098 and the shop's address.](4-label.webp "A paid order says PREPAID, Do not collect money.")
-
-For cash on delivery, the label shows only what is still owed. An order sent in two parcels has the cash on the first label only; the second says the money is collected with the first parcel, so the courier cannot collect twice. An order with no address says to write it by hand.
-
-## 5. Many orders at once
-
-In **Orders**, tick the orders on the left:
-
-1. [[1]] The tick box of each order. The box at the top of the column ticks every order shown. Ticks stay when you search or filter.
-2. [[2]] **Print labels**: one label for each parcel sent.
-3. [[3]] **Mark delivered**: every parcel of these orders that went with a courier is marked delivered today.
-
-![The Orders list with 2 orders ticked. A tick box is marked 1, Print labels 2 and Mark delivered 3.](5-ticked.webp "Clear removes all the ticks.")
-
-**Print labels** asks what you print on:
-
-1. [[1]] **Label printer, 4 × 6 in** (one label per sticker), or **A4 sheet, 4 labels per page** for an ordinary printer: cut along the lines.
-2. Click [[2]] **Print**.
-
-![The Print labels for 2 orders box. The paper choice is marked 1 and Print 2.](6-print-labels.webp "Orders not sent yet are named on the next page and get no label.")
-
-**Mark delivered** leaves out orders not sent yet, and parcels handed over without a courier. The message says how many were left out and why. Each one can be undone on its order.
-
-## 6. Find parcels with the filters
-
-In **Orders**, two filters help with parcels:
-
-1. [[1]] **Delivery**: *Tracking number missing*, *On the way* or *Delivered*.
-2. [[2]] **Courier**: only the parcels of one courier.
-
-![The Orders filters, with the Delivery list open: Tracking number missing 12, On the way 7, Delivered 79. Delivery is marked 1 and Courier 2.](7-delivery-filter.webp "The number beside a choice is how many orders it would leave.")
-
-**Export to Excel** also gives the courier, the tracking number and the day it was delivered.
-
-## 7. What the customer sees
-
-On your online shop, the customer's order page shows the courier, the tracking number and a **Track** button. When you mark it delivered, the fourth step, **Delivered**, lights up.
-
-![The customer's order page on a phone: Your order was delivered, the steps Placed, Packed, On its way and Delivered, and Delivered with DTDC with the tracking number and a Track button.](8-customer-page-phone.webp "An order sent only in part is not shown as delivered.")
-
-For Shopify orders, the courier and tracking number Shopify sends are saved on the order too.
-
-## Who can do this
-
-Stock room staff, admins and owners: adding couriers, writing the courier and number, and marking delivered. Anyone who can see orders can print labels and track parcels.
+In **Orders**, the **Delivery** filter shows only orders *On the way* or *Delivered*, and **Courier** shows one courier's parcels. See [Find an order](/help/orders/find-an-order).
 
 ## Common problems
 
-:::faq "DTDC D55443322 is already on DSP-000086"
-Each tracking number can be used once for one courier. The message names the parcel and order that already have it. Check the slip and type its number.
+:::faq I don't see Pick and pack
+The order must be **Confirmed** first, and your role must be able to send orders out and use shelves. If your role can send orders but not use shelves, the order says to pack it from **Shelves → Pick**.
 :::
 
-:::faq There is no Track button
-The courier has no tracking page, or the parcel has no tracking number yet. Add the tracking page in **Settings → Couriers** (the pencil), or click **Add tracking number** on the parcel.
+:::faq It still says "Waiting for Logistics to book the courier"
+Logistics has the parcel but has not booked it yet. Wait a few minutes and open the order again. If it stays for an hour, ask ScaleEzy support.
 :::
 
-:::faq I don't see Couriers in Settings
-Only people who can send orders out see it: stock room staff, admins and owners.
+:::faq "Weigh the parcel and enter its weight in kg."
+Type the weight from the scale before pressing **Packed — send to Logistics**. The courier charges by weight, so it cannot be left empty.
 :::
 
-:::faq A label has no address
-The order has no delivery address. The label says to write it by hand.
+:::faq I want to send one parcel myself, without Logistics
+While Logistics is on, every packed order goes to Logistics. Switch it off in **Settings → Shipping** when no parcel is with Logistics, and use **Create Dispatch**.
 :::
 
-:::faq I marked a parcel delivered by mistake
-Open the order and click **Not delivered yet? Undo** under the parcel.
+:::faq Where did my couriers, labels and Mark delivered go?
+They were taken out on 28 October 2026. Logistics now books the courier, makes the label and marks the parcel delivered. Parcels sent before then keep their courier and tracking number.
 :::

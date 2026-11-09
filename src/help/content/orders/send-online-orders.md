@@ -5,7 +5,7 @@ for: Stock room staff, admins and owners (sales staff can confirm)
 minutes: 3
 app: /orders
 appLabel: Orders
-keywords: online order shopify website dispatch send ship pack courier confirm reserve hold partly sent close rest
+keywords: online order shopify website dispatch send ship pack courier logistics confirm reserve hold partly sent close rest
 ---
 
 An order that did not happen at your counter (online, Shopify or taken by phone) goes through these stages:
@@ -45,9 +45,11 @@ Pick the pieces from their shelves first. On an online order, **Pick from shelve
 
 ![The Create Dispatch box. The table with SKU, REMAINING and DISPATCH NOW is marked 1, with 1 typed for both items. Dispatch Items is marked 2.](4-dispatch-items.webp "Leave an item at 0 if it is not in this parcel.")
 
-Below the table, choose the **Courier** and type the **Tracking number** from the courier slip, if you have it. See [Couriers, tracking and parcel labels](/help/orders/couriers).
+The pieces come off your stock straight away. The order now shows a **Parcel** card.
 
-The pieces come off your stock straight away. The order now shows a **Parcel** card, where you can print the label for the box.
+:::tip Using ScaleEzy Logistics?
+Then the order has **Pick and pack** in place of **Create Dispatch**, and Logistics books the courier and sends the label and tracking back. See [Shipping with ScaleEzy Logistics](/help/orders/couriers).
+:::
 
 ## 5. If only part was sent
 

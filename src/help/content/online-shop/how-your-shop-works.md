@@ -42,7 +42,7 @@ Choosing an address and filling in the settings does not put anything on the web
 ## Paying and delivery
 
 - Customers can pay online through your own Razorpay account, or when the order arrives. See [Take payments online](/help/online-shop/take-payments-online).
-- ScaleEzy does not book a courier for you. You send the parcel the way you always do, then write the courier and tracking number on the order. The customer then sees them on their order page, with a **Track** button. See [Couriers, tracking and parcel labels](/help/orders/couriers).
+- With [ScaleEzy Logistics](/help/orders/couriers) switched on, you pack the parcel and Logistics books the courier. The customer sees the courier and tracking number on their order page, with a **Track** button. Without it, you send the parcel the way you always do.
 
 ## Where to go next
 

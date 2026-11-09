@@ -23,8 +23,7 @@ ScaleEzy doesn't have one big "export everything" button. Each screen that can g
 | A purchase order | **Send on WhatsApp**, **Email to supplier** | Sends the order to the supplier (draft orders only) | [Raise a purchase order](/help/purchase-orders/create-a-purchase-order) |
 | A purchase order | **Download receipt PDF**, **Receipt PDF** | The goods receipt for one delivery | [Receive a delivery](/help/purchase-orders/receive-a-delivery) |
 | **Orders** | **Export to Excel** | An Excel file of every order that matches your search and filters, with courier and tracking number | [Find an order](/help/orders/find-an-order) |
-| **Orders**, ticked orders | **Print labels** | Parcel labels for the box, on a label printer (4 × 6 in) or A4 | [Couriers and parcel labels](/help/orders/couriers) |
-| A sent order, **Parcel** | **Print label** | The parcel label for that box | [Couriers and parcel labels](/help/orders/couriers) |
+| An order sent with ScaleEzy Logistics, **Parcel** | **Print label** | The courier's label for that box, made by Logistics | [Shipping with ScaleEzy Logistics](/help/orders/couriers) |
 | A counter sale | **Print receipt** | An 80 mm receipt, printed from your browser | [Print a receipt](/help/orders/receipts) |
 | An offer with single-use codes | **CSV**, **Copy unused** | Every code in a spreadsheet, or the unused codes copied | [Offer codes](/help/offers/offer-codes) |
 | **Shelves → Racks & shelves** | **Print all labels**, **Labels** | Shelf labels with QR codes, printed from your browser | [Set up racks](/help/shelves/set-up-racks) |

@@ -1,14 +1,14 @@
 ---
 title: What customers see
-summary: Four switches that decide how much of your shop a customer sees — every photo or only the finished ones, try-on, sold-out pieces, and how few are left.
+summary: The switches that decide what a customer sees and can do in your shop — photos, try-on, sold-out pieces, how few are left, signing in, a wishlist and reviews.
 for: Owners and admins
 minutes: 3
 app: /settings
 appLabel: Online shop
-keywords: also bought customers who bought this recommended viewed remembered 30 days privacy photos show all photos flat lay try on see it on you hide sold out out of stock only 3 left few left stock numbers
+keywords: sign in account accounts login whatsapp code wishlist heart hearted review reviews rating stars points store credit also bought customers who bought this recommended viewed remembered 30 days privacy photos show all photos flat lay try on see it on you hide sold out out of stock only 3 left few left stock numbers
 ---
 
-These four switches are on the **What customers see** card in **Settings → Online shop**. Each one applies to your whole shop at once, not to one product.
+These four switches are on the **What customers see** card in **Settings → Online shop**. Each one applies to your whole shop at once, not to one product. Signing in, the wishlist and reviews are on a separate card, **Customer accounts**: see below.
 
 ![The What customers see card with all four switches: Show every photo of a product marked 1, Let customers see it on themselves marked 2, Hide pieces that are sold out marked 3, and Say when a piece is nearly gone marked 4.](1-what-customers-see.webp "Change one, press Save, then open your shop link and look. That is the quickest way to see what each does.")
 
@@ -41,6 +41,17 @@ Every customer who uses it uses one try-on from the same allowance your shop use
 ![A saree in the shop showing Only 2 left under the price, marked 1.](3-few-left.webp "Above five, nothing is shown — so your stock numbers stay yours.")
 
 This is deliberately limited. It never prints your real stock number, and it never says anything while you are comfortably stocked, so a competitor reading your shop learns nothing about how much you hold.
+
+## Customer accounts, wishlist and reviews
+
+In **Settings → Online shop**, the **Customer accounts** card. Press **Save** after changing it.
+
+- **Let customers sign in with their WhatsApp number**: a **Sign in** on your shop, with a code sent from your WhatsApp number and no password. Signed in, a customer sees every order they placed with that number and their saved addresses, and skips the code at the checkout. They stay signed in on their phone for 90 days. Each code is one message from your WhatsApp number's daily allowance. Your WhatsApp must be [connected](/help/settings/whatsapp) for codes to go.
+- **Let customers save pieces to a wishlist**: a heart on every piece. Pieces they heart lately also show on their [Customer card](/help/customers/customer-card).
+- **Let customers review what they bought**: a rating, words and photos on each product page, only from customers whose order was delivered. A review shows at once. The reviews box stays hidden on a product until it has a review, or until a customer who can review it opens it. You reply to reviews, and hide any that break the rules, in ScaleEzy CRM.
+- **Show customers their points and store credit**: on their account page, to use at your counter. Points show only while [loyalty](/help/customers/loyalty-points) is on. Store credit shows only when they have some.
+
+The last three need sign-in switched on.
 
 ## On every product page
 

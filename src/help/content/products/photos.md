@@ -5,7 +5,7 @@ for: Owners, admins and inventory managers
 minutes: 2
 app: /products
 appLabel: Products
-keywords: photo photos image images picture upload main primary delete colour no photo gallery model photos notice ready did not finish stop next in line allowance studio
+keywords: bulk many at once folder sku product code name photos add photos match pick product publish photo photos image images picture upload main primary delete colour no photo gallery model photos notice ready did not finish stop next in line allowance studio
 ---
 
 A product can have general photos (the fabric, the border, the drape) and its own photos for each size and colour. Customers who choose a colour see the photo of that colour.
@@ -44,9 +44,24 @@ The first photo in each part becomes the main photo.
 The photo is removed from the product and from storage. To get it back you must upload it again.
 :::
 
+## Add photos for many products at once
+
+Name each photo by the product's **SKU** or **product code**, for example *KS-104.jpg*. For more than one photo, add the colour and a number: *KS-104-green-2.jpg* is the second photo of the green one.
+
+1. On **Products**, press **Add photos**.
+2. **Choose a folder**, **Choose photos**, or drop the folder on the box. Up to 1,000 at a time, each up to 15 MB.
+3. ScaleEzy reads the names and lists each photo with the product it belongs to. Nothing is uploaded yet.
+   - A photo it could not match says *Nothing by that name.* Press **Pick product** and choose it by hand, or untick it.
+   - If it cannot tell the colour, it asks *Which colour is in this photo?*
+   - **Change product** fixes a wrong match.
+4. Press **Add**. The photos upload, three at a time, with a bar showing how far it has got. A colour's photo is added to every size of that colour.
+5. New products are drafts. At the end, ScaleEzy offers to **Publish** the ones that now have a photo.
+
+After an [import](/help/products/import-products), the last step offers this too.
+
 ## Make model photos (the three catalog views)
 
-ScaleEzy can turn your own photo of a garment into three catalogue pictures of a model wearing it: **Front**, **Sitting** and **Right**. Your own photo stays as it is.
+ScaleEzy can turn your own photo of a garment into three catalogue pictures of a model wearing it: **front**, **left** and **right**. Your own photo stays as it is.
 
 It works for sarees, lehengas, anarkalis, shararas and kurtis (or kurtas).
 
@@ -55,9 +70,10 @@ It works for sarees, lehengas, anarkalis, shararas and kurtis (or kurtas).
 **For a product you already have:** on its **Images** tab, in **Make the three catalog views**:
 
 1. Choose **Which colour to photograph**.
-2. Press **MAKE THE THREE VIEWS**.
+2. If that colour has more than one photo, choose **Which photo of the Red one to use**. Pick one of the whole garment, not a close-up of the blouse or the border. ScaleEzy picks the best one for you first.
+3. Press **MAKE THE THREE VIEWS**.
 
-You can carry on with other work. The card says how far it is, for example *Making the Red views… 1 of 4 done*, and ScaleEzy tells you when they are ready. When one colour is done, the other colours can be made from it.
+You can carry on with other work. The card says how far it is, for example *Making the Red views… 1 of 3 done*, and ScaleEzy tells you when they are ready. When one colour is done, the other colours can be made from it.
 
 Not happy with a set? Under **Not happy with a set?**, choose **Which set to make again**. It uses one generation from your allowance.
 

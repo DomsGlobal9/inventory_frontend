@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { firstMissingField, missingFieldMessage } from '../lib/formGuard';
 import toast from 'react-hot-toast';
-import { UserPlus, Loader2, Mail, MessageCircle, Copy, Check, X, KeyRound, Shield, Clock, ShieldCheck, Activity, ScrollText, Eye, EyeOff, RefreshCw, Send } from 'lucide-react';
+import { UserPlus, Loader2, Mail, MessageCircle, Copy, Check, X, KeyRound, Shield, Clock, ShieldCheck, Activity, ScrollText, Eye, EyeOff, RefreshCw, Send, MapPin } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import {
   useTeamMembers, useTeamRoles, useTeamActivity, useInviteTeamMember, useUpdateTeamMemberRole,
-  useSetTeamMemberStatus, useViewTeamMemberPassword, useSetTeamMemberPassword,
+  useSetTeamMemberStatus, useSetTeamMemberStores, useViewTeamMemberPassword, useSetTeamMemberPassword,
   useResendTeamMemberCredentials, useSendTeamCredentialsWhatsApp, useSecurityLog
 } from '../hooks/useTeam';
 import { useDialog } from '../hooks/useDialog';
@@ -14,6 +14,7 @@ import { buildCredentialWhatsapp } from '../lib/credentialShare';
 import Select from './common/Select';
 import { usePermission } from '../hooks/usePermission';
 import { holdsEverything } from '../lib/authority';
+import { useLocationContext } from '../contexts/LocationContext';
 
 
 function RecentActivity({ onClose }) {
@@ -407,6 +408,90 @@ function ShareRow({ recipientName, email, password, userId, phone }) {
   );
 }
 
+/** The places a person can work in: open stores and warehouses, never the Online location. */
+function useWorkplaces() {
+  const { locations } = useLocationContext();
+  return (locations || []).filter(l => l.active !== false && l.type !== 'ONLINE');
+}
+
+/** "All stores", one store's name, or "2 stores". Chosen stores that have since closed are left out. */
+function storesLabel(ids, places) {
+  if (!(ids || []).length) return 'All stores';
+  const chosen = ids.map(id => places.find(p => p.id === id)).filter(Boolean);
+  if (chosen.length === 1) return chosen[0].name;
+  return `${chosen.length} stores`;
+}
+
+/**
+ * Which stores a team member works in (11 Nov 2026). All stores, or only the ticked ones. ScaleEzy CRM
+ * reads it to show them only their stores on its Sales dashboard and At the door; customers stay
+ * shop-wide, and Inventory's own screens do not change.
+ */
+function StoresPicker({ member, onClose }) {
+  const places = useWorkplaces();
+  const start = (member.locationIds || []).filter(id => places.some(p => p.id === id));
+  const [some, setSome] = useState(start.length > 0);
+  const [picked, setPicked] = useState(new Set(start));
+  const [said, setSaid] = useState(null);
+  const save = useSetTeamMemberStores();
+  const dialogRef = useDialog(true, { onClose });
+
+  const toggle = (id) => {
+    setSaid(null);
+    setPicked(prev => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+  };
+  const submit = async () => {
+    if (some && picked.size === 0) { setSaid('Tick at least one store, or choose All stores.'); return; }
+    try {
+      await save.mutateAsync({ userId: member.id, locationIds: some ? [...picked] : [] });
+      onClose();
+    } catch {
+      // Toasted by the hook.
+    }
+  };
+  const choice = (on) => ({
+    flex: 1, padding: '8px', fontSize: '13px', fontWeight: 600, borderRadius: '8px', cursor: 'pointer',
+    border: `1px solid ${on ? 'var(--brand-deep, #164B1E)' : 'var(--border-light)'}`,
+    background: on ? 'rgba(22, 75, 30, 0.08)' : 'transparent', color: on ? 'var(--text-primary)' : 'var(--text-secondary)'
+  });
+
+  return createPortal(
+    <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(4px)' }} onClick={onClose}>
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="stores-title" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '420px', boxShadow: 'var(--shadow-modal)' }} onClick={e => e.stopPropagation()}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
+          <h3 id="stores-title" style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>Where {member.name} works</h3>
+          <button type="button" aria-label="Close" onClick={onClose} style={{ background: 'var(--bg-input)', border: '1px solid var(--border-light)', cursor: 'pointer', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', borderRadius: '8px', flexShrink: 0 }}><X size={14} /></button>
+        </div>
+        <p style={{ fontSize: '12.5px', color: 'var(--text-secondary)', margin: '0 0 14px' }}>
+          In ScaleEzy CRM they see the Sales dashboard and At the door only for these stores. Customers stay shop-wide.
+        </p>
+        <div role="radiogroup" aria-label="Stores" style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+          <button type="button" role="radio" aria-checked={!some} onClick={() => { setSome(false); setSaid(null); }} style={choice(!some)}>All stores</button>
+          <button type="button" role="radio" aria-checked={some} onClick={() => { setSome(true); setSaid(null); }} style={choice(some)}>Only some</button>
+        </div>
+        {some && (
+          <div style={{ display: 'grid', gap: '6px', maxHeight: '240px', overflowY: 'auto', marginBottom: '8px' }}>
+            {places.length === 0 && <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-muted)' }}>No stores yet. Add them in Settings, Locations.</p>}
+            {places.map(pl => (
+              <label key={pl.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 10px', borderRadius: '8px', background: 'var(--bg-input)', cursor: 'pointer', fontSize: '13.5px', color: 'var(--text-primary)' }}>
+                <input type="checkbox" checked={picked.has(pl.id)} onChange={() => toggle(pl.id)} style={{ width: '16px', height: '16px' }} />
+                <span style={{ flex: 1 }}>{pl.name}</span>
+                {pl.type === 'WAREHOUSE' && <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Warehouse</span>}
+              </label>
+            ))}
+          </div>
+        )}
+        {said && <p role="alert" style={{ margin: '0 0 8px', fontSize: '12.5px', color: 'var(--accent-danger)' }}>{said}</p>}
+        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '8px' }}>
+          <button type="button" className="btn-secondary" onClick={onClose}>Cancel</button>
+          <button type="button" className="btn-primary" onClick={submit} disabled={save.isPending} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            {save.isPending && <Loader2 size={14} className="animate-spin" />} Save
+          </button>
+        </div>
+      </div>
+    </div>, document.body);
+}
+
 function PasswordManager({ member, onClose }) {
   const [revealed, setRevealed] = useState(null);
   // Without team:view_password only Set New is offered; the password it makes is still shown once.
@@ -508,6 +593,8 @@ export default function TeamManager() {
   const [showActivity, setShowActivity] = useState(false);
   const [showSecurity, setShowSecurity] = useState(false);
   const [passwordTarget, setPasswordTarget] = useState(null);
+  const [storesTarget, setStoresTarget] = useState(null);
+  const places = useWorkplaces();
 
   const updateRoleMutation = useUpdateTeamMemberRole();
   const setStatusMutation = useSetTeamMemberStatus();
@@ -543,6 +630,8 @@ export default function TeamManager() {
           .team-table td { display: block; padding: 0 !important; position: static !important; border-right: none !important; background: transparent !important; min-width: 0; }
           .team-table td.team-name { grid-column: 1 / -1; min-width: 0; max-width: none; }
           .team-table td.team-role { grid-column: 1 / -1; }
+          .team-table td.team-stores { grid-column: 1 / -1; }
+          .team-table td.team-stores button { max-width: none !important; width: 100%; justify-content: flex-start; padding: 8px 10px !important; }
           .team-table td { border-bottom: none !important; }
           .team-table td.team-role .custom-select-container { width: 100% !important; padding: 0 !important; }
           .team-table td.team-status button { min-height: 32px; padding: 6px 12px !important; }
@@ -582,7 +671,7 @@ export default function TeamManager() {
           <table className="team-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
               <tr style={{ background: 'var(--bg-input)' }}>
-                {['Name', 'Role', 'Status', 'Last Active', ''].map((h, index, arr) => (
+                {['Name', 'Role', 'Stores', 'Status', 'Last Active', ''].map((h, index, arr) => (
                   <th key={h} style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', borderTopLeftRadius: index === 0 ? '12px' : 0, borderTopRightRadius: index === arr.length - 1 ? '12px' : 0 }}>{h}</th>
                 ))}
               </tr>
@@ -616,6 +705,18 @@ export default function TeamManager() {
                       >
                         {roles?.map(r => <option key={r.id} value={r.id}>{r.name.replace(/_/g, ' ')}</option>)}
                       </Select>
+                    </td>
+                    <td className="team-stores" style={{ padding: '10px 16px' }}>
+                      <button
+                        type="button"
+                        onClick={() => setStoresTarget(m)}
+                        disabled={!canManageThisRow}
+                        title={disabledReason || 'Choose which stores they work in'}
+                        aria-label={`Stores for ${m.name}: ${storesLabel(m.locationIds, places)}`}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '4px 10px', background: 'var(--bg-input)', border: '1px solid var(--border-light)', borderRadius: '6px', cursor: canManageThisRow ? 'pointer' : 'default', fontSize: '12px', color: 'var(--text-primary)', opacity: canManageThisRow ? 1 : 0.6, maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                      >
+                        <MapPin size={12} style={{ flexShrink: 0 }} /> {storesLabel(m.locationIds, places)}
+                      </button>
                     </td>
                     <td className="team-status" style={{ padding: '10px 16px' }}>
                       <button
@@ -660,6 +761,7 @@ export default function TeamManager() {
       {showActivity && <RecentActivity onClose={() => setShowActivity(false)} />}
       {showSecurity && <SecurityLog onClose={() => setShowSecurity(false)} />}
       {passwordTarget && <PasswordManager member={passwordTarget} onClose={() => setPasswordTarget(null)} />}
+      {storesTarget && <StoresPicker member={storesTarget} onClose={() => setStoresTarget(null)} />}
     </div>
   );
 }

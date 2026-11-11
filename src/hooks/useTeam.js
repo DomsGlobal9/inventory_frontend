@@ -63,6 +63,22 @@ export const useUpdateTeamMemberRole = () => {
   });
 };
 
+/** Which stores a team member works in; [] = all stores (read by CRM's floor screens). */
+export const useSetTeamMemberStores = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ userId, locationIds }) => (await api.patch(`/team/members/${userId}/stores`, { locationIds })).data,
+    onMutate: ({ userId, locationIds }) =>
+      optimisticRowPatch(queryClient, ['team', 'members'], r => r.id === userId, { locationIds }),
+    onSuccess: () => toast.success('Stores saved'),
+    onError: (error, _vars, context) => {
+      restoreRows(queryClient, context);
+      toast.error(error?.message || 'Their stores could not be saved. Try again.');
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['team', 'members'] })
+  });
+};
+
 export const useSetTeamMemberStatus = () => {
   const queryClient = useQueryClient();
   return useMutation({

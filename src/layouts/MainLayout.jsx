@@ -6,8 +6,11 @@ import Sidebar from '../components/Sidebar';
 import ImpersonationBanner from '../components/ImpersonationBanner';
 import WelcomeTour from '../components/onboarding/WelcomeTour';
 import PhotoJobsBadge from '../components/PhotoJobsBadge';
+import { useLiveUpdates } from '../hooks/useLiveUpdates';
 
 export default function MainLayout() {
+  // Open screens update by themselves when anything changes in the shop (PLAN-live.md).
+  useLiveUpdates();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 

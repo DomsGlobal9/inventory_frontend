@@ -8,13 +8,17 @@ keywords: updates release changes new features announcements latest
 
 ## November 2026
 
+### The Customer card has moved to ScaleEzy CRM
+
+Knowing a customer as they walk in now happens in ScaleEzy CRM, on the **Shop floor**: type their number, or they scan the door QR, and see their sizes, colours, usual spend and what fits them in your store. Who is waiting, who is with whom, and the door QR to print are there too. Inventory no longer has a Customer card or Door QR screen; your customers, bills and stock stay in Inventory.
+
 ### Customers: pages, filters and bill numbers
 
 The Customers list shows 10 at a time, with **Previous**, **Next** and a box to jump to a page. New filters: **Bought**, **Where from**, **Phone**, **WhatsApp offers** and **Added**. Search finds a customer by a bill number too, and the customer's name on an order opens them. See [Customers](/help/customers/customers).
 
 ### Your bills from before ScaleEzy
 
-A shop's old customer list and bills can be loaded once. Those customers show as **Earlier records**, with a **Past purchases** tab, and their Customer card says *Past customer*. See [Customers](/help/customers/customers#bills-from-before-scaleezy).
+A shop's old customer list and bills can be loaded once. Those customers show as **Earlier records**, with a **Past purchases** tab, and their card in ScaleEzy CRM says *Past customer*. See [Customers](/help/customers/customers#bills-from-before-scaleezy).
 
 ### Reviews on your online shop
 
@@ -36,7 +40,7 @@ Put your products on Shopify from ScaleEzy, with their photos, sizes, price and 
 
 ### Who is in the store
 
-**In the store now** on the Customer card shows how long each customer has waited, who is free, who they asked for, and lets you pass a customer on or press **Done**. Customers can also sign in to your online shop with their WhatsApp number and keep a wishlist. See [Customer card](/help/customers/customer-card).
+**In the store now** showed how long each customer had waited, who was free, who they asked for, and let you pass a customer on or press **Done**. It is now part of ScaleEzy CRM's Shop floor (November 2026). Customers can also sign in to your online shop with their WhatsApp number and keep a wishlist.
 
 ### Photos for many products at once
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import LoadFailed from '../../components/LoadFailed';
 import { useCustomers } from '../../hooks/useCustomers';
-import { Search, Plus, IdCard, Gift } from 'lucide-react';
+import { Search, Plus, Gift } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import CustomerModal from '../../components/sales/CustomerModal';
 import { usePermission } from '../../hooks/usePermission';
@@ -128,9 +128,6 @@ export default function Customers() {
           <p style={{ color: 'var(--text-secondary)' }}>Manage your customer database and view order history.</p>
         </div>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          <button className="btn-secondary" onClick={() => navigate('/customers/card')} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-            <IdCard size={16} /> Customer card
-          </button>
           {can('voucher:view') && (
             <button className="btn-secondary" onClick={() => navigate('/customers/gift-vouchers')} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
               <Gift size={16} /> Gift vouchers

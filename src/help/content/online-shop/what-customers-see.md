@@ -47,7 +47,7 @@ This is deliberately limited. It never prints your real stock number, and it nev
 In **Settings → Online shop**, the **Customer accounts** card. Press **Save** after changing it.
 
 - **Let customers sign in with their WhatsApp number**: a **Sign in** on your shop, with a code sent from your WhatsApp number and no password. Signed in, a customer sees every order they placed with that number and their saved addresses, and skips the code at the checkout. They stay signed in on their phone for 90 days. Each code is one message from your WhatsApp number's daily allowance. Your WhatsApp must be [connected](/help/settings/whatsapp) for codes to go.
-- **Let customers save pieces to a wishlist**: a heart on every piece. Pieces they heart lately also show on their [Customer card](/help/customers/customer-card).
+- **Let customers save pieces to a wishlist**: a heart on every piece. Pieces they heart lately also show on their card in ScaleEzy CRM.
 - **Let customers review what they bought**: a rating, words and photos on each product page, only from customers whose order was delivered. A review shows at once. The reviews box stays hidden on a product until it has a review, or until a customer who can review it opens it. You reply to reviews, and hide any that break the rules, in ScaleEzy CRM.
 - **Show customers their points and store credit**: on their account page, to use at your counter. Points show only while [loyalty](/help/customers/loyalty-points) is on. Store credit shows only when they have some.
 
@@ -59,7 +59,7 @@ These need no switch.
 
 **Customers who bought this also bought** is a row under a product, made from your own bills at the till and online. A piece appears there only once at least 2 different customers bought it together with this one, and only while it can be bought online. A new shop has no such history yet, so the row stays hidden until it does.
 
-**What a customer looks at.** When a customer has confirmed their number with the WhatsApp code, your shop remembers which pieces they open and try on, for 30 days. Your staff see it on their [Customer card](/help/customers/customer-card) when they walk in. Customers who have not confirmed a number are never recorded. The checkout tells customers this before they confirm.
+**What a customer looks at.** When a customer has confirmed their number with the WhatsApp code, your shop remembers which pieces they open and try on, for 30 days. Your staff see it on their card in ScaleEzy CRM when they walk in. Customers who have not confirmed a number are never recorded. The checkout tells customers this before they confirm.
 
 ## Common problems
 

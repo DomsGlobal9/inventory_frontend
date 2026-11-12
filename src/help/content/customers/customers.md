@@ -71,7 +71,7 @@ If your shop's old customer list and bills were loaded into ScaleEzy, those cust
 
 ![Past purchases for a customer with earlier bills. The tab is marked 1 and a bill 2.](3-past-purchases.webp "Earlier bills have no dates, so the customer never shows as away or slipping.")
 
-Earlier bills count as bills: such a customer is under **Bought: Has bills**, and their [Customer card](/help/customers/customer-card) says *Past customer* with how many earlier bills. They are never sent a message just because they were loaded.
+Earlier bills count as bills: such a customer is under **Bought: Has bills**, and in ScaleEzy CRM their card says *Past customer* with how many earlier bills. They are never sent a message just because they were loaded.
 
 Loading earlier records is done once, by ScaleEzy, from your old billing software's export. Ask ScaleEzy support.
 

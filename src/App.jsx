@@ -50,9 +50,7 @@ import PurchaseOrders from './pages/PurchaseOrders';
 import PurchaseOrderDetails from './pages/PurchaseOrderDetails';
 import Customers from './pages/sales/Customers';
 import CustomerDetail from './pages/sales/CustomerDetail';
-import CustomerCard from './pages/sales/CustomerCard';
 import WhatsNew from './pages/WhatsNew';
-import DoorQr from './pages/sales/DoorQr';
 import GiftVouchers from './pages/sales/GiftVouchers';
 import SalesOrders from './pages/sales/SalesOrders';
 import SalesOrderDetail from './pages/sales/SalesOrderDetail';
@@ -222,8 +220,9 @@ function App() {
           <Route path="/campaigns/:id" element={<Guard permission="campaign:view"><CampaignDetail /></Guard>} />
           <Route path="/reports/daybook" element={<Guard permission="report:financial"><DayBook /></Guard>} />
           <Route path="/customers" element={<Guard permission="customer:view"><Customers /></Guard>} />
-          <Route path="/customers/card" element={<Guard permission="customer:view"><CustomerCard /></Guard>} />
-              <Route path="/customers/door-qr" element={<Guard permission="customer:view"><DoorQr /></Guard>} />
+          {/* The Customer card and Door QR moved to ScaleEzy CRM's Shop floor (12 Nov 2026); old links land on Customers. */}
+          <Route path="/customers/card" element={<Navigate to="/customers" replace />} />
+              <Route path="/customers/door-qr" element={<Navigate to="/customers" replace />} />
               <Route path="/customers/gift-vouchers" element={<Guard permission="voucher:view"><GiftVouchers /></Guard>} />
               <Route path="/customers/:id" element={<Guard permission="customer:view"><CustomerDetail /></Guard>} />
           <Route path="/settings" element={<Settings />} />

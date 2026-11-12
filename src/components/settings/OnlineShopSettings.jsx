@@ -444,7 +444,7 @@ export default function OnlineShopSettings() {
               Let customers save pieces to a wishlist
               <span style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)' }}>
                 A heart on every piece, kept until they take it off. Pieces they heart lately also show on
-                their Customer card.
+                their card in ScaleEzy CRM.
               </span>
             </span>
           </label>

@@ -24,7 +24,8 @@ export const TOPIC_KEYS = {
   alerts: [['inventory', 'alerts'], ...DASHBOARD],
   purchases: [['purchase-orders'], ['reorder-suggestions'], ['suppliers'], ['supplier'], ['supplier-products'], ['variant-suppliers'], ...DASHBOARD],
   counts: [['stock-counts']],
-  offers: [['offers']]
+  offers: [['offers']],
+  settings: [['branding']]
 };
 const EVERYTHING = Object.keys(TOPIC_KEYS);
 const FALLBACK_MS = 60_000;

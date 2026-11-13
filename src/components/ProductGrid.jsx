@@ -1,4 +1,5 @@
 import React from 'react';
+import { isMeasured, formatQty, formatPrice } from '../lib/units';
 import { motion } from 'framer-motion';
 import { Package, Loader2, Check } from 'lucide-react';
 import { formatRupees } from '../utils/money';
@@ -219,10 +220,12 @@ function ProductCard({ product, stagger, reduceMotion, isSelected, onToggle, onO
    * so. Printing "-2 in stock" would read as a typo; saying it outright is what sends somebody to
    * go and count.
    */
+  // Cloth by the metre: stock is centimetres, shown in metres (PLAN-fabrics.md).
+  const measuredCard = isMeasured(product.soldBy);
   const stockText = !knownUnits ? 'Stock unknown'
-    : units < 0 ? `${units} · oversold`
+    : units < 0 ? `${measuredCard ? formatQty(units, product.soldBy) : units} · oversold`
       : units === 0 ? 'Out of stock'
-        : `${units} in stock`;
+        : `${measuredCard ? formatQty(units, product.soldBy) : units} in stock`;
   const stockIsBad = !knownUnits || units <= 0;
 
   const pick = (e, i) => {
@@ -429,7 +432,7 @@ function ProductCard({ product, stagger, reduceMotion, isSelected, onToggle, onO
         </p>
 
         <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '8px', marginTop: '8px' }}>
-          <span style={{ fontSize: '14px', fontWeight: 500 }}>{formatRupees(price)}</span>
+          <span style={{ fontSize: '14px', fontWeight: 500 }}>{isMeasured(product.soldBy) ? formatPrice(price, product.soldBy) : formatRupees(price)}</span>
           <span style={{
             fontSize: '11px', whiteSpace: 'nowrap',
             color: stockIsBad ? 'var(--accent-danger)' : 'var(--text-secondary)'

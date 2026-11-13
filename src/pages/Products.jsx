@@ -1,4 +1,5 @@
 import React from 'react';
+import { isMeasured, formatQty, formatPrice } from '../lib/units';
 import LoadFailed from '../components/LoadFailed';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Plus, Package, FileOutput, FileInput, FileSpreadsheet, LayoutGrid, List, Search, Images } from 'lucide-react';
@@ -468,9 +469,9 @@ export default function Products() {
                   <td>{product.dressType || product.category}</td>
                   <td>{product.variantSummary?.variantCount || 0}</td>
                   <td style={{ color: product.variantSummary?.lowStockVariants > 0 ? 'var(--accent-danger)' : 'inherit', fontWeight: '500' }}>
-                    {product.variantSummary?.totalUnits || 0}
+                    {isMeasured(product.soldBy) ? formatQty(product.variantSummary?.totalUnits || 0, product.soldBy) : (product.variantSummary?.totalUnits || 0)}
                   </td>
-                  <td style={{ fontWeight: '500', whiteSpace: 'nowrap' }}>{formatRupees(product.basePrice)}</td>
+                  <td style={{ fontWeight: '500', whiteSpace: 'nowrap' }}>{isMeasured(product.soldBy) ? formatPrice(product.basePrice, product.soldBy) : formatRupees(product.basePrice)}</td>
                   <td>
                     <span style={{ 
                       padding: '4px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: '600', textTransform: 'uppercase',

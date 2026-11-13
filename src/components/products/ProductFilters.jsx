@@ -17,6 +17,9 @@ export const FILTERS = [
   { k: 'colour', label: 'Colour' },
   { k: 'price', label: 'Price' },
   { k: 'fabric', label: 'Fabric' },
+  // Cloth by the metre (PLAN-fabrics.md): how it is sold, and what it is.
+  { k: 'soldby', label: 'Sold by' },
+  { k: 'kind', label: 'Kind' },
   { k: 'craft', label: 'Craft' },
   { k: 'brand', label: 'Brand' },
   { k: 'stock', label: 'Stock' },
@@ -25,6 +28,13 @@ export const FILTERS = [
 export const LIST_KEYS = FILTERS.filter(f => f.k !== 'price').map(f => f.k);
 
 const NAMES = {
+  soldby: { PIECE: 'By the piece', METRE: 'By the metre', PACKET: 'By the packet', PAIR: 'By the pair', SET: 'By the set', KILOGRAM: 'By the kilogram' },
+  kind: {
+    FABRIC: 'Fabric', LINING: 'Lining', BACKING_FABRIC: 'Backing fabric', CAN_CAN: 'Can-can', BORDER: 'Border',
+    LACE_TRIM: 'Lace / Trim', GOTA: 'Gota', KIRAN: 'Kiran', ELASTIC: 'Elastic / Drawstring', DORI: 'Dori',
+    TASSEL_LATKAN: 'Tassel / Latkan', BUTTONS: 'Buttons', ZIPPER: 'Zipper', HOOKS: 'Hooks', PADDING_CUPS: 'Padding / Cups',
+    SHOULDER_PADS: 'Shoulder pads', BONING: 'Boning', DECORATIVE_MOTIFS: 'Decorative motifs', BROOCH_KALGI: 'Brooch / Kalgi', OTHER: 'Other'
+  },
   stock: { in: 'In stock', low: 'Running low', out: 'Sold out' },
   photos: { with: 'Has photos', without: 'No photos yet' }
 };

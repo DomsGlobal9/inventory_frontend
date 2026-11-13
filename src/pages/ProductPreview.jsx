@@ -62,12 +62,15 @@ export default function ProductPreview() {
   // Calculate totals
   const totalVariants = productData.selectedSizes.length * productData.selectedColors.length;
   
+  // Cloth is typed in metres (12.5), never whole pieces: parseInt would count 12.5 m as 12 and under-value the cost.
+  const measuredHere = isMeasured(productData.selling?.soldBy);
   let totalUnits = 0;
   Object.values(productData.units).forEach(sizeObj => {
     Object.values(sizeObj).forEach(val => {
-      totalUnits += parseInt(val || 0, 10);
+      totalUnits += measuredHere ? (Number(String(val || 0).replace(',', '.')) || 0) : parseInt(val || 0, 10);
     });
   });
+  totalUnits = Math.round(totalUnits * 100) / 100;
 
   // Value the opening stock cell by cell, rather than units x base price.
   //
@@ -749,7 +752,7 @@ export default function ProductPreview() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(150px, 100%), 1fr))', gap: '20px 32px' }}>
           <div>
             <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>PRODUCT TYPE</span>
-            <p style={{ marginTop: '8px', fontSize: '16px' }}>{productData.productType || 'N/A'}</p>
+            <p style={{ marginTop: '8px', fontSize: '16px' }}>{measuredHere ? 'Unstitched' : (productData.productType || 'N/A')}</p>
           </div>
           <div>
             <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>MATERIAL</span>
@@ -801,12 +804,12 @@ export default function ProductPreview() {
         <div className="glass-panel" style={{ padding: '32px', marginTop: '16px' }}>
           <h3 style={{ fontSize: '14px', letterSpacing: '0.1em', marginBottom: '24px' }}>INVENTORY SUMMARY</h3>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-            <span style={{ color: 'var(--text-secondary)' }}>Total Variants (Sizes x Colors)</span>
+            <span style={{ color: 'var(--text-secondary)' }}>{measuredHere ? 'Colours' : 'Total Variants (Sizes x Colors)'}</span>
             <span>{totalVariants}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: totalUnits > 0 ? '16px' : '24px' }}>
-            <span style={{ color: 'var(--text-secondary)' }}>Total Units (Stock)</span>
-            <span>{totalUnits}</span>
+            <span style={{ color: 'var(--text-secondary)' }}>{measuredHere ? 'Total stock' : 'Total Units (Stock)'}</span>
+            <span>{measuredHere ? `${totalUnits.toFixed(2)} m` : totalUnits}</span>
           </div>
           {totalUnits > 0 && (
             <div style={{ marginBottom: '24px' }}>

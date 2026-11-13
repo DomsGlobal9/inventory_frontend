@@ -257,7 +257,13 @@ export default function ProductPreview() {
               ? source.map(file => ({ file, slot: null }))
               : Object.entries(source || {}).map(([slot, file]) => ({ file, slot }))),
             ...(set.extraFiles || []).map(file => ({ file, slot: null }))
-          ].filter(u => u.file instanceof File),
+          ].filter(u => u.file instanceof File)
+            /*
+             * Each file once (13 Nov 2026). A photograph in a slot AND in the extras (or added twice) was
+             * uploaded twice and showed twice in the shop -- Swathy Reddy's sarees. The slotted one is kept,
+             * since it comes first. Same name, size and time taken = the same file.
+             */
+            .filter((u, i, all) => all.findIndex(o => o.file.name === u.file.name && o.file.size === u.file.size && o.file.lastModified === u.file.lastModified) === i),
           generatedViews: set.generatedViews || {},
           // Ticked on the photos step. The views are not made there any more -- see
           // GarmentPhotoshootUploader -- so this is the wish, and it is acted on below once the

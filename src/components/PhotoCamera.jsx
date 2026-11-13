@@ -75,6 +75,29 @@ function frameToFile(video) {
   }, 'image/jpeg', 0.92));
 }
 
+/** A camera's first frames can be a tiny placeholder (2 x 2): wait (up to 5 s) for a picture of real size. */
+const MIN_SIDE = 64;
+/** The camera's own picture size: known from the camera itself, painted or not (Android, Chrome). */
+const trackSize = (s) => { const st = s?.getVideoTracks?.()[0]?.getSettings?.() ?? {}; return { w: st.width ?? 0, h: st.height ?? 0 }; };
+const canGrab = () => typeof window.ImageCapture === 'function';
+function realPicture(v, stillMine, s) {
+  return new Promise(resolve => {
+    const until = Date.now() + 5000;
+    const look = () => {
+      if (!stillMine()) return resolve(false);
+      // The camera stopped by itself (unplugged, taken by another app): no point waiting.
+      if (s?.getVideoTracks?.()[0]?.readyState === 'ended') return resolve(false);
+      if (v.videoWidth >= MIN_SIDE && v.videoHeight >= MIN_SIDE) return resolve(true);
+      // Where the picture can be taken from the camera itself, its own size is enough.
+      const t = trackSize(s);
+      if (canGrab() && s?.getVideoTracks?.()[0]?.readyState === 'live' && t.w >= MIN_SIDE && t.h >= MIN_SIDE) return resolve(true);
+      if (Date.now() > until) return resolve(false);
+      setTimeout(look, 60);
+    };
+    look();
+  });
+}
+
 export default function PhotoCamera({ title = 'Take a photo', onFile, onClose, onPhoneCamera, onGallery }) {
   const video = useRef(null);
   const stream = useRef(null);
@@ -83,6 +106,9 @@ export default function PhotoCamera({ title = 'Take a photo', onFile, onClose, o
   const [facing, setFacing] = useState('environment');
   const [state, setState] = useState('starting'); // starting | live | paused | failed | taking
   const [problem, setProblem] = useState(null);
+  // The screen state as of now, for handlers that must not read a stale one.
+  const shown = useRef(state);
+  shown.current = state;
 
   const stop = useCallback(() => {
     stream.current?.getTracks().forEach(t => t.stop());
@@ -97,15 +123,38 @@ export default function PhotoCamera({ title = 'Take a photo', onFile, onClose, o
     setState('starting'); setProblem(null);
     if (!cameraWorksHere()) { setState('failed'); setProblem('This browser cannot open the camera here. Use one of these instead.'); return; }
     try {
-      const s = await navigator.mediaDevices.getUserMedia({
+      const ask = () => navigator.mediaDevices.getUserMedia({
         audio: false,
         video: { facingMode: { ideal: which }, width: { ideal: 3840 }, height: { ideal: 2160 } }
       });
+      // The camera just let go (a flip, Retake, coming back) is not always free again at once: some phones answer
+      // "busy" or "not found" for a moment. Asked again twice, a little later; a refused permission never is.
+      let s;
+      for (let attempt = 0; ; attempt++) {
+        try { s = await ask(); break; }
+        catch (err) {
+          const again = attempt < 2 && ['NotFoundError', 'NotReadableError', 'AbortError', 'TrackStartError'].includes(err?.name);
+          if (!again || mine !== turn.current) throw err;
+          await new Promise(r => setTimeout(r, attempt === 0 ? 350 : 900));
+          if (mine !== turn.current) return;
+        }
+      }
       if (mine !== turn.current || !video.current) { s.getTracks().forEach(t => t.stop()); return; }
       stream.current = s;
+      // The camera stopped by itself (a phone call, another app took it): say so, with a way to start it again.
+      s.getVideoTracks()[0]?.addEventListener('ended', () => {
+        if (mine !== turn.current || stream.current !== s) return;
+        turn.current++; stop(); taking.current = false;
+        setProblem('The camera stopped. Start it again to take the photo.'); setState('paused');
+      });
       video.current.srcObject = s;
-      await video.current.play().catch(() => undefined);
-      if (mine === turn.current) setState('live');
+      // Not awaited: playback can stall (a phone saving power, a browser holding video back) and must never
+      // hold the camera on "Opening"; readiness is judged from the picture itself, below.
+      video.current.play().catch(() => undefined);
+      const shows = await realPicture(video.current, () => mine === turn.current && !!video.current, s);
+      if (mine !== turn.current) return;
+      if (!shows) { stop(); setState('failed'); setProblem('The camera opened but shows no picture. Try the camera again, or use one of these instead.'); return; }
+      setState('live');
     } catch (err) {
       if (mine !== turn.current) return;
       stop();
@@ -113,17 +162,23 @@ export default function PhotoCamera({ title = 'Take a photo', onFile, onClose, o
     }
   }, [stop]);
 
-  useEffect(() => { void start(facing); return () => { turn.current++; stop(); }; }, [facing]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Asked a moment later, not at once: a mount undone straight away (React in development, a fast flip on a
+  // phone) then never asks. Two camera requests at the same moment can leave the camera unusable on some phones.
+  useEffect(() => {
+    const t = window.setTimeout(() => { void start(facing); }, 0);
+    return () => { window.clearTimeout(t); turn.current++; stop(); };
+  }, [facing]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    const away = () => { if (document.hidden) { turn.current++; stop(); setState(s => (s === 'failed' ? s : 'paused')); } };
+    const away = () => { if (document.hidden && shown.current !== 'failed') { turn.current++; stop(); setProblem(null); setState('paused'); } };
     document.addEventListener('visibilitychange', away);
     return () => document.removeEventListener('visibilitychange', away);
   }, [stop]);
 
   const shoot = async () => {
     const v = video.current;
-    if (taking.current || state !== 'live' || !v) return;
+    const grabbable = canGrab() && stream.current?.getVideoTracks?.()[0]?.readyState === 'live';
+    if (taking.current || state !== 'live' || !v || (!grabbable && (v.videoWidth < MIN_SIDE || v.videoHeight < MIN_SIDE))) return;
     taking.current = true;
     setState('taking');
     try {
@@ -132,6 +187,15 @@ export default function PhotoCamera({ title = 'Take a photo', onFile, onClose, o
       // Full sensor resolution where the phone offers it; the live frame otherwise.
       if (track && typeof window.ImageCapture === 'function') {
         try { blob = await new window.ImageCapture(track).takePhoto(); } catch { blob = null; }
+      }
+      if (!blob && track && typeof window.ImageCapture === 'function') {
+        try {
+          const bmp = await new window.ImageCapture(track).grabFrame();
+          const c = document.createElement('canvas'); c.width = bmp.width; c.height = bmp.height;
+          c.getContext('2d')?.drawImage(bmp, 0, 0); bmp.close?.();
+          blob = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.92)); c.width = 0; c.height = 0;
+          if (blob && blob.size < 1000) blob = null;
+        } catch { blob = null; }
       }
       if (!blob) blob = await frameToFile(v);
       turn.current++;
@@ -170,7 +234,7 @@ export default function PhotoCamera({ title = 'Take a photo', onFile, onClose, o
 
         {state === 'paused' && (
           <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', alignContent: 'center', gap: '14px', color: '#fff', padding: '24px', textAlign: 'center' }}>
-            <p style={{ margin: 0, fontSize: '14px' }}>The camera was paused while you were away.</p>
+            <p style={{ margin: 0, fontSize: '14px' }}>{problem ?? 'The camera was paused while you were away.'}</p>
             <button type="button" className="btn-primary" onClick={() => start(facing)}>Start the camera</button>
           </div>
         )}
@@ -194,7 +258,7 @@ export default function PhotoCamera({ title = 'Take a photo', onFile, onClose, o
           style={{ width: 72, height: 72, borderRadius: '50%', border: '4px solid #fff', background: 'transparent', padding: 4, cursor: state === 'live' ? 'pointer' : 'default', opacity: state === 'live' ? 1 : .45 }}>
           <span style={{ display: 'block', width: '100%', height: '100%', borderRadius: '50%', background: '#A6D92B' }} />
         </button>
-        <button type="button" onClick={() => setFacing(f => (f === 'user' ? 'environment' : 'user'))} disabled={state === 'taking'}
+        <button type="button" onClick={() => setFacing(f => (f === 'user' ? 'environment' : 'user'))} disabled={state !== 'live'}
           aria-label={facing === 'user' ? 'Use the back camera' : 'Use the front camera'}
           style={{ justifySelf: 'end', width: 46, height: 46, borderRadius: '50%', border: '1px solid rgba(255,255,255,.35)', background: 'rgba(255,255,255,.08)', color: '#fff', display: 'grid', placeItems: 'center', cursor: 'pointer' }}>
           <SwitchCamera size={20} />

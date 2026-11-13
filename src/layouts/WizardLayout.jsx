@@ -131,9 +131,12 @@ export default function WizardLayout({ title, subtitle }) {
                 }}>
                   {isPast ? '✓' : step.num}
                 </div>
-                <span style={{ fontSize: '13px', fontWeight: isActive ? '600' : '500', color: isActive || isPast ? 'var(--text-primary)' : 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
-                  {step.label}
-                </span>
+                {/* Only the current step is named on a phone: three names do not fit on one line. */}
+                {isActive && (
+                  <span style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>
+                    {step.label}
+                  </span>
+                )}
                 {idx < STEPS.length - 1 && (
                   <div style={{ width: '16px', height: '1px', backgroundColor: 'var(--border-light)' }} />
                 )}

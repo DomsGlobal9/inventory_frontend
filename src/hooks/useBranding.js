@@ -31,7 +31,7 @@ export function useSetBusinessName() {
       qc.setQueryData(KEY, data);
       toast.success('Shop name saved');
     },
-    onError: (err) => toast.error(err?.message || 'Could not save the shop name.')
+    onError: (err) => toast.error(err?.message || 'The shop name could not be saved. Please try again.')
   });
 }
 
@@ -50,9 +50,9 @@ export function useSetBrandingDetails() {
     mutationFn: async (details) => (await api.put('/branding/details', details)).data,
     onSuccess: (data) => {
       qc.setQueryData(KEY, data);
-      toast.success('Letterhead details saved');
+      toast.success('Business details saved');
     },
-    onError: (err) => toast.error(err?.message || 'Could not save the details.')
+    onError: (err) => toast.error(err?.message || 'The business details could not be saved. Please try again.')
   });
 }
 

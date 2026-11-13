@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useShopSetup, useSetupPutOff } from '../../hooks/useShopSetup';
+import { holdsEverything as ownsShop } from '../../lib/authority';
 import { createPortal } from 'react-dom';
 import { X, ArrowRight, ArrowLeft, Compass } from 'lucide-react';
 import { api } from '../../lib/api';
@@ -99,6 +101,10 @@ export default function WelcomeTour() {
   }), [can, onPhone, running]);   // eslint-disable-line react-hooks/exhaustive-deps
 
   const step = steps[index];
+  const isOwnerHere = !!user && ownsShop(user);
+  const { data: shopSetup, isError: setupUnknown } = useShopSetup(isOwnerHere);
+  const setupPutOff = useSetupPutOff();
+  const setupFirst = isOwnerHere && !setupUnknown && (!shopSetup || (!shopSetup.setupDone && !setupPutOff));
 
   const remember = useCallback(() => {
     try { localStorage.setItem(SEEN_KEY, '1'); } catch { /* private window */ }
@@ -109,15 +115,18 @@ export default function WelcomeTour() {
 
   const stop = useCallback(() => { setRunning(false); setIndex(0); remember(); }, [remember]);
 
-  // New people only: the account has never been shown it, and this browser has not either.
+  // New people only: the account has never been shown it, and this browser has not either. The owner's "Set up your
+  // shop" comes first: while it is not done (and not put off for this visit) the tour waits, and it never starts over
+  // the setup -- the setup's last screen offers the tour itself.
   useEffect(() => {
     if (!user) return;
+    if (setupFirst) return;
     const seenHere = (() => { try { return localStorage.getItem(SEEN_KEY) === '1'; } catch { return false; } })();
     if (seenHere || user.tourSeenAt) return;
     // Let the screen finish drawing, so the things it points at are there to point at.
-    const t = setTimeout(() => setRunning(true), 900);
+    const t = setTimeout(() => { if (!document.querySelector('[data-shop-setup]')) setRunning(true); }, 900);
     return () => clearTimeout(t);
-  }, [user]);
+  }, [user, setupFirst]);
 
   // "Show me around again", from Help & Support.
   useEffect(() => {

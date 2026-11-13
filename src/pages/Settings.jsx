@@ -20,6 +20,7 @@ import SettingsHub, { groupOf } from '../components/settings/SettingsHub';
 import ReturnRulesPanel from '../components/sales/ReturnRulesPanel';
 import CustomerGroupsPanel from '../components/settings/CustomerGroupsPanel';
 import FabricsPanel from '../components/settings/FabricsPanel';
+import BoutiquePanel from '../components/settings/BoutiquePanel';
 import BoxSizesPanel from '../components/logistics/BoxSizesPanel';
 import LogisticsSwitch from '../components/logistics/LogisticsSwitch';
 import { useLogistics } from '../components/logistics/PackOrders';
@@ -31,7 +32,9 @@ const SETTINGS_DOMAINS = [
   { id: 'GENERAL', label: 'Profile and shop details', icon: Store },
   { id: 'CATALOG', label: 'Catalogue', icon: Grid, permission: 'admin:catalog' },
   // Fabrics by the metre (PLAN-fabrics.md): the switch, smallest cut, roll length, quick lengths.
-  { id: 'FABRICS', label: 'Fabrics', icon: Grid, permission: 'admin:catalog' },
+  { id: 'FABRICS', label: 'What you sell', icon: Grid, permission: 'admin:catalog' },
+  // The boutique that keeps its items and stock here (PLAN-boutique-sync.md). Owner only: '*' is held by the owner alone.
+  { id: 'BOUTIQUE', label: 'Boutique', icon: Store, permission: '*' },
   { id: 'LOCATIONS', label: 'Stock locations', icon: MapPin, permission: 'admin:locations' },
   { id: 'DAYBOOK', label: 'Day Book', icon: BookOpen, permission: 'report:financial' },
   { id: 'STOREFRONT', label: 'Connected websites', icon: Globe, permission: 'admin:locations' },
@@ -69,7 +72,7 @@ const SETTINGS_DOMAINS = [
  * chain had to be extended by hand every time a domain gained content -- and when Day Book was
  * added it was not, so the page rendered the day book AND the placeholder underneath it.
  */
-const IMPLEMENTED_DOMAINS = new Set(['GENERAL', 'CATALOG', 'FABRICS', 'LOCATIONS', 'DAYBOOK', 'STOREFRONT', 'ONLINE_SHOP', 'PAYMENTS', 'POS', 'WHATSAPP', 'LOYALTY', 'GIFT_VOUCHERS', 'GROUPS', 'COURIERS', 'RETURNS', 'SERVICES', 'USERS', 'ROLES', 'SUPPORT']);
+const IMPLEMENTED_DOMAINS = new Set(['GENERAL', 'CATALOG', 'FABRICS', 'BOUTIQUE', 'LOCATIONS', 'DAYBOOK', 'STOREFRONT', 'ONLINE_SHOP', 'PAYMENTS', 'POS', 'WHATSAPP', 'LOYALTY', 'GIFT_VOUCHERS', 'GROUPS', 'COURIERS', 'RETURNS', 'SERVICES', 'USERS', 'ROLES', 'SUPPORT']);
 
 const CATALOG_TABS = [
   { id: 'SIZE', label: 'Sizes', icon: Scissors, description: 'Manage available sizes across your products' },
@@ -280,6 +283,12 @@ export default function Settings() {
           {activeDomain === 'FABRICS' && (
             <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '32px' }}>
               <FabricsPanel />
+            </div>
+          )}
+
+          {activeDomain === 'BOUTIQUE' && (
+            <div style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-light)', padding: '32px' }}>
+              <BoutiquePanel />
             </div>
           )}
 

@@ -97,14 +97,16 @@ export default function Measurements() {
   // Force the selection to Free Size while this product is a saree, and clear it
   // back out if the user backs up and switches to a sized dress type.
   const isSaree = productData.dressType?.toLowerCase() === 'saree';
+  // Cloth sold by the metre has no sizes either: each colour is one fabric, its stock in metres (PLAN-onboarding-setup.md).
+  const oneSize = isSaree || measured;
   useEffect(() => {
-    if (isSaree && productData.selectedSizes.join() !== FREE_SIZE) {
+    if (oneSize && productData.selectedSizes.join() !== FREE_SIZE) {
       updateProductData('selectedSizes', [FREE_SIZE]);
-    } else if (!isSaree && productData.selectedSizes.join() === FREE_SIZE) {
+    } else if (!oneSize && productData.selectedSizes.join() === FREE_SIZE) {
       updateProductData('selectedSizes', []);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSaree]);
+  }, [oneSize]);
 
   /**
    * Drop any chosen size that the current category does not offer.
@@ -241,7 +243,8 @@ export default function Measurements() {
       )}
 
       {/* Main Content Area */}
-      <div className="glass-panel" style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
+      <div className="glass-panel add-measure-panel" style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
+        <style>{'@media (max-width: 720px) { .add-measure-panel { padding: 16px !important; gap: 20px !important; } .how-sold { padding: 14px !important; } }'}</style>
         
         {/* How it is sold: only while the shop sells by the metre (PLAN-fabrics.md). */}
         <HowItIsSold value={selling} onChange={(v) => updateProductData('selling', v)} />
@@ -312,10 +315,11 @@ export default function Measurements() {
             </div>
           </div>
           
-          <div style={{ flex: 1 }}>
+          {/* Fabric has no sizes: the column is left out (the size is Free Size behind the scenes). */}
+          <div style={{ flex: 1, ...(measured ? { display: 'none' } : {}) }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <label className="input-label" style={{ marginBottom: 0 }}>Available Sizes</label>
-              {!isSaree && (
+              {!oneSize && (
                 <button
                   onClick={() => setShowSizeChart(true)}
                   style={{ fontSize: '12px', color: 'var(--accent-gold)', borderBottom: '1px solid var(--accent-gold)' }}
@@ -324,7 +328,7 @@ export default function Measurements() {
                 </button>
               )}
             </div>
-            {isSaree ? (
+            {oneSize ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
                 <div style={{
                   padding: '10px 20px',
@@ -337,7 +341,7 @@ export default function Measurements() {
                 }}>
                   {FREE_SIZE}
                 </div>
-                <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Sarees are sold as one size</span>
+                <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{measured ? 'Fabrics have no sizes. Each colour is recorded as one fabric, with stock in metres.' : 'Sarees are sold as one size'}</span>
               </div>
             ) : (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>

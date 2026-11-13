@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { Loader2, Upload, Trash2, Save, Building2, RotateCcw } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useBranding, useSetBusinessName, useUploadLogo, useRemoveLogo, useSetBrandingDetails } from '../hooks/useBranding';
@@ -40,7 +40,12 @@ const REGISTRATIONS = [
  * to print a purchase order. The logo is the exception and saves the moment a file is chosen,
  * because an upload cannot sensibly wait in a draft.
  */
-export default function CompanyBrandingEditor() {
+/**
+ * `embedded`: inside "Set up your shop" (components/onboarding/ShopSetup.jsx). The same fields and the same checks
+ * as Settings, without the card's heading and Save button: the setup's Next saves it, through `ref.current.save()`,
+ * which says whether it saved.
+ */
+const CompanyBrandingEditor = forwardRef(function CompanyBrandingEditor({ embedded = false }, ref) {
   const { data: branding } = useBranding();
   const setName = useSetBusinessName();
   const saveDetails = useSetBrandingDetails();
@@ -91,9 +96,9 @@ export default function CompanyBrandingEditor() {
 
   // Each part is cleared only once its own save succeeds, so a refused GSTIN leaves the typed
   // details on screen to correct rather than throwing them away along with a name that did save.
-  const submit = async (e) => {
-    e.preventDefault();
-    if (!dirty || saving) return;
+  const saveAll = async () => {
+    if (!dirty) return true;
+    if (saving) return false;
     try {
       if (nameChanged) {
         await setName.mutateAsync(nameValue.trim());
@@ -107,10 +112,14 @@ export default function CompanyBrandingEditor() {
         });
         setDraft(null);
       }
+      return true;
     } catch {
       // Toasted by the hooks.
+      return false;
     }
   };
+  const submit = async (e) => { e.preventDefault(); await saveAll(); };
+  useImperativeHandle(ref, () => ({ save: saveAll, dirty }), [saveAll, dirty]);
 
   const discard = () => { setNameDraft(null); setDraft(null); };
 
@@ -151,14 +160,14 @@ export default function CompanyBrandingEditor() {
   const byKey = Object.fromEntries(FIELDS.map(f => [f.key, f]));
 
   return (
-    <section className="gi-card" aria-labelledby="gi-shop-title">
-      <div className="gi-head">
+    <section className={embedded ? '' : 'gi-card'} aria-labelledby={embedded ? undefined : 'gi-shop-title'}>
+      {!embedded && <div className="gi-head">
         <div className="gi-head-icon"><Building2 size={18} /></div>
         <div>
           <h2 id="gi-shop-title">Shop details</h2>
           <p>Your shop's name, logo and letterhead. Your team sees them; only you can change them.</p>
         </div>
-      </div>
+      </div>}
 
       <form className="gi-brand" onSubmit={submit}>
         <div className="gi-brand-form">
@@ -273,7 +282,7 @@ export default function CompanyBrandingEditor() {
           />
         </div>
 
-        <div className="gi-brand-actions">
+        {!embedded && <div className="gi-brand-actions">
           {dirty && (
             <button type="button" className="btn-secondary gi-btn" onClick={discard} disabled={saving}>
               <RotateCcw size={14} /> Discard
@@ -284,7 +293,7 @@ export default function CompanyBrandingEditor() {
             {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
             {saving ? 'Saving…' : dirty ? 'Save changes' : 'Saved'}
           </button>
-        </div>
+        </div>}
       </form>
 
       <ConfirmModal
@@ -298,7 +307,9 @@ export default function CompanyBrandingEditor() {
       />
     </section>
   );
-}
+});
+
+export default CompanyBrandingEditor;
 
 // The PDF letterhead's own colours (components/pdf/Letterhead.jsx), repeated rather than imported:
 // importing that file would pull the PDF renderer into the Settings screen. White in both themes,

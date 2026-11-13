@@ -21,6 +21,8 @@ import { holdsEverything } from '../../lib/authority';
 export const GROUPS = [
   { id: 'SHOP', label: 'Your shop', icon: Store, links: [
     { label: 'Name, logo and bill details', section: 'GENERAL', part: 'gi-shop-title', ownerOnly: true },
+    { label: 'What you sell (ready-made, fabrics)', section: 'FABRICS' },
+    { label: 'Boutique', section: 'BOUTIQUE', ownerOnly: true },
     { label: 'Stock locations', section: 'LOCATIONS' }
   ] },
   { id: 'TEAM', label: 'Team and access', icon: Users, links: [
@@ -35,7 +37,7 @@ export const GROUPS = [
     { label: 'Design types', section: 'CATALOG', part: 'DESIGN_TYPE' },
     { label: 'Categories', section: 'CATALOG', part: 'CATEGORY' },
     { label: 'Product types', section: 'CATALOG', part: 'PRODUCT_TYPE' },
-    { label: 'Fabrics (sell by the metre)', section: 'FABRICS' }
+    { label: 'Fabrics (sell by the metre)', section: 'FABRICS', part: 'fabric-options' }
   ] },
   { id: 'ONLINE', label: 'Selling online', icon: Globe, links: [
     { label: 'Online shop', section: 'ONLINE_SHOP' },

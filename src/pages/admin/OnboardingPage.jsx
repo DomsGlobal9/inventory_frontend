@@ -14,7 +14,14 @@ const STEPS = [
 ];
 
 
-const EMPTY_FORM = { companyName: '', adminName: '', adminEmail: '', ownerPhone: '', shopPhone: '', address: '', city: '', stateCode: '', pin: '', storeName: '', gstin: '' };
+const EMPTY_FORM = { companyName: '', adminName: '', adminEmail: '', ownerPhone: '', shopPhone: '', address: '', city: '', stateCode: '', pin: '', storeName: '', gstin: '', sells: '', hasBoutique: false, boutiqueTenant: '' };
+// What the shop sells (PLAN-onboarding-setup.md). '' = the owner chooses at first sign-in.
+const SELLS = [
+  { value: 'READY_MADE', label: 'Ready-made only', hint: 'Sarees, blouses, kurtis by the piece' },
+  { value: 'FABRICS', label: 'Fabrics only', hint: 'Cloth by the metre, buttons by the packet' },
+  { value: 'BOTH', label: 'Both', hint: 'Garments and fabric side by side' },
+  { value: '', label: 'Owner to decide', hint: 'Asked at the owner\'s first sign-in' }
+];
 const INPUT = { width: '100%', padding: '12px 14px', borderRadius: '8px', border: '1px solid var(--border-light)', fontSize: '14px' };
 function Field({ label, hint, children }) {
   // The label names its box (screen readers, and a click on the label focuses the box).
@@ -153,6 +160,29 @@ export default function OnboardingPage() {
               <Field label="GSTIN (optional)" hint="GST is optional. Leave blank if the shop is not GST registered.">
                 <input type="text" value={form.gstin} onChange={set('gstin')} placeholder="37ABCDE1234F1Z5" maxLength={15} className="input-field" style={{ ...INPUT, textTransform: 'uppercase' }} />
               </Field>
+
+              <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.06em', marginTop: '4px' }}>WHAT THE SHOP SELLS</div>
+              <div role="radiogroup" aria-label="What the shop sells" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '8px' }}>
+                {SELLS.map(o => {
+                  const on = form.sells === o.value;
+                  return (
+                    <button key={o.value || 'owner'} type="button" role="radio" aria-checked={on} onClick={() => setForm(f => ({ ...f, sells: o.value }))}
+                      style={{ textAlign: 'left', padding: '10px 12px', borderRadius: '10px', cursor: 'pointer', color: 'var(--text-primary)', background: on ? 'var(--bg-hover)' : 'transparent', border: `1px solid ${on ? 'var(--accent-gold)' : 'var(--border-light)'}` }}>
+                      <span style={{ display: 'block', fontWeight: 600, fontSize: '13px' }}>{o.label}</span>
+                      <span style={{ display: 'block', fontSize: '11.5px', color: 'var(--text-muted)' }}>{o.hint}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <label style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', cursor: 'pointer', fontSize: '13px', color: 'var(--text-primary)' }}>
+                <input type="checkbox" checked={form.hasBoutique} onChange={(e) => setForm(f => ({ ...f, hasBoutique: e.target.checked, ...(e.target.checked ? {} : { boutiqueTenant: '' }) }))} style={{ marginTop: '3px' }} />
+                <span><strong>Client subscribes to the ScaleEzy Boutique module</strong><span style={{ display: 'block', fontSize: '11.5px', color: 'var(--text-muted)' }}>Stitching orders and tailoring. Boutique items and stock are shared with this store immediately.</span></span>
+              </label>
+              {form.hasBoutique && (
+                <Field label="Boutique account *" hint="The boutique account identifier, e.g. lakshmi-boutique (letters, numbers and hyphens).">
+                  <input type="text" required autoCapitalize="none" spellCheck={false} value={form.boutiqueTenant} onChange={set('boutiqueTenant')} placeholder="lakshmi-boutique" className="input-field" style={INPUT} />
+                </Field>
+              )}
 
               <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.06em', marginTop: '4px' }}>OWNER (LOGS IN FIRST)</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>

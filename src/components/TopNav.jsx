@@ -11,6 +11,9 @@ import { useAlerts, useMarkAlertRead, useMarkAllAlertsRead, useTogglePinAlert, u
 import Select from './common/Select';
 import BarcodeScanner, { scanningSupported } from './BarcodeScanner';
 import { usePermission } from '../hooks/usePermission';
+import { useShopSetup, OPEN_SETUP_EVENT } from '../hooks/useShopSetup';
+import { holdsEverything as ownsShop } from '../lib/authority';
+import { AlertTriangle } from 'lucide-react';
 
 
 /**
@@ -49,6 +52,11 @@ const ALERT_TONE = {
 export default function TopNav({ onMenuClick }) {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  // "Finish setting up your shop": the owner, until the setup is done and nothing it asks for is missing.
+  const ownerHere = !!user && ownsShop(user);
+  const { data: shopSetup } = useShopSetup(ownerHere);
+  const setupLeft = ownerHere && shopSetup ? (shopSetup.missing?.length ?? 0) : 0;
+  const showSetupWarning = ownerHere && !!shopSetup && (!shopSetup.setupDone || setupLeft > 0);
   const { can } = usePermission();
   const [query, setQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
@@ -348,6 +356,25 @@ export default function TopNav({ onMenuClick }) {
       </div>
       
       <div className="topbar-actions" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        {showSetupWarning && (
+          <button type="button" className="setup-chip" onClick={() => window.dispatchEvent(new Event(OPEN_SETUP_EVENT))}
+            aria-label={setupLeft ? `Complete your store setup: ${setupLeft} pending (${shopSetup.missing.join(', ')})` : 'Complete your store setup'}
+            title={setupLeft ? `Pending: ${shopSetup.missing.join(', ')}` : 'Complete your store setup'}>
+            <AlertTriangle size={15} />
+            <span className="setup-chip-text">Complete setup</span>
+            {setupLeft > 0 && <span className="setup-chip-count">{setupLeft}</span>}
+          </button>
+        )}
+        <style>{`
+          .setup-chip { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border-radius: 17px; cursor: pointer; white-space: nowrap;
+            border: 1px solid #e7b416; background: rgba(231, 180, 22, .12); color: var(--text-primary); font-size: 12.5px; font-weight: 600; }
+          .setup-chip svg { color: #b7860b; }
+          .setup-chip:hover { background: rgba(231, 180, 22, .2); }
+          .setup-chip:focus-visible { outline: 2px solid #e7b416; outline-offset: 2px; }
+          .setup-chip-count { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: #b7860b; color: #fff; font-size: 11px; display: inline-flex; align-items: center; justify-content: center; }
+          /* On a phone the bar has no room: the reminder is a strip under it (ShopSetup.jsx, SetupReminderStrip). */
+          @media (max-width: 720px) { .setup-chip { display: none; } }
+        `}</style>
         <div className="alert-dropdown-container" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '8px' }}>
           {/*
             The "new alert" notice, INSIDE the bar rather than hanging below it.

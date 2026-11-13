@@ -5,6 +5,7 @@ import TopNav from '../components/TopNav';
 import Sidebar from '../components/Sidebar';
 import ImpersonationBanner from '../components/ImpersonationBanner';
 import WelcomeTour from '../components/onboarding/WelcomeTour';
+import ShopSetup, { SetupReminderStrip } from '../components/onboarding/ShopSetup';
 import PhotoJobsBadge from '../components/PhotoJobsBadge';
 import { useLiveUpdates } from '../hooks/useLiveUpdates';
 
@@ -23,6 +24,8 @@ export default function MainLayout() {
     <>
       <ImpersonationBanner />
       {/* Inside the shell, so the menu and top bar it points at are already on screen. */}
+      {/* "Set up your shop" first, for the owner; the tour waits for it (PLAN-onboarding-setup.md). */}
+      <ShopSetup />
       <WelcomeTour />
       {/*
         Here rather than on the product screen, because that is the whole point: the photographs
@@ -43,6 +46,7 @@ export default function MainLayout() {
         <Sidebar isOpen={isMobileMenuOpen} />
         <div className="content-wrapper">
           <TopNav onMenuClick={() => setIsMobileMenuOpen(true)} />
+          <SetupReminderStrip />
           <main className="main-content" id="main-scroll-container">
             {/*
               No AnimatePresence, and no exit animation, on purpose.

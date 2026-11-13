@@ -191,6 +191,8 @@ export default function ProductPreview() {
         minCut: Number.isInteger(selling.minCut) ? selling.minCut : null,
         rollSize: Number.isInteger(selling.rollSize) ? selling.rollSize : null,
         cutReturnable: !!selling.cutReturnable,
+        // Cloth by the metre is unstitched, whatever the first step said (a garment is a piece).
+        ...(selling.soldBy === 'METRE' || selling.soldBy === 'KILOGRAM' ? { productType: 'UNSTITCHED' } : {}),
         basePrice: perUnitToStored(productData.price)
       } : (selling.kind ? { kind: selling.kind } : {}))
       // A material (any unit) is kept out of selling (PLAN-boutique-sync.md).

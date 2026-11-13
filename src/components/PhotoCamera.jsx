@@ -192,7 +192,7 @@ export default function PhotoCamera({ title = 'Take a photo', onFile, onClose, o
         <button type="button" onClick={close} style={{ justifySelf: 'start', background: 'none', border: 0, color: '#fff', fontSize: '15px', cursor: 'pointer', padding: '10px 4px' }}>Cancel</button>
         <button type="button" onClick={shoot} disabled={state !== 'live'} aria-label="Take the photo"
           style={{ width: 72, height: 72, borderRadius: '50%', border: '4px solid #fff', background: 'transparent', padding: 4, cursor: state === 'live' ? 'pointer' : 'default', opacity: state === 'live' ? 1 : .45 }}>
-          <span style={{ display: 'block', width: '100%', height: '100%', borderRadius: '50%', background: 'var(--brand-solid, #A6D92B)' }} />
+          <span style={{ display: 'block', width: '100%', height: '100%', borderRadius: '50%', background: '#A6D92B' }} />
         </button>
         <button type="button" onClick={() => setFacing(f => (f === 'user' ? 'environment' : 'user'))} disabled={state === 'taking'}
           aria-label={facing === 'user' ? 'Use the back camera' : 'Use the front camera'}

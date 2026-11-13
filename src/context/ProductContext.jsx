@@ -74,7 +74,9 @@ export const ProductProvider = ({ children }) => {
     supplierId: '',
     selectedSizes: [], // e.g. ["S", "M"]
     selectedColors: [], // e.g. ["red_#FF0000", "blue_#0000FF"]
-    units: {}, // e.g. { "red_#FF0000": { "S": 10, "M": 5 } }
+    units: {}, // e.g. { "red_#FF0000": { "S": 10, "M": 5 } }  -- metres (12.5) for cloth sold by the metre
+    // How it is sold (PLAN-fabrics.md): { soldBy, kind, widthCm, minCut (cm), rollSize (cm), cutReturnable }.
+    selling: { soldBy: 'PIECE' },
     // Off by default: most shops sell every size of one saree at one price, and a grid of
     // price boxes nobody needs is a grid of boxes somebody mistypes. On, each colour/size
     // carries its own price -- which is real (a plus size or a zari border costs more).

@@ -26,6 +26,7 @@ import ProductShopifyCard from '../components/ProductShopifyCard';
 import ProductTryOnsCard from '../components/ProductTryOnsCard';
 import { usePermission } from '../hooks/usePermission';
 import { useGoBack } from '../hooks/useGoBack';
+import { isMeasured, formatQty, formatPrice } from '../lib/units';
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -367,16 +368,16 @@ export default function ProductDetails() {
       {/* Stats Summary */}
       <motion.div variants={item} className="mobile-2-col-grid mobile-stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', flexShrink: 0 }}>
         <div className="glass-panel" style={{ padding: '20px' }}>
-          <p style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Base Price</p>
-          <h2 style={{ fontSize: '24px', margin: '8px 0 0' }}>{formatRupees(product.basePrice)}</h2>
+          <p style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>{isMeasured(product.soldBy) ? 'Price per metre' : 'Base Price'}</p>
+          <h2 style={{ fontSize: '24px', margin: '8px 0 0' }}>{isMeasured(product.soldBy) ? formatPrice(product.basePrice, product.soldBy) : formatRupees(product.basePrice)}</h2>
         </div>
         <div className="glass-panel" style={{ padding: '20px' }}>
           <p style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Total Variants</p>
           <h2 style={{ fontSize: '24px', margin: '8px 0 0' }}>{product.variantSummary?.variantCount || 0}</h2>
         </div>
         <div className="glass-panel" style={{ padding: '20px' }}>
-          <p style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Total Stock Units</p>
-          <h2 style={{ fontSize: '24px', margin: '8px 0 0' }}>{product.variantSummary?.totalUnits || 0}</h2>
+          <p style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>{isMeasured(product.soldBy) ? 'Total stock' : 'Total Stock Units'}</p>
+          <h2 style={{ fontSize: '24px', margin: '8px 0 0' }}>{isMeasured(product.soldBy) ? formatQty(product.variantSummary?.totalUnits || 0, product.soldBy) : (product.variantSummary?.totalUnits || 0)}</h2>
         </div>
         <div className="glass-panel" style={{ padding: '20px', border: product.variantSummary?.lowStockVariants > 0 ? '1px solid var(--accent-danger)' : '' }}>
           <p style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Low Stock Variants</p>
@@ -645,7 +646,7 @@ export default function ProductDetails() {
             )}
             
             {activeTab === 'variants' && (
-              <VariantTable productId={product.id} productName={product.title} productCode={product.productCode} productCategory={product.category} productDressType={product.dressType} productBasePrice={product.basePrice} highlightVariantId={scannedVariantId} />
+              <VariantTable productId={product.id} productName={product.title} productCode={product.productCode} productCategory={product.category} productDressType={product.dressType} productBasePrice={product.basePrice} highlightVariantId={scannedVariantId} productSoldBy={product.soldBy ?? 'PIECE'} />
             )}
 
             {activeTab === 'images' && (

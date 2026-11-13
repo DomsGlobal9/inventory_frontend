@@ -6,6 +6,7 @@ import { X, Settings2, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAdjustment, useInventoryMetadata } from '../../hooks/useInventory';
 import Select from '../common/Select';
+import { isMeasured, toBase, fromBase, formatQty } from '../../lib/units';
 
 
 export default function AdjustModal({ variant, onClose }) {
@@ -13,7 +14,7 @@ export default function AdjustModal({ variant, onClose }) {
   const adjustMutation = useAdjustment();
 
   const [formData, setFormData] = useState({
-    countedStock: variant?.quantity ?? '',
+    countedStock: variant?.quantity != null ? (isMeasured(variant?.soldBy) ? String(fromBase(variant.quantity, variant.soldBy)) : variant.quantity) : '',
     reason: 'AUDIT',
     referenceType: 'MANUAL',
     reference: '',
@@ -28,7 +29,10 @@ export default function AdjustModal({ variant, onClose }) {
     // lib/formGuard. Same `required` fields, same rule, said in the app's own voice.
     const missing = firstMissingField(e.currentTarget);
     if (missing) { toast.error(missingFieldMessage(missing)); return; }
-    const quantityDelta = Number(formData.countedStock) - variant.quantity;
+    // Cloth by the metre is counted in metres (11.73) and kept in centimetres.
+    const counted = isMeasured(variant.soldBy) ? toBase(formData.countedStock, 'METRE') : Number(formData.countedStock);
+    if (!Number.isInteger(counted) || counted < 0) { toast.error(isMeasured(variant.soldBy) ? 'Enter the length counted in metres, like 11.73.' : 'Enter a whole number, 0 or more.'); return; }
+    const quantityDelta = counted - variant.quantity;
     
     adjustMutation.mutate({
       variantId: variant.variantId,
@@ -73,10 +77,12 @@ export default function AdjustModal({ variant, onClose }) {
         <form onSubmit={handleSubmit} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', overflowY: 'auto', maxHeight: '60vh' }} noValidate>
           
           <div className="form-group">
-            <label className="form-label">Counted Physical Stock</label>
-            <input type="number" required className="input-field" value={formData.countedStock} onChange={e => setFormData({...formData, countedStock: e.target.value})} placeholder={`Current stock: ${variant.quantity}`} />
+            <label className="form-label">{isMeasured(variant.soldBy) ? 'Counted length (metres)' : 'Counted Physical Stock'}</label>
+            <input type={isMeasured(variant.soldBy) ? 'text' : 'number'} inputMode={isMeasured(variant.soldBy) ? 'decimal' : undefined} required className="input-field" value={formData.countedStock} onChange={e => setFormData({...formData, countedStock: e.target.value})} placeholder={`Current stock: ${variant.quantity}`} />
             <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>
-              System says: {variant.quantity}. Adjustment will be: {formData.countedStock !== '' ? Number(formData.countedStock) - variant.quantity : 0}
+              {isMeasured(variant.soldBy)
+                ? <>System says: {formatQty(variant.quantity, variant.soldBy)}. Adjustment will be: {formData.countedStock !== '' && toBase(formData.countedStock, 'METRE') !== null ? formatQty(toBase(formData.countedStock, 'METRE') - variant.quantity, variant.soldBy) : '0.00 m'}</>
+                : <>System says: {variant.quantity}. Adjustment will be: {formData.countedStock !== '' ? Number(formData.countedStock) - variant.quantity : 0}</>}
             </p>
           </div>
 

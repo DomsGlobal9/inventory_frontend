@@ -8,6 +8,7 @@ import PageLoader from '../components/PageLoader';
 import StockInModal from '../components/inventory/StockInModal';
 import StockOutModal from '../components/inventory/StockOutModal';
 import AdjustModal from '../components/inventory/AdjustModal';
+import { isMeasured, formatQty, pricePerUnit, unitOf } from '../lib/units';
 import MoveStockModal from '../components/inventory/MoveStockModal';
 import { usePermission } from '../hooks/usePermission';
 import Select from '../components/common/Select';
@@ -223,7 +224,7 @@ export default function InventoryOverview() {
                   <td data-label="Category">{variant.category}</td>
                   <td data-label="Status">{getStatusBadge(variant.inventoryStatus)}</td>
                   <td data-label="Stock Qty" style={{ textAlign: 'right', fontWeight: '600', color: variant.quantity <= 0 ? 'var(--accent-danger)' : 'inherit' }}>
-                    {variant.quantity}
+                    {isMeasured(variant.soldBy) ? formatQty(variant.quantity, variant.soldBy) : variant.quantity}
                   </td>
                   {/*
                     * "est." where the figure is a selling price standing in for a cost nobody
@@ -237,7 +238,9 @@ export default function InventoryOverview() {
                     <td data-label="Avg Cost" style={{ textAlign: 'right' }} title={costNote(variant)}>
                       {/* Indian grouping, like every other money figure in the app. toFixed
                           alone printed a lakh as 1376334.00, which has to be counted by eye. */}
-                      {formatRupees(variant.averageCost ?? 0)}
+                      {isMeasured(variant.soldBy)
+                        ? `${formatRupees(pricePerUnit(variant.averageCost ?? 0, variant.soldBy))} / ${unitOf(variant.soldBy).per}`
+                        : formatRupees(variant.averageCost ?? 0)}
                       {variant.costIsEstimate && <Est />}
                     </td>
                   )}

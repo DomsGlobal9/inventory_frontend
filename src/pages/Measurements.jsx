@@ -10,6 +10,8 @@ import { useSuppliers } from '../hooks/useSuppliers';
 import Select from '../components/common/Select';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { shadesOf, shadeCodeFor, colorInfoFor } from '../utils/colorOptions';
+import HowItIsSold from '../components/products/HowItIsSold';
+import { isMeasured, priceProblem, unitOf } from '../lib/units';
 
 const FREE_SIZE = 'Free Size';
 
@@ -75,6 +77,9 @@ const SIZE_CHARTS = {
 export default function Measurements() {
   const navigate = useNavigate();
   const { productData, updateProductData } = useProduct();
+  // How it is sold (PLAN-fabrics.md): PIECE unless the shop sells by the metre and the owner chose otherwise.
+  const selling = productData.selling ?? { soldBy: 'PIECE' };
+  const measured = isMeasured(selling.soldBy);
   // Phones get a stacked version of the units matrix; everything wider keeps the table.
   const isNarrowScreen = useMediaQuery('(max-width: 768px)');
   const [activeColor, setActiveColor] = useState(null);
@@ -159,7 +164,8 @@ export default function Measurements() {
 
   // Handlers for Units
   const handleUnitChange = (size, colorCode, value) => {
-    if (value === '' || /^[0-9]*$/.test(value)) {
+    // Cloth by the metre takes a length (12.5 = 12 m 50 cm, at most two decimals); pieces stay whole numbers.
+    if (value === '' || (measured ? /^[0-9]*([.,][0-9]{0,2})?$/ : /^[0-9]*$/).test(value)) {
       const currentUnits = productData.units;
       const updated = {
         ...currentUnits,
@@ -237,10 +243,13 @@ export default function Measurements() {
       {/* Main Content Area */}
       <div className="glass-panel" style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
         
+        {/* How it is sold: only while the shop sells by the metre (PLAN-fabrics.md). */}
+        <HowItIsSold value={selling} onChange={(v) => updateProductData('selling', v)} />
+
         {/* ROW 1: Price and Sizes */}
         <div className="mobile-col" style={{ display: 'flex', gap: '32px' }}>
           <div style={{ width: '170px' }}>
-            <label className="input-label">You sell at (₹)</label>
+            <label className="input-label">You sell at (₹{measured ? ` per ${unitOf(selling.soldBy).one}` : ''})</label>
             <input 
               type="number" 
               className="input-field" 
@@ -249,7 +258,9 @@ export default function Measurements() {
               onChange={(e) => updateProductData('price', e.target.value)} 
               aria-invalid={hasPartPaise(productData.price) || undefined}
             />
-            {hasPartPaise(productData.price) && (
+            {measured && productData.price !== '' && productData.price != null && priceProblem(productData.price, selling.soldBy) ? (
+              <div role="alert" style={{ fontSize: '11px', color: 'var(--accent-danger)', marginTop: '4px' }}>{priceProblem(productData.price, selling.soldBy)}</div>
+            ) : hasPartPaise(productData.price) && (
               <div role="alert" style={{ fontSize: '11px', color: 'var(--accent-danger)', marginTop: '4px' }}>{PAISA_MESSAGE}</div>
             )}
           </div>
@@ -260,7 +271,7 @@ export default function Measurements() {
               were recorded as costing nothing. Optional, and the hint says what it is for
               rather than nagging. */}
           <div style={{ width: '170px' }}>
-            <label className="input-label">You pay (₹)</label>
+            <label className="input-label">You pay (₹{measured ? ` per ${unitOf(selling.soldBy).one}` : ''})</label>
             <input
               type="number"
               className="input-field"
@@ -511,13 +522,13 @@ export default function Measurements() {
                           </span>
 
                           <label style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: '1 1 0', minWidth: 0 }}>
-                            <span style={{ fontSize: '12px', color: 'var(--text-muted)', flexShrink: 0 }}>Units</span>
+                            <span style={{ fontSize: '12px', color: 'var(--text-muted)', flexShrink: 0 }}>{measured ? 'Metres' : 'Units'}</span>
                             <input
                               type="text"
-                              inputMode="numeric"
+                              inputMode={measured ? "decimal" : "numeric"}
                               className="input-field"
                               placeholder="0"
-                              title="How many pieces"
+                              title={measured ? "How many metres (12.5 = 12 m 50 cm)" : "How many pieces"}
                               value={productData.units[colorCode]?.[size] || ''}
                               onChange={(e) => handleUnitChange(size, colorCode, e.target.value)}
                               style={{ textAlign: 'center', width: '100%', minWidth: 0, padding: '8px' }}
@@ -577,7 +588,7 @@ export default function Measurements() {
                                 type="text"
                                 className="input-field"
                                 placeholder="0"
-                                title="How many pieces"
+                                title={measured ? "How many metres (12.5 = 12 m 50 cm)" : "How many pieces"}
                                 value={productData.units[colorCode]?.[size] || ''}
                                 onChange={(e) => handleUnitChange(size, colorCode, e.target.value)}
                                 style={{ textAlign: 'center', width: '70px', padding: '6px', margin: '0 auto' }}

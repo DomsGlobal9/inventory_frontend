@@ -18,6 +18,7 @@ import { useLocationContext } from '../contexts/LocationContext';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import ImageLightbox from '../components/ImageLightbox';
 import { usePermission } from '../hooks/usePermission';
+import { isMeasured, toBase, storedPrice, priceProblem } from '../lib/units';
 
 const VIEW_ORDER = ['front', 'left', 'right'];
 
@@ -82,7 +83,7 @@ export default function ProductPreview() {
   let estimatedValue = 0;
   Object.entries(productData.units || {}).forEach(([colorCode, sizeObj]) => {
     Object.entries(sizeObj || {}).forEach(([size, val]) => {
-      const qty = parseInt(val || 0, 10) || 0;
+      const qty = (isMeasured(productData.selling?.soldBy) ? Number(String(val || 0).replace(',', '.')) : parseInt(val || 0, 10)) || 0;
       const perVariant = productData.perVariantPricing
         ? Number(productData.variantPrices?.[colorCode]?.[size] || 0)
         : 0;
@@ -171,9 +172,27 @@ export default function ProductPreview() {
     // dashboard's "Active Products" card sitting permanently at 0 while the catalog filled
     // up. This button is the publish action -- reaching it means the checklist passed -- so
     // say so explicitly rather than relying on a flag that is never written.
+    // How it is sold (PLAN-fabrics.md). For cloth by the metre the prices typed are per metre and are stored per
+    // centimetre, and the stock typed in metres is stored in centimetres -- so every bill and report stays right.
+    const selling = productData.selling ?? { soldBy: 'PIECE' };
+    const measured = isMeasured(selling.soldBy);
+    if (measured) {
+      const bad = priceProblem(productData.price, selling.soldBy) || (Number(productData.costPrice) > 0 && priceProblem(productData.costPrice, selling.soldBy));
+      if (bad) { toast.error(bad); return; }
+    }
+    const perUnitToStored = (v) => (measured ? storedPrice(v, selling.soldBy) : Number(v));
     const payload = {
       ...mapProductFormToApiPayload(productData),
-      status: publish ? 'ACTIVE' : 'DRAFT'
+      status: publish ? 'ACTIVE' : 'DRAFT',
+      ...(selling.soldBy && selling.soldBy !== 'PIECE' ? {
+        soldBy: selling.soldBy,
+        kind: selling.kind ?? null,
+        widthCm: Number.isInteger(selling.widthCm) ? selling.widthCm : null,
+        minCut: Number.isInteger(selling.minCut) ? selling.minCut : null,
+        rollSize: Number.isInteger(selling.rollSize) ? selling.rollSize : null,
+        cutReturnable: !!selling.cutReturnable,
+        basePrice: perUnitToStored(productData.price)
+      } : (selling.kind ? { kind: selling.kind } : {}))
     };
     setIsSubmitting(true);
 
@@ -189,7 +208,9 @@ export default function ProductPreview() {
       productData.selectedColors.forEach(colorCode => {
         const colorInfo = getColorInfo(colorCode);
         productData.selectedSizes.forEach(size => {
-          const qty = parseInt(productData.units?.[colorCode]?.[size] || '0', 10);
+          // A length typed in metres (12.5) is kept in centimetres (1250); pieces as before.
+          const typed = productData.units?.[colorCode]?.[size] || '0';
+          const qty = measured ? (toBase(typed, 'METRE') ?? 0) : parseInt(typed, 10);
           // Shared with the "Generate Variants" panel on an existing product, which used to
           // build SKUs by its own different rules -- see utils/skuUtils.js.
           const sku = buildVariantSku(productCode, colorInfo.name, size);
@@ -208,11 +229,11 @@ export default function ProductPreview() {
             hexCode: colorInfo.value,
             quantity: qty,
             reorderLevel: 5,
-            ...(perVariant > 0 ? { sellingPrice: perVariant } : {}),
+            ...(perVariant > 0 ? { sellingPrice: perUnitToStored(perVariant) } : {}),
             // Sent so the opening stock is VALUED, not merely counted. Without it the pieces
             // enter with no cost and the first purchase order is averaged against a zero that
             // was never true -- which priced a 4,999 saree at 98 rupees.
-            ...(cost > 0 ? { costPrice: cost } : {})
+            ...(cost > 0 ? { costPrice: perUnitToStored(cost) } : {})
           });
         });
       });

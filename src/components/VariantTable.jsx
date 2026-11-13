@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { isMeasured, formatQty, pricePerUnit, storedPrice, priceProblem } from '../lib/units';
 import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { Plus, Trash2, Loader2, AlertCircle, Download, AlertTriangle, X, Copy, CheckCircle2, Printer, Info, Settings, Check, Truck, ImageOff, MapPinned } from 'lucide-react';
@@ -51,7 +52,10 @@ const sourceLabel = (source) => ({ SHOPIFY: 'Shopify', POS: 'Till', ONLINE_SHOP:
 /** The one size a saree comes in, spelled as the wizard spells it. */
 const FREE_SIZE = 'Free Size';
 
-export default function VariantTable({ productId, productName, productCode, productCategory, productDressType, productBasePrice, highlightVariantId }) {
+export default function VariantTable({ productId, productName, productCode, productCategory, productDressType, productBasePrice, highlightVariantId, productSoldBy = 'PIECE' }) {
+  // Cloth by the metre (PLAN-fabrics.md): prices are stored per cm and shown/typed per metre; stock is cm, shown in m.
+  const measured = isMeasured(productSoldBy);
+  const shownMoney = (stored) => (measured ? pricePerUnit(stored, productSoldBy) : Number(stored));
   // Stamped into the barcode-label PDF metadata; must be the real tenant.
   const { clientId } = useAuth();
   const { data, isLoading, isError } = useVariants(productId);
@@ -371,9 +375,9 @@ export default function VariantTable({ productId, productName, productCode, prod
   // or tabbing away. So edits stay local until explicitly confirmed (Enter, or the tick
   // button); Escape or clicking away discards them. `priceDrafts` holds only the rows
   // currently being edited, keyed by variant id.
-  const savedPriceOf = (variant) => (variant.sellingPrice ? String(Number(variant.sellingPrice)) : '');
+  const savedPriceOf = (variant) => (variant.sellingPrice ? String(shownMoney(variant.sellingPrice)) : '');
 
-  const savedCostOf = (variant) => (variant.costPrice ? String(Number(variant.costPrice)) : '');
+  const savedCostOf = (variant) => (variant.costPrice ? String(shownMoney(variant.costPrice)) : '');
 
   const isCostDirty = (variant) =>
     costDrafts[variant.id] !== undefined && costDrafts[variant.id] !== savedCostOf(variant);
@@ -410,7 +414,8 @@ export default function VariantTable({ productId, productName, productCode, prod
     }
     // Kept in the box: the person can take the extra digit off rather than type it all again.
     if (hasPartPaise(value)) { toast.error(PAISA_MESSAGE); return; }
-    updateVariantMutation.mutate({ id: variant.id, data: { costPrice: parsed } });
+    if (measured && priceProblem(value, productSoldBy)) { toast.error(priceProblem(value, productSoldBy)); return; }
+    updateVariantMutation.mutate({ id: variant.id, data: { costPrice: measured ? storedPrice(value, productSoldBy) : parsed } });
     discardCostDraft(variant.id);
   };
 
@@ -456,7 +461,8 @@ export default function VariantTable({ productId, productName, productCode, prod
     }
     // 1499.999 used to be saved as 1500, with a success toast. Kept in the box to correct.
     if (hasPartPaise(value)) { toast.error(PAISA_MESSAGE); return; }
-    updateVariantMutation.mutate({ id: variant.id, data: { sellingPrice: parsed } });
+    if (measured && priceProblem(value, productSoldBy)) { toast.error(priceProblem(value, productSoldBy)); return; }
+    updateVariantMutation.mutate({ id: variant.id, data: { sellingPrice: measured ? storedPrice(value, productSoldBy) : parsed } });
     discardPriceDraft(variant.id);
   };
 
@@ -1074,7 +1080,7 @@ export default function VariantTable({ productId, productName, productCode, prod
                     </td>
                     <td style={{ fontWeight: '500' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        {v.totalQuantity !== undefined ? v.totalQuantity : v.quantity}
+                        {measured ? formatQty(v.totalQuantity !== undefined ? v.totalQuantity : v.quantity, productSoldBy) : (v.totalQuantity !== undefined ? v.totalQuantity : v.quantity)}
                         <button
                           onClick={() => setStockBreakdownVariant(v)}
                           style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '2px', color: 'var(--text-muted)' }}
@@ -1146,7 +1152,7 @@ export default function VariantTable({ productId, productName, productCode, prod
                               </> : <span style={{ fontSize: '13px' }}>{shownCost || '—'}</span>}
                             </div>
                             <CellNote>
-                              {cost.value > 0 ? `based on ₹${cost.value.toFixed(2)} — ${cost.source}` : ''}
+                              {cost.value > 0 ? `based on ₹${shownMoney(cost.value).toFixed(2)}${measured ? ' per metre' : ''} — ${cost.source}` : ''}
                             </CellNote>
                           </div>
                         );
@@ -1253,7 +1259,7 @@ export default function VariantTable({ productId, productName, productCode, prod
                         }
                         if (override !== null) {
                           return <CellNote color="var(--brand-ink)">
-                            {currentLocation?.name || 'This location'} sells at ₹{override.toFixed(2)}
+                            {currentLocation?.name || 'This location'} sells at ₹{shownMoney(override).toFixed(2)}{measured ? ' per metre' : ''}
                           </CellNote>;
                         }
                         return <CellNote />;
@@ -1271,7 +1277,7 @@ export default function VariantTable({ productId, productName, productCode, prod
                           ? (cost.value > 0
                               ? 'No price to compare against what you paid yet.'
                               : 'Tell us what you paid for this one.')
-                          : `You sell at ₹${Number(price).toFixed(2)} and you paid ₹${cost.value.toFixed(2)} (${cost.source}).`;
+                          : `You sell at ₹${shownMoney(price).toFixed(2)}${measured ? ' per metre' : ''} and you paid ₹${shownMoney(cost.value).toFixed(2)}${measured ? ' per metre' : ''} (${cost.source}).`;
                         const keptEach = margin.pct === null ? null : Number(price) - cost.value;
                         return (
                           <span title={explain} style={{ display: 'inline-block', cursor: 'help' }}>
@@ -1280,7 +1286,7 @@ export default function VariantTable({ productId, productName, productCode, prod
                             </span>
                             {keptEach !== null && (
                               <span style={{ display: 'block', fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px', lineHeight: 1.35 }}>
-                                {`₹${keptEach.toFixed(0)} of every ₹${Number(price).toFixed(0)} you sell`}
+                                {`₹${shownMoney(keptEach).toFixed(0)} of every ₹${shownMoney(price).toFixed(0)} you sell${measured ? ' per metre' : ''}`}
                               </span>
                             )}
                           </span>

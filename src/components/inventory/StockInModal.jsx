@@ -6,15 +6,18 @@ import { X, Plus, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStockIn, useInventoryMetadata } from '../../hooks/useInventory';
 import Select from '../common/Select';
+import { isMeasured, toBase, fromBase, formatQty, storedPrice, pricePerUnit, priceProblem } from '../../lib/units';
 
 
 export default function StockInModal({ variant, onClose }) {
   const { data: metadata } = useInventoryMetadata();
   const stockInMutation = useStockIn();
+  // Cloth by the metre: typed in metres and rupees per metre, kept in centimetres and per centimetre.
+  const measured = isMeasured(variant?.soldBy);
 
   const [formData, setFormData] = useState({
     quantity: '',
-    unitCost: variant?.averageCost || '',
+    unitCost: variant?.averageCost ? pricePerUnit(variant.averageCost, variant?.soldBy) : '',
     reason: 'PURCHASE',
     referenceType: 'PURCHASE_ORDER',
     reference: '',
@@ -23,7 +26,7 @@ export default function StockInModal({ variant, onClose }) {
 
   useEffect(() => {
     if (variant) {
-      setFormData(prev => ({ ...prev, unitCost: variant.averageCost || '' }));
+      setFormData(prev => ({ ...prev, unitCost: variant.averageCost ? pricePerUnit(variant.averageCost, variant.soldBy) : '' }));
     }
   }, [variant]);
 
@@ -35,10 +38,14 @@ export default function StockInModal({ variant, onClose }) {
     // lib/formGuard. Same `required` fields, same rule, said in the app's own voice.
     const missing = firstMissingField(e.currentTarget);
     if (missing) { toast.error(missingFieldMessage(missing)); return; }
+    const qty = measured ? toBase(formData.quantity, 'METRE') : Number(formData.quantity);
+    if (!Number.isInteger(qty) || qty <= 0) { toast.error(measured ? 'Enter the length in metres, like 12.5 (at most two decimals).' : 'Enter a whole number above 0.'); return; }
+    const costBad = measured && formData.unitCost !== '' && priceProblem(formData.unitCost, variant.soldBy);
+    if (costBad) { toast.error(costBad); return; }
     stockInMutation.mutate({
       variantId: variant.variantId,
-      quantity: Number(formData.quantity),
-      unitCost: formData.unitCost ? Number(formData.unitCost) : undefined,
+      quantity: qty,
+      unitCost: formData.unitCost ? (measured ? storedPrice(formData.unitCost, variant.soldBy) : Number(formData.unitCost)) : undefined,
       reason: formData.reason,
       referenceType: formData.referenceType,
       reference: formData.reference,
@@ -80,11 +87,11 @@ export default function StockInModal({ variant, onClose }) {
           
           <div className="mobile-stack-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <div className="form-group">
-              <label className="form-label">Quantity</label>
-              <input type="number" required min="1" className="input-field" value={formData.quantity} onChange={e => setFormData({...formData, quantity: e.target.value})} placeholder="e.g. 10" />
+              <label className="form-label">{measured ? 'Metres received' : 'Quantity'}</label>
+              <input type={measured ? 'text' : 'number'} inputMode={measured ? 'decimal' : undefined} required min="1" className="input-field" value={formData.quantity} onChange={e => setFormData({...formData, quantity: e.target.value})} placeholder={measured ? 'e.g. 25 (one roll)' : 'e.g. 10'} />
             </div>
             <div className="form-group">
-              <label className="form-label">Unit Cost (₹)</label>
+              <label className="form-label">{measured ? 'Cost per metre (₹)' : 'Unit Cost (₹)'}</label>
               <input type="number" step="0.01" min="0" className="input-field" value={formData.unitCost} onChange={e => setFormData({...formData, unitCost: e.target.value})} placeholder="e.g. 150.00" />
               {/* Blank is not free: with no unit cost the server values the pieces at the item's
                   average cost, and an item that has never had one has an average of ₹0 -- which

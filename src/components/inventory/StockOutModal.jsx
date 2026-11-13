@@ -6,6 +6,7 @@ import { X, Minus, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStockOut, useInventoryMetadata } from '../../hooks/useInventory';
 import Select from '../common/Select';
+import { isMeasured, toBase, fromBase, formatQty, storedPrice, pricePerUnit, priceProblem } from '../../lib/units';
 import TakeFromShelf, { fromSpotsFor } from '../shelves/TakeFromShelf';
 import { useLocationContext } from '../../contexts/LocationContext';
 
@@ -20,6 +21,8 @@ const MANUAL_REASONS = [
 export default function StockOutModal({ variant, onClose }) {
   const { data: metadata } = useInventoryMetadata();
   const stockOutMutation = useStockOut();
+  // Cloth by the metre: typed in metres, kept in centimetres.
+  const measured = isMeasured(variant?.soldBy);
   const { currentLocation } = useLocationContext();
   const [fromSpot, setFromSpot] = useState(null);
 
@@ -42,14 +45,23 @@ export default function StockOutModal({ variant, onClose }) {
     const missing = firstMissingField(e.currentTarget);
     if (missing) { toast.error(missingFieldMessage(missing)); return; }
     if (!formData.reason) { toast.error('Choose why these pieces are going out: damaged, a sample, or returned to the supplier.'); return; }
+    const outQty = measured ? toBase(formData.quantity, 'METRE') : Number(formData.quantity);
+    if (!Number.isInteger(outQty) || outQty <= 0) {
+      toast.error(measured ? 'Enter the length in metres, like 2.5 (at most two decimals).' : 'Enter a whole number above 0.');
+      return;
+    }
+    if (outQty > variant.quantity) {
+      toast.error(`Only ${measured ? formatQty(variant.quantity, variant.soldBy) : variant.quantity} in stock here.`);
+      return;
+    }
     stockOutMutation.mutate({
       variantId: variant.variantId,
-      quantity: Number(formData.quantity),
+      quantity: measured ? toBase(formData.quantity, 'METRE') : Number(formData.quantity),
       reason: formData.reason,
       referenceType: formData.referenceType,
       reference: formData.reference,
       notes: formData.notes,
-      fromSpots: fromSpotsFor(fromSpot, formData.quantity)
+      fromSpots: fromSpotsFor(fromSpot, measured ? toBase(formData.quantity, 'METRE') : formData.quantity)
     }, {
       onSuccess: () => {
         onClose();
@@ -86,8 +98,8 @@ export default function StockOutModal({ variant, onClose }) {
         <form onSubmit={handleSubmit} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', overflowY: 'auto', maxHeight: '60vh' }} noValidate>
           
           <div className="form-group">
-            <label className="form-label">Quantity to Deduct (Max: {variant.quantity})</label>
-            <input type="number" required min="1" max={variant.quantity} className="input-field" value={formData.quantity} onChange={e => setFormData({...formData, quantity: e.target.value})} placeholder={`e.g. ${Math.min(5, variant.quantity)}`} />
+            <label className="form-label">{measured ? `Metres to take out (there are ${formatQty(variant.quantity, variant.soldBy)})` : `Quantity to Deduct (Max: ${variant.quantity})`}</label>
+            <input type={measured ? 'text' : 'number'} inputMode={measured ? 'decimal' : undefined} required min="1" max={measured ? undefined : variant.quantity} className="input-field" value={formData.quantity} onChange={e => setFormData({...formData, quantity: e.target.value})} placeholder={measured ? 'e.g. 2.5' : `e.g. ${Math.min(5, variant.quantity)}`} />
           </div>
 
           <div className="form-group">

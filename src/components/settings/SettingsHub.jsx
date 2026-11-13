@@ -34,7 +34,8 @@ export const GROUPS = [
     { label: 'Materials', section: 'CATALOG', part: 'MATERIAL' },
     { label: 'Design types', section: 'CATALOG', part: 'DESIGN_TYPE' },
     { label: 'Categories', section: 'CATALOG', part: 'CATEGORY' },
-    { label: 'Product types', section: 'CATALOG', part: 'PRODUCT_TYPE' }
+    { label: 'Product types', section: 'CATALOG', part: 'PRODUCT_TYPE' },
+    { label: 'Fabrics (sell by the metre)', section: 'FABRICS' }
   ] },
   { id: 'ONLINE', label: 'Selling online', icon: Globe, links: [
     { label: 'Online shop', section: 'ONLINE_SHOP' },

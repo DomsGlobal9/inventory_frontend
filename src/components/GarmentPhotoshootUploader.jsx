@@ -6,6 +6,7 @@ import { useProduct } from "../context/ProductContext";
 import ImageLightbox from "./ImageLightbox";
 import { resolveTryOnCategory } from '../lib/photoSets';
 import { usePermission } from '../hooks/usePermission';
+import { CameraButton } from './PhotoCamera';
 
 /**
  * A grid of photographs with one box on the end that adds more.
@@ -90,11 +91,11 @@ function PhotoGrid({ photos, previews, onAdd, onRemove, onView, isTouch, disable
             /* "environment" is the rear camera: somebody photographing a garment points the
                phone at it, not at themselves. No `multiple` -- a camera takes one picture at
                a time, and asking for several only confuses the phone's picker. */
-            <label className="btn-secondary" onClick={(e) => e.stopPropagation()} style={button}>
+            /* The camera inside the app (PhotoCamera, 13 Nov): the phone's camera app could close the
+               browser on a phone short of memory and lose the product being added. */
+            <CameraButton style={button} disabled={disabled} onFiles={onAdd} title="Photograph the garment">
               <Camera size={14} /> CAMERA
-              <input type="file" accept="image/*" capture="environment" style={inputStyle} disabled={disabled}
-                onChange={(e) => { if (e.target.files?.length) onAdd(e.target.files); e.target.value = ''; }} />
-            </label>
+            </CameraButton>
           )}
         </div>
       </div>
@@ -513,27 +514,18 @@ export default function GarmentPhotoshootUploader({ colorCode = '', colorLabel }
                       pointing the phone at it, not at themselves.
                     */}
                     {isTouch && (
-                      <label
-                        className="btn-secondary"
+                      /* The camera inside the app (PhotoCamera, 13 Nov), with the phone's camera app and
+                         the gallery as fallbacks. No isImageFile guard on what comes back: a camera file
+                         on iOS arrives with no usable type, and rejecting it is the bug that guard avoids. */
+                      <CameraButton
                         style={{ cursor: 'pointer', padding: '8px 16px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                        disabled={isUploading}
+                        title={`Photograph: ${label}`}
+                        onFiles={(fs) => { if (fs[0]) handleFileChange(key, fs[0]); }}
                       >
                         <Camera size={14} />
                         CAMERA
-                        <input
-                          type="file"
-                          style={{ display: 'none' }}
-                          accept="image/*"
-                          capture="environment"
-                          onChange={(e) => {
-                            const f = e.target.files?.[0] || null;
-                            // No isImageFile guard: the file came from the camera, and on iOS
-                            // it arrives with no usable type. Rejecting it here is the bug
-                            // that guard exists to avoid.
-                            if (f) handleFileChange(key, f);
-                          }}
-                          disabled={isUploading}
-                        />
-                      </label>
+                      </CameraButton>
                     )}
                   </div>
                 </div>

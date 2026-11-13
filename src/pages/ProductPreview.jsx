@@ -193,6 +193,8 @@ export default function ProductPreview() {
         cutReturnable: !!selling.cutReturnable,
         basePrice: perUnitToStored(productData.price)
       } : (selling.kind ? { kind: selling.kind } : {}))
+      // A material (any unit) is kept out of selling (PLAN-boutique-sync.md).
+      ,...(selling.sellInShop === false ? { sellInShop: false } : {})
     };
     setIsSubmitting(true);
 

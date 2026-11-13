@@ -88,7 +88,17 @@ export default function HowItIsSold({ value, onChange }) {
             </label>
           </>
         )}
+        <label style={{ display: 'flex', gap: 8, alignItems: 'center', alignSelf: 'center' }}
+          title="Untick for a material you use but never sell: threads, beads, lining for stitching. It is counted, but kept out of the online shop, the till and Shopify.">
+          <input type="checkbox" checked={value.sellInShop !== false} onChange={e => set({ sellInShop: e.target.checked })} />
+          <span>Sell it in my shops</span>
+        </label>
       </div>
+      {value.sellInShop === false && (
+        <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+          A material: counted and used, but never in the online shop, the till or Shopify. Find it later under Products → Sale or material.
+        </div>
+      )}
       {measured && (
         <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
           Prices below are per metre, in whole rupees. Stock is typed in metres (12.5 = 12 m 50 cm). Each colour is its own

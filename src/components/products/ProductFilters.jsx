@@ -20,6 +20,8 @@ export const FILTERS = [
   // Cloth by the metre (PLAN-fabrics.md): how it is sold, and what it is.
   { k: 'soldby', label: 'Sold by' },
   { k: 'kind', label: 'Kind' },
+  // Materials (threads, beads, lining used for stitching) are kept but never sold (PLAN-boutique-sync.md).
+  { k: 'use', label: 'Sale or material' },
   { k: 'craft', label: 'Craft' },
   { k: 'brand', label: 'Brand' },
   { k: 'stock', label: 'Stock' },
@@ -35,6 +37,7 @@ const NAMES = {
     TASSEL_LATKAN: 'Tassel / Latkan', BUTTONS: 'Buttons', ZIPPER: 'Zipper', HOOKS: 'Hooks', PADDING_CUPS: 'Padding / Cups',
     SHOULDER_PADS: 'Shoulder pads', BONING: 'Boning', DECORATIVE_MOTIFS: 'Decorative motifs', BROOCH_KALGI: 'Brooch / Kalgi', OTHER: 'Other'
   },
+  use: { SALE: 'For sale', MATERIAL: 'Materials (not for sale)' },
   stock: { in: 'In stock', low: 'Running low', out: 'Sold out' },
   photos: { with: 'Has photos', without: 'No photos yet' }
 };

@@ -370,6 +370,12 @@ export default function ProductDetails() {
         <div className="glass-panel" style={{ padding: '20px' }}>
           <p style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>{isMeasured(product.soldBy) ? 'Price per metre' : 'Base Price'}</p>
           <h2 style={{ fontSize: '24px', margin: '8px 0 0' }}>{isMeasured(product.soldBy) ? formatPrice(product.basePrice, product.soldBy) : formatRupees(product.basePrice)}</h2>
+          {product.priceOwner === 'BOUTIQUE' && (
+            <p style={{ margin: '4px 0 0', fontSize: '13px', color: 'var(--text-muted)' }}>Price comes from your boutique. Change it there and it updates here.</p>
+          )}
+          {product.sellInShop === false && (
+            <p style={{ margin: '4px 0 0', fontSize: '13px', color: 'var(--text-muted)' }}>A material: counted and used, not sold in your shops.</p>
+          )}
         </div>
         <div className="glass-panel" style={{ padding: '20px' }}>
           <p style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Total Variants</p>
@@ -646,7 +652,7 @@ export default function ProductDetails() {
             )}
             
             {activeTab === 'variants' && (
-              <VariantTable productId={product.id} productName={product.title} productCode={product.productCode} productCategory={product.category} productDressType={product.dressType} productBasePrice={product.basePrice} highlightVariantId={scannedVariantId} productSoldBy={product.soldBy ?? 'PIECE'} />
+              <VariantTable productId={product.id} productName={product.title} productCode={product.productCode} productCategory={product.category} productDressType={product.dressType} productBasePrice={product.basePrice} highlightVariantId={scannedVariantId} productSoldBy={product.soldBy ?? 'PIECE'} priceFromBoutique={product.priceOwner === 'BOUTIQUE'} />
             )}
 
             {activeTab === 'images' && (

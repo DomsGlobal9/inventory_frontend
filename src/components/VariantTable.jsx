@@ -52,7 +52,7 @@ const sourceLabel = (source) => ({ SHOPIFY: 'Shopify', POS: 'Till', ONLINE_SHOP:
 /** The one size a saree comes in, spelled as the wizard spells it. */
 const FREE_SIZE = 'Free Size';
 
-export default function VariantTable({ productId, productName, productCode, productCategory, productDressType, productBasePrice, highlightVariantId, productSoldBy = 'PIECE' }) {
+export default function VariantTable({ productId, productName, productCode, productCategory, productDressType, productBasePrice, highlightVariantId, productSoldBy = 'PIECE', priceFromBoutique = false }) {
   // Cloth by the metre (PLAN-fabrics.md): prices are stored per cm and shown/typed per metre; stock is cm, shown in m.
   const measured = isMeasured(productSoldBy);
   const shownMoney = (stored) => (measured ? pricePerUnit(stored, productSoldBy) : Number(stored));
@@ -69,8 +69,9 @@ export default function VariantTable({ productId, productName, productCode, prod
   // drawn, showing an empty cost box to type into and "No cost data yet" as everyone's margin.
   const { can } = usePermission();
   const showCost = can('cost:view');
-  const canEditPrice = can('product:update');
-  const canEditCost = canEditPrice && can('cost:manage');
+  // A boutique-made product keeps the boutique's price: shown, never edited here (PLAN-boutique-sync.md).
+  const canEditPrice = can('product:update') && !priceFromBoutique;
+  const canEditCost = can('product:update') && can('cost:manage');
   // Lets the expanded supplier row size itself to the part of the table you can see.
   const scrollRef = useVisibleRowWidth();
   // Only read while the generator is open; the list is small and cached by the hook.

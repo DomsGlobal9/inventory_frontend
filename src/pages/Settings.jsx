@@ -20,7 +20,7 @@ import SettingsHub, { groupOf } from '../components/settings/SettingsHub';
 import ReturnRulesPanel from '../components/sales/ReturnRulesPanel';
 import CustomerGroupsPanel from '../components/settings/CustomerGroupsPanel';
 import FabricsPanel from '../components/settings/FabricsPanel';
-import BoutiquePanel from '../components/settings/BoutiquePanel';
+import BoutiquePanel, { useBoutiqueLink } from '../components/settings/BoutiquePanel';
 import BoxSizesPanel from '../components/logistics/BoxSizesPanel';
 import LogisticsSwitch from '../components/logistics/LogisticsSwitch';
 import { useLogistics } from '../components/logistics/PackOrders';
@@ -34,7 +34,7 @@ const SETTINGS_DOMAINS = [
   // Fabrics by the metre (PLAN-fabrics.md): the switch, smallest cut, roll length, quick lengths.
   { id: 'FABRICS', label: 'What you sell', icon: Grid, permission: 'admin:catalog' },
   // The boutique that keeps its items and stock here (PLAN-boutique-sync.md). Owner only: '*' is held by the owner alone.
-  { id: 'BOUTIQUE', label: 'Boutique', icon: Store, permission: '*' },
+  { id: 'BOUTIQUE', label: 'Boutique', icon: Store, permission: '*', needsBoutique: true },
   { id: 'LOCATIONS', label: 'Stock locations', icon: MapPin, permission: 'admin:locations' },
   { id: 'DAYBOOK', label: 'Day Book', icon: BookOpen, permission: 'report:financial' },
   { id: 'STOREFRONT', label: 'Connected websites', icon: Globe, permission: 'admin:locations' },
@@ -102,7 +102,9 @@ export default function Settings() {
   const asked = searchParams.get('section');
   const part = searchParams.get('part');
   const logistics = useLogistics(can('dispatch:create'));
-  const canOpen = (id) => { const d = SETTINGS_DOMAINS.find(x => x.id === id); return !!d && can(d.permission) && (!d.needsLogistics || logistics.data?.on === true); };
+  // The Boutique section is there only for a shop that uses the ScaleEzy Boutique (turned on by ScaleEzy).
+  const boutiqueLink = useBoutiqueLink(can('*'));
+  const canOpen = (id) => { const d = SETTINGS_DOMAINS.find(x => x.id === id); return !!d && can(d.permission) && (!d.needsLogistics || logistics.data?.on === true) && (!d.needsBoutique || boutiqueLink.data?.linked === true); };
   const activeDomain = asked && canOpen(asked) ? asked : null;
   const open = (section, nextPart) => setSearchParams(nextPart ? { section, part: nextPart } : { section });
   const back = () => setSearchParams({});

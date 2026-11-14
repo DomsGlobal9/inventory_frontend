@@ -107,6 +107,12 @@ export default function ClientOverviewPage() {
             </p>
           </div>
 
+          {/* A boutique-only shop has no logins, so there is nobody to view the app as. */}
+          {data.boutiqueOnly ? (
+            <div data-testid="boutique-only-note" style={{ fontSize: '13px', color: 'var(--text-secondary)', maxWidth: '260px', lineHeight: 1.5, flexShrink: 0 }}>
+              Boutique only. This shop has no ScaleEzy logins; it is run from the boutique app.
+            </div>
+          ) : (
           <button
             onClick={handleAssume}
             disabled={assumeMutation.isPending}
@@ -122,6 +128,7 @@ export default function ClientOverviewPage() {
           >
             <LogIn size={16} /> View Inventory Data
           </button>
+          )}
         </div>
       </div>
 
@@ -304,7 +311,7 @@ export default function ClientOverviewPage() {
       <ClientServiceKeys clientId={clientId} />
       <ClientBoutiqueModule clientId={clientId} />
 
-      <ClientDangerZone clientId={clientId} suspended={data?.userCount > 0 && data?.activeUserCount === 0} />
+      <ClientDangerZone clientId={clientId} suspended={data?.userCount > 0 && data?.activeUserCount === 0} canSuspend={!data?.boutiqueOnly} />
 
       {passwordTarget && <UserPasswordManager user={passwordTarget} onClose={() => setPasswordTarget(null)} />}
     </div>

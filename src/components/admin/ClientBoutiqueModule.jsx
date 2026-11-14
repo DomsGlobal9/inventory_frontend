@@ -96,7 +96,7 @@ export default function ClientBoutiqueModule({ clientId }) {
         onClose={() => setConfirm(false)}
         onConfirm={async () => { await disable.mutateAsync(); }}
         title="Disable the Boutique module?"
-        message="The boutique will no longer reach this client's products and stock. Everything it added stays in the shop. It can be enabled again at any time."
+        message="The boutique will no longer reach this client's products and stock. Everything it added stays in the shop, and the shop can then change those items' prices. It can be enabled again at any time."
         confirmText="Disable"
         confirmStyle="danger"
       />

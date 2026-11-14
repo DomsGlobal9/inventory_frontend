@@ -146,6 +146,12 @@ export default function ClientsPage() {
                         </div>
                       </div>
                     </div>
+                  ) : client.boutiqueOnly ? (
+                    // A shop a boutique made for itself: nobody signs in to ScaleEzy; it is run from the boutique app.
+                    <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                      {client.boutiqueOff ? 'Boutique only: boutique switched off' : 'Boutique only: run from the boutique app'}
+                      <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>Account {client.boutiqueAccount}</div>
+                    </div>
                   ) : (
                     <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontStyle: 'italic' }}>No admin assigned</div>
                   )}
@@ -154,8 +160,9 @@ export default function ClientsPage() {
                 {/* Footer action */}
                 <div style={{ padding: '12px 16px', borderTop: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-input)' }}>
                    <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                      {client.userCount} user{client.userCount !== 1 ? 's' : ''}
+                      {client.boutiqueOnly ? (client.boutiqueOff ? 'Boutique only, switched off' : 'Boutique only') : <>{client.userCount} user{client.userCount !== 1 ? 's' : ''}</>}
                       {client.suspended && ' — none can sign in'}
+                      {!client.boutiqueOnly && client.boutiqueAccount && ` · Boutique: ${client.boutiqueAccount}`}
                    </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 500, color: 'var(--text-secondary)' }}>
                     View details <ChevronRight size={14} />

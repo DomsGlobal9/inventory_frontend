@@ -116,7 +116,7 @@ function DeleteDialog({ clientId, preview, busy, onCancel, onConfirm }) {
   );
 }
 
-export default function ClientDangerZone({ clientId, suspended, canSuspend = true }) {
+export default function ClientDangerZone({ clientId, suspended }) {
   const suspend = useSetClientSuspended();
   const remove = useDeleteClient();
 
@@ -148,8 +148,6 @@ export default function ClientDangerZone({ clientId, suspended, canSuspend = tru
         </strong>
       </div>
 
-      {/* Suspend only means something when there are logins to stop; a boutique-only shop has none. */}
-      {canSuspend && (<>
       {/* Suspend first, and deliberately: it is the reversible answer to nearly every reason
           someone arrives at this box. */}
       <div style={{ ...rowStyle, borderBottom: '1px solid var(--border-light)' }}>
@@ -193,8 +191,6 @@ export default function ClientDangerZone({ clientId, suspended, canSuspend = tru
           </button>
         )}
       </div>
-
-      </>)}
 
       <div style={rowStyle}>
         <div style={{ minWidth: '260px', flex: 1 }}>

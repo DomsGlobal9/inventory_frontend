@@ -12,6 +12,7 @@ import { rowLink } from '../components/common/rowLink';
 import BulkUpdateModal from '../components/BulkUpdateModal';
 import ProductImportModal from '../components/ProductImportModal';
 import BulkPhotosModal from '../components/BulkPhotosModal';
+import AddToReelDialog from '../components/reel-links/AddToReelDialog';
 import PageLoader from '../components/PageLoader';
 import Select from '../components/common/Select';
 import ConfirmModal from '../components/ConfirmModal';
@@ -103,6 +104,7 @@ export default function Products() {
   // null: closed. An array: open, with the sheet's photo links (empty when opened from the button).
   const [photosFor, setPhotosFor] = React.useState(null);
   const [selected, setSelected] = React.useState(() => new Set());
+  const [reelOpen, setReelOpen] = React.useState(false);
   const [confirmState, setConfirmState] = React.useState({ isOpen: false });
   const bulkStatus = useBulkSetProductStatus();
 
@@ -334,6 +336,12 @@ export default function Products() {
           </span>
           <div style={{ marginLeft: 'auto', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             <button className="btn-secondary" onClick={() => setSelected(new Set())}>Clear</button>
+            {/* Only published pieces: a shopper could not see a draft. */}
+            {can('reel_link:manage') && liveSelected.length > 0 && (
+              <button className="btn-secondary" onClick={() => setReelOpen(true)}>
+                Add {liveSelected.length} to reel link
+              </button>
+            )}
             {liveSelected.length > 0 && (
               <button className="btn-secondary" onClick={() => runBulk('DRAFT')} disabled={bulkStatus.isPending}>
                 Unpublish {liveSelected.length}
@@ -517,6 +525,13 @@ export default function Products() {
         onClose={() => setIsImportOpen(false)}
         onImported={() => refetch?.()}
         onAddPhotos={canEdit ? (links) => { setIsImportOpen(false); setPhotosFor(links || []); } : undefined}
+      />
+
+      <AddToReelDialog
+        isOpen={reelOpen}
+        onClose={() => setReelOpen(false)}
+        productIds={liveSelected.map(p => p.id)}
+        onDone={() => setSelected(new Set())}
       />
 
       <BulkPhotosModal

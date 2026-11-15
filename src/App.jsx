@@ -21,6 +21,8 @@ import Offers from './pages/Offers';
 import Campaigns from './pages/campaigns/Campaigns';
 import CounterReturn from './pages/sales/CounterReturn';
 import CampaignDetail from './pages/campaigns/CampaignDetail';
+import ReelLinks from './pages/reel-links/ReelLinks';
+import ReelLinkEdit from './pages/reel-links/ReelLinkEdit';
 import OfferDetail from './pages/OfferDetail';
 import Signup from './pages/Signup';
 import InventoryHealthPage from './pages/admin/InventoryHealthPage';
@@ -222,6 +224,9 @@ function App() {
           <Route path="/offers/:id" element={<Guard permission="offer:view"><OfferDetail /></Guard>} />
           <Route path="/campaigns" element={<Guard permission="campaign:view"><Campaigns /></Guard>} />
           <Route path="/campaigns/:id" element={<Guard permission="campaign:view"><CampaignDetail /></Guard>} />
+          <Route path="/reel-links" element={<Guard permission="reel_link:view"><ReelLinks /></Guard>} />
+          <Route path="/reel-links/new" element={<Guard permission="reel_link:manage"><ReelLinkEdit /></Guard>} />
+          <Route path="/reel-links/:id" element={<Guard permission="reel_link:view"><ReelLinkEdit /></Guard>} />
           <Route path="/reports/daybook" element={<Guard permission="report:financial"><DayBook /></Guard>} />
           {/* The full pages behind the dashboard cards: only the owner, until the owner gives them to a role. */}
           <Route path="/analytics/sales" element={<Guard permission="analytics:sales" what="view the Sales report"><SalesPage /></Guard>} />

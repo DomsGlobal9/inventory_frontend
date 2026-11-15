@@ -73,7 +73,9 @@ export default function ShopSetup() {
 
   useEffect(() => {
     if (!open) return undefined;
-    const onKey = (e) => { if (e.key === 'Escape' && step < 2) { putOffSetup(); setOpen(false); } };
+    // Esc on the first two steps = "Complete later". On the last, setup is already saved: Esc just closes, as
+    // "Go to dashboard" does (it used to do nothing there, 15 Nov).
+    const onKey = (e) => { if (e.key !== 'Escape') return; if (step < 2) putOffSetup(); setOpen(false); };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [open, step]);

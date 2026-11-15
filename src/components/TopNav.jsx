@@ -56,7 +56,9 @@ export default function TopNav({ onMenuClick }) {
   const ownerHere = !!user && ownsShop(user);
   const { data: shopSetup } = useShopSetup(ownerHere);
   const setupLeft = ownerHere && shopSetup ? (shopSetup.missing?.length ?? 0) : 0;
-  const showSetupWarning = ownerHere && !!shopSetup && (!shopSetup.setupDone || setupLeft > 0);
+  // Only until the owner has finished setup once. A detail left blank after that (an address) is theirs to add in
+  // Settings; a chip on every page for it read as nagging (15 Nov).
+  const showSetupWarning = ownerHere && !!shopSetup && !shopSetup.setupDone;
   const { can } = usePermission();
   const [query, setQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);

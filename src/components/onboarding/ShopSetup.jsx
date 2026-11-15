@@ -18,7 +18,8 @@ import { START_TOUR_EVENT } from './WelcomeTour';
  *   3  Complete          what is saved, what is pending (completed any time in Settings), the boutique when
  *                        connected, and the recommended next steps.
  *
- * "Complete later" is always available (also Esc); a reminder stays in the top bar until nothing is pending.
+ * "Complete later" is always available (also Esc); a reminder stays in the top bar until setup is finished once.
+ * Details still blank after that are listed on the Complete step and in Settings, not on every page.
  *
  * Deliberately plain: a flat rail, numbered steps, radio rows, hairline borders. It should read like the rest of a
  * serious business tool, not like a template.
@@ -383,7 +384,8 @@ export function SetupReminderStrip() {
   const { user } = useAuth();
   const isOwner = !!user && holdsEverything(user);
   const { data: setup } = useShopSetup(isOwner);
-  if (!isOwner || !setup || (setup.setupDone && !(setup.missing?.length))) return null;
+  // Only until setup is finished once, as the top bar's chip (TopNav.jsx).
+  if (!isOwner || !setup || setup.setupDone) return null;
   const left = setup.missing?.length ?? 0;
   return (
     <button type="button" className="setup-strip" onClick={() => window.dispatchEvent(new Event(OPEN_SETUP_EVENT))}>

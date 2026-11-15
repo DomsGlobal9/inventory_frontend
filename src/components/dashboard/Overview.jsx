@@ -93,7 +93,10 @@ const smoothSales = (daily) => daily.map((_, i) => { const w = daily.slice(Math.
 /** Beside the sales chart: the last 30 days in figures -- total, change, till vs online, orders, the average. */
 function SalesCard({ sales, link = {} }) {
   const change = sales.prev30 > 0 ? ((sales.last30 - sales.prev30) / sales.prev30) * 100 : null;
-  const till = sales.daily.reduce((t, x) => t + x.till, 0), online = sales.daily.reduce((t, x) => t + x.online, 0);
+  // The server's split over the same 30 days as the total, so the two parts add up to it (15 Nov). The daily
+  // chart starts at midnight and leaves out the morning edge of day 30.
+  const till = sales.till30 ?? sales.daily.reduce((t, x) => t + x.till, 0);
+  const online = sales.online30 ?? sales.daily.reduce((t, x) => t + x.online, 0);
   const both = till + online || 1;
   return (
     <div className={`ov-card ov-kpi${link.role ? ' ov-click' : ''}`} style={{ height: '100%' }} {...link}>

@@ -39,7 +39,8 @@ export function Thumb({ src, size = 'md', alt = '' }) {
 export const RL_CSS = `
 .rl-page { display: grid; gap: 18px; max-width: 1180px; }
 .rl-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
-.rl-head h1 { margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -.02em; color: var(--text-primary); }
+.rl-head > div { min-width: 0; }
+.rl-head h1 { overflow-wrap: anywhere; margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -.02em; color: var(--text-primary); }
 .rl-head p { margin: 4px 0 0; color: var(--text-secondary); font-size: 14px; max-width: 640px; }
 .rl-card { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 14px; padding: 18px; }
 .rl-strip { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; padding: 14px 16px; border: 1px solid var(--border-light); border-radius: 12px; background: var(--bg-input); }
@@ -56,7 +57,7 @@ export const RL_CSS = `
 .rl-table tbody tr { cursor: pointer; }
 .rl-table tbody tr:hover { background: var(--bg-hover); }
 .rl-cell { display: flex; align-items: center; gap: 12px; min-width: 0; }
-.rl-title { font-weight: 700; color: var(--text-primary); }
+.rl-title { font-weight: 700; color: var(--text-primary); overflow-wrap: anywhere; }
 .rl-sub { color: var(--text-secondary); font-size: 12.5px; }
 .rl-on { color: var(--brand-ink); font-weight: 700; }
 .rl-off { color: var(--text-muted); }
@@ -84,7 +85,7 @@ export const RL_CSS = `
 .rl-phone-head { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid #ececf0; font-weight: 700; }
 .rl-phone-logo { width: 30px; height: 30px; border-radius: 50%; flex: none; object-fit: cover; background: var(--rl-accent, #164B1E); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; }
 .rl-phone-body { padding: 12px; }
-.rl-phone-title { font-weight: 800; font-size: 15px; margin: 0 0 2px; }
+.rl-phone-title { font-weight: 800; font-size: 15px; margin: 0 0 2px; overflow-wrap: anywhere; }
 .rl-phone-sub { color: #6b7280; font-size: 12px; margin: 0 0 10px; }
 .rl-phone-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .rl-phone-grid .rl-name { font-size: 12px; margin-top: 4px; line-height: 1.3; }

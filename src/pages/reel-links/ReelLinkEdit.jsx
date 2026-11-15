@@ -105,7 +105,16 @@ function SharePanel({ link, manage, onSwitch, onDelete, busy }) {
   );
 }
 
-export default function ReelLinkEdit() {
+/**
+ * One editor per reel link: going from one straight to another (Back, Forward, or "new" becoming the saved one) starts
+ * a fresh editor, so the last one's pieces and "changed" mark never carry over.
+ */
+export default function ReelLinkEditPage() {
+  const { id } = useParams();
+  return <ReelLinkEdit key={id || 'new'} />;
+}
+
+function ReelLinkEdit() {
   const { id } = useParams();
   const isNew = !id || id === 'new';
   const navigate = useNavigate();
@@ -126,6 +135,20 @@ export default function ReelLinkEdit() {
   const [dirty, setDirty] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  // Read in the same tick it is set: a double-click delivers both clicks before React re-renders a disabled button.
+  const inFlight = useRef(false);
+
+  // Unsaved changes: the browser asks before the tab is closed or reloaded, and the page's own ways out ask too.
+  useEffect(() => {
+    if (!dirty) return undefined;
+    const warn = (e) => { e.preventDefault(); e.returnValue = ''; };
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [dirty]);
+  const leave = (to) => {
+    if (dirty && !window.confirm('Leave without saving? Your changes to this reel link will be lost.')) return;
+    navigate(to);
+  };
 
   // The saved reel link fills the form once; after that the form is the person's until they save.
   useEffect(() => {
@@ -160,10 +183,13 @@ export default function ReelLinkEdit() {
 
   const saving = create.isPending || update.isPending;
   const save = async () => {
+    if (inFlight.current) return;
+    inFlight.current = true;
     const body = { title, reelUrl, pieces: pieces.map(p => ({ productId: p.productId, colour: p.colour })) };
     try {
       if (isNew) {
         const made = await create.mutateAsync(body);
+        setDirty(false);
         toast.success('Reel link saved. Copy the link below.');
         navigate(`/reel-links/${made.id}`, { replace: true });
       } else {
@@ -172,6 +198,7 @@ export default function ReelLinkEdit() {
         toast.success('Changes saved. The link stays the same.');
       }
     } catch (e) { toast.error(e?.message || 'The reel link could not be saved.'); }
+    finally { inFlight.current = false; }
   };
   const switchTo = async (on) => {
     try { await switcher.mutateAsync(on); toast.success(on ? 'Reel link switched on' : 'Reel link switched off'); }
@@ -186,7 +213,7 @@ export default function ReelLinkEdit() {
       <style>{RL_CSS}</style>
       <header className="rl-head">
         <div>
-          <Link to="/reel-links" className="rl-sub" style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}><ArrowLeft size={14} /> Reel links</Link>
+          <Link to="/reel-links" onClick={(e) => { e.preventDefault(); leave('/reel-links'); }} className="rl-sub" style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}><ArrowLeft size={14} /> Reel links</Link>
           <h1>{isNew ? 'New reel link' : link.title}</h1>
         </div>
       </header>
@@ -253,7 +280,7 @@ export default function ReelLinkEdit() {
               )}
               <div className="rl-row-actions" style={{ marginTop: 16 }}>
                 <button className="btn-primary" disabled={saving || (!isNew && !dirty)} onClick={save}>{saving ? 'Saving…' : isNew ? 'Save and get link' : 'Save changes'}</button>
-                <button className="btn-secondary" onClick={() => navigate('/reel-links')}>{isNew ? 'Cancel' : 'Back'}</button>
+                <button className="btn-secondary" onClick={() => leave('/reel-links')}>{isNew ? 'Cancel' : 'Back'}</button>
               </div>
             </>
           )}

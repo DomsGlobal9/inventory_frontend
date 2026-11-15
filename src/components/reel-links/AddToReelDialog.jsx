@@ -1,4 +1,4 @@
-import React, { useEffect, useId, useState } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -16,12 +16,16 @@ export default function AddToReelDialog({ isOpen, onClose, productIds, onDone })
   const list = useReelLinks({ enabled: isOpen });
   const add = useAddToReelLink();
   const [choice, setChoice] = useState('NEW');
+  // A double-click must not make two new reel links: read in the same tick it is set.
+  const inFlight = useRef(false);
   useEffect(() => { if (isOpen) setChoice('NEW'); }, [isOpen]);
   const ref = useDialog(isOpen, { onClose, canClose: !add.isPending });
   if (!isOpen) return null;
 
   const existing = (list.data ?? []).filter(r => r.active);
   const go = async () => {
+    if (inFlight.current) return;
+    inFlight.current = true;
     try {
       const made = await add.mutateAsync({ productIds, reelLinkId: choice === 'NEW' ? null : choice });
       toast.success(choice === 'NEW' ? 'Reel link made' : 'Added to the reel link');
@@ -29,6 +33,7 @@ export default function AddToReelDialog({ isOpen, onClose, productIds, onDone })
       onClose();
       navigate(`/reel-links/${made.id}`);
     } catch (e) { toast.error(e?.message || 'The pieces could not be added.'); }
+    finally { inFlight.current = false; }
   };
 
   return createPortal(

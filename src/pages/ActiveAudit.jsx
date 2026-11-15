@@ -11,6 +11,11 @@ import { holdsEverything } from '../lib/authority';
 import StatusPill from '../components/StockCountStatus';
 import { usePermission } from '../hooks/usePermission';
 import { useGoBack } from '../hooks/useGoBack';
+import { isMeasured, toBase, fromBase, qtyShown, unitOf } from '../lib/units';
+
+// Fabric is counted in its unit (metres), stored in its base (cm). Pieces stay whole numbers, as before.
+const soldByOf = (item) => item?.variant?.product?.soldBy ?? 'PIECE';
+const shownCount = (item) => (item.countedQty == null ? '' : (isMeasured(soldByOf(item)) ? String(fromBase(item.countedQty, soldByOf(item))) : item.countedQty));
 
 export default function ActiveAudit() {
   const { id } = useParams();
@@ -56,7 +61,7 @@ export default function ActiveAudit() {
     if (!data?.items) return;
 
     const fromServer = {};
-    data.items.forEach(item => { fromServer[item.id] = item.countedQty ?? ''; });
+    data.items.forEach(item => { fromServer[item.id] = shownCount(item); });
 
     // Merge, do not overwrite.
     //
@@ -107,18 +112,21 @@ export default function ActiveAudit() {
 
   const handleSaveItem = async (itemId) => {
     const value = localCounts[itemId];
-    const original = data?.items?.find(i => i.id === itemId)?.countedQty ?? '';
-    if (value === original) return; // unchanged -- don't fire a needless save
+    const row = data?.items?.find(i => i.id === itemId);
+    const original = row ? shownCount(row) : '';
+    if (String(value) === String(original)) return; // unchanged -- don't fire a needless save
+    const measured = isMeasured(soldByOf(row));
 
     // Clearing a count is a real, meaningful action -- it puts the item back to "not
     // yet counted" (countedQty: null on the server, which completeCount already treats
     // specially). Previously this just returned here with nothing saved, leaving the
     // input showing blank while the server still held the old count.
-    const countedQty = value === '' ? null : Number(value);
+    const countedQty = value === '' ? null : measured ? toBase(value, soldByOf(row)) : Number(value);
     // Refused here, in the box, and never sent: the server would refuse it too, and no retry
     // can change that. Zero is a real count -- nothing left on the shelf.
-    const problem = countedQty === null ? null
-      : !Number.isFinite(countedQty) ? 'Type how many pieces you counted, as a number.'
+    const problem = value === '' ? null
+      : measured && (countedQty === null || countedQty < 0) ? `Type the ${unitOf(soldByOf(row)).many} you measured, for example 12.5 (up to 2 decimals).`
+      : countedQty === null || !Number.isFinite(countedQty) ? 'Type how many pieces you counted, as a number.'
       : countedQty < 0 ? 'A count cannot be less than 0. Type 0 if there are none.'
       : !Number.isInteger(countedQty) ? 'Count whole pieces, for example 3, not 2.5.'
       : null;
@@ -338,7 +346,10 @@ export default function ActiveAudit() {
                 const expected = item.expectedQty;
                 // A refused count has no difference to show: -3 against 13 is not "-16".
                 const hasValue = counted !== '' && counted !== undefined && counted !== null && !rowProblem[item.id];
-                const diff = hasValue ? Number(counted) - expected : null;
+                const soldBy = soldByOf(item);
+                const measured = isMeasured(soldBy);
+                const countedBase = hasValue ? (measured ? toBase(counted, soldBy) : Number(counted)) : null;
+                const diff = countedBase === null ? null : countedBase - expected;
                 const concurrentChange = audit.status === 'IN_PROGRESS' && item.variant.quantity !== expected;
                 
                 return (
@@ -353,14 +364,14 @@ export default function ActiveAudit() {
                     <td style={{ textAlign: 'center' }}>
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
                         <span style={{ fontSize: '16px', fontWeight: '500', color: 'var(--text-secondary)' }}>
-                          {expected}
+                          {qtyShown(expected, soldBy)}
                         </span>
                         {concurrentChange && (
                           <span 
-                            title={`Inventory changed to ${item.variant.quantity} after audit started.`}
+                            title={`Inventory changed to ${qtyShown(item.variant.quantity, soldBy)} after audit started.`}
                             style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '10px', color: 'var(--accent-danger)', backgroundColor: 'rgba(239, 68, 68, 0.1)', padding: '2px 6px', borderRadius: '4px', whiteSpace: 'nowrap' }}
                           >
-                            <AlertTriangle size={10} /> Changed to {item.variant.quantity}
+                            <AlertTriangle size={10} /> Changed to {qtyShown(item.variant.quantity, soldBy)}
                           </span>
                         )}
                       </div>
@@ -382,8 +393,9 @@ export default function ActiveAudit() {
                             <input
                               type="number"
                               min="0"
-                              step="1"
-                              inputMode="numeric"
+                              step={measured ? '0.01' : '1'}
+                              inputMode={measured ? 'decimal' : 'numeric'}
+                              aria-label={measured ? `Counted, in ${unitOf(soldBy).many}` : 'Counted pieces'}
                               aria-invalid={problem ? true : undefined}
                               ref={(el) => { countInputRefs.current[item.id] = el; }}
                               value={counted}
@@ -427,7 +439,7 @@ export default function ActiveAudit() {
                           backgroundColor: diff === 0 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
                           color: diff === 0 ? 'var(--accent-success)' : 'var(--accent-danger)'
                         }}>
-                          {diff > 0 ? `+${diff}` : diff}
+                          {qtyShown(diff, soldBy, { signed: true })}
                         </span>
                       ) : (
                         <span style={{ color: 'var(--text-muted)' }}>-</span>

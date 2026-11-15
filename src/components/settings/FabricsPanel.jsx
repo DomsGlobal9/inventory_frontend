@@ -5,6 +5,7 @@ import { useShopSetup, useSaveSetup, SELLS_OPTIONS } from '../../hooks/useShopSe
 import { useAuth } from '../../context/AuthContext';
 import { holdsEverything } from '../../lib/authority';
 import { fromBase, toBase } from '../../lib/units';
+import { useBoutiqueLink } from './BoutiquePanel';
 
 /**
  * Settings → What you sell (13 Nov 2026; PLAN-onboarding-setup.md, PLAN-fabrics.md).
@@ -28,6 +29,7 @@ export default function FabricsPanel() {
   const isOwner = !!user && holdsEverything(user);
   const { data, isLoading } = useFabrics();
   const { data: setup } = useShopSetup();
+  const { data: boutique } = useBoutiqueLink();
   const save = useSetFabrics();
   const saveSells = useSaveSetup();
   const [roll, setRoll] = useState('');
@@ -54,6 +56,8 @@ export default function FabricsPanel() {
   };
   // What the shop sells. A shop never asked is shown its best guess, not chosen until the owner picks.
   const sells = data.sells ?? null;
+  // With a boutique connected the shop also holds the boutique's fabrics, so ready-made only is not offered.
+  const boutiqueOn = !!boutique?.linked;
   const pick = (v) => {
     if (!isOwner || v === sells || saveSells.isPending) return;
     saveSells.mutate({ sells: v }, { onSuccess: () => toast.success(`Updated: ${SELLS_OPTIONS.find(o => o.value === v)?.title}`), onError: failed });
@@ -71,12 +75,13 @@ export default function FabricsPanel() {
       <div role="radiogroup" aria-label="What you sell" style={{ border: '1px solid var(--border-light, #e5e7eb)', borderRadius: 10, overflow: 'hidden', maxWidth: 720 }}>
         {SELLS_OPTIONS.map((o, i) => {
           const on = sells === o.value;
+          const blocked = boutiqueOn && o.value === 'READY_MADE';
           return (
-            <button key={o.value} type="button" role="radio" aria-checked={on} disabled={!isOwner || saveSells.isPending} onClick={() => pick(o.value)}
+            <button key={o.value} type="button" role="radio" aria-checked={on} disabled={!isOwner || saveSells.isPending || blocked} onClick={() => pick(o.value)}
               style={{ width: '100%', display: 'flex', gap: 14, alignItems: 'flex-start', textAlign: 'left', padding: '14px 16px', border: 0, borderTop: i ? '1px solid var(--border-light, #e5e7eb)' : 0, cursor: isOwner ? 'pointer' : 'default', color: 'var(--text-primary)',
-                background: on ? 'rgba(166, 217, 43, 0.1)' : 'transparent', boxShadow: on ? 'inset 3px 0 0 #164B1E' : 'none', opacity: !isOwner && !on ? 0.6 : 1 }}>
+                background: on ? 'rgba(166, 217, 43, 0.1)' : 'transparent', boxShadow: on ? 'inset 3px 0 0 #164B1E' : 'none', opacity: (!isOwner || blocked) && !on ? 0.6 : 1 }}>
               <span aria-hidden="true" style={{ width: 18, height: 18, borderRadius: '50%', flexShrink: 0, marginTop: 1, border: `1.5px solid ${on ? '#164B1E' : 'var(--text-muted)'}`, boxShadow: on ? 'inset 0 0 0 3px var(--bg-card), inset 0 0 0 9px #164B1E' : 'none' }} />
-              <span style={{ display: 'grid', gap: 2 }}><strong style={{ fontSize: 14 }}>{o.title}</strong><span style={{ fontSize: 12.5, color: 'var(--text-muted)' }}>{o.line}</span></span>
+              <span style={{ display: 'grid', gap: 2 }}><strong style={{ fontSize: 14 }}>{o.title}</strong><span style={{ fontSize: 12.5, color: 'var(--text-muted)' }}>{blocked ? 'Not available while your boutique is connected: it adds fabrics and materials to this shop.' : o.line}</span></span>
             </button>
           );
         })}

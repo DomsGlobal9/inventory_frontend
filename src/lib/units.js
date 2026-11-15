@@ -46,6 +46,16 @@ export function formatQty(base, soldBy, { short = false } = {}) {
   return `${shown} ${n === 1 ? u.one : u.many}`;
 }
 
+/**
+ * A stock amount as the screens show it: fabric in its unit ("25 m", "+2.5 m"), pieces as the plain number they
+ * always were ("3", "+3"). Every list of stock moves uses this, so none shows centimetres as if they were pieces.
+ */
+export function qtyShown(base, soldBy, { signed = false } = {}) {
+  const n = Number(base ?? 0);
+  const text = isMeasured(soldBy) ? formatQty(Math.abs(n), soldBy, { short: true }) : String(Math.abs(n));
+  return n < 0 ? `-${text}` : (signed && n > 0 ? `+${text}` : text);
+}
+
 /** The stored per-base price -> the price per unit people see (4.50 -> 450). */
 export const pricePerUnit = (stored, soldBy) => Math.round(Number(stored ?? 0) * factorOf(soldBy) * 100) / 100;
 

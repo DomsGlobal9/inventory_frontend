@@ -72,6 +72,11 @@ function DeleteDialog({ clientId, preview, busy, onCancel, onConfirm }) {
               {row('Offers', preview.offers ?? 0)}
               {row('Times an offer was used', preview.offerUses ?? 0)}
               {row('Shopify orders waiting', preview.shopifyOrdersWaiting ?? 0)}
+              {preview.boutiqueAccount && (
+                <p data-testid="delete-boutique-note" style={{ margin: '10px 0 0', fontSize: '13px', color: 'var(--accent-danger, #ef4444)', lineHeight: 1.5 }}>
+                  The boutique {preview.boutiqueAccount} is connected. Its fabrics, materials and held cloth in this shop are deleted too, and the boutique app is disconnected until ScaleEzy enables it again.
+                </p>
+              )}
             </>
           ) : (
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center', fontSize: '13px', color: 'var(--text-muted)' }}>

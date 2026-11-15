@@ -7,6 +7,7 @@ import PageLoader from '../components/PageLoader';
 import { exportToCSV } from '../utils/csvUtils';
 import { usePermission } from '../hooks/usePermission';
 import { useGoBack } from '../hooks/useGoBack';
+import { qtyShown, isMeasured } from '../lib/units';
 
 export default function AlertCenter() {
   const navigate = useNavigate();
@@ -204,11 +205,11 @@ export default function AlertCenter() {
                     fontWeight: '600',
                     color: v.quantity <= 0 ? 'var(--accent-danger)' : 'var(--accent-gold)'
                   }}>
-                    {v.quantity}
+                    {qtyShown(v.quantity, v.soldBy)}
                   </span>
                 </td>
                 <td data-label="Reorder Level">
-                  <span style={{ color: 'var(--text-secondary)' }}>{v.reorderLevel}</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{qtyShown(v.reorderLevel, v.soldBy)}</span>
                 </td>
                 <td className="phone-actions" style={{ textAlign: 'right' }}>
                   <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', alignItems: 'center' }}>
@@ -248,7 +249,7 @@ export default function AlertCenter() {
                     >
                       View
                     </button>
-                    {can('purchase_order:create') && <button
+                    {can('purchase_order:create') && !isMeasured(v.soldBy) && <button
                       className="btn-primary"
                       onClick={() => {
                         if (!v.isRead) markAlertRead.mutate(v.id);

@@ -178,6 +178,9 @@ export default function OnboardingPage() {
                 <input type="checkbox" checked={form.hasBoutique} onChange={(e) => setForm(f => ({ ...f, hasBoutique: e.target.checked, ...(e.target.checked ? {} : { boutiqueTenant: '' }) }))} style={{ marginTop: '3px' }} />
                 <span><strong>Client subscribes to the ScaleEzy Boutique module</strong><span style={{ display: 'block', fontSize: '11.5px', color: 'var(--text-muted)' }}>Stitching orders and tailoring. Boutique items and stock are shared with this store immediately.</span></span>
               </label>
+              {form.hasBoutique && form.sells === 'READY_MADE' && (
+                <p data-testid="boutique-sells-note" style={{ margin: 0, fontSize: '12px', color: 'var(--text-secondary)' }}>The boutique adds fabrics and materials, so this shop will be set to sell both garments and fabrics.</p>
+              )}
               {form.hasBoutique && (
                 <Field label="Boutique account *" hint="The boutique account identifier, e.g. lakshmi-boutique (letters, numbers and hyphens).">
                   <input type="text" required autoCapitalize="none" spellCheck={false} value={form.boutiqueTenant} onChange={set('boutiqueTenant')} placeholder="lakshmi-boutique" className="input-field" style={INPUT} />

@@ -8,6 +8,7 @@ import { useLocationContext } from '../../contexts/LocationContext';
 import { useRecentTransactions } from '../../hooks/useRecentTransactions';
 import { useDeadStock } from '../../hooks/useDeadStock';
 import { useOverview } from './Overview';
+import { qtyShown } from '../../lib/units';
 
 /**
  * THE DASHBOARD'S LOWER HALF, in the same cards as the top (23 Oct, replacing six old tiles and two tabs).
@@ -69,7 +70,7 @@ function DeadList() {
     <div className="lh-rows">
       {rows.map(r => (
         <Link key={r.id} to={`/products/${r.productId}`} className="lh-row">
-          <div className="lh-what"><div>{r.productTitle}</div><div className="ov-muted">{r.sku} · {r.quantity} pieces · {r.daysSinceLastMovement} days still</div></div>
+          <div className="lh-what"><div>{r.productTitle}</div><div className="ov-muted">{r.sku} · {qtyShown(r.quantity, r.soldBy)}{r.soldBy && r.soldBy !== 'PIECE' ? '' : ' pieces'} · {r.daysSinceLastMovement} days still</div></div>
           <b>{rupees(r.inventoryValue)}</b>
         </Link>
       ))}
@@ -121,7 +122,7 @@ function Moves() {
           {rows.map(m => (
             <div key={m.id} className="lh-row">
               <div className="lh-what"><div>{m.product}</div><div className="ov-muted">{m.sku} · {when(m.date)}</div></div>
-              <span className={`lh-qty ${m.quantity > 0 ? 'plus' : 'minus'}`}>{m.quantity > 0 ? '+' : ''}{m.quantity}</span>
+              <span className={`lh-qty ${m.quantity > 0 ? 'plus' : 'minus'}`}>{qtyShown(m.quantity, m.soldBy, { signed: true })}</span>
             </div>
           ))}
         </div>

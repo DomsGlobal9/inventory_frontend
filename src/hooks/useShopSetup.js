@@ -34,14 +34,22 @@ export function useSaveSetup() {
   });
 }
 
-/** "Do it later": for this visit only. The warning in the top bar stays until the setup is done. */
+/**
+ * "Do it later": for the next 12 hours, in every tab (it was one tab only, so opening a second tab brought the
+ * window straight back). The warning in the top bar stays until the setup is done.
+ */
+const LATER_FOR_MS = 12 * 60 * 60 * 1000;
 export function putOffSetup() {
+  try { localStorage.setItem(LATER_KEY, String(Date.now() + LATER_FOR_MS)); } catch { /* private window */ }
   try { sessionStorage.setItem(LATER_KEY, '1'); } catch { /* private window */ }
   window.dispatchEvent(new Event(LATER_EVENT));
 }
 
 export function useSetupPutOff() {
-  const read = () => { try { return sessionStorage.getItem(LATER_KEY) === '1'; } catch { return false; } };
+  const read = () => {
+    try { if (sessionStorage.getItem(LATER_KEY) === '1') return true; } catch { /* private window */ }
+    try { return Number(localStorage.getItem(LATER_KEY)) > Date.now(); } catch { return false; }
+  };
   const [later, setLater] = useState(read);
   useEffect(() => {
     const on = () => setLater(read());

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Check, Loader2, AlertCircle, ChevronRight } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { holdsEverything } from '../../lib/authority';
@@ -36,6 +36,7 @@ export default function ShopSetup() {
   const isOwner = !!user && holdsEverything(user);
   const { data: setup } = useShopSetup(isOwner);
   const later = useSetupPutOff();
+  const onSettings = useLocation().pathname.startsWith('/settings');
   const save = useSaveSetup();
   const navigate = useNavigate();
   const details = useRef(null);
@@ -49,8 +50,9 @@ export default function ShopSetup() {
 
   // Once, for the owner, while it is not complete and not put off for this visit.
   useEffect(() => {
-    if (isOwner && setup && !setup.setupDone && !later) setOpen(true);
-  }, [isOwner, setup?.setupDone, later]); // eslint-disable-line react-hooks/exhaustive-deps
+    // Not over Settings: the owner may have gone there to fill in the very same details.
+    if (isOwner && setup && !setup.setupDone && !later && !onSettings) setOpen(true);
+  }, [isOwner, setup?.setupDone, later, onSettings]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Each step starts at its top, not where the last one was scrolled to.
   useEffect(() => { if (body.current) body.current.scrollTop = 0; }, [step]);

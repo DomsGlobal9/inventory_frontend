@@ -7,6 +7,7 @@ import { useInventoryTransactions } from '../hooks/useInventory';
 import PageLoader from '../components/PageLoader';
 import dayjs from 'dayjs';
 import { useGoBack } from '../hooks/useGoBack';
+import { qtyShown } from '../lib/units';
 
 export default function InventoryLedger() {
   const navigate = useNavigate();
@@ -122,10 +123,10 @@ export default function InventoryLedger() {
                   <td>{getTypeBadge(tx.type)}</td>
                   <td>{getReasonBadge(tx.reason)}</td>
                   <td style={{ textAlign: 'right', fontWeight: '600', color: tx.quantity > 0 ? 'var(--accent-success)' : tx.quantity < 0 ? 'var(--accent-danger)' : 'inherit' }}>
-                    {tx.quantity > 0 ? `+${tx.quantity}` : tx.quantity}
+                    {qtyShown(tx.quantity, tx.variant?.product?.soldBy, { signed: true })}
                   </td>
                   <td style={{ textAlign: 'right', fontWeight: '500' }}>
-                    {tx.balanceAfter}
+                    {qtyShown(tx.balanceAfter, tx.variant?.product?.soldBy)}
                   </td>
                   <td>
                     {tx.referenceType && tx.referenceId ? (

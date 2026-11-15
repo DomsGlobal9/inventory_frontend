@@ -189,6 +189,18 @@ export default function PurchaseOrderDetails() {
       setFormData(prev => ({ ...prev, supplierId: location.state.supplierId }));
       return;
     }
+    // Several lines at once (Running low: "Purchase order for the ticked"), each with its own quantity.
+    if (isNew && Array.isArray(location.state?.items) && location.state.items.length && formData.items.length === 0) {
+      setFormData(prev => ({
+        ...prev,
+        supplierId: location.state.supplierId ?? prev.supplierId,
+        items: location.state.items.map(i => ({
+          variantId: i.variantId, sku: i.sku, variantCode: '', barcode: '', productTitle: i.title || '', color: i.color || '', size: i.size || '',
+          orderedQty: i.orderedQty, unitPrice: startingPrice(i.costPrice), sellingPrice: null, variant: { product: { title: i.title } }
+        }))
+      }));
+      return;
+    }
     if (isNew && location.state?.variantId && formData.items.length === 0) {
       /*
        * Arriving here with a line already chosen.

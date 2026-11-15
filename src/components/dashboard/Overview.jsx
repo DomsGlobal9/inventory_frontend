@@ -121,7 +121,7 @@ function SalesCard({ sales, link = {} }) {
 }
 
 /** Stacked bars, till under online, drawn to one scale; hover or tap a bar for its figures. */
-function SalesChart({ sales }) {
+function SalesChart({ sales, reportTo = null }) {
   const still = useReducedMotion();
   const [period, setPeriod] = useState('month');
   const [tip, setTip] = useState(null);
@@ -159,6 +159,8 @@ function SalesChart({ sales }) {
         <h2>{period === 'month' ? 'Sales by month' : 'Sales by day · last 30 days'}</h2>
         <div className="ov-legend"><span><i style={{ background: 'var(--ov-till)' }} />At the till</span><span><i style={{ background: 'var(--ov-online)' }} />Online</span></div>
         <span className="sp" />
+        {/* A link, not the whole card: tapping a bar shows its figures. */}
+        {reportTo && <Link to={reportTo} className="ov-report-link">View full report</Link>}
         <div className="ov-seg" role="group" aria-label="Show sales by">
           <button type="button" aria-pressed={period === 'month'} onClick={() => { setTip(null); setPeriod('month'); }}>Monthly</button>
           <button type="button" aria-pressed={period === 'day'} onClick={() => { setTip(null); setPeriod('day'); }}>Last 30 days</button>
@@ -231,7 +233,16 @@ export default function Overview({ actions, summary }) {
   const { currentLocation } = useLocationContext();
   const { data, isLoading } = useOverview();
   const cardLink = useCardLink();
-  const canInventory = usePermission().can('inventory:view');
+  const { can } = usePermission();
+  // The full pages (15 Nov 2026): only the owner until the owner gives them to a role. Without one, a card
+  // keeps opening what it always opened.
+  const full = { sales: can('analytics:sales'), value: can('analytics:stock_value'), stock: can('analytics:stock') };
+  const valueLink = full.value ? cardLink('/analytics/stock-value', 'analytics:stock_value', 'View stock value by store') : cardLink('/inventory', 'inventory:view', 'Open Inventory: stock value');
+  const stockLink = full.stock ? cardLink('/analytics/stock', 'analytics:stock', 'View stock on hand by store') : cardLink('/inventory', 'inventory:view', 'Open Inventory: stock on hand');
+  const lowTo = full.stock ? '/analytics/running-low' : '/inventory/alerts?tab=low_stock';
+  const lowLink = cardLink(lowTo, full.stock ? 'analytics:stock' : 'inventory:view', 'View the low stock report');
+  const salesLink = full.sales ? cardLink('/analytics/sales', 'analytics:sales', 'View the Sales report') : cardLink('/orders', 'sales_order:view', 'Open Orders: sales of the last 30 days');
+  const chartReport = full.sales ? '/analytics/sales?period=year' : null;
   const first = String(user?.name || '').trim().split(/\s+/)[0];
   const name = first ? first[0].toUpperCase() + first.slice(1) : '';
   const now = new Date();
@@ -275,7 +286,7 @@ export default function Overview({ actions, summary }) {
         ))}
 
         {d?.stock?.value != null && (
-          <motion.div {...rise(1)} {...cardLink('/inventory', 'inventory:view', 'Open Inventory: stock value')} className={`ov-card ov-kpi${canInventory ? ' ov-click' : ''}`}>
+          <motion.div {...rise(1)} {...valueLink} className={`ov-card ov-kpi${valueLink.role ? ' ov-click' : ''}`}>
             <div className="ov-kpi-head"><span>Stock value{currentLocation ? ` · ${currentLocation.name}` : ' · whole shop'}</span><span className="ov-ico"><IndianRupee size={17} /></span></div>
             <div className="ov-big"><CountUp value={d.stock.value} format={rupees} /></div>
             <div className="ov-foot">
@@ -297,7 +308,7 @@ export default function Overview({ actions, summary }) {
         )}
 
         {d?.stock && (
-          <motion.div {...rise(2)} {...cardLink('/inventory', 'inventory:view', 'Open Inventory: stock on hand')} className={`ov-card ov-kpi${canInventory ? ' ov-click' : ''}`}>
+          <motion.div {...rise(2)} {...stockLink} className={`ov-card ov-kpi${stockLink.role ? ' ov-click' : ''}`}>
             <div className="ov-kpi-head"><span>Stock on hand{currentLocation ? ` · ${currentLocation.name}` : ''}</span><span className="ov-ico"><Package size={17} /></span></div>
             <div className="ov-big"><CountUp value={d.stock.units} /> <small>pieces</small></div>
             <div className="ov-muted">{d.stock.colours.toLocaleString('en-IN')} colours across your products</div>
@@ -318,7 +329,7 @@ export default function Overview({ actions, summary }) {
         )}
 
         {d?.stock && (
-          <motion.div {...rise(3)} {...cardLink('/inventory/alerts?tab=low_stock', 'inventory:view', 'Open the stock alerts: low stock')} className={`ov-card ov-kpi${canInventory ? ' ov-click' : ''}`}>
+          <motion.div {...rise(3)} {...lowLink} className={`ov-card ov-kpi${lowLink.role ? ' ov-click' : ''}`}>
             <div className="ov-kpi-head"><span>Running low</span><span className="ov-ico warn"><TriangleAlert size={17} /></span></div>
             <div className="ov-big"><CountUp value={d.stock.low} /> <small>colour{d.stock.low === 1 ? '' : 's'}</small></div>
             <div className="ov-muted">{d.stock.low > 0 ? `${d.stock.lowPieces} pieces left between them · at or under their reorder level` : 'Nothing at or under its reorder level.'}</div>
@@ -327,7 +338,7 @@ export default function Overview({ actions, summary }) {
                 {d.stock.lowest.map((l, i) => (
                   <Link key={i} to={`/products/${l.productId}`} title={`${l.title}${l.colour ? ` · ${l.colour}` : ''}${l.size ? ` · ${l.size}` : ''}: ${l.left} left`}><span>{l.title}{l.colour ? ` · ${l.colour}` : ''}{l.size && !/free/i.test(l.size) ? ` · ${l.size}` : ''}</span><b>{l.left} left</b></Link>
                 ))}
-                {d.stock.low > d.stock.lowest.length && <Link to="/inventory/alerts?tab=low_stock" style={{ fontWeight: 600 }}><span>See all {d.stock.low}</span></Link>}
+                {d.stock.low > d.stock.lowest.length && <Link to={lowTo} style={{ fontWeight: 600 }}><span>See all {d.stock.low}</span></Link>}
               </div>
             )}
           </motion.div>
@@ -338,8 +349,8 @@ export default function Overview({ actions, summary }) {
       {/* Sales: the chart, and the last 30 days in figures beside it. */}
       {d?.sales && (
         <section className="ov-row2">
-          <motion.div {...rise(4)} style={{ minWidth: 0 }}><SalesChart sales={d.sales} /></motion.div>
-          <motion.div {...rise(5)} style={{ minWidth: 0 }}><SalesCard sales={d.sales} link={cardLink('/orders', 'sales_order:view', 'Open Orders: sales of the last 30 days')} /></motion.div>
+          <motion.div {...rise(4)} style={{ minWidth: 0 }}><SalesChart sales={d.sales} reportTo={chartReport} /></motion.div>
+          <motion.div {...rise(5)} style={{ minWidth: 0 }}><SalesCard sales={d.sales} link={salesLink} /></motion.div>
         </section>
       )}
 

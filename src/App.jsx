@@ -13,6 +13,10 @@ import PlatformAdminsPage from './pages/admin/PlatformAdminsPage';
 import OnboardingPage from './pages/admin/OnboardingPage';
 import LeadsPage from './pages/admin/LeadsPage';
 import DayBook from './pages/DayBook';
+import SalesPage from './pages/analytics/SalesPage';
+import StockValuePage from './pages/analytics/StockValuePage';
+import StockOnHandPage from './pages/analytics/StockOnHandPage';
+import RunningLowPage from './pages/analytics/RunningLowPage';
 import Offers from './pages/Offers';
 import Campaigns from './pages/campaigns/Campaigns';
 import CounterReturn from './pages/sales/CounterReturn';
@@ -219,6 +223,11 @@ function App() {
           <Route path="/campaigns" element={<Guard permission="campaign:view"><Campaigns /></Guard>} />
           <Route path="/campaigns/:id" element={<Guard permission="campaign:view"><CampaignDetail /></Guard>} />
           <Route path="/reports/daybook" element={<Guard permission="report:financial"><DayBook /></Guard>} />
+          {/* The full pages behind the dashboard cards: only the owner, until the owner gives them to a role. */}
+          <Route path="/analytics/sales" element={<Guard permission="analytics:sales" what="view the Sales report"><SalesPage /></Guard>} />
+          <Route path="/analytics/stock-value" element={<Guard permission="analytics:stock_value" what="view stock value by store"><StockValuePage /></Guard>} />
+          <Route path="/analytics/stock" element={<Guard permission="analytics:stock" what="view stock by store"><StockOnHandPage /></Guard>} />
+          <Route path="/analytics/running-low" element={<Guard permission="analytics:stock" what="view the low stock report"><RunningLowPage /></Guard>} />
           <Route path="/customers" element={<Guard permission="customer:view"><Customers /></Guard>} />
           {/* The Customer card and Door QR moved to ScaleEzy CRM's Shop floor (12 Nov 2026); old links land on Customers. */}
           <Route path="/customers/card" element={<Navigate to="/customers" replace />} />

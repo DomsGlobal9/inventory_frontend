@@ -9,6 +9,7 @@ import { useLocationContext } from '../../contexts/LocationContext';
 import { usePermission } from '../../hooks/usePermission';
 import Select from '../common/Select';
 import TakeFromShelf, { fromSpotsFor } from '../shelves/TakeFromShelf';
+import { isMeasured, toBase, fromBase, qtyShown } from '../../lib/units';
 
 /**
  * MOVE STOCK BETWEEN LOCATIONS, from the Inventory page (24 Oct; it was its own Transfers page).
@@ -28,14 +29,15 @@ const NEW_LOCATION = '__new__';
 const codeFrom = (name) => name.toUpperCase().replace(/[^A-Z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 20);
 const TYPES = [{ v: 'STORE', l: 'Store' }, { v: 'WAREHOUSE', l: 'Godown / warehouse' }, { v: 'ONLINE', l: 'Online / virtual' }];
 
-export default function MoveStockModal({ onClose, startWith = null }) {
+export default function MoveStockModal({ onClose, startWith = null, startFrom = null, startTo = null, startQuantity = null }) {
   const queryClient = useQueryClient();
   const { locations, currentLocation, refreshLocations } = useLocationContext();
   const { can } = usePermission();
   const mayAddLocation = can('admin:locations');
 
-  const [from, setFrom] = useState(currentLocation?.id ?? '');
-  const [to, setTo] = useState('');
+  // Opened from Running low: from the store with spare, to the store that is short.
+  const [from, setFrom] = useState(startFrom ?? currentLocation?.id ?? '');
+  const [to, setTo] = useState(startTo ?? '');
   const [notes, setNotes] = useState('');
   const [items, setItems] = useState([]); // { variantId, sku, title, available, quantity, fromSpot }
   const [q, setQ] = useState('');
@@ -78,7 +80,8 @@ export default function MoveStockModal({ onClose, startWith = null }) {
     setProblem('');
     setItems(list => list.some(i => i.variantId === v.variantId)
       ? list
-      : [...list, { variantId: v.variantId, sku: v.sku, title: v.productTitle, available: v.quantity, quantity: 1, fromSpot: null }]);
+      : [...list, { variantId: v.variantId, sku: v.sku, title: v.productTitle, available: v.quantity, soldBy: v.soldBy ?? 'PIECE',
+        quantity: isMeasured(v.soldBy) ? String(fromBase(Math.min(100, v.quantity), v.soldBy)) : 1, fromSpot: null }]);
     setQ(''); setFound([]);
   };
 
@@ -89,7 +92,14 @@ export default function MoveStockModal({ onClose, startWith = null }) {
     search(startWith.sku, 5).then(rows => {
       if (gone) return;
       const hit = rows.find(r => r.variantId === startWith.variantId);
-      if (hit) add(hit);
+      if (hit) {
+        add(hit);
+        // The suggested amount, never more than the store has.
+        if (startQuantity) {
+          const q = Math.min(startQuantity, hit.quantity);
+          setItems(list => list.map(i => (i.variantId === hit.variantId ? { ...i, quantity: isMeasured(i.soldBy) ? String(fromBase(q, i.soldBy)) : q } : i)));
+        }
+      }
       else setProblem(`${startWith.sku} has no stock at ${locations.find(l => l.id === from)?.name ?? 'this store'} to move.`);
     }).catch(() => {});
     return () => { gone = true; };
@@ -127,28 +137,33 @@ export default function MoveStockModal({ onClose, startWith = null }) {
   };
 
   const setQty = (variantId, value) => setItems(list => list.map(i => (i.variantId === variantId ? { ...i, quantity: value } : i)));
-  const pieces = items.reduce((t, i) => t + (parseInt(i.quantity, 10) || 0), 0);
+  // What one line moves, in base units (cm for fabric), or null when it cannot be read.
+  const baseOf = (i) => (isMeasured(i.soldBy) ? toBase(i.quantity, i.soldBy) : (parseInt(i.quantity, 10) || 0));
+  const pieces = items.filter(i => !isMeasured(i.soldBy)).reduce((t, i) => t + (parseInt(i.quantity, 10) || 0), 0);
+  const metresCm = items.filter(i => i.soldBy === 'METRE').reduce((t, i) => t + (toBase(i.quantity, 'METRE') || 0), 0);
+  const amount = [pieces ? `${pieces} ${pieces === 1 ? 'piece' : 'pieces'}` : '', metresCm ? qtyShown(metresCm, 'METRE') : ''].filter(Boolean).join(' and ') || '0 pieces';
 
   const move = async () => {
     if (!from || !to) return setProblem('Choose where the stock comes from and where it goes.');
     if (from === to) return setProblem('From and To are the same location.');
     if (!items.length) return setProblem('Add at least one item to move.');
     for (const i of items) {
-      const n = parseInt(i.quantity, 10) || 0;
-      if (n < 1) return setProblem(`Say how many of ${i.sku} to move.`);
-      if (n > i.available) return setProblem(`Only ${i.available} of ${i.sku} are at ${locations.find(l => l.id === from)?.name}.`);
+      const n = baseOf(i);
+      if (isMeasured(i.soldBy) && n === null) return setProblem(`Type the metres of ${i.sku} to move, like 2.5 (up to 2 decimals).`);
+      if (!n || n < 1) return setProblem(`Say how much of ${i.sku} to move.`);
+      if (n > i.available) return setProblem(`Only ${qtyShown(i.available, i.soldBy)} of ${i.sku} ${i.available === 1 ? 'is' : 'are'} at ${locations.find(l => l.id === from)?.name}.`);
     }
     setSaving(true); setProblem('');
     try {
       await api.post('/inventory-transfers', {
         originLocationId: from, destinationLocationId: to, notes,
-        items: items.map(i => ({ variantId: i.variantId, quantity: parseInt(i.quantity, 10), fromSpots: fromSpotsFor(i.fromSpot, parseInt(i.quantity, 10)) }))
+        items: items.map(i => ({ variantId: i.variantId, quantity: baseOf(i), fromSpots: fromSpotsFor(i.fromSpot, baseOf(i)) }))
       });
       invalidateDerivedViews(queryClient);
       queryClient.invalidateQueries({ queryKey: ['inventory'] });
       toast.success(can('shelf:putaway')
-        ? `${pieces} ${pieces === 1 ? 'piece' : 'pieces'} moved. At ${locations.find(l => l.id === to)?.name} they wait in Shelves → Put away.`
-        : `${pieces} ${pieces === 1 ? 'piece' : 'pieces'} moved.`);
+        ? `${amount} moved. At ${locations.find(l => l.id === to)?.name} they wait in Shelves → Put away.`
+        : `${amount} moved.`);
       onClose();
     } catch (e) {
       setProblem(e?.message || 'The stock could not be moved. Try again.');
@@ -235,7 +250,7 @@ export default function MoveStockModal({ onClose, startWith = null }) {
                   <button key={v.variantId} type="button" role="option" aria-selected="false" onClick={() => add(v)}
                     style={{ display: 'flex', justifyContent: 'space-between', gap: 10, width: '100%', textAlign: 'left', padding: '9px 12px', border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-primary)', fontSize: 13 }}>
                     <span style={{ minWidth: 0 }}><b>{v.productTitle}</b> <span style={{ color: 'var(--text-secondary)' }}>· {v.sku}</span></span>
-                    <span style={{ color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>{v.quantity} here</span>
+                    <span style={{ color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>{qtyShown(v.quantity, v.soldBy)} here</span>
                   </button>
                 ))}
             </div>
@@ -249,14 +264,14 @@ export default function MoveStockModal({ onClose, startWith = null }) {
                 <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                   <div style={{ flex: 1, minWidth: 0, fontSize: 14 }}>
                     <div style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{i.title}</div>
-                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', overflowWrap: 'anywhere' }}>{i.sku} · {i.available} at {fromName}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', overflowWrap: 'anywhere' }}>{i.sku} · {qtyShown(i.available, i.soldBy)} at {fromName}</div>
                   </div>
-                  <input aria-label={`How many of ${i.sku} to move`} className="input-field" type="number" min="1" max={i.available} value={i.quantity}
+                  <input aria-label={`How many of ${i.sku} to move`} className="input-field" type="number" min={isMeasured(i.soldBy) ? '0.01' : '1'} step={isMeasured(i.soldBy) ? '0.01' : '1'} inputMode={isMeasured(i.soldBy) ? 'decimal' : 'numeric'} max={isMeasured(i.soldBy) ? fromBase(i.available, i.soldBy) : i.available} value={i.quantity}
                     onChange={(e) => { setQty(i.variantId, e.target.value); setProblem(''); }} style={{ width: 84, textAlign: 'center' }} />
                   <button type="button" className="btn-icon" aria-label={`Remove ${i.sku}`} style={{ color: 'var(--accent-danger)' }}
                     onClick={() => setItems(list => list.filter(x => x.variantId !== i.variantId))}><Trash2 size={16} /></button>
                 </div>
-                <TakeFromShelf compact variantId={i.variantId} locationId={from} quantity={i.quantity}
+                <TakeFromShelf compact variantId={i.variantId} locationId={from} quantity={baseOf(i) || 0}
                   value={i.fromSpot ?? null} onChange={(spotId) => { if ((i.fromSpot ?? null) !== spotId) setItems(list => list.map(x => (x.variantId === i.variantId ? { ...x, fromSpot: spotId } : x))); }} />
               </div>
             ))}
@@ -271,11 +286,11 @@ export default function MoveStockModal({ onClose, startWith = null }) {
         {problem && <div role="alert" style={{ fontSize: 13, color: 'var(--accent-danger)' }}>{problem}</div>}
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{pieces} {pieces === 1 ? 'piece' : 'pieces'} · {items.length} {items.length === 1 ? 'item' : 'items'}</span>
+          <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{amount} · {items.length} {items.length === 1 ? 'item' : 'items'}</span>
           <span style={{ display: 'flex', gap: 8 }}>
             <button type="button" className="btn-secondary" onClick={onClose} disabled={saving}>Cancel</button>
             <button type="button" className="btn-primary" onClick={move} disabled={saving || !items.length}>
-              {saving ? 'Moving…' : `Move ${pieces} ${pieces === 1 ? 'piece' : 'pieces'}`}
+              {saving ? 'Moving…' : `Move ${amount}`}
             </button>
           </span>
         </div>

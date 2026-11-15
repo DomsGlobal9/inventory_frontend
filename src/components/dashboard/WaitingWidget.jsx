@@ -69,7 +69,7 @@ export default function WaitingWidget() {
               <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-primary)' }}>
                 {r.name || 'Someone'} &middot;{' '}
                 {/* A tap on a phone dials it. That is the whole action this widget exists for. */}
-                <a href={`tel:${r.phone}`} style={{ color: 'inherit' }}>{r.phone}</a>
+                <a href={`tel:${r.phone}`} style={{ color: 'inherit', display: 'inline-flex', alignItems: 'center', minHeight: 28 }}>{r.phone}</a>
               </div>
               <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
                 {r.title}{r.piece ? ` — ${r.piece}` : ''} &middot;{' '}

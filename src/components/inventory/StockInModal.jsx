@@ -9,7 +9,7 @@ import Select from '../common/Select';
 import { isMeasured, toBase, fromBase, formatQty, storedPrice, pricePerUnit, priceProblem } from '../../lib/units';
 
 
-export default function StockInModal({ variant, onClose }) {
+export default function StockInModal({ variant, onClose, locationId = null, locationName = null }) {
   const { data: metadata } = useInventoryMetadata();
   const stockInMutation = useStockIn();
   // Cloth by the metre: typed in metres and rupees per metre, kept in centimetres and per centimetre.
@@ -44,6 +44,8 @@ export default function StockInModal({ variant, onClose }) {
     if (costBad) { toast.error(costBad); return; }
     stockInMutation.mutate({
       variantId: variant.variantId,
+      // A chosen store (Running low), else the store picked at the top of the app.
+      ...(locationId ? { locationId } : {}),
       quantity: qty,
       unitCost: formData.unitCost ? (measured ? storedPrice(formData.unitCost, variant.soldBy) : Number(formData.unitCost)) : undefined,
       reason: formData.reason,
@@ -78,7 +80,7 @@ export default function StockInModal({ variant, onClose }) {
         <div style={{ padding: '24px', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}><Plus size={20} /> Receive Stock</h3>
-            <p style={{ margin: '4px 0 0', fontSize: '14px', color: 'var(--text-secondary)' }}>Receive stock for {variant.productTitle} ({variant.sku})</p>
+            <p style={{ margin: '4px 0 0', fontSize: '14px', color: 'var(--text-secondary)' }}>Receive stock for {variant.productTitle} ({variant.sku}){locationName ? ` into ${locationName}` : ''}</p>
           </div>
           <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}><X size={20} /></button>
         </div>

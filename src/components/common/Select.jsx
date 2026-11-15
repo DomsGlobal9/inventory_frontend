@@ -427,7 +427,9 @@ export default function Select({
                * menu-shaped thing to aim at rather than a sliver. The ceiling is the distance
                * to the right edge, so a long label cannot push it off screen.
                */
-              minWidth: 120,
+              // On a phone the field is usually the full width of the screen, and a short list
+              // floating under its left edge reads as broken: there the field IS the floor.
+              minWidth: window.innerWidth <= 640 ? Math.min(menuBox.width, menuBox.maxWidth) : 120,
               width: 'max-content',
               maxWidth: menuBox.maxWidth,
               maxHeight: menuBox.maxHeight,

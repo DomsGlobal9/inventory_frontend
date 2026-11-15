@@ -1141,6 +1141,14 @@ html.theme-wipe *, html.theme-wipe *::before, html.theme-wipe *::after { transit
 .ov-row1 > *, .ov-row2 > *, .ov-row3 > * { min-width: 0; }
 .ov-lows b { color: var(--accent-warning); white-space: nowrap; }
 .ov-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.ov-report-link { font-size: 12.5px; font-weight: 600; color: var(--text-secondary); text-decoration: underline; text-underline-offset: 3px; }
+.ov-report-link:hover { color: var(--text-primary); }
+/* Phones: every link on the dashboard is a comfortable tap (at least 32 px tall), not a line of small text. */
+@media (max-width: 640px) {
+  .ov-lows a { min-height: 32px; align-items: center; }
+  .ov-report-link, .ov-head a, .lh-head a, .lh-fig a, .lh-card a { min-height: 32px; display: inline-flex; align-items: center; }
+  .lh-link { min-height: 40px; display: inline-flex; align-items: center; }
+}
 .ov-head h2 { font-size: 15px; margin: 0; font-weight: 700; color: var(--text-primary); }
 .ov-head .sp { flex: 1; }
 .ov-seg { display: inline-flex; padding: 3px; border-radius: 11px; background: var(--bg-input); border: 1px solid var(--border-light); }

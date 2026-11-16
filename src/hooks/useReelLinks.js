@@ -30,10 +30,10 @@ export const useNextReelTitle = ({ enabled = true } = {}) => useQuery({
   enabled, staleTime: 0, gcTime: 0
 });
 
-/** Pieces to add, by name, code or SKU; the newest changed first when the box is empty. */
-export const usePieceSearch = (q, { enabled = true } = {}) => useQuery({
-  queryKey: ['reel-links', 'pieces', q],
-  queryFn: async () => (await api.get('/reel-links/pieces', { params: { q } })).data,
+/** Pieces to add, by name, code or SKU; the newest changed first when the box is empty. filter: 'new' | 'instock'. */
+export const usePieceSearch = (q, { enabled = true, filter = null } = {}) => useQuery({
+  queryKey: ['reel-links', 'pieces', q, filter],
+  queryFn: async () => (await api.get('/reel-links/pieces', { params: { q, ...(filter ? { filter } : {}) } })).data,
   enabled, staleTime: 15_000, placeholderData: (prev) => prev
 });
 

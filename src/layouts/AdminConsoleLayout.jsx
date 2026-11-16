@@ -4,6 +4,8 @@ import { Building2, Users, Rocket, HeartPulse, ScrollText, Bug, LifeBuoy, LogOut
 import { usePlatformAdmin } from '../context/PlatformAdminContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAdminTryOnFailures } from '../hooks/admin/useAdminConsole';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../lib/api';
 
 const NAV_ITEMS = [
   { name: 'Clients', path: '/platformconsole/clients', icon: Building2 },
@@ -39,6 +41,12 @@ export default function AdminConsoleLayout() {
   // An outage (a spending cap, the photo studio down) is only useful if someone notices it, so it
   // shows on the menu from any console page, not only on the Errors page.
   const outage = useAdminTryOnFailures({ days: 1, limit: 1 }).data?.outage;
+  const { data: joinCount } = useQuery({
+    queryKey: ['admin', 'boutique-join-requests', 'count'],
+    queryFn: async () => (await api.get('/admin/boutique-join-requests/count')).data,
+    refetchInterval: 60_000, retry: false
+  });
+  const waitingToJoin = joinCount?.waiting ?? 0;
 
   const handleLogout = async () => {
     await logout();
@@ -115,6 +123,8 @@ export default function AdminConsoleLayout() {
           {NAV_ITEMS.map(item => {
             const Icon = item.icon;
             const alarm = item.name === 'Errors' && outage;
+            // Boutique clients waiting to join (16 Nov): counted beside Clients, so a request is seen from any page.
+            const joinWaiting = item.name === 'Clients' ? waitingToJoin : 0;
             return (
               <NavLink
                 key={item.path}
@@ -129,6 +139,12 @@ export default function AdminConsoleLayout() {
               >
                 <Icon size={18} />
                 {item.name}
+                {joinWaiting > 0 && (
+                  <span title={`${joinWaiting} waiting to join`} aria-label={`${joinWaiting} boutique client${joinWaiting === 1 ? '' : 's'} waiting to join`}
+                    style={{ marginLeft: 'auto', minWidth: '20px', padding: '1px 6px', borderRadius: '10px', background: 'var(--accent-gold)', color: '#1a1a1a', fontSize: '11px', fontWeight: 700, textAlign: 'center' }}>
+                    {joinWaiting}
+                  </span>
+                )}
                 {alarm && (
                   <span title={`${outage.failures} try-on failures in the last hour`} aria-label={`${outage.failures} try-on failures in the last hour`}
                     style={{ marginLeft: 'auto', minWidth: '20px', padding: '1px 6px', borderRadius: '10px', background: 'var(--accent-danger)', color: '#fff', fontSize: '11px', fontWeight: 700, textAlign: 'center' }}>

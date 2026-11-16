@@ -459,10 +459,16 @@ export default function ProductDetails() {
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '16px' }}>
                       <h3 style={{ margin: 0 }}>Product Overview</h3>
-                      {canEdit && !editing && (
+                      {canEdit && !editing && product.priceOwner !== 'BOUTIQUE' && (
                         <button className="btn-secondary" onClick={startEditing} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <Pencil size={14} /> Edit details
                         </button>
+                      )}
+                      {/* A boutique's item is changed in the boutique app (16 Nov): name, price, unit, GST and colours. */}
+                      {product.priceOwner === 'BOUTIQUE' && (
+                        <p data-testid="boutique-managed" style={{ margin: 0, fontSize: '13px', color: 'var(--text-muted)', maxWidth: '320px', textAlign: 'right' }}>
+                          Managed in your boutique app. Change its name, price, colours and sizes there.
+                        </p>
                       )}
                     </div>
 

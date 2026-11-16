@@ -663,7 +663,7 @@ export default function VariantTable({ productId, productName, productCode, prod
           )}
 
           {/* Without this button the generator, and its Confirm, never open. */}
-          {can('product:create') && (
+          {can('product:create') && !priceFromBoutique && (
           <button
             className="btn-primary"
             onClick={() => {
@@ -1318,7 +1318,7 @@ export default function VariantTable({ productId, productName, productCode, prod
                         >
                           <Settings size={16} />
                         </button>}
-                        {can('product:delete') && <button
+                        {can('product:delete') && !priceFromBoutique && <button
                           onClick={() => setDeleteTarget({ id: v.id, sku: v.sku })}
                           style={{ color: 'var(--accent-danger)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px' }}
                           title="Delete Variant"

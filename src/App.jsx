@@ -168,7 +168,7 @@ function App() {
             <Route path="measurements" element={<Measurements />} />
           </Route>
           
-          <Route path="/add" element={<Guard permission="product:create" what="add products"><WizardLayout title="Upload Photo" subtitle="Capture the detail, texture, and silhouette of your garment for the boutique gallery." /></Guard>}>
+          <Route path="/add" element={<Guard permission="product:create" what="add products"><WizardLayout title="Upload Photo" subtitle="Photograph the detail, texture and colour, the way a customer would want to see it." /></Guard>}>
              <Route path="upload" element={<UploadPhotos />} />
           </Route>
 

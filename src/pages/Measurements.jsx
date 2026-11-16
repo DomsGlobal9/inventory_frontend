@@ -11,6 +11,8 @@ import Select from '../components/common/Select';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { shadesOf, shadeCodeFor, colorInfoFor } from '../utils/colorOptions';
 import HowItIsSold from '../components/products/HowItIsSold';
+import { whatOf } from '../components/products/WhatAreYouAdding';
+import { useFabrics } from '../hooks/useFabrics';
 import { isMeasured, priceProblem, unitOf } from '../lib/units';
 
 const FREE_SIZE = 'Free Size';
@@ -80,6 +82,12 @@ export default function Measurements() {
   // How it is sold (PLAN-fabrics.md): PIECE unless the shop sells by the metre and the owner chose otherwise.
   const selling = productData.selling ?? { soldBy: 'PIECE' };
   const measured = isMeasured(selling.soldBy);
+  // Fabric or material (chosen on step 1): no sizes, stock per colour, in its own unit (16 Nov).
+  const { data: fabrics } = useFabrics();
+  const isFabric = whatOf(selling, fabrics) === 'FABRIC';
+  const unit = unitOf(selling.soldBy);
+  const perUnit = isFabric && selling.soldBy && selling.soldBy !== 'PIECE' ? ` per ${unit.one}` : '';
+  const stockWord = isFabric ? unit.many[0].toUpperCase() + unit.many.slice(1) : null;
   // Phones get a stacked version of the units matrix; everything wider keeps the table.
   const isNarrowScreen = useMediaQuery('(max-width: 768px)');
   const [activeColor, setActiveColor] = useState(null);
@@ -98,7 +106,7 @@ export default function Measurements() {
   // back out if the user backs up and switches to a sized dress type.
   const isSaree = productData.dressType?.toLowerCase() === 'saree';
   // Cloth sold by the metre has no sizes either: each colour is one fabric, its stock in metres (PLAN-onboarding-setup.md).
-  const oneSize = isSaree || measured;
+  const oneSize = isSaree || measured || isFabric;
   useEffect(() => {
     if (oneSize && productData.selectedSizes.join() !== FREE_SIZE) {
       updateProductData('selectedSizes', [FREE_SIZE]);
@@ -252,7 +260,7 @@ export default function Measurements() {
         {/* ROW 1: Price and Sizes */}
         <div className="mobile-col" style={{ display: 'flex', gap: '32px' }}>
           <div style={{ width: '170px' }}>
-            <label className="input-label">You sell at (₹{measured ? ` per ${unitOf(selling.soldBy).one}` : ''})</label>
+            <label className="input-label">You sell at (₹{perUnit})</label>
             <input 
               type="number" 
               className="input-field" 
@@ -274,7 +282,7 @@ export default function Measurements() {
               were recorded as costing nothing. Optional, and the hint says what it is for
               rather than nagging. */}
           <div style={{ width: '170px' }}>
-            <label className="input-label">You pay (₹{measured ? ` per ${unitOf(selling.soldBy).one}` : ''})</label>
+            <label className="input-label">You pay (₹{perUnit})</label>
             <input
               type="number"
               className="input-field"
@@ -289,7 +297,7 @@ export default function Measurements() {
             <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
               {Number(productData.costPrice) > 0 && Number(productData.price) > 0
                 ? `you keep ${(((Number(productData.price) - Number(productData.costPrice)) / Number(productData.price)) * 100).toFixed(0)}% of what you sell it for`
-                : 'Optional — used for profit and stock value'}
+                : 'Optional. Used for profit and stock value.'}
             </div>
           </div>
 
@@ -311,12 +319,12 @@ export default function Measurements() {
               ))}
             </Select>
             <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
-              Optional — lets you reorder without retyping
+              Optional. Lets you reorder without retyping.
             </div>
           </div>
           
           {/* Fabric has no sizes: the column is left out (the size is Free Size behind the scenes). */}
-          <div style={{ flex: 1, ...(measured ? { display: 'none' } : {}) }}>
+          <div style={{ flex: 1, ...(isFabric ? { display: 'none' } : {}) }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <label className="input-label" style={{ marginBottom: 0 }}>Available Sizes</label>
               {!oneSize && (
@@ -375,8 +383,8 @@ export default function Measurements() {
         {/* ROW 2: Compact Colors */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px', flexWrap: 'wrap' }}>
-            <label className="input-label" style={{ margin: 0 }}>Select Colors</label>
-            <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Click to view shades • Double-click to select base color</span>
+            <label className="input-label" style={{ margin: 0 }}>Colours</label>
+            <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Click a colour to see its shades. Double-click to pick the colour itself.</span>
           </div>
           
           {/*
@@ -440,7 +448,7 @@ export default function Measurements() {
                   // A colour the shop added itself starts with no shades. The drawer used to
                   // open empty, which reads as broken rather than as "there are none".
                   <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                    No shades yet — add them in Settings → Catalogue.
+                    No shades yet. Add them in Settings, Catalogue.
                   </span>
                 )}
               </div>
@@ -468,7 +476,7 @@ export default function Measurements() {
         <div style={{ display: 'flex', flexDirection: 'column', marginTop: '8px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
             <label className="input-label" style={{ marginBottom: 0 }}>
-              Inventory Units Matrix <span style={{color: 'var(--accent-gold)'}}>*</span>
+              {isFabric ? 'Stock by colour' : 'Stock by size and colour'} <span style={{color: 'var(--accent-gold)'}}>*</span>
             </label>
             {/* Off by default. Most shops sell every size of one saree at one price, and a grid
                 of price boxes nobody needs is a grid of boxes somebody mistypes. But when it is
@@ -482,14 +490,14 @@ export default function Measurements() {
                   onChange={(e) => updateProductData('perVariantPricing', e.target.checked)}
                   style={{ cursor: 'pointer' }}
                 />
-                Different price per size or colour
+                {isFabric ? 'Different price per colour' : 'Different price per size or colour'}
               </label>
             )}
           </div>
           
           {(productData.selectedSizes.length === 0 || productData.selectedColors.length === 0) ? (
             <div style={{ padding: '32px', background: 'var(--bg-input)', borderRadius: '6px', border: '1px dashed var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Select at least one Size and Color to input stock units.</span>
+              <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>{isFabric ? 'Pick at least one colour above, then type its stock here.' : 'Pick at least one size and one colour above, then type the stock here.'}</span>
             </div>
           ) : isNarrowScreen ? (
             /*
@@ -521,12 +529,12 @@ export default function Measurements() {
                             padding: '10px 14px', borderTop: '1px solid var(--border-light)'
                           }}
                         >
-                          <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', minWidth: '38px', flexShrink: 0 }}>
+                          {!isFabric && <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', minWidth: '38px', flexShrink: 0 }}>
                             {size}
-                          </span>
+                          </span>}
 
                           <label style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: '1 1 0', minWidth: 0 }}>
-                            <span style={{ fontSize: '12px', color: 'var(--text-muted)', flexShrink: 0 }}>{measured ? 'Metres' : 'Units'}</span>
+                            <span style={{ fontSize: '12px', color: 'var(--text-muted)', flexShrink: 0 }}>{stockWord ?? 'Pieces'}</span>
                             <input
                               type="text"
                               inputMode={measured ? "decimal" : "numeric"}
@@ -567,11 +575,11 @@ export default function Measurements() {
                 <thead style={{ background: 'var(--bg-input)', position: 'sticky', top: 0, zIndex: 10 }}>
                   <tr>
                     <th style={{ padding: '12px', borderBottom: '1px solid var(--border-light)', borderRight: '1px solid var(--border-light)', width: '200px', minWidth: '200px', textAlign: 'left', fontSize: '12px', color: 'var(--text-secondary)', fontWeight: '500' }}>
-                      Variant
+                      {isFabric ? 'Colour' : 'Variant'}
                     </th>
                     {productData.selectedSizes.map(size => (
                       <th key={size} style={{ padding: '12px', borderBottom: '1px solid var(--border-light)', minWidth: '80px', fontSize: '13px', fontWeight: '600' }}>
-                        {size}
+                        {isFabric ? `${stockWord} in stock` : size}
                       </th>
                     ))}
                   </tr>
@@ -639,11 +647,11 @@ export default function Measurements() {
             // blocked at the preview either way, so the only thing the silence bought was
             // a wasted trip through the photo step.
             if (!productData.selectedSizes?.length) {
-              toast.error('Select at least one size before continuing.');
+              toast.error(isFabric ? 'Something went wrong with this fabric. Go back to step 1 and choose it again.' : 'Select at least one size before continuing.');
               return;
             }
             if (!productData.selectedColors?.length) {
-              toast.error('Select at least one colour before continuing.');
+              toast.error(isFabric ? 'Pick at least one colour of this fabric before continuing.' : 'Select at least one colour before continuing.');
               return;
             }
             if (!(Number(productData.price) > 0)) {

@@ -19,6 +19,8 @@ import { useMediaQuery } from '../hooks/useMediaQuery';
 import ImageLightbox from '../components/ImageLightbox';
 import { usePermission } from '../hooks/usePermission';
 import { isMeasured, toBase, storedPrice, priceProblem } from '../lib/units';
+import { whatOf } from '../components/products/WhatAreYouAdding';
+import { useFabrics } from '../hooks/useFabrics';
 
 const VIEW_ORDER = ['front', 'left', 'right'];
 
@@ -64,6 +66,10 @@ export default function ProductPreview() {
   
   // Cloth is typed in metres (12.5), never whole pieces: parseInt would count 12.5 m as 12 and under-value the cost.
   const measuredHere = isMeasured(productData.selling?.soldBy);
+  // Fabric or material (chosen on step 1): no sizes to check, and its kind says what it is.
+  const { data: fabricsInfo } = useFabrics();
+  const fabricHere = whatOf(productData.selling ?? { soldBy: 'PIECE' }, fabricsInfo) === 'FABRIC';
+  const kindLabel = fabricsInfo?.kinds?.find(k => k.key === productData.selling?.kind)?.label ?? null;
   let totalUnits = 0;
   Object.values(productData.units).forEach(sizeObj => {
     Object.values(sizeObj).forEach(val => {
@@ -155,7 +161,7 @@ export default function ProductPreview() {
   // backend and fail with a raw validation error the user had to dig out of DevTools.
   const checklist = [
     { label: 'Product Information', done: Boolean(productData.title?.trim()) && Boolean(productData.category) },
-    { label: 'Sizes Added', done: productData.selectedSizes.length > 0 },
+    ...(fabricHere ? [] : [{ label: 'Sizes Added', done: productData.selectedSizes.length > 0 }]),
     { label: 'Colors Added', done: productData.selectedColors.length > 0 },
     { label: 'Base Price Set', done: Number(productData.price) > 0 },
     { label: 'At Least 1 Photo', done: hasPhotos },
@@ -752,7 +758,7 @@ export default function ProductPreview() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(150px, 100%), 1fr))', gap: '20px 32px' }}>
           <div>
             <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>PRODUCT TYPE</span>
-            <p style={{ marginTop: '8px', fontSize: '16px' }}>{measuredHere ? 'Unstitched' : (productData.productType || 'N/A')}</p>
+            <p style={{ marginTop: '8px', fontSize: '16px' }}>{fabricHere ? (kindLabel ?? 'Fabric or material') : measuredHere ? 'Unstitched' : (productData.productType || 'N/A')}</p>
           </div>
           <div>
             <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>MATERIAL</span>
@@ -762,10 +768,10 @@ export default function ProductPreview() {
             <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>DESIGN TYPE</span>
             <p style={{ marginTop: '8px', fontSize: '16px' }}>{productData.craft || 'N/A'}</p>
           </div>
-          <div>
+          {!fabricHere && <div>
             <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>DRESS TYPE</span>
             <p style={{ marginTop: '8px', fontSize: '16px' }}>{productData.dressType || 'N/A'}</p>
-          </div>
+          </div>}
         </div>
         
         <div>
@@ -804,7 +810,7 @@ export default function ProductPreview() {
         <div className="glass-panel" style={{ padding: '32px', marginTop: '16px' }}>
           <h3 style={{ fontSize: '14px', letterSpacing: '0.1em', marginBottom: '24px' }}>INVENTORY SUMMARY</h3>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-            <span style={{ color: 'var(--text-secondary)' }}>{measuredHere ? 'Colours' : 'Total Variants (Sizes x Colors)'}</span>
+            <span style={{ color: 'var(--text-secondary)' }}>{fabricHere || measuredHere ? 'Colours' : 'Total Variants (Sizes x Colors)'}</span>
             <span>{totalVariants}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: totalUnits > 0 ? '16px' : '24px' }}>

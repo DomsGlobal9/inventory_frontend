@@ -8,6 +8,8 @@ import Dropdown from '../components/Dropdown';
 import { useSameNameProducts } from '../hooks/useProducts';
 import { useBranding } from '../hooks/useBranding';
 import Select from '../components/common/Select';
+import WhatAreYouAdding, { whatOf, asksWhat } from '../components/products/WhatAreYouAdding';
+import { useFabrics } from '../hooks/useFabrics';
 
 /** Basis points, the same list the edit screen offers. 500 = 5%. */
 const GST_RATES = [
@@ -26,8 +28,23 @@ export default function GeneralInfo() {
   const { data: branding } = useBranding();
 
   const PRODUCT_TYPES_LABELS = productTypes.map(p => p.label ?? p);
+  const unstitchedLabel = PRODUCT_TYPES_LABELS.find(t => /unstitched/i.test(t)) ?? null;
   const DRESS_TYPES = dressByCategory[productData.category] || [];
   const sameName = useSameNameProducts(productData.title, productData.id);
+
+  // Garment or fabric (16 Nov): asked first, by a pop-up, in a shop that sells both; the fields below fit the answer.
+  const { data: fabrics } = useFabrics();
+  const selling = productData.selling ?? { soldBy: 'PIECE' };
+  const what = whatOf(selling, fabrics);
+  const isFabric = what === 'FABRIC';
+  // Fabric is not a garment: no dress type, no stitching choice, no clothing tax slab, not a service.
+  React.useEffect(() => {
+    if (!isFabric) return;
+    if (productData.dressType) updateProductData('dressType', '');
+    if (productData.taxSlabbed) updateProductData('taxSlabbed', false);
+    if (productData.isService) updateProductData('isService', false);
+    if (unstitchedLabel && productData.productType !== unstitchedLabel) updateProductData('productType', unstitchedLabel);
+  }, [isFabric]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /*
    * A saree is fabric, so it is unstitched unless somebody says otherwise.
@@ -40,7 +57,6 @@ export default function GeneralInfo() {
    * Applied when the dress type is CHOSEN, never on load, and never again afterwards -- so a
    * shopkeeper who then presses READY TO WEAR keeps it.
    */
-  const unstitchedLabel = PRODUCT_TYPES_LABELS.find(t => /unstitched/i.test(t)) ?? null;
   const chooseDressType = (val) => {
     updateProductData('dressType', val);
     if (unstitchedLabel && /^saree$/i.test(String(val).trim())) {
@@ -71,12 +87,19 @@ export default function GeneralInfo() {
       <div className="glass-panel mobile-col" style={{ padding: '32px', display: 'flex', gap: '48px', flex: 1 }}>
         {/* Left Column */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <WhatAreYouAdding
+            part="top"
+            selling={selling}
+            onChange={(v) => updateProductData('selling', v)}
+            isNew={!productData.id}
+            onCancel={() => navigate('/products')}
+          />
           <div>
             <label className="input-label">Product Name</label>
             <input 
               type="text" 
               className="input-field" 
-              placeholder="e.g. Emerald Satin Evening Gown"
+              placeholder={isFabric ? 'e.g. Kanchi silk, maroon' : 'e.g. Emerald Satin Evening Gown'}
               value={productData.title}
               maxLength={120}
               onChange={(e) => updateProductData('title', e.target.value)}
@@ -87,6 +110,9 @@ export default function GeneralInfo() {
               </p>
             )}
           </div>
+
+          {/* For fabric: what kind it is (fabric, lining, lace, buttons...), right after its name. */}
+          <WhatAreYouAdding part="kinds" selling={selling} onChange={(v) => updateProductData('selling', v)} isNew={!productData.id} />
 
           <div className="mobile-col" style={{ display: 'flex', gap: '24px' }}>
             <div style={{ flex: 1 }}>
@@ -102,7 +128,7 @@ export default function GeneralInfo() {
               />
             </div>
             
-            <div style={{ flex: 1 }}>
+            {!isFabric && <div style={{ flex: 1 }}>
               <label className="input-label">Dress Type</label>
               <Dropdown 
                 value={productData.dressType}
@@ -111,7 +137,7 @@ export default function GeneralInfo() {
                 emptyText={productData.category ? undefined : 'Choose a Product Category first.'}
                 onChange={chooseDressType}
               />
-            </div>
+            </div>}
           </div>
 
           <div className="mobile-col" style={{ display: 'flex', gap: '24px' }}>
@@ -161,8 +187,10 @@ export default function GeneralInfo() {
 
         {/* Right Column */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <div>
-            <label className="input-label">Product Type</label>
+          {!isFabric && <div>
+            {/* "Stitching", not "Product type": garment or fabric is asked first (the pop-up), and this only says whether
+                the garment is stitched -- which also decides its GST (unstitched cloth is 5% flat). */}
+            <label className="input-label">Stitching</label>
             <div style={{ display: 'flex', gap: '8px', background: 'var(--bg-input)', padding: '4px', borderRadius: '4px', border: '1px solid var(--border-light)' }}>
               {PRODUCT_TYPES_LABELS.map(type => (
                 <button 
@@ -182,7 +210,7 @@ export default function GeneralInfo() {
                 </button>
               ))}
             </div>
-          </div>
+          </div>}
           
           <div>
             <label className="input-label">Brand / Collection</label>
@@ -228,18 +256,20 @@ export default function GeneralInfo() {
             </div>
           </div>
 
-          <div>
+          {!isFabric && <div>
             <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-secondary)' }}>
               <input
                 type="checkbox"
                 checked={productData.taxSlabbed}
                 onChange={(e) => updateProductData('taxSlabbed', e.target.checked)}
               />
-              Priced by the piece — 5% up to ₹2,500, 18% above
+              Priced by the piece: 5% up to ₹2,500, 18% above
             </label>
-          </div>
+          </div>}
 
-          <div>
+          {isFabric ? (
+            <p style={{ margin: 0, fontSize: '12.5px', color: 'var(--text-secondary)' }}>Fabric is usually 5% GST. Cotton and silk fabric HSN codes start with 52 and 50.</p>
+          ) : <div>
             <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-secondary)' }}>
             <input
                 type="checkbox"
@@ -249,7 +279,7 @@ export default function GeneralInfo() {
               This is a service (no stock)
             </label>
             <p style={{ margin: '4px 0 0 24px', fontSize: '12px', color: 'var(--text-muted)' }}>A service such as fall &amp; pico or stitching: sold at the till for its price, with no stock counted. Put its SAC code in the HSN box.</p>
-          </div>
+          </div>}
         </div>
       </div>
       
@@ -269,6 +299,11 @@ export default function GeneralInfo() {
             // by the backend's createProductSchema, so an empty name meant the user filled
             // in sizes, colours, stock and photos across two more steps before the publish
             // call came back 400 -- all of that work discarded for something knowable here.
+            // Only a new product is asked: one saved before this question existed is simply what it was.
+            if (asksWhat(fabrics) && !what && !productData.id) {
+              toast.error('Choose a garment or fabric first.');
+              return;
+            }
             if (!productData.title?.trim()) {
               toast.error('Give the product a name before continuing.');
               return;

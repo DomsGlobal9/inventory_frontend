@@ -9,8 +9,11 @@ import { ThemeProvider } from './contexts/ThemeContext.jsx';
 import toast from 'react-hot-toast';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import { installGlobalErrorReporting } from './lib/errorReporter.js';
+import { installUpdateReload } from './lib/updateReload.js';
 import { shouldRetry, isPermissionError } from './lib/access.js';
 
+// First, so a part that fails to load after an update reloads the page instead of being reported as a crash.
+installUpdateReload();
 installGlobalErrorReporting();
 
 /**

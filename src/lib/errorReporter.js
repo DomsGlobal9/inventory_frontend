@@ -2,6 +2,7 @@
 // itself, React, or the rest of the app is the thing that's broken. Never throws, never
 // awaited by callers -- a failed error report must not become a second error.
 import { API_BASE_URL } from './config';
+import { isStaleFileError } from './updateReload.js';
 
 const ENDPOINT = `${API_BASE_URL}/client-errors`;
 
@@ -39,11 +40,15 @@ export function reportClientError({ message, stack }) {
 }
 
 export function installGlobalErrorReporting() {
+  // A part of the app that could not be fetched after an update is not a bug to report: the page is loaded again
+  // for the person (lib/updateReload).
   window.addEventListener('error', (event) => {
+    if (isStaleFileError(event.error ?? event.message)) return;
     reportClientError({ message: event.message, stack: event.error?.stack });
   });
   window.addEventListener('unhandledrejection', (event) => {
     const reason = event.reason;
+    if (isStaleFileError(reason)) return;
     reportClientError({
       message: reason?.message || String(reason),
       stack: reason?.stack

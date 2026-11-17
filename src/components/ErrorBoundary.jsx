@@ -2,15 +2,19 @@ import React from 'react';
 import { AlertTriangle, LifeBuoy, Check } from 'lucide-react';
 import { reportClientError } from '../lib/errorReporter';
 import { api } from '../lib/api';
+import { isStaleFileError, reloadForUpdate, isReloadingForUpdate } from '../lib/updateReload';
 
 export default class ErrorBoundary extends React.Component {
   state = { hasError: false, errorMessage: '', linkedErrorId: null, ticketState: 'idle' };
 
   static getDerivedStateFromError(error) {
-    return { hasError: true, errorMessage: error?.message || 'Unknown error' };
+    return { hasError: true, errorMessage: error?.message || 'Unknown error', stale: isStaleFileError(error) };
   }
 
   componentDidCatch(error, info) {
+    // A part of the app that could not be fetched because ScaleEzy was updated while this tab was open: load the
+    // page again (once) instead of reporting a crash. If that was just tried, the calm message below is shown.
+    if (isStaleFileError(error)) { if (reloadForUpdate()) this.forceUpdate(); return; }
     reportClientError({ message: error?.message, stack: error?.stack || info?.componentStack })
       .then(id => this.setState({ linkedErrorId: id }));
   }
@@ -36,6 +40,29 @@ export default class ErrorBoundary extends React.Component {
 
   render() {
     if (!this.state.hasError) return this.props.children;
+
+    if (this.state.stale) {
+      // The page is already loading again: nothing is drawn over that half-second.
+      if (isReloadingForUpdate()) return null;
+      return (
+        <div role="alert" style={{
+          minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center',
+          justifyContent: 'center', gap: '14px', padding: '24px', textAlign: 'center',
+          fontFamily: 'Inter, -apple-system, sans-serif', color: '#52525b', background: '#fafafa'
+        }}>
+          <div style={{ fontSize: '18px', fontWeight: 600, color: '#18181b' }}>This page could not load</div>
+          <div style={{ fontSize: '14px', maxWidth: '420px', lineHeight: 1.6 }}>
+            ScaleEzy may have been updated while this tab was open, or the internet dropped. Reload to carry on. Nothing you saved is lost.
+          </div>
+          <button
+            onClick={() => window.location.reload()}
+            style={{ padding: '10px 20px', background: '#164B1E', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}
+          >
+            Reload
+          </button>
+        </div>
+      );
+    }
 
     return (
       <div style={{

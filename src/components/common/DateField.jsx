@@ -99,6 +99,7 @@ export default function DateField({
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-invalid={ariaInvalid}
+        data-value={value || ''}
         onClick={() => (open ? close({ refocus: true }) : openIt())}
         onKeyDown={(e) => { if (e.key === 'ArrowDown' && !open) { e.preventDefault(); openIt(); } }}
       >

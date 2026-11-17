@@ -52,7 +52,7 @@ An offer on **The whole bill** applies to everything on the bill, so this part o
 2. [[2]] **Last day (optional)**: it runs until 11:59 pm that day. Leave it empty to run until you stop it.
 3. [[3]] Tick **Only at certain hours** for a happy hour: choose the days and the from and to times.
 
-![When. The start date 17-09-2026 is marked 1, the last day 01-10-2026 is marked 2 and Only at certain hours 3.](5-when.webp "Times are in your shop's own time.")
+![When. The start date 17 Nov 2026 is marked 1, the last day 1 Dec 2026 is marked 2 and Only at certain hours 3.](5-when.webp "Times are in your shop's own time.")
 
 ## 6. More options (if you need them)
 

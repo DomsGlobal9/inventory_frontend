@@ -133,6 +133,24 @@ function ReelLinkEdit() {
   // The page's own ways out ask in the app's own box (it was the browser's confirm(), 17 Nov 2026: no native boxes).
   const [leaveTo, setLeaveTo] = useState(null);
   const leave = (to) => { if (dirty) setLeaveTo(to); else navigate(to); };
+  // Every other way out inside the app asks too: the sidebar, the top bar, a link in the page. Caught before React
+  // sees the click (capture, on the document), so the link does not navigate; a new tab or another site is left alone.
+  useEffect(() => {
+    if (!dirty) return undefined;
+    const onClick = (e) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const a = e.target instanceof Element ? e.target.closest('a[href]') : null;
+      if (!a || (a.target && a.target !== '_self') || a.hasAttribute('download')) return;
+      const url = new URL(a.href, window.location.href);
+      if (url.origin !== window.location.origin) return;
+      if (url.pathname === window.location.pathname && url.search === window.location.search) return;
+      e.preventDefault();
+      e.stopPropagation();
+      setLeaveTo(`${url.pathname}${url.search}${url.hash}`);
+    };
+    document.addEventListener('click', onClick, true);
+    return () => document.removeEventListener('click', onClick, true);
+  }, [dirty]);
 
   // The saved reel link fills the form once; after that the form is the person's until they save.
   const fillFrom = (d) => { setTitle(d.title); setReelUrl(d.reelUrl || ''); setPieces(d.pieces); };

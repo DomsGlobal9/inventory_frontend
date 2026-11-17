@@ -392,6 +392,8 @@ export default function Select({
           aria-activedescendant={isOpen && active >= 0 ? optionId(active) : undefined}
           aria-disabled={disabled || undefined}
           aria-required={required || undefined}
+          // The chosen value, readable by tests (a div has no .value).
+          data-value={value ?? ''}
           className={`custom-select-trigger ${isOpen ? 'open' : ''} ${disabled ? 'disabled' : ''} ${variant === 'ghost' ? 'ghost' : ''}`}
           onClick={() => { if (disabled) return; if (isOpen) setIsOpen(false); else open(); }}
           onKeyDown={onKeyDown}

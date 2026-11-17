@@ -210,7 +210,7 @@ export default function CustomerImportModal({ open, onClose }) {
           {step === 'done' && done && (
             <>
               <div className="ci-done"><b>{fmt(done.created)}</b>{done.created === 1 ? 'customer' : 'customers'} added from {done.fileName}</div>
-              <p className="ci-note">They are in Customers now and the till finds them by number.{crm.on ? ' CRM has them too.' : ''}</p>
+              <p className="ci-note">They are in Customers now and the till finds them by number.{crm.on ? ' CRM gets them within a few minutes (a big file takes longer).' : ''}</p>
               <YourImports imports={imports.data} mayTakeBack={owner} crmDeletes={crm.profileMoved} onTakeBack={askTakeBack} />
             </>
           )}
@@ -244,7 +244,8 @@ export default function CustomerImportModal({ open, onClose }) {
         onConfirm={async () => {
           try {
             const r = (await api.post(`/customers/imports/${encodeURIComponent(takeBack.imp.source)}/take-back`)).data;
-            toast.success(r.removed ? `${fmt(r.removed)} ${r.removed === 1 ? 'customer' : 'customers'} taken back out` : 'Cleared from your imports');
+            // CRM erases each one from the feed: a big import takes a few minutes to leave CRM (5,000 took about 7).
+            toast.success(r.removed ? `${fmt(r.removed)} ${r.removed === 1 ? 'customer' : 'customers'} taken back out${crm.on ? '. CRM catches up within a few minutes.' : ''}` : 'Cleared from your imports');
             queryClient.invalidateQueries({ queryKey: ['customers'] });
             queryClient.invalidateQueries({ queryKey: ['customer-imports'] });
           } catch (e) { toast.error(e?.message || 'It could not be taken back out. Nothing was changed.'); throw e; }

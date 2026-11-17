@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Loader2, TrendingUp, TrendingDown, ArrowLeftRight, AlertTriangle, CheckCircle2,
-  Calendar, MapPin, Coffee, Download, Info
+  MapPin, Coffee, Download, Info
 } from 'lucide-react';
 import { useDayBook } from '../hooks/useDayBook';
 import { useLocationContext } from '../contexts/LocationContext';
@@ -12,6 +12,7 @@ import { pdf } from '@react-pdf/renderer';
 import DayBookPDF from '../components/DayBookPDF';
 import DayBookSendButton from '../components/whatsapp/DayBookSendButton';
 import Select from '../components/common/Select';
+import DateField from '../components/common/DateField';
 
 /**
  * One business day, closed off the way a shop owner closes a till.
@@ -219,15 +220,13 @@ export default function DayBook() {
           {mode === 'day' ? (
             <>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Calendar size={15} color="var(--text-muted)" />
-                <input
-                  type="date"
+                <DateField
                   aria-label="Day"
-                  className="input-field"
+                  clearable={false}
                   value={shownDate}
                   max={d?.inProgress ? shownDate : undefined}
-                  onChange={(e) => setDate(e.target.value)}
-                  style={{ padding: '8px 10px', fontSize: '13px' }}
+                  onChange={(v) => v && setDate(v)}
+                  style={{ padding: '8px 10px', fontSize: '13px', minHeight: 0 }}
                 />
               </div>
               <button className="btn-secondary" style={{ fontSize: '13px' }}
@@ -238,12 +237,11 @@ export default function DayBook() {
           ) : (
             <>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Calendar size={15} color="var(--text-muted)" />
-                <input type="date" aria-label="From" className="input-field" value={from} max={to || todayKey}
-                  onChange={(e) => setFrom(e.target.value)} style={{ padding: '8px 10px', fontSize: '13px' }} />
+                <DateField aria-label="From" clearable={false} value={from} max={to || todayKey}
+                  onChange={(v) => v && setFrom(v)} style={{ padding: '8px 10px', fontSize: '13px', minHeight: 0 }} />
                 <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>to</span>
-                <input type="date" aria-label="To" className="input-field" value={to} min={from || undefined} max={todayKey}
-                  onChange={(e) => setTo(e.target.value)} style={{ padding: '8px 10px', fontSize: '13px' }} />
+                <DateField aria-label="To" clearable={false} value={to} min={from || undefined} max={todayKey}
+                  onChange={(v) => v && setTo(v)} style={{ padding: '8px 10px', fontSize: '13px', minHeight: 0 }} />
               </div>
               <button className="btn-secondary" style={{ fontSize: '13px' }} onClick={() => showRange(shiftKey(todayKey, -6), todayKey)}>Last 7 days</button>
               <button className="btn-secondary" style={{ fontSize: '13px' }} onClick={() => showRange(`${todayKey.slice(0, 8)}01`, todayKey)}>This month</button>

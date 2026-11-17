@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Plus, Edit2, Trash2, Check, X, Loader2, Save, RotateCcw, Lock, ChevronDown, Search } from 'lucide-react';
 import { useCatalogItems, useAddCatalogItem, useUpdateCatalogItem, useDeleteCatalogItem } from '../hooks/useCatalogSettings';
 import ConfirmModal from './ConfirmModal';
+import ColourField from './common/ColourField';
 import { useAuth } from '../context/AuthContext';
 
 export default function CatalogManager({ type }) {
@@ -388,15 +389,13 @@ export default function CatalogManager({ type }) {
                 <div>
                   <label style={{ display: 'block', fontSize: '13px', marginBottom: '6px', color: 'var(--text-secondary)' }}>Hex Color</label>
                   <div style={{ display: 'flex', gap: '12px' }}>
-                    <input
-                      type="color"
-                      // The swatch cannot represent a half-typed value like "#FF6", and a
-                      // colour input given one silently falls back to black -- so the picker
-                      // keeps showing the last good colour while the text is being edited.
+                    <ColourField
+                      // The swatch cannot represent a half-typed value like "#FF6", so it keeps
+                      // showing the last good colour while the text is being edited.
                       value={hexError ? (editingItem?.metadata?.hex || '#000000') : formData.hex}
-                      onChange={e => setFormData({...formData, hex: e.target.value})}
-                      title="Pick a colour"
-                      style={{ width: '48px', height: '48px', padding: '0', border: 'none', borderRadius: '8px', cursor: 'pointer', background: 'transparent' }}
+                      onChange={hex => setFormData(f => ({ ...f, hex }))}
+                      label="Pick a colour"
+                      size={48}
                     />
                     <input
                       type="text"
@@ -445,12 +444,11 @@ export default function CatalogManager({ type }) {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '210px', overflowY: 'auto' }}>
                       {formData.shades.map((shade, index) => (
                         <div key={index} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                          <input
-                            type="color"
+                          <ColourField
                             value={HEX_PATTERN.test(String(shade.hex || '').trim()) ? shade.hex : '#000000'}
-                            onChange={e => updateShade(index, { hex: e.target.value })}
-                            title="Pick this shade"
-                            style={{ width: '36px', height: '36px', flexShrink: 0, padding: 0, border: 'none', borderRadius: '8px', cursor: 'pointer', background: 'transparent' }}
+                            onChange={hex => updateShade(index, { hex })}
+                            label="Pick this shade"
+                            size={36}
                           />
                           <input
                             type="text"

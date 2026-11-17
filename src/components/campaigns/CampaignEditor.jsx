@@ -9,6 +9,8 @@ import MessageBubble from './MessageBubble';
 import TestSend from './TestSend';
 import PicturePicker from './PicturePicker';
 import LinkChooser from './LinkChooser';
+import DateField, { dateKey } from '../common/DateField';
+import TimeField from '../common/TimeField';
 
 /**
  * Write or change a draft campaign: its name, picture, words, link, who it is for, and when.
@@ -270,7 +272,13 @@ export default function CampaignEditor({ campaign, shopName, onClose, onSave, sa
                 {f.later && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
                     <label htmlFor="c-start" style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Not before</label>
-                    <input id="c-start" className="input-field" type="datetime-local" value={f.startAt} onChange={set('startAt')} aria-invalid={laterBad} style={{ width: 'auto' }} />
+                    {/* A day and a time, the app's own boxes; together they make the same 'YYYY-MM-DDTHH:MM' as before. */}
+                    <DateField id="c-start" aria-label="Not before, day" placeholder="Pick a day" clearable={false} min={dateKey(new Date())}
+                      value={(f.startAt || '').slice(0, 10)} aria-invalid={laterBad} style={{ width: 'auto', minWidth: '150px' }}
+                      onChange={(d) => setF(prev => ({ ...prev, startAt: `${d}T${(prev.startAt || '').slice(11, 16) || '10:00'}` }))} />
+                    <TimeField aria-label="Not before, time" style={{ width: '130px' }}
+                      value={(f.startAt || '').slice(11, 16)}
+                      onChange={(t) => setF(prev => ({ ...prev, startAt: `${(prev.startAt || '').slice(0, 10) || dateKey(new Date())}T${t}` }))} />
                     <span style={{ fontSize: '12px', color: laterBad ? 'var(--danger, #dc2626)' : 'var(--text-secondary)' }}>
                       {laterBad ? 'Choose a time in the future.' : 'Messages go only between 10 am and 8 pm.'}
                     </span>

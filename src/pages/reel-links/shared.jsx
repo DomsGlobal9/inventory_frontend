@@ -29,13 +29,29 @@ export function reelParts(title = '') {
   return m ? { number: m[1], rest: m[2] || `Reel ${m[1]}` } : { number: null, rest: title };
 }
 
+/** The older way of copying, for a browser that refuses the clipboard (plain http, inside a frame): a selected
+ *  text box and the copy command. True when it worked. */
+export function copyOldWay(text) {
+  const box = document.createElement('textarea');
+  box.value = text;
+  box.setAttribute('readonly', '');
+  box.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;';
+  document.body.appendChild(box);
+  box.select();
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch { ok = false; }
+  box.remove();
+  return ok;
+}
+
 export async function copy(text, what = 'Link') {
   try {
     await navigator.clipboard.writeText(text);
     toast.success(`${what} copied`);
   } catch {
-    // Some browsers refuse the clipboard on plain http or inside a frame: show it so it can be copied by hand.
-    window.prompt(`Copy the ${what.toLowerCase()}:`, text);
+    // Never the browser's prompt box (17 Nov 2026: no native boxes): the older copy, else say where to copy it from.
+    if (copyOldWay(text)) toast.success(`${what} copied`);
+    else toast.error(`This browser would not copy it. Select the ${what.toLowerCase()} on the page and copy it by hand.`);
   }
 }
 

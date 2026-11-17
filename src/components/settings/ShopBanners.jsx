@@ -7,6 +7,7 @@ import {
 } from '../../hooks/useOnlineShop';
 import ConfirmModal from '../ConfirmModal';
 import Select from '../common/Select';
+import DateField from '../common/DateField';
 
 /**
  * Settings -> Online shop -> Banners: the pictures across the top of the shop, the way every shop
@@ -119,13 +120,13 @@ function DateFields({ from, until, onFrom, onUntil, idPrefix }) {
     <div style={{ display: 'grid', gap: '10px', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))' }}>
       <div>
         <label style={label} htmlFor={`${idPrefix}-from`}>Show from (optional)</label>
-        <input id={`${idPrefix}-from`} type="date" className="input-field" value={from} max={until || undefined}
-          onChange={(e) => onFrom(e.target.value)} style={{ width: '100%' }} />
+        <DateField id={`${idPrefix}-from`} aria-label="Show from" placeholder="From now" value={from} max={until || undefined}
+          onChange={onFrom} style={{ width: '100%' }} />
       </div>
       <div>
         <label style={label} htmlFor={`${idPrefix}-until`}>Show until (optional)</label>
-        <input id={`${idPrefix}-until`} type="date" className="input-field" value={until} min={from || undefined}
-          onChange={(e) => onUntil(e.target.value)} style={{ width: '100%' }} />
+        <DateField id={`${idPrefix}-until`} aria-label="Show until" placeholder="No end" value={until} min={from || undefined}
+          onChange={onUntil} style={{ width: '100%' }} />
       </div>
     </div>
   );

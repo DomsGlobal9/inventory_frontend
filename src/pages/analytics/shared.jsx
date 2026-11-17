@@ -209,7 +209,8 @@ export const AN_CSS = `
 .an-more { background: none; border: 0; color: var(--text-secondary); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; padding: 10px 0 0; text-decoration: underline; text-underline-offset: 3px; min-height: 36px; }
 .an-dates { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .an-dates label { font-size: 12.5px; color: var(--text-secondary); font-weight: 600; }
-.an-dates input { padding: 7px 10px; font-size: 13px; min-height: 38px; }
+.an-dates input, .an-dates .df-field { padding: 7px 10px; font-size: 13px; min-height: 38px; }
+.an-dates .df-field { width: auto; min-width: 150px; }
 .an-err { color: var(--accent-danger); font-size: 12.5px; }
 .an-note { margin: 0; font-size: 12px; color: var(--text-muted); }
 .an-rows { display: grid; }

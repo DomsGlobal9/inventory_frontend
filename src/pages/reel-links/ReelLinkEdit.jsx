@@ -130,10 +130,9 @@ function ReelLinkEdit() {
     window.addEventListener('beforeunload', warn);
     return () => window.removeEventListener('beforeunload', warn);
   }, [dirty]);
-  const leave = (to) => {
-    if (dirty && !window.confirm('Leave without saving? Your changes to this reel link will be lost.')) return;
-    navigate(to);
-  };
+  // The page's own ways out ask in the app's own box (it was the browser's confirm(), 17 Nov 2026: no native boxes).
+  const [leaveTo, setLeaveTo] = useState(null);
+  const leave = (to) => { if (dirty) setLeaveTo(to); else navigate(to); };
 
   // The saved reel link fills the form once; after that the form is the person's until they save.
   const fillFrom = (d) => { setTitle(d.title); setReelUrl(d.reelUrl || ''); setPieces(d.pieces); };
@@ -313,6 +312,15 @@ function ReelLinkEdit() {
       </div>
 
       <QrDialog url={qrOpen && link ? (link.shortUrl || link.pageUrl) : null} name={link?.code} title={link?.title} onClose={() => setQrOpen(false)} />
+      <ConfirmModal
+        isOpen={!!leaveTo}
+        onClose={() => setLeaveTo(null)}
+        title="Leave without saving?"
+        message="Your changes to this reel link will be lost."
+        confirmText="Leave"
+        confirmStyle="danger"
+        onConfirm={() => navigate(leaveTo)}
+      />
       <ConfirmModal
         isOpen={confirmDelete}
         onClose={() => setConfirmDelete(false)}

@@ -4,6 +4,8 @@ import { X, Loader2, Search, Check, ChevronDown, ChevronRight, Plus } from 'luci
 import { useOffer, useOfferOptions, useOfferTargetSearch } from '../hooks/useOffers';
 import { describeOffer, SCOPE_OPTIONS, DEPARTMENT_LABEL } from '../utils/offerSummary';
 import Select from './common/Select';
+import DateField from './common/DateField';
+import TimeField from './common/TimeField';
 
 /**
  * Writing one offer.
@@ -429,9 +431,11 @@ export default function OfferEditor({ offer, onClose, onSave }) {
     const v = e?.target?.type === 'checkbox' ? e.target.checked : e.target.value;
     setForm(f => ({ ...f, [k]: v }));
   };
+  // The app's own date and time boxes hand over the value itself, not an event.
+  const put = (k) => (v) => setForm(f => ({ ...f, [k]: v }));
 
   useEffect(() => {
-    const onKey = (e) => { if (e.key === 'Escape' && !inFlight.current) onClose(); };
+    const onKey = (e) => { if (e.key === 'Escape' && !e.defaultPrevented && !inFlight.current) onClose(); };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
@@ -743,19 +747,19 @@ export default function OfferEditor({ offer, onClose, onSave }) {
                   ? 'Starts on its own once you schedule it.'
                   : 'Leave the time empty to start at midnight.'}>
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  <input className="input-field" type="date" aria-label="Start date" style={{ flex: 2, minWidth: 0 }}
-                    value={form.startsAt} onChange={set('startsAt')} />
-                  <input className="input-field" type="time" aria-label="Start time" style={{ flex: 1, minWidth: 0 }}
-                    value={form.startsTime} onChange={set('startsTime')} />
+                  <DateField aria-label="Start date" style={{ flex: 2, minWidth: 0 }} clearable={false}
+                    value={form.startsAt} onChange={put('startsAt')} />
+                  <TimeField aria-label="Start time" style={{ flex: 1, minWidth: 0 }} placeholder="Time"
+                    value={form.startsTime} onChange={put('startsTime')} />
                 </div>
               </Field>
               <Field label="Last day (optional)"
                 hint={!form.endsAt ? 'Runs until you stop it.' : form.endsTime ? 'Stops at exactly this time.' : 'Runs until 11:59 pm that day.'}>
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  <input className="input-field" type="date" aria-label="Last day" style={{ flex: 2, minWidth: 0 }}
-                    value={form.endsAt} onChange={set('endsAt')} />
-                  <input className="input-field" type="time" aria-label="End time" style={{ flex: 1, minWidth: 0 }}
-                    value={form.endsTime} onChange={set('endsTime')} disabled={!form.endsAt} />
+                  <DateField aria-label="Last day" style={{ flex: 2, minWidth: 0 }} placeholder="No end"
+                    value={form.endsAt} min={form.startsAt || undefined} onChange={put('endsAt')} />
+                  <TimeField aria-label="End time" style={{ flex: 1, minWidth: 0 }} placeholder="Time"
+                    value={form.endsTime} onChange={put('endsTime')} disabled={!form.endsAt} />
                 </div>
               </Field>
             </div>
@@ -775,9 +779,9 @@ export default function OfferEditor({ offer, onClose, onSave }) {
                     ))}
                   </div>
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <input className="input-field" type="time" aria-label="From" style={{ flex: 1, minWidth: 0 }} value={form.hoursFrom} onChange={set('hoursFrom')} />
+                    <TimeField aria-label="From" style={{ flex: 1, minWidth: 0 }} value={form.hoursFrom} onChange={put('hoursFrom')} />
                     <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>to</span>
-                    <input className="input-field" type="time" aria-label="To" style={{ flex: 1, minWidth: 0 }} value={form.hoursTo} onChange={set('hoursTo')} />
+                    <TimeField aria-label="To" style={{ flex: 1, minWidth: 0 }} value={form.hoursTo} onChange={put('hoursTo')} />
                   </div>
                 </div>
               )}

@@ -1510,3 +1510,131 @@ input[type="password"]::-ms-reveal, input[type="password"]::-ms-clear { display:
   table.phone-cards td.phone-actions .btn-icon[title]::after { content: attr(title); font-size: 12px; font-weight: 500; }
   .table-container:has(> table.phone-cards) { overflow-x: visible !important; }
 }
+
+/* ─── No browser-drawn controls (17 Nov 2026, owner: "in the whole app no native") ───────────────────────────
+   Tick boxes and round choices in the app's own look: the brand green when on, a clear empty box when off, the
+   same in every browser. Width and height stay overridable (some sit at 16px in dense rows); the tick scales. */
+input[type="checkbox"],
+input[type="radio"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
+  border: 1.5px solid var(--text-muted);
+  border-radius: 4px;
+  background-color: var(--bg-card);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 78%;
+  cursor: pointer;
+  transition: background-color 0.15s ease-out, border-color 0.15s ease-out;
+}
+input[type="radio"] { border-radius: 50%; }
+input[type="checkbox"]:hover:not(:disabled),
+input[type="radio"]:hover:not(:disabled) { border-color: var(--accent-primary); }
+input[type="checkbox"]:checked {
+  background-color: var(--accent-primary);
+  border-color: var(--accent-primary);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.4l2.9 2.9 6.1-6.6' fill='none' stroke='%23ffffff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+input[type="checkbox"]:indeterminate {
+  background-color: var(--accent-primary);
+  border-color: var(--accent-primary);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8h8' stroke='%23ffffff' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+/* On the dark theme the brand fill is the lime, so the tick is the deep green to stay readable on it. */
+:root[data-theme='dark'] input[type="checkbox"]:checked {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.4l2.9 2.9 6.1-6.6' fill='none' stroke='%230B2410' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+:root[data-theme='dark'] input[type="checkbox"]:indeterminate {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8h8' stroke='%230B2410' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+input[type="radio"]:checked {
+  border-color: var(--accent-primary);
+  background-image: radial-gradient(circle, var(--accent-primary) 0 42%, transparent 46%);
+  background-size: 100%;
+}
+input[type="checkbox"]:focus-visible,
+input[type="radio"]:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
+input[type="checkbox"]:disabled,
+input[type="radio"]:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* The box under a field that opens one (common/Popover): the date picker's calendar, the colour swatches. */
+.app-popover {
+  position: fixed;
+  z-index: 10000;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  box-shadow: var(--shadow-dropdown);
+  padding: 10px;
+  color: var(--text-primary);
+}
+
+/* The date box (common/DateField): looks like the text boxes around it, reads "17 Nov 2026". */
+.df-field {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  text-align: left;
+  cursor: pointer;
+  min-height: 40px;
+}
+.df-field:disabled { opacity: 0.5; cursor: not-allowed; }
+.df-field:focus-visible { border-color: var(--border-focus); box-shadow: 0 0 0 1px var(--border-focus); }
+.df-field[aria-invalid="true"] { border-color: var(--accent-danger); }
+.df-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.df-empty .df-text { color: var(--text-muted); }
+.df-icon { color: var(--text-secondary); flex-shrink: 0; }
+.df-pop { width: 280px; }
+.df-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.df-month { font-size: 14px; font-weight: 600; }
+.df-nav {
+  width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border-light); border-radius: 6px; background: transparent; color: var(--text-primary); cursor: pointer;
+}
+.df-nav:hover:not(:disabled) { background: var(--bg-hover); }
+.df-nav:disabled { opacity: 0.35; cursor: not-allowed; }
+.df-row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.df-dow { font-size: 11.5px; color: var(--text-muted); text-align: center; padding: 4px 0; font-weight: 500; }
+.df-day {
+  height: 34px; border: none; border-radius: 6px; background: transparent; color: var(--text-primary);
+  font-size: 13px; font-family: inherit; cursor: pointer; font-variant-numeric: tabular-nums;
+}
+.df-day:hover:not(.df-off) { background: var(--bg-hover); }
+.df-day:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: -2px; }
+.df-other { color: var(--text-muted); }
+.df-today { font-weight: 700; box-shadow: inset 0 0 0 1px var(--border-focus); }
+.df-chosen, .df-chosen:hover:not(.df-off) { background: var(--accent-primary); color: var(--accent-primary-on); font-weight: 600; }
+.df-off { opacity: 0.3; cursor: not-allowed; }
+.df-foot { display: flex; justify-content: space-between; margin-top: 6px; min-height: 0; }
+.df-foot:empty { display: none; }
+.df-link {
+  border: none; background: transparent; color: var(--brand-ink); font-size: 13px; font-weight: 600;
+  font-family: inherit; padding: 6px 4px; cursor: pointer;
+}
+.df-link:hover { text-decoration: underline; }
+@media (pointer: coarse) { .df-day { height: 40px; } .df-pop { width: min(320px, calc(100vw - 16px)); } }
+
+/* The colour swatch (common/ColourField) and the garment colours it opens. */
+.cf-swatch {
+  flex-shrink: 0; padding: 0; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--border-focus); box-shadow: inset 0 0 0 2px var(--bg-card);
+}
+.cf-swatch:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
+.cf-pop { width: 252px; }
+.cf-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+.cf-dot { aspect-ratio: 1; border-radius: 6px; border: 1px solid var(--border-focus); cursor: pointer; padding: 0; }
+.cf-dot:hover { transform: scale(1.08); }
+.cf-dot.cf-on { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
+.cf-note { margin: 10px 0 0; font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+/* The touch-size rule for empty buttons (44px) would push six swatches a row off the box: they get a wider box instead. */
+button.cf-dot:empty { min-width: 0; min-height: 0; }
+@media (pointer: coarse) { .cf-pop { width: min(300px, calc(100vw - 16px)); } }
+/* A date box inside a filter menu: as compact as the rupee boxes beside it. */
+.pf-prices .df-field.pf-date { padding: 7px 9px; min-height: 0; border-radius: 8px; font-size: 13px; }

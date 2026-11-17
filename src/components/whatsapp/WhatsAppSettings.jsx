@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { MessageCircle, QrCode, KeyRound, Loader2, Unlink, Send, BookOpen, RefreshCw } from 'lucide-react';
 import ConfirmModal from '../ConfirmModal';
+import TimeField from '../common/TimeField';
 import { typedPhone } from '../../utils/phone';
 import {
   useWhatsAppOverview, useLinkWhatsApp, useDisconnectWhatsApp, useSendWhatsAppTest,
@@ -318,7 +319,7 @@ function DayBookCard({ dayBook }) {
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
           <div style={{ flex: '0 1 160px' }}>
             <label htmlFor="wa-daybook-time" className="input-label">Time</label>
-            <input id="wa-daybook-time" type="time" className="input-field" value={time} onChange={e => setTime(e.target.value)} step={60} />
+            <TimeField id="wa-daybook-time" aria-label="Time" value={time} onChange={setTime} />
           </div>
           <div style={{ flex: '1 1 220px', minWidth: 0 }}>
             <label htmlFor="wa-daybook-to" className="input-label">Your WhatsApp number</label>

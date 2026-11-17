@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { useLocationContext } from '../../contexts/LocationContext';
 import { qtyShown } from '../../lib/units';
+import DateField from '../../components/common/DateField';
 import { AN_CSS, PageHead, StorePick, Seg, Stat, Bar, Loading, Problem, Money, useAnalytics, useFilters, useIsPhone, rupees, shortRupees, share } from './shared';
 
 /**
@@ -113,9 +114,9 @@ export default function SalesPage() {
       {custom && (
         <div className="ov-card an-dates">
           <label htmlFor="an-from">From</label>
-          <input id="an-from" type="date" className="input-field" value={from} max={today} onChange={(e) => { setFrom(e.target.value); setDateProblem(''); }} />
+          <DateField id="an-from" aria-label="From" value={from} max={today} onChange={(v) => { setFrom(v); setDateProblem(''); }} />
           <label htmlFor="an-to">To</label>
-          <input id="an-to" type="date" className="input-field" value={to} max={today} onChange={(e) => { setTo(e.target.value); setDateProblem(''); }} />
+          <DateField id="an-to" aria-label="To" value={to} max={today} onChange={(v) => { setTo(v); setDateProblem(''); }} />
           <button type="button" className="btn-secondary" onClick={applyDates}>Apply</button>
           {dateProblem ? <span className="an-err" role="alert" style={{ gridColumn: '1 / -1' }}>{dateProblem}</span>
             : !ready && <span className="an-note" style={{ gridColumn: '1 / -1' }}>Select a date range of up to one year.</span>}

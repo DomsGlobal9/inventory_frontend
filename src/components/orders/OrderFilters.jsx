@@ -2,6 +2,7 @@ import React from 'react';
 import { ChevronDown, Check, X, CalendarDays } from 'lucide-react';
 import { Menu, useOutside } from '../products/ProductFilters';
 import { ORDER_STATUS } from '../sales/labels';
+import DateField from '../common/DateField';
 
 /**
  * The Orders page's filter bar, in the Products page's look (pf-* in index.css): one button per
@@ -163,10 +164,10 @@ function DateBoxes({ value, onChange }) {
   const today = indiaDay();
   return (
     <div className="pf-prices">
-      <label htmlFor="of-from">From<input id="of-from" type="date" max={value.to || today} value={value.from ?? ''}
-        onChange={(e) => onChange({ ...value, from: e.target.value || undefined })} /></label>
-      <label htmlFor="of-to">To<input id="of-to" type="date" min={value.from || undefined} max={today} value={value.to ?? ''}
-        onChange={(e) => onChange({ ...value, to: e.target.value || undefined })} /></label>
+      <label htmlFor="of-from">From<DateField id="of-from" aria-label="From" placeholder="Any" className="pf-date" max={value.to || today} value={value.from ?? ''}
+        onChange={(v) => onChange({ ...value, from: v || undefined })} /></label>
+      <label htmlFor="of-to">To<DateField id="of-to" aria-label="To" placeholder="Any" className="pf-date" min={value.from || undefined} max={today} value={value.to ?? ''}
+        onChange={(v) => onChange({ ...value, to: v || undefined })} /></label>
     </div>
   );
 }

@@ -9,7 +9,7 @@ import {
 import { useBranding } from '../../hooks/useBranding';
 import { usePermission } from '../../hooks/usePermission';
 import PageLoader from '../../components/PageLoader';
-import LoadFailed from '../../components/LoadFailed';
+import NotHere from '../../components/common/NotHere';
 import ConfirmModal from '../../components/ConfirmModal';
 import CampaignEditor, { LeftOut } from '../../components/campaigns/CampaignEditor';
 import MessageBubble from '../../components/campaigns/MessageBubble';
@@ -54,7 +54,7 @@ export default function CampaignDetail() {
   const [confirm, setConfirm] = useState(null);   // 'start' | 'cancel' | 'delete' | 'links-off'
 
   if (isLoading) return <PageLoader text="LOADING CAMPAIGN..." />;
-  if (error || !c) return <LoadFailed what="this campaign" error={error} onRetry={refetch} />;
+  if (error || !c) return <NotHere what="campaign" back="/campaigns" backLabel="Back to campaigns" error={error} onRetry={refetch} />;
 
   const mayAct = can('campaign:send');
   const perDay = overview.data?.perDay ?? 20;

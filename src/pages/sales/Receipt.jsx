@@ -7,6 +7,7 @@ import BillPDF from '../../components/BillPDF';
 import { makePdf } from '../../components/pdf/downloadPdf';
 import { logoAsPng } from '../../components/pdf/pdfLogo';
 import { usePermission, canTakeReturn } from '../../hooks/usePermission';
+import NotHere from '../../components/common/NotHere';
 
 /**
  * The 80 mm receipt.
@@ -29,7 +30,7 @@ export default function Receipt() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const { can } = usePermission();
-  const { data: sale, isLoading, isError, error } = useReceipt(id);
+  const { data: sale, isLoading, isError, error, refetch } = useReceipt(id);
   const printed = useRef(false);
 
   const original = params.get('fresh') === '1' && sale && Date.now() - new Date(sale.createdAt).getTime() < ORIGINAL_WINDOW_MS;
@@ -54,7 +55,7 @@ export default function Receipt() {
   }, [sale, notCounter]);
 
   if (isLoading) return <div style={{ padding: 48, textAlign: 'center' }}><Loader2 className="animate-spin" /></div>;
-  if (isError || !sale) return <div style={{ padding: 48, textAlign: 'center', color: 'var(--text-secondary)' }}>{error?.message || 'Receipt not found.'}</div>;
+  if (isError || !sale) return <NotHere what="receipt" back="/orders" backLabel="Back to orders" error={isError ? error : null} onRetry={refetch} />;
   if (notCounter) {
     return (
       <div style={{ padding: 48, display: 'grid', justifyItems: 'center', gap: 16, textAlign: 'center' }}>

@@ -23,6 +23,7 @@ import { makePdf } from '../../components/pdf/downloadPdf';
 import { logoAsPng } from '../../components/pdf/pdfLogo';
 import { buildWhatsAppUrl } from '../../utils/whatsappUtils';
 import { useGoBack } from '../../hooks/useGoBack';
+import NotHere from '../../components/common/NotHere';
 
 /**
  * A moment, written the way this app writes every other one: "22 Sep 2026, 11:21 am".
@@ -53,7 +54,7 @@ export default function ReturnDetail() {
   const [inspectionData, setInspectionData] = useState({});
   const inspectDialogRef = useDialog(inspectModalOpen, { onClose: () => setInspectModalOpen(false) });
 
-  const { data: returnData, isLoading } = useQuery({
+  const { data: returnData, isLoading, error: loadError, refetch } = useQuery({
     queryKey: ['return', id],
     queryFn: async () => {
       return api.get(`/returns/${id}`);
@@ -160,7 +161,7 @@ export default function ReturnDetail() {
   }
 
   const ret = returnData?.data;
-  if (!ret) return <div style={{ padding: '24px' }}>Return not found.</div>;
+  if (!ret) return <NotHere what="return" back="/returns" backLabel="Back to returns" error={loadError} onRetry={refetch} />;
 
   const getDispositionBadge = (disp) => {
     const { label, color } = describe(RETURN_DISPOSITION, disp || 'PENDING');

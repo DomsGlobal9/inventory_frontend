@@ -32,6 +32,7 @@ import PageLoader from '../components/PageLoader';
 import { rowLink } from '../components/common/rowLink';
 import { usePermission } from '../hooks/usePermission';
 import { useGoBack } from '../hooks/useGoBack';
+import NotHere from '../components/common/NotHere';
 
 export default function SupplierDetails() {
   const { id } = useParams();
@@ -44,7 +45,7 @@ export default function SupplierDetails() {
   const [copiedField, setCopiedField] = useState(null);
   const [editForm, setEditForm] = useState({ name: '', email: '', phone: '', address: '', isActive: true });
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['supplier', id],
     queryFn: async () => {
       const res = await api.get(`/suppliers/${id}`);
@@ -82,7 +83,7 @@ export default function SupplierDetails() {
   };
 
   if (isLoading) return <PageLoader text="Loading Supplier Details..." />;
-  if (error || !supplier) return <div style={{ padding: '32px', color: 'var(--accent-danger)' }}>Failed to load supplier.</div>;
+  if (error || !supplier) return <NotHere what="supplier" back="/inventory/suppliers" backLabel="Back to suppliers" error={error} onRetry={refetch} />;
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();

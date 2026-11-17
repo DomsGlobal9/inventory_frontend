@@ -36,13 +36,14 @@ import BillPDF from '../../components/BillPDF';
 import { makePdf } from '../../components/pdf/downloadPdf';
 import { logoAsPng } from '../../components/pdf/pdfLogo';
 import { useGoBack } from '../../hooks/useGoBack';
+import NotHere from '../../components/common/NotHere';
 
 export default function SalesOrderDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const goBack = useGoBack('/orders');
   const { can } = usePermission();
-  const { data: order, isLoading } = useSalesOrderDetails(id);
+  const { data: order, isLoading, error, refetch } = useSalesOrderDetails(id);
   /*
    * The lines are a table only when the table really fits its box; otherwise cards (24 Oct).
    *
@@ -101,7 +102,7 @@ export default function SalesOrderDetail() {
   if (isLoading) {
     return <PageLoader text="LOADING ORDERS..." />;
   }
-  if (!order) return <div style={{ padding: '48px', textAlign: 'center', color: 'red' }}>Order not found</div>;
+  if (!order) return <NotHere what="order" back="/orders" backLabel="Back to orders" error={error} onRetry={refetch} />;
 
   /**
    * Both of these used to be window.confirm(). Three things were wrong with that: the box is

@@ -12,6 +12,7 @@ import StatusPill from '../components/StockCountStatus';
 import { usePermission } from '../hooks/usePermission';
 import { useGoBack } from '../hooks/useGoBack';
 import { isMeasured, toBase, fromBase, qtyShown, unitOf } from '../lib/units';
+import NotHere from '../components/common/NotHere';
 
 // Fabric is counted in its unit (metres), stored in its base (cm). Pieces stay whole numbers, as before.
 const soldByOf = (item) => item?.variant?.product?.soldBy ?? 'PIECE';
@@ -22,7 +23,7 @@ export default function ActiveAudit() {
   const navigate = useNavigate();
   const goBack = useGoBack('/inventory/audits');
   const { user } = useAuth();
-  const { data, isLoading } = useStockCount(id);
+  const { data, isLoading, error, refetch } = useStockCount(id);
   const startMutation = useStartStockCount();
   const updateMutation = useUpdateStockCountItem();
   const completeMutation = useCompleteStockCount();
@@ -206,7 +207,7 @@ export default function ActiveAudit() {
   if (isLoading) return <PageLoader text="Loading Audit..." />;
 
   const audit = data;
-  if (!audit) return <div style={{ padding: '32px' }}>Audit not found</div>;
+  if (!audit) return <NotHere what="stock count" back="/inventory/audits" backLabel="Back to stock counts" error={error} onRetry={refetch} />;
 
   const filteredItems = audit.items?.filter(item => 
     item.variant.product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||

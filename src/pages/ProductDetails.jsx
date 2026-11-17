@@ -27,6 +27,7 @@ import ProductTryOnsCard from '../components/ProductTryOnsCard';
 import { usePermission } from '../hooks/usePermission';
 import { useGoBack } from '../hooks/useGoBack';
 import { isMeasured, formatQty, formatPrice } from '../lib/units';
+import NotHere from '../components/common/NotHere';
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -87,7 +88,7 @@ export default function ProductDetails() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const { data, isLoading, isError } = useProductHook(id);
+  const { data, isLoading, isError, error, refetch } = useProductHook(id);
   const product = data?.data;
 
   const trashedAt = product?.trashedAt ? new Date(product.trashedAt) : null;
@@ -97,7 +98,7 @@ export default function ProductDetails() {
     : null;
 
   if (isLoading) return <PageLoader text="Loading product details..." />;
-  if (isError || !product) return <div style={{ padding: '48px', color: 'var(--text-muted)' }}>Product not found.</div>;
+  if (isError || !product) return <NotHere what="product" back="/products" backLabel="Back to products" error={isError ? error : null} onRetry={refetch} />;
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: Package },

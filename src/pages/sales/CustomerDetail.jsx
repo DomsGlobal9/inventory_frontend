@@ -22,6 +22,7 @@ import { rowLink } from '../../components/common/rowLink';
 import { useGoBack } from '../../hooks/useGoBack';
 import { useCrm } from '../../hooks/useCrm';
 import DeleteCustomer from '../../components/sales/DeleteCustomer';
+import NotHere from '../../components/common/NotHere';
 
 export default function CustomerDetail() {
   const { id } = useParams();
@@ -30,7 +31,7 @@ export default function CustomerDetail() {
   const queryClient = useQueryClient();
   const { can } = usePermission();
   const crm = useCrm();
-  const { data: customer, isLoading, error } = useCustomerDetails(id);
+  const { data: customer, isLoading, error, refetch } = useCustomerDetails(id);
 
   const past = usePastPurchases(id);
   const pastBills = past.data?.bills ?? [];
@@ -126,7 +127,7 @@ export default function CustomerDetail() {
   }
 
   if (error || !customer) {
-    return <div style={{ padding: '48px', textAlign: 'center', color: 'red' }}>Error loading customer details</div>;
+    return <NotHere what="customer" back="/customers" backLabel="Back to customers" error={error} onRetry={refetch} />;
   }
 
   const activeTab = chosenTab ?? (!customer.salesOrders?.length && pastBills.length ? 'past' : 'orders');

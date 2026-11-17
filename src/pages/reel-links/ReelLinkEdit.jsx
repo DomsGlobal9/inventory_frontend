@@ -16,33 +16,58 @@ import { RL_CSS, Thumb, ReelSwitch, QrDialog, ReelVideoDialog, instagramPlayer, 
 const MAX = 12;
 const FILTERS = [{ key: null, label: 'All' }, { key: 'new', label: 'New this week' }, { key: 'instock', label: 'In stock' }];
 
-/** The shopper's page: logo, title, the pieces in order with sold-out ones last and greyed. */
-function PhonePreview({ shop, title, pieces }) {
-  const shown = [...pieces.filter(p => p.inStock > 0), ...pieces.filter(p => !(p.inStock > 0))].filter(p => !p.hidden);
+/** True when dark words read better on this colour than white does (the shop does the same for its own buttons). */
+function isLight(hex) {
+  const m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(String(hex || '').trim());
+  if (!m) return false;
+  const h = m[1].length === 3 ? m[1].split('').map(c => c + c).join('') : m[1];
+  const [r, g, b] = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16) / 255).map(c => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+  const L = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return (L + 0.05) / 0.0594 > 1.05 / (L + 0.05);
+}
+
+/**
+ * The shopper's page as it opens (17 Nov 2026, "Frames"): one piece fills the screen, a swipe brings the next, and the
+ * last screen lists them all. The shopper's order is the shop's, with what can be bought first and, inside that, a
+ * piece that has a photograph before one that has none -- so the reel never opens on an empty screen.
+ */
+function PhonePreview({ shop, pieces }) {
+  const rank = (p) => (p.inStock > 0 ? 0 : 2) + (p.photo ? 0 : 1);
+  const shown = pieces.filter(p => !p.hidden).map((p, i) => ({ p, i })).sort((a, b) => rank(a.p) - rank(b.p) || a.i - b.i).map(x => x.p);
+  const [first, next] = shown;
+  const accent = shop?.accent || '#8b1a2b';
   return (
     <div>
       <p className="rl-colh" style={{ textAlign: 'center' }}>What the shopper sees</p>
-      <div className="rl-phone" style={{ '--rl-accent': shop?.accent || undefined }}>
-        <div className="rl-phone-head">
-          {shop?.logoUrl ? <img className="rl-phone-logo" src={shop.logoUrl} alt="" /> : <span className="rl-phone-logo">{(shop?.shopName || 'S').slice(0, 2).toUpperCase()}</span>}
-          <span>{shop?.shopName || 'Your shop'}</span>
+      <div className="rl-phone" style={{ '--rl-accent': accent, '--rl-accent-ink': isLight(accent) ? '#16181d' : '#ffffff' }}>
+        <div className="rl-ph-band">
+          {shown.length > 1 ? <div className="rl-ph-segs" aria-hidden="true">{shown.map((p, i) => <i key={p.productId} className={i === 0 ? 'on' : ''} />)}</div> : null}
+          <div className="rl-ph-shop">{shop?.shopName || 'Your shop'}</div>
         </div>
-        <div className="rl-phone-body">
-          <p className="rl-phone-title">{title || 'Title'}</p>
-          <p className="rl-phone-sub">{shown.length} {shown.length === 1 ? 'piece' : 'pieces'} from our reel</p>
-          {shown.length === 0 ? <p className="rl-phone-sub">Pick pieces to see them here.</p> : (
-            <div className="rl-phone-grid">
-              {shown.slice(0, 6).map(p => (
-                <div key={p.productId} className={p.inStock > 0 ? '' : 'gone'}>
-                  <Thumb src={p.photo} size="lg" />
-                  <div className="rl-name">{p.title}{p.colour ? `, ${p.colour.toLowerCase()}` : ''}</div>
-                  <div className="rl-price">{p.inStock > 0 ? priceText(p) : 'Sold out'}</div>
-                </div>
-              ))}
+        {!first ? <p className="rl-ph-empty">Pick pieces to see them here.</p> : (
+          <>
+            <div className={`rl-ph-shot${first.inStock > 0 ? '' : ' gone'}`}>
+              {first.photo ? <img src={first.photo} alt="" /> : <span>Photo coming soon</span>}
             </div>
-          )}
-        </div>
+            <div className="rl-ph-panel">
+              <div className="rl-ph-count">{shown.length > 1 ? `1 of ${shown.length} in this reel` : 'From our reel'}</div>
+              <div className="rl-ph-name">{first.title}</div>
+              <div className="rl-ph-price">{first.inStock > 0 ? priceText(first) : 'Sold out'}</div>
+              {first.colour ? <div className="rl-ph-colour">{first.colour}, as in the reel</div> : null}
+              <div className={`rl-ph-go${first.inStock > 0 ? '' : ' line'}`}>{first.inStock > 0 ? 'Add to bag' : 'Ask on WhatsApp'}</div>
+              <div className="rl-ph-next">
+                {next ? (
+                  <>
+                    <Thumb src={next.photo} size="sm" />
+                    <span><small>Next in the reel</small><b>{next.title}</b></span>
+                  </>
+                ) : <span><small>{shown.length > 1 ? 'End of the reel' : 'After this'}</small><b>{shown.length > 1 ? 'See the whole look' : 'More from the shop'}</b></span>}
+              </div>
+            </div>
+          </>
+        )}
       </div>
+      {shown.length > 1 ? <p className="rl-ph-note">One piece a screen. A swipe brings the next; the last screen lists all {shown.length}.</p> : null}
     </div>
   );
 }
@@ -323,7 +348,7 @@ function ReelLinkEdit() {
         </section>
 
         <aside className="rl-sticky rl-a-side">
-          <PhonePreview shop={overview.data} title={title} pieces={pieces} />
+          <PhonePreview shop={overview.data} pieces={pieces} />
           {link ? <SharePanel link={link} manage={manage} busy={switcher.isPending || remove.isPending} onSwitch={switchTo} onDelete={() => setConfirmDelete(true)} onQr={() => setQrOpen(true)} />
             : <div className="rl-card"><b>Link and QR code</b><p className="rl-note" style={{ marginTop: 4 }}>Save to get this reel's link, its QR code and a caption line to copy.</p></div>}
         </aside>

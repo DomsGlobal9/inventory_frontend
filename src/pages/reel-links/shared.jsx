@@ -255,16 +255,29 @@ export const RL_CSS = `
 .rl-field > span { font-size: 12.5px; font-weight: 700; color: var(--text-secondary); }
 .rl-sticky { position: sticky; top: 12px; display: grid; gap: 12px; }
 .rl-phone { width: 290px; margin: 0 auto; border: 10px solid #111; border-radius: 36px; overflow: hidden; background: #fff; color: #18181b; }
-.rl-phone-head { display: flex; align-items: center; gap: 8px; padding: 12px 14px; background: var(--rl-accent, #164B1E); color: #fff; font-weight: 700; font-size: 13px; }
-.rl-phone-logo { width: 26px; height: 26px; border-radius: 7px; object-fit: cover; background: #A6D92B; color: #0B2410; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; }
-.rl-phone-body { padding: 12px; min-height: 220px; }
-.rl-phone-title { font-weight: 800; margin: 0; font-size: 15px; }
-.rl-phone-sub { color: #71717a; font-size: 12px; margin: 2px 0 8px; }
-.rl-phone-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-.rl-phone-grid > div { min-width: 0; }
-.rl-phone-grid .gone { opacity: .45; filter: grayscale(1); }
-.rl-phone-grid .rl-name { font-size: 12px; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rl-phone-grid .rl-price { font-size: 12px; font-weight: 700; }
+/* "What the shopper sees": the first frame of the reel's page, as the shop draws it (white, whatever theme this is). */
+.rl-ph-band { padding: 9px 12px; background: #121317; color: #fff; }
+.rl-ph-segs { display: flex; gap: 4px; margin-bottom: 7px; }
+.rl-ph-segs i { flex: 1; height: 2.5px; border-radius: 2px; background: rgba(255, 255, 255, .38); }
+.rl-ph-segs i.on { background: #fff; }
+.rl-ph-shop { font: 600 14px/1.2 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rl-ph-shot { height: 250px; display: flex; align-items: center; justify-content: center; background: #f1ede4; color: #6f6758; font-size: 12px; }
+.rl-ph-shot img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 14%; }
+.rl-ph-shot.gone img { filter: grayscale(1); opacity: .6; }
+.rl-ph-panel { position: relative; margin-top: -16px; padding: 13px 14px 12px; border-radius: 16px 16px 0 0; background: #fff; }
+.rl-ph-count { margin-bottom: 3px; font-size: 11px; color: #71717a; }
+.rl-ph-name { font: 600 17px/1.2 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.rl-ph-price { margin-top: 6px; font-size: 16px; font-weight: 700; }
+.rl-ph-colour { margin-top: 2px; font-size: 11px; color: #71717a; }
+.rl-ph-go { display: flex; align-items: center; justify-content: center; height: 38px; margin-top: 10px; border-radius: 10px; background: var(--rl-accent, #8b1a2b); color: var(--rl-accent-ink, #fff); font-size: 13px; font-weight: 650; }
+.rl-ph-go.line { background: #fff; color: #18181b; border: 1.5px solid #18181b; }
+.rl-ph-next { display: flex; align-items: center; gap: 9px; min-width: 0; margin-top: 10px; padding-top: 9px; border-top: 1px solid #ececf0; }
+.rl-ph-next .rl-thumb { width: 26px; height: 34px; border-radius: 5px; background: #f1ede4; }
+.rl-ph-next span { display: grid; min-width: 0; }
+.rl-ph-next small { font-size: 10.5px; color: #71717a; }
+.rl-ph-next b { font-size: 11.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rl-ph-empty { margin: 0; padding: 70px 16px; text-align: center; font-size: 12.5px; color: #71717a; }
+.rl-ph-note { max-width: 290px; margin: 10px auto 0; text-align: center; font-size: 12px; color: var(--text-muted); }
 .rl-share { display: grid; gap: 12px; }
 .rl-share-top { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: center; }
 .rl-qr { background: #fff; padding: 6px; border-radius: 8px; border: 1px solid var(--border-light); line-height: 0; cursor: zoom-in; }

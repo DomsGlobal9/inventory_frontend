@@ -11,7 +11,7 @@ import { usePermission } from '../../hooks/usePermission';
 import PageLoader from '../../components/PageLoader';
 import ConfirmModal from '../../components/ConfirmModal';
 import Select from '../../components/common/Select';
-import { RL_CSS, Thumb, ReelSwitch, QrDialog, copy, priceText, stockText } from './shared';
+import { RL_CSS, Thumb, ReelSwitch, QrDialog, ReelVideoDialog, instagramPlayer, copy, priceText, stockText } from './shared';
 
 const MAX = 12;
 const FILTERS = [{ key: null, label: 'All' }, { key: 'new', label: 'New this week' }, { key: 'instock', label: 'In stock' }];
@@ -112,6 +112,7 @@ function ReelLinkEdit() {
 
   const [title, setTitle] = useState('');
   const [reelUrl, setReelUrl] = useState('');
+  const [playing, setPlaying] = useState(false);
   const [pieces, setPieces] = useState([]);
   const [dirty, setDirty] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -290,9 +291,18 @@ function ReelLinkEdit() {
           <label className="rl-field" style={{ marginTop: 14 }}><span>Title the shopper sees</span>
             <input className="input-field" value={title} maxLength={80} disabled={!manage} onChange={(e) => { setTitle(e.target.value); setDirty(true); }} placeholder="Reel 12: Diwali silk edit" />
           </label>
-          <label className="rl-field" style={{ marginBottom: 0 }}><span>Instagram reel address (optional, only for you)</span>
-            <input className="input-field" value={reelUrl} disabled={!manage} onChange={(e) => { setReelUrl(e.target.value); setDirty(true); }} placeholder="https://www.instagram.com/reel/..." />
+          <label className="rl-field" style={{ marginBottom: 0 }}><span>Instagram reel address (optional)</span>
+            <div className="rl-urlrow">
+              <input className="input-field" value={reelUrl} disabled={!manage} onChange={(e) => { setReelUrl(e.target.value); setDirty(true); }} placeholder="https://www.instagram.com/reel/..." />
+              {instagramPlayer(reelUrl) && <button type="button" className="btn-secondary" onClick={(e) => { e.preventDefault(); setPlaying(true); }}>Play reel</button>}
+            </div>
           </label>
+          {/* What the address does, in words (17 Nov: shoppers get a "Watch reel" link to Instagram). */}
+          <p className="rl-note" style={{ margin: '6px 0 0' }}>
+            {reelUrl && !instagramPlayer(reelUrl) ? 'Paste the reel\'s Instagram address (instagram.com/reel/...) to play it here and give shoppers a "Watch reel" link.'
+              : 'Plays here with "Play reel". Shoppers on the link\'s page get a "Watch reel" button that opens it on Instagram.'}
+          </p>
+          {playing && <ReelVideoDialog reelUrl={reelUrl} title={title} onClose={() => setPlaying(false)} />}
         </section>
 
         <aside className="rl-sticky rl-a-side">

@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { useReelLinks, useReelOverview, useSwitchReelLink } from '../../hooks/useReelLinks';
 import { usePermission } from '../../hooks/usePermission';
 import PageLoader from '../../components/PageLoader';
-import { RL_CSS, ReelSwitch, QrDialog, copy, reelParts } from './shared';
+import { RL_CSS, ReelSwitch, QrDialog, ReelVideoDialog, instagramPlayer, copy, reelParts } from './shared';
 
 /**
  * Reel links (PLAN-reel-links.md; redesign 16 Nov, option A): a wall of reel cards across the whole page, each one a
@@ -19,6 +19,7 @@ export default function ReelLinks() {
   const list = useReelLinks();
   const [q, setQ] = useState('');
   const [qr, setQr] = useState(null);
+  const [playing, setPlaying] = useState(null);
 
   const rows = list.data ?? [];
   const shown = useMemo(() => {
@@ -102,19 +103,20 @@ export default function ReelLinks() {
                 <small>{rows.length ? 'Pick the pieces your next reel shows' : 'Make one when you post your next reel'}</small>
               </div>
             )}
-            {shown.map(r => <ReelCard key={r.id} r={r} manage={manage} onOpen={() => navigate(`/reel-links/${r.id}`)} onQr={setQr} />)}
+            {shown.map(r => <ReelCard key={r.id} r={r} manage={manage} onOpen={() => navigate(`/reel-links/${r.id}`)} onQr={setQr} onPlay={setPlaying} />)}
           </div>
           {rows.length > 0 && shown.length === 0 && <p className="rl-note">No reel has "{q}" in its title.</p>}
           {rows.length > 0 && <p className="rl-note">Opens count people only. Link-preview robots from Instagram and WhatsApp are left out.</p>}
         </>
       )}
       <QrDialog url={qr?.url} name={qr?.code} title={qr?.title} onClose={() => setQr(null)} />
+      {playing && <ReelVideoDialog reelUrl={playing.reelUrl} title={playing.title} onClose={() => setPlaying(null)} />}
     </div>
   );
 }
 
 /** One reel: its pieces as a collage, its title, how it is doing, on / off, and the link to copy. */
-function ReelCard({ r, manage, onOpen, onQr }) {
+function ReelCard({ r, manage, onOpen, onQr, onPlay }) {
   const switcher = useSwitchReelLink(r.id);
   const link = r.shortUrl || r.pageUrl;
   const { number, rest } = reelParts(r.title);
@@ -133,6 +135,12 @@ function ReelCard({ r, manage, onOpen, onQr }) {
         {covers.length ? covers.map((src, i) => <img key={i} src={src} alt="" loading="lazy" />)
           : <span className="rl-cover-empty">{r.pieces ? 'No photos yet' : 'No pieces yet'}</span>}
         {number && <span className="rl-tag">Reel {number}</span>}
+        {/* The reel itself, playing here (17 Nov): only for an Instagram reel address. */}
+        {instagramPlayer(r.reelUrl) && (
+          <button type="button" className="rl-play" aria-label={`Play ${r.title}`} onClick={(e) => { e.stopPropagation(); onPlay(r); }}>
+            <i aria-hidden="true" />Play reel
+          </button>
+        )}
       </div>
       <div className="rl-reel-body">
         <div className="rl-reel-title" title={r.title}>{rest}</div>

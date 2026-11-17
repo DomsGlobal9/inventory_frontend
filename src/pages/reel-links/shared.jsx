@@ -89,7 +89,55 @@ export function QrDialog({ url, name, title, onClose }) {
   );
 }
 
+/**
+ * The reel's Instagram address as Instagram's own player, or null (17 Nov 2026). The same rule as the server's
+ * reel-links instagramPlayer: an https Instagram reel or post, rebuilt from its code alone.
+ */
+export function instagramPlayer(raw) {
+  if (typeof raw !== 'string' || !raw.trim()) return null;
+  try {
+    const u = new URL(raw.trim());
+    if (u.protocol !== 'https:' || !['instagram.com', 'www.instagram.com', 'm.instagram.com'].includes(u.hostname.toLowerCase())) return null;
+    const m = /^\/(?:[A-Za-z0-9._]{1,30}\/)?(reel|reels|p|tv)\/([A-Za-z0-9_-]{5,40})\/?$/.exec(u.pathname);
+    if (!m) return null;
+    const kind = m[1] === 'reels' ? 'reel' : m[1];
+    return { url: `https://www.instagram.com/${kind}/${m[2]}/`, embed: `https://www.instagram.com/${kind}/${m[2]}/embed/` };
+  } catch { return null; }
+}
+
+/** The reel itself, playing here in Inventory (the owner's side, 17 Nov 2026), in Instagram's own player. */
+export function ReelVideoDialog({ reelUrl, title, onClose }) {
+  const player = instagramPlayer(reelUrl);
+  const ref = useDialog(!!player, { onClose });
+  const titleId = useId();
+  if (!player) return null;
+  return createPortal(
+    <div className="rl-overlay" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div ref={ref} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} className="rl-dialog rl-video-dialog">
+        <div className="rl-dialog-head">
+          <b id={titleId} className="rl-video-title">{title || 'The reel'}</b>
+          <button type="button" className="rl-icon-btn" aria-label="Close" onClick={onClose}><X size={18} /></button>
+        </div>
+        <iframe className="rl-video" src={player.embed} title={`${title || 'The reel'} on Instagram`} allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen />
+        <div className="rl-row-actions" style={{ justifyContent: 'center', marginTop: 12 }}>
+          <a className="btn-secondary" href={player.url} target="_blank" rel="noreferrer">Open on Instagram</a>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
 export const RL_CSS = `
+.rl-video-dialog { width: min(440px, 100%); padding: 14px 14px 16px; }
+.rl-video-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rl-play { position: absolute; right: 8px; bottom: 8px; display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 11px; border-radius: 16px; border: 0; background: rgba(15, 18, 16, .78); color: #fff; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+.rl-play i { width: 0; height: 0; border-left: 8px solid #fff; border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
+.rl-play:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.rl-urlrow { display: flex; gap: 8px; }
+.rl-urlrow .input-field { flex: 1; min-width: 0; }
+.rl-urlrow .btn-secondary { flex: none; white-space: nowrap; }
+.rl-video { display: block; width: 100%; height: min(680px, calc(100vh - 170px)); border: 0; border-radius: 10px; background: var(--bg-input); }
 .rl-page { display: grid; gap: 18px; width: 100%; min-width: 0; }
 .rl-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 14px; flex-wrap: wrap; }
 .rl-head > div { min-width: 0; }

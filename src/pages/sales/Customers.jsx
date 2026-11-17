@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import LoadFailed from '../../components/LoadFailed';
 import { useCustomers } from '../../hooks/useCustomers';
-import { Search, Plus, Gift } from 'lucide-react';
+import { Search, Plus, Gift, Upload } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import CustomerModal from '../../components/sales/CustomerModal';
+import CustomerImportModal from '../../components/customers/CustomerImportModal';
 import { usePermission } from '../../hooks/usePermission';
 import { formatPhone } from '../../utils/phone';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
@@ -39,7 +40,11 @@ export default function Customers() {
   // each one used to be its own request.
   const search = linkParams.get('q') ?? '';
   const [adding, setAdding] = useState(() => linkParams.get('new') === '1');
-  React.useEffect(() => { if (linkParams.get('new')) setLinkParams(p => { p.delete('new'); return p; }, { replace: true }); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // ?import=1 opens Import customers: CRM's own "Import customers" button links here (one import for both, 17 Nov 2026).
+  const [importing, setImporting] = useState(() => linkParams.get('import') === '1');
+  React.useEffect(() => {
+    if (linkParams.get('new') || linkParams.get('import')) setLinkParams(p => { p.delete('new'); p.delete('import'); return p; }, { replace: true });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   // A card per customer on a phone. The table was 774px wide, so STATUS and the View button --
   // the only way into a customer -- sat off the right edge of a 390px screen.
   const narrow = useMediaQuery('(max-width: 760px)');
@@ -131,6 +136,11 @@ export default function Customers() {
           {can('voucher:view') && (
             <button className="btn-secondary" onClick={() => navigate('/customers/gift-vouchers')} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
               <Gift size={16} /> Gift vouchers
+            </button>
+          )}
+          {can('customer:create') && (
+            <button className="btn-secondary" onClick={() => setImporting(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+              <Upload size={16} /> Import customers
             </button>
           )}
           {can('customer:create') && (
@@ -282,6 +292,7 @@ export default function Customers() {
       </div>
       )}
 
+      {can('customer:create') && <CustomerImportModal open={importing} onClose={() => setImporting(false)} />}
       <CustomerModal isOpen={adding} onClose={() => setAdding(false)} onSaved={(c) => c?.id && navigate(`/customers/${c.id}`)} />
     </div>
   );

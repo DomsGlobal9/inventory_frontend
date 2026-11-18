@@ -1,22 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { Gift, Cake, Heart, Hourglass, MessageCircle } from 'lucide-react';
-import { useLoyaltySettings, useSaveLoyaltySettings, useCampaignOverview } from '../../hooks/useCampaigns';
-import { usePermission } from '../../hooks/usePermission';
+import { Gift, Hourglass, MessageCircle } from 'lucide-react';
+import { useLoyaltySettings, useSaveLoyaltySettings } from '../../hooks/useCampaigns';
 import { useCrm } from '../../hooks/useCrm';
 import PageLoader from '../PageLoader';
-import PicturePicker from '../campaigns/PicturePicker';
 
 /**
- * Settings → Loyalty & wishes: how customers earn and spend points, and the automatic WhatsApp
- * messages (birthday, anniversary, points about to lapse, points after a sale).
+ * Settings → Loyalty points: how customers earn and spend points, the birthday gift, and the two
+ * WhatsApp messages about points (a week before they lapse, and after a sale).
+ *
+ * Birthday and anniversary WISHES, like campaigns, are ScaleEzy CRM's for every shop (18 Nov 2026, the
+ * owner), so they are not set here. The birthday gift points are still given by Inventory.
  *
  * The example line under the numbers is worked out from what is typed, so an owner sees what
  * "1 point per ₹100, worth ₹1" actually gives a customer before saving it.
  */
-
-const DEFAULT_BIRTHDAY = 'Happy birthday, {name}! Wishing you a wonderful year from all of us at {shop}.';
-const DEFAULT_ANNIVERSARY = 'Happy anniversary, {name}! Warm wishes from all of us at {shop}.';
 
 const Toggle = ({ id, checked, onChange, children, hint, name }) => (
   <label htmlFor={id} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', cursor: 'pointer' }}>
@@ -43,21 +41,11 @@ const Num = ({ id, label, value, onChange, prefix, suffix, min = 0, max, step = 
 export default function LoyaltySettings() {
   const { data, isLoading } = useLoyaltySettings();
   const save = useSaveLoyaltySettings();
-  const { can } = usePermission();
-  // A picture on the wishes: only for those who may send campaigns, and only once WhatsApp can send pictures.
   const crm = useCrm();
-  const mayPicture = can('campaign:send');
-  const overview = useCampaignOverview({ enabled: mayPicture });
-  const pictures = mayPicture && !!overview.data?.features?.picture;
   const [f, setF] = useState(null);
 
   useEffect(() => {
-    if (data && !f) setF({
-      ...data,
-      pointValue: String(data.pointValuePaise / 100),
-      birthdayText: data.birthdayText ?? DEFAULT_BIRTHDAY,
-      anniversaryText: data.anniversaryText ?? DEFAULT_ANNIVERSARY
-    });
+    if (data && !f) setF({ ...data, pointValue: String(data.pointValuePaise / 100) });
   }, [data, f]);
 
   if (isLoading || !f) return <PageLoader text="LOADING..." />;
@@ -83,18 +71,12 @@ export default function LoyaltySettings() {
         expiryMonths: Number(f.expiryMonths),
         birthdayPoints: Number(f.birthdayPoints),
         notifyAfterSale: f.notifyAfterSale,
-        birthdayWish: f.birthdayWish,
-        birthdayText: f.birthdayText,
-        anniversaryWish: f.anniversaryWish,
-        anniversaryText: f.anniversaryText,
         expiryReminder: f.expiryReminder,
         earnAtCounter: f.earnAtCounter,
         earnOnlineShop: f.earnOnlineShop,
-        earnShopify: f.earnShopify,
-        // Sent only by those who could change them, so nobody else clears a picture by saving.
-        ...(pictures ? { birthdayMediaId: f.birthdayMedia?.id ?? null, anniversaryMediaId: f.anniversaryMedia?.id ?? null } : {})
+        earnShopify: f.earnShopify
       });
-      setF({ ...saved, pointValue: String(saved.pointValuePaise / 100), birthdayText: saved.birthdayText ?? DEFAULT_BIRTHDAY, anniversaryText: saved.anniversaryText ?? DEFAULT_ANNIVERSARY });
+      setF({ ...saved, pointValue: String(saved.pointValuePaise / 100) });
       toast.success('Saved.');
     } catch (err) { toast.error(err?.message || 'Could not save. Check the numbers.'); }
   };
@@ -104,8 +86,8 @@ export default function LoyaltySettings() {
   return (
     <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '760px' }}>
       <div>
-        <h2 style={{ fontSize: '24px', margin: '0 0 8px', color: 'var(--text-primary)' }}>Loyalty and wishes</h2>
-        <p style={{ margin: 0, color: 'var(--text-secondary)' }}>Reward customers who come back, and remember their special days.</p>
+        <h2 style={{ fontSize: '24px', margin: '0 0 8px', color: 'var(--text-primary)' }}>Loyalty points</h2>
+        <p style={{ margin: 0, color: 'var(--text-secondary)' }}>Reward customers who come back.</p>
       </div>
 
       <div style={section}>
@@ -125,6 +107,7 @@ export default function LoyaltySettings() {
               <Num id="l-max" label="Points can pay up to" value={f.maxRedeemPercent} onChange={set('maxRedeemPercent')} suffix="% of a bill" min={1} max={100} />
               <Num id="l-expiry" label="Points lapse after" value={f.expiryMonths} onChange={set('expiryMonths')} suffix="months with no visit (0 = never)" max={120} />
             </div>
+            <Num id="l-bpoints" label="Birthday gift" value={f.birthdayPoints} onChange={set('birthdayPoints')} suffix="points on the customer's birthday (0 = no gift)" />
             <fieldset style={{ border: '1px solid var(--border-light)', borderRadius: '10px', padding: '12px 16px', margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <legend style={{ fontWeight: 500, padding: '0 6px' }}>Where customers earn points</legend>
               <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-secondary)' }}>Tick only the ones you want. Points can still be used only at the counter.</p>
@@ -144,28 +127,10 @@ export default function LoyaltySettings() {
           <MessageCircle size={16} /> Automatic WhatsApp messages
         </div>
         <p style={{ margin: '0 0 16px', fontSize: '13px', color: 'var(--text-secondary)' }}>
-          Sent from your shop's own number, from 10 am, only to customers who agreed to offers. Each ends with "Reply STOP".{crm.on ? ' Offers and festival messages are made in CRM, under Messages.' : ''}
+          Sent from your shop's own number, from 10 am, only to customers who agreed to offers. Each ends with "Reply STOP".
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div>
-            <Toggle id="l-bday" name="Birthday wishes" checked={f.birthdayWish} onChange={set('birthdayWish')} hint="On the customer's birthday. Add birthdays on the customer's page.">
-              <Cake size={16} style={{ verticalAlign: '-3px', marginRight: '6px' }} />Birthday wishes
-            </Toggle>
-            {f.birthdayWish && <div style={{ margin: '10px 0 0 30px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <textarea aria-label="Birthday message" className="input-field" rows={3} maxLength={700} value={f.birthdayText} onChange={(e) => set('birthdayText')(e.target.value)} style={{ width: '100%', fontFamily: 'inherit' }} />
-              {pictures && <PicturePicker label="Picture above the wish (optional)" value={f.birthdayMedia} onChange={set('birthdayMedia')} disabled={save.isPending} />}
-              {f.enabled && <Num id="l-bpoints" label="Birthday gift" value={f.birthdayPoints} onChange={set('birthdayPoints')} suffix="points (0 = no gift)" />}
-            </div>}
-          </div>
-          <div>
-            <Toggle id="l-anniv" name="Anniversary wishes" checked={f.anniversaryWish} onChange={set('anniversaryWish')} hint="On the customer's wedding anniversary.">
-              <Heart size={16} style={{ verticalAlign: '-3px', marginRight: '6px' }} />Anniversary wishes
-            </Toggle>
-            {f.anniversaryWish && <div style={{ margin: '10px 0 0 30px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <textarea aria-label="Anniversary message" className="input-field" rows={3} maxLength={700} value={f.anniversaryText} onChange={(e) => set('anniversaryText')(e.target.value)} style={{ width: '100%', fontFamily: 'inherit' }} />
-              {pictures && <PicturePicker label="Picture above the wish (optional)" value={f.anniversaryMedia} onChange={set('anniversaryMedia')} disabled={save.isPending} />}
-            </div>}
-          </div>
+          {!f.enabled && <p style={{ margin: 0, fontSize: '14px' }}>Switch on loyalty points above to send these.</p>}
           {f.enabled && Number(f.expiryMonths) > 0 && (
             <Toggle id="l-expiry-r" name="Remind customers before their points lapse" checked={f.expiryReminder} onChange={set('expiryReminder')} hint="A week before, so they come back and use them.">
               <Hourglass size={16} style={{ verticalAlign: '-3px', marginRight: '6px' }} />Remind customers before their points lapse
@@ -177,7 +142,11 @@ export default function LoyaltySettings() {
             </Toggle>
           )}
         </div>
-        <p style={{ margin: '14px 0 0', fontSize: '12px', color: 'var(--text-secondary)' }}>You can use {'{name}'} and {'{shop}'} in the wishes.</p>
+        <p style={{ margin: '14px 0 0', fontSize: '13px', color: 'var(--text-secondary)' }}>
+          {crm.on
+            ? 'Birthday and anniversary wishes, offers and festival messages are made in CRM, under Messages.'
+            : 'Birthday and anniversary wishes, offers and festival messages are part of ScaleEzy CRM. To send them, ask ScaleEzy to switch CRM on for your shop.'}
+        </p>
       </div>
 
       <div>

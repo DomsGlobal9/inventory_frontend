@@ -14,11 +14,11 @@ Points are earned on bills made at the counter on the [ScaleEzy POS till](/help/
 
 ## 1. Switch points on
 
-1. In the menu on the left, click **Settings**. Under **Customers**, click **Loyalty points**. [[1]] The line at the top shows *Settings / Customers / Loyalty and wishes*.
+1. In the menu on the left, click **Settings**. Under **Customers**, click **Loyalty points**. [[1]] The line at the top shows *Settings / Customers / Loyalty points*.
 2. Tick [[2]] **Loyalty points**.
 3. Choose the rules, starting with [[3]] how many points every ₹100 earns, then click **Save** at the bottom.
 
-![Settings, Loyalty points. The line Settings / Customers / Loyalty and wishes is marked 1, the Loyalty points tick 2 and Points for every ₹100 3.](1-switch-on.webp "The line under the numbers shows what the rules give a customer.")
+![Settings, Loyalty points. The line Settings / Customers / Loyalty points is marked 1, the Loyalty points tick 2 and Points for every ₹100 3.](1-switch-on.webp "The line under the numbers shows what the rules give a customer.")
 
 | Rule | What it means | Usual choice |
 |---|---|---|
@@ -95,7 +95,7 @@ While the return is still open, its page already says how the refund splits, for
 
 ## 5. Birthday gift and lapsing points
 
-- **Birthday gift**: in **Settings → Birthday and anniversary wishes**, tick **Birthday wishes** and type how many points to give. Customers with a birthday saved on their page get them once a year, on the day.
+- **Birthday gift**: in **Settings → Loyalty points**, type how many points to give in **Birthday gift**. Customers with a birthday saved on their page get them once a year, on the day. The birthday wish itself is sent from ScaleEzy CRM, under **Messages**.
 - **Lapsing**: points lapse when a customer has not bought or used points for the months you chose. Tick **Remind customers before their points lapse** to send a WhatsApp a week before.
 
 Offers and festival messages to your customers are sent from ScaleEzy CRM, under Messages.

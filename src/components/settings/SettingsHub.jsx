@@ -59,7 +59,6 @@ export const GROUPS = [
     { label: 'WhatsApp', section: 'WHATSAPP' },
     { label: 'Customer groups', section: 'GROUPS' },
     { label: 'Loyalty points', section: 'LOYALTY' },
-    { label: 'Birthday and anniversary wishes', section: 'LOYALTY', part: 'l-bday' },
     { label: 'Gift vouchers', section: 'GIFT_VOUCHERS' }
   ] },
   { id: 'DEV', label: 'Developers', icon: Key, links: [

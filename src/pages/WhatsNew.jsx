@@ -115,7 +115,7 @@ const FEATURES = [
     to: '/products', can: 'product:view' },
   { art: 'vouchers', area: 'customers', when: 'Oct 2026', title: 'Gift vouchers and loyalty points',
     body: 'Sell gift vouchers and give points on what customers buy. Both are spent at the billing counter, and every voucher and point is accounted for.',
-    steps: ['Settings, Gift vouchers: switch them on and choose the amounts.', 'Settings, Loyalty and wishes: set how many points a purchase earns.', 'At the billing counter, take a voucher or points as payment.'],
+    steps: ['Settings, Gift vouchers: switch them on and choose the amounts.', 'Settings, Loyalty points: set how many points a purchase earns.', 'At the billing counter, take a voucher or points as payment.'],
     to: '/settings?section=GIFT_VOUCHERS', can: 'voucher:view' },
   { art: 'shop', area: 'selling', when: 'Oct 2026', title: 'Your own online shop',
     body: 'A shop page for your catalogue that you share as a link. Shoppers pick a colour, see how many are left, and pay online or when it arrives. Orders land in the same Orders list as the counter.',

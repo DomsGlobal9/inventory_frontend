@@ -49,7 +49,7 @@ const SETTINGS_DOMAINS = [
   // The till's key. Same guard as Connected websites on the server (admin:locations).
   { id: 'POS', label: 'POS (billing counter)', icon: Monitor, permission: 'admin:locations' },
   { id: 'WHATSAPP', label: 'WhatsApp', icon: MessageCircle, permission: 'whatsapp:manage' },
-  { id: 'LOYALTY', label: 'Loyalty and wishes', icon: Gift, permission: 'loyalty:manage' },
+  { id: 'LOYALTY', label: 'Loyalty points', icon: Gift, permission: 'loyalty:manage' },
   { id: 'GIFT_VOUCHERS', label: 'Gift vouchers', icon: Gift, permission: 'voucher:view' },
   { id: 'GROUPS', label: 'Customer groups', icon: Users, permission: 'customer:view' },
   { id: 'RETURNS', label: 'Returns and exchanges', icon: Undo2, permission: 'return:complete' },

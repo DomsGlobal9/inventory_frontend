@@ -13,11 +13,11 @@ keywords: लॉयल्टी पॉइंट पॉइंट्स इना�
 
 ## 1. पॉइंट चालू करें
 
-1. बाईं तरफ़ के मेन्यू में **Settings** दबाएँ। **Customers** के नीचे **Loyalty points** दबाएँ। [[1]] सबसे ऊपर की लाइन में *Settings / Customers / Loyalty and wishes* दिखता है।
+1. बाईं तरफ़ के मेन्यू में **Settings** दबाएँ। **Customers** के नीचे **Loyalty points** दबाएँ। [[1]] सबसे ऊपर की लाइन में *Settings / Customers / Loyalty points* दिखता है।
 2. [[2]] **Loyalty points** पर टिक करें।
 3. नियम चुनें, सबसे पहले [[3]] हर ₹100 पर कितने पॉइंट मिलें, फिर नीचे **Save** दबाएँ।
 
-![Settings, Loyalty points। Settings / Customers / Loyalty and wishes वाली लाइन पर 1, Loyalty points टिक पर 2 और Points for every ₹100 पर 3 लिखा है।](1-switch-on.webp "नंबरों के नीचे की लाइन बताती है कि इन नियमों से ग्राहक को क्या मिलता है।")
+![Settings, Loyalty points। Settings / Customers / Loyalty points वाली लाइन पर 1, Loyalty points टिक पर 2 और Points for every ₹100 पर 3 लिखा है।](1-switch-on.webp "नंबरों के नीचे की लाइन बताती है कि इन नियमों से ग्राहक को क्या मिलता है।")
 
 | नियम | इसका मतलब | आम तौर पर |
 |---|---|---|
@@ -94,7 +94,7 @@ keywords: लॉयल्टी पॉइंट पॉइंट्स इना�
 
 ## 5. जन्मदिन का तोहफ़ा और पॉइंट खत्म होना
 
-- **Birthday gift**: **Settings → Birthday and anniversary wishes** में **Birthday wishes** पर टिक करें और टाइप करें कि कितने पॉइंट देने हैं। जिन ग्राहकों का जन्मदिन उनके पेज पर सेव है, उन्हें ये साल में एक बार, उसी दिन मिलते हैं।
+- **Birthday gift**: **Settings → Loyalty points** में **Birthday gift** में टाइप करें कि कितने पॉइंट देने हैं। जिन ग्राहकों का जन्मदिन उनके पेज पर लिखा है, उन्हें साल में एक बार, उसी दिन पॉइंट मिलते हैं। जन्मदिन की शुभकामना ScaleEzy CRM से, **Messages** में से भेजी जाती है।
 - **पॉइंट खत्म होना**: अगर ग्राहक ने आपके चुने हुए महीनों तक कुछ नहीं खरीदा या पॉइंट इस्तेमाल नहीं किए, तो पॉइंट खत्म हो जाते हैं। एक हफ़्ता पहले WhatsApp भेजने के लिए **Remind customers before their points lapse** पर टिक करें।
 
 ग्राहकों को ऑफ़र और त्योहार के संदेश ScaleEzy CRM में Messages से भेजे जाते हैं।

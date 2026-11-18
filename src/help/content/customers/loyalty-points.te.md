@@ -13,11 +13,11 @@ keywords: లాయల్టీ పాయింట్లు పాయింట�
 
 ## 1. పాయింట్లు ఆన్ చేయండి
 
-1. ఎడమ వైపు మెనూలో **Settings** నొక్కండి. **Customers** కింద **Loyalty points** నొక్కండి. [[1]] పైన ఉన్న లైన్‌లో *Settings / Customers / Loyalty and wishes* అని కనిపిస్తుంది.
+1. ఎడమ వైపు మెనూలో **Settings** నొక్కండి. **Customers** కింద **Loyalty points** నొక్కండి. [[1]] పైన ఉన్న లైన్‌లో *Settings / Customers / Loyalty points* అని కనిపిస్తుంది.
 2. [[2]] **Loyalty points** టిక్ చేయండి.
 3. రూల్స్ ఎంచుకోండి, ముందుగా [[3]] ప్రతి ₹100 కి ఎన్ని పాయింట్లు వస్తాయో, తర్వాత కింద ఉన్న **Save** నొక్కండి.
 
-![Settings, Loyalty points. Settings / Customers / Loyalty and wishes లైన్ 1 గా, Loyalty points టిక్ 2 గా, Points for every ₹100 3 గా గుర్తించబడ్డాయి.](1-switch-on.webp "నంబర్ల కింద ఉన్న లైన్ ఈ రూల్స్ వల్ల కస్టమర్‌కు ఏమి వస్తుందో చూపిస్తుంది.")
+![Settings, Loyalty points. Settings / Customers / Loyalty points లైన్ 1 గా, Loyalty points టిక్ 2 గా, Points for every ₹100 3 గా గుర్తించబడ్డాయి.](1-switch-on.webp "నంబర్ల కింద ఉన్న లైన్ ఈ రూల్స్ వల్ల కస్టమర్‌కు ఏమి వస్తుందో చూపిస్తుంది.")
 
 | రూల్ | దాని అర్థం | సాధారణంగా పెట్టేది |
 |---|---|---|
@@ -94,7 +94,7 @@ keywords: లాయల్టీ పాయింట్లు పాయింట�
 
 ## 5. పుట్టినరోజు గిఫ్ట్, పాయింట్ల గడువు
 
-- **Birthday gift**: **Settings → Birthday and anniversary wishes** లో **Birthday wishes** టిక్ చేసి, ఎన్ని పాయింట్లు ఇవ్వాలో టైప్ చేయండి. తమ పేజీలో పుట్టినరోజు సేవ్ అయి ఉన్న కస్టమర్లకు సంవత్సరానికి ఒకసారి, ఆ రోజే అవి వస్తాయి.
+- **Birthday gift**: **Settings → Loyalty points** లో **Birthday gift** దగ్గర ఎన్ని పాయింట్లు ఇవ్వాలో టైప్ చేయండి. తమ పేజీలో పుట్టినరోజు ఉన్న కస్టమర్లకు సంవత్సరానికి ఒకసారి, ఆ రోజే పాయింట్లు వస్తాయి. పుట్టినరోజు శుభాకాంక్షలు ScaleEzy CRM నుండి, **Messages** లో నుండి పంపబడతాయి.
 - **గడువు**: మీరు ఎంచుకున్నన్ని నెలలు కస్టమర్ ఏమీ కొనకపోతే లేదా పాయింట్లు వాడకపోతే పాయింట్లు పోతాయి. ఒక వారం ముందు WhatsApp పంపడానికి **Remind customers before their points lapse** టిక్ చేయండి.
 
 కస్టమర్‌లకు ఆఫర్‌లు, పండుగ సందేశాలు ScaleEzy CRM లో Messages నుండి పంపబడతాయి.

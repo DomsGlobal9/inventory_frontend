@@ -1,6 +1,6 @@
 ---
 title: Customers
-summary: Add a customer, find them by phone or bill number, filter the list, see everything they bought, including bills from before ScaleEzy, and put them in groups like VIP.
+summary: Add a customer, find them by phone or bill number, filter the list, see everything they bought, including bills from before ScaleEzy, and see their groups like VIP.
 for: Sales staff, admins and owners
 minutes: 2
 app: /customers
@@ -75,32 +75,20 @@ Earlier bills count as bills: such a customer is under **Bought: Has bills**, an
 
 Loading earlier records is done once, by ScaleEzy, from your old billing software's export. Ask ScaleEzy support.
 
-## 4. Put a customer in a group
+## 4. A customer's groups
 
-Offers can be made only for a group, for example *VIP*. Everyone in the group gets that offer.
+Offers can be made only for a group, for example *VIP*. Everyone in the group gets that offer, at the till and online.
 
-1. [[1]] Type the group name, for example **VIP**, and press **Enter** or **+**.
-2. [[2]] Or click a group other customers are already in. The small number shows how many customers are in it.
+A customer's page shows the groups they are in, in the **Groups** box. Groups are made and changed in **ScaleEzy CRM**: putting customers in a group or taking them out, renaming, merging or deleting a group, and its rules. If your shop has CRM, **Change groups in CRM** on the box opens the customer there.
 
-![The Groups box of a new customer. The Add to a group box is marked 1 and the suggested group VIP 1 is marked 2.](4-add-to-group.webp "Click the x on a group to take the customer out of it.")
+To see one group's customers here, use the **Group** filter above the **Customers** list. Read more in [How offers work](/help/offers/how-offers-work).
 
-It saves straight away. Read more in [How offers work](/help/offers/how-offers-work).
+## 5. Group rules
 
-## 5. Manage all your groups
+A group's rules are set in ScaleEzy CRM, and Inventory follows them:
 
-**Settings → Customer groups** lists every group and how many customers are in it. Click a group to open it.
-
-- **Add customers**: type a name or phone, then press **Add**. **Remove** takes someone out.
-- **No offer messages**: WhatsApp campaigns and the points-expiry reminder skip everyone in the group. Use it for customers you would rather call yourself.
-- **No birthday or anniversary wishes**: the daily wishes skip them too.
-- **Join by spending**: for example ₹50,000 in the last 365 days. Customers who reach it are added by themselves, checked every hour. The rule never takes anyone out. Someone you take out by hand stays out.
-- **Rename**, **Merge into** another group, or **Delete group**. A group that a running offer is only for cannot be merged or deleted. Change that offer first.
-
-Bills sent from the till are not affected by any of these.
-
-To put many customers in a group at once, open **Customers**, tick them, type the group name and press **Add to group**. The **All groups** box above the list shows one group's customers.
-
-Changing a group's rules, renaming, merging or deleting it needs the permission **Manage customer groups**. The owner and **ADMIN** have it. Putting customers in or out of a group needs only **Change a customer**.
+- **No offer messages**: the reminder before points lapse skips everyone in the group.
+- Bills from the till are never affected.
 
 ## Delete a customer
 
@@ -115,7 +103,7 @@ If your shop uses **ScaleEzy CRM**, the customer's page shows **Open in CRM**, a
 
 ## Example: an offer only for VIP customers
 
-1. Open each VIP customer's page and add them to the group **VIP**, as in step 4.
+1. In ScaleEzy CRM, put each VIP customer in the group **VIP**.
 2. Go to **Offers** and create the offer. See [Create an offer](/help/offers/create-an-offer).
 3. Under **Customers**, choose **Some groups**, then click the **VIP** group. The small number shows how many customers are in it.
 4. Save the offer.
@@ -145,9 +133,9 @@ Your role can see customers but not change them. Ask your shop owner.
 :::
 
 :::faq A VIP customer did not get my campaign
-Their group may have **No offer messages** switched on, in **Settings → Customer groups**. Before you start a campaign, it says how many customers are left out because of their group.
+Campaigns are sent from ScaleEzy CRM. In CRM, check whether their group has **No offer messages** switched on.
 :::
 
 :::faq "An offer is only for …" when merging or deleting a group
-A running offer is only for that group. Change the offer to the other group, or archive it, then try again.
+In ScaleEzy CRM, a group that a running offer is only for cannot be merged or deleted. In Inventory, change the offer to the other group, or archive it, then try again in CRM.
 :::

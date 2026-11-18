@@ -126,7 +126,7 @@ const FEATURES = [
     steps: ['Settings, POS (billing counter): make a key for the counter.', 'Enter the key once on the billing counter.', 'Bills from the counter appear in Orders, marked Till.'],
     to: '/settings?section=POS', can: 'admin:locations' },
   { art: 'whatsapp', area: 'customers', when: 'Sep 2026', title: 'Offers on WhatsApp',
-    body: 'Send an offer to your customers, or a group of them, from your shop\'s own WhatsApp number. Birthday and anniversary wishes go by themselves. Only customers who agreed get messages, a few each day.',
+    body: 'Send an offer to your customers, or a group of them, from your shop\'s own WhatsApp number. Offers, festival messages and birthday and anniversary wishes are made in ScaleEzy CRM. Only customers who agreed get messages, a few each day.',
     steps: ['Settings, WhatsApp: link your shop\'s number.', 'Tick "Agrees to offers on WhatsApp" for customers who said yes.', 'In ScaleEzy CRM, Messages: write the offer and choose who gets it.'],
     to: '/campaigns', can: 'campaign:view' },
   { art: 'shelves', area: 'stock', when: 'Sep 2026', title: 'Find any piece on its shelf',

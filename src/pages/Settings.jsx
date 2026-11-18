@@ -146,7 +146,7 @@ export default function Settings() {
           .settings-header { margin-bottom: 16px !important; }
         }
         .settings-crumb { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; padding: 0; font: inherit; font-size: 14px; color: var(--brand-ink); cursor: pointer; }
-        .settings-crumb:hover { text-decoration: underline; }
+        .settings-crumb:hover { color: var(--brand-ink); }
         /* Scrolls, without showing a bar for it. */
         .settings-scroll { scrollbar-width: none; -ms-overflow-style: none; }
         .settings-scroll::-webkit-scrollbar { display: none; }

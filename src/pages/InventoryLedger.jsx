@@ -81,7 +81,7 @@ export default function InventoryLedger() {
                 navigate('/inventory/ledger', { replace: true });
                 setFilters(prev => ({ ...prev, variantId: '' }));
               }}
-              style={{ marginLeft: '12px', background: 'transparent', border: 'none', color: 'var(--accent-success)', cursor: 'pointer', textDecoration: 'underline' }}
+              style={{ marginLeft: '12px', background: 'transparent', border: 'none', color: 'var(--accent-success)', cursor: 'pointer', textDecoration: 'none', fontWeight: 600 }}
             >
               Clear Filter
             </button>

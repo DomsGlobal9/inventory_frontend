@@ -105,7 +105,7 @@ function ShopNumberPanel({ data, onChanged }) {
         Your shop's number: <strong>{data.shopPhone || 'not set yet'}</strong>
         {' · '}
         <button type="button" onClick={() => setOpen(true)}
-          style={{ background: 'none', border: 0, padding: 0, color: 'var(--brand-solid)', fontFamily: 'inherit', fontSize: '13.5px', textDecoration: 'underline', cursor: 'pointer' }}>
+          style={{ background: 'none', border: 0, padding: 0, color: 'var(--brand-solid)', fontFamily: 'inherit', fontSize: '13.5px', textDecoration: 'none', fontWeight: 600, cursor: 'pointer' }}>
           Change it
         </button>
       </p>
@@ -146,7 +146,7 @@ function ShopNumberPanel({ data, onChanged }) {
           </>
         )}
         <button type="button" onClick={close} disabled={busy}
-          style={{ background: 'none', border: 0, color: 'var(--text-muted)', fontFamily: 'inherit', fontSize: '13px', textDecoration: 'underline', cursor: 'pointer', padding: '10px 2px' }}>
+          style={{ background: 'none', border: 0, color: 'var(--text-muted)', fontFamily: 'inherit', fontSize: '13px', textDecoration: 'none', fontWeight: 600, cursor: 'pointer', padding: '10px 2px' }}>
           Cancel
         </button>
       </div>

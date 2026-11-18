@@ -440,7 +440,7 @@ export default function DayBook() {
             head={['Day', 'In', 'Out', 'Closing', 'Dispatches', 'Revenue', 'Profit']}
             rows={d.days.map(r => [
               <button key={r.date} type="button" onClick={() => { jumpToTop.current = true; setDate(r.date); setMode('day'); }}
-                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--text-primary)', font: 'inherit', textDecoration: 'underline', textDecorationColor: 'var(--border-light)', whiteSpace: 'nowrap' }}>
+                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--text-primary)', font: 'inherit', textDecoration: 'none', fontWeight: 600, whiteSpace: 'nowrap' }}>
                 {weekDay(r.date)}
               </button>,
               r.unitsIn ? `+${num(r.unitsIn)}` : '—', r.unitsOut ? `-${num(r.unitsOut)}` : '—',

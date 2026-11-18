@@ -343,7 +343,7 @@ const CSS = `
 .ss-rows dd { margin: 0; color: var(--text-secondary, var(--text-muted)); line-height: 1.5; }
 .ss-rows > div.warn dd { color: #8a6100; }
 .ss-link { background: none; border: 0; padding: 0; color: #164B1E; font-weight: 600; font-size: 13px; cursor: pointer; white-space: nowrap; }
-.ss-link:hover { text-decoration: underline; }
+.ss-link:hover { color: var(--brand-ink); }
 .ss-next-list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--border-light); border-radius: 10px; overflow: hidden; }
 .ss-next-list li + li { border-top: 1px solid var(--border-light); }
 .ss-next-row { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px; border: 0; background: var(--bg-card); color: var(--text-primary); text-align: left; cursor: pointer; }
@@ -358,7 +358,7 @@ const CSS = `
 .ss-foot-right { display: flex; gap: 10px; align-items: center; }
 .ss-primary { display: inline-flex; align-items: center; gap: 8px; }
 .ss-later { background: none; border: 0; color: var(--text-muted); font-size: 13.5px; cursor: pointer; padding: 8px 0; }
-.ss-later:hover { color: var(--text-primary); text-decoration: underline; }
+.ss-later:hover { color: var(--brand-ink); }
 .ss-option:focus-visible, .ss-seg button:focus-visible, .ss-later:focus-visible, .ss-next-row:focus-visible, .ss-link:focus-visible { outline: 2px solid #A6D92B; outline-offset: -2px; }
 
 @media (max-width: 900px) {

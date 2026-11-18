@@ -275,10 +275,10 @@ export default function SalesOrderDetail() {
                       {/* The code and the name open the product on its Variants tab with THIS colour and size picked out, the way a
                           barcode scan does (?tab=variants&variant=). Plain product links lost which piece it was (24 Oct). */}
                       <td style={{ fontWeight: '500' }}>
-                        {item.variant?.product?.id ? <Link to={`/products/${item.variant.product.id}?tab=variants&variant=${item.variantId}`} style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: 3 }}>{item.variant?.sku}</Link> : item.variant?.sku}
+                        {item.variant?.product?.id ? <Link to={`/products/${item.variant.product.id}?tab=variants&variant=${item.variantId}`} style={{ color: 'var(--brand-ink)', textDecoration: 'none', fontWeight: 600 }}>{item.variant?.sku}</Link> : item.variant?.sku}
                       </td>
                       <td>
-                        {item.variant?.product?.id ? <Link to={`/products/${item.variant.product.id}?tab=variants&variant=${item.variantId}`} style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: 3 }}>{item.variant?.product?.title}</Link> : item.variant?.product?.title}
+                        {item.variant?.product?.id ? <Link to={`/products/${item.variant.product.id}?tab=variants&variant=${item.variantId}`} style={{ color: 'var(--brand-ink)', textDecoration: 'none', fontWeight: 600 }}>{item.variant?.product?.title}</Link> : item.variant?.product?.title}
                       </td>
                       <td style={{ textAlign: 'right' }}>{item.quantity}</td>
                       {order.status !== 'DRAFT' && (
@@ -339,7 +339,7 @@ export default function SalesOrderDetail() {
             {/* From the bill straight to whose bill it is, for anyone allowed to see customers. A deleted
                 customer has no page to open, so their name stays plain text. */}
             Customer: {order.customerId && !order.customer?.deletedAt && can('customer:view')
-              ? <Link to={`/customers/${order.customerId}`} style={{ color: 'inherit', textDecoration: 'underline' }}>{order.customer?.name}</Link>
+              ? <Link to={`/customers/${order.customerId}`} style={{ color: 'var(--brand-ink)', textDecoration: 'none', fontWeight: 600 }}>{order.customer?.name}</Link>
               : order.customer?.name} | Created: {new Date(order.createdAt).toLocaleDateString()}
             {order.atCounter && ' | Sold at the counter'}
             {order.location?.name && ` | ${order.location.name}`}
@@ -427,7 +427,7 @@ export default function SalesOrderDetail() {
                       <div key={item.id} className="li-card" data-line={item.variant?.sku}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
                           <div style={{ minWidth: 0 }}>
-                            <div style={{ fontWeight: 600, overflowWrap: 'anywhere' }}>{to ? <Link to={to} style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: 3 }}>{item.variant?.product?.title}</Link> : item.variant?.product?.title}</div>
+                            <div style={{ fontWeight: 600, overflowWrap: 'anywhere' }}>{to ? <Link to={to} style={{ color: 'var(--brand-ink)', textDecoration: 'none' }}>{item.variant?.product?.title}</Link> : item.variant?.product?.title}</div>
                             <div style={{ fontSize: 12, color: 'var(--text-secondary)', overflowWrap: 'anywhere' }}>{item.variant?.sku}</div>
                           </div>
                           <div style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>{formatINRExact(Number(item.totalPrice))}</div>
@@ -565,7 +565,7 @@ export default function SalesOrderDetail() {
                 {can('dispatch:create') && onLogistics && (
                   can('shelf:putaway') ? (
                     <Link to={`/shelves/pick?order=${order.id}&loc=${order.locationId}`} className="btn-primary"
-                      style={{ width: '100%', padding: '12px', fontSize: '15px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
+                      style={{ width: '100%', padding: '12px', fontSize: '15px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', textDecoration: 'none', fontWeight: 600 }}>
                       <Package size={18} /> Pick and pack
                     </Link>
                   ) : (
@@ -681,7 +681,7 @@ export default function SalesOrderDetail() {
                     </span>
                     {p.undone && <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Undone</span>}
                     {p.undoable && isOwner && (
-                      <button type="button" onClick={() => setUndoing(p)} style={{ background: 'none', border: 'none', padding: 0, fontSize: 12, color: 'var(--accent-danger)', textDecoration: 'underline', cursor: 'pointer' }}>Undo</button>
+                      <button type="button" onClick={() => setUndoing(p)} style={{ background: 'none', border: 'none', padding: 0, fontSize: 12, color: 'var(--accent-danger)', textDecoration: 'none', fontWeight: 600, cursor: 'pointer' }}>Undo</button>
                     )}
                   </span>
                 </div>

@@ -256,7 +256,7 @@ function TypePicker({ options, picked, onToggle, unit = 'product', noun = 'type'
         ))}
         {!f && !showAll && unused.length >= 3 && (
           <button type="button" onClick={() => setShowAll(true)}
-            style={{ border: 'none', background: 'transparent', color: 'var(--text-secondary)', fontSize: '13px', cursor: 'pointer', padding: '6px 4px', textDecoration: 'underline' }}>
+            style={{ border: 'none', background: 'transparent', color: 'var(--text-secondary)', fontSize: '13px', cursor: 'pointer', padding: '6px 4px', textDecoration: 'none', fontWeight: 600 }}>
             {unused.length} more with no {unit}s yet
           </button>
         )}

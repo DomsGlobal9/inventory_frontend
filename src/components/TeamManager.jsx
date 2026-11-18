@@ -269,7 +269,7 @@ function WhatsAppLoginButton({ userId, phone, recipientName, email, password, ro
       {problem && (
         <p role="alert" style={{ flexBasis: '100%', margin: '4px 0 0', fontSize: '12px', color: 'var(--accent-danger)' }}>
           {problem}{' '}
-          <a href={buildCredentialWhatsapp({ recipientName, email, tempPassword: password, roleLabel, phone: phone || typed })} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline', fontWeight: 600 }}>
+          <a href={buildCredentialWhatsapp({ recipientName, email, tempPassword: password, roleLabel, phone: phone || typed })} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--brand-ink)', textDecoration: 'none', fontWeight: 600 }}>
             Open in my own WhatsApp instead
           </a>
         </p>

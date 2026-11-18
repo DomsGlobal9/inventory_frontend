@@ -167,7 +167,7 @@ export const AN_CSS = `
 .an-sub { margin: 4px 0 0; font-size: 13px; color: var(--text-muted); }
 .an-crumb { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); }
 .an-crumb a { color: var(--text-secondary); text-decoration: none; display: inline-flex; align-items: center; min-height: 32px; }
-.an-crumb a:hover { color: var(--text-primary); text-decoration: underline; text-underline-offset: 3px; }
+.an-crumb a:hover { color: var(--brand-ink); }
 .an-back { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 9px; border: 1px solid var(--border-light); background: var(--bg-card); color: var(--text-primary); cursor: pointer; }
 .an-back:hover { border-color: var(--text-muted); }
 .an-tools { display: flex; gap: 10px; align-items: center; justify-content: flex-end; flex-wrap: wrap; }
@@ -206,7 +206,7 @@ export const AN_CSS = `
 .an-legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; vertical-align: 0; }
 .an-problem { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; color: var(--text-primary); }
 .an-empty { text-align: center; padding: 36px 12px; color: var(--text-muted); font-size: 14px; margin: 0; }
-.an-more { background: none; border: 0; color: var(--text-secondary); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; padding: 10px 0 0; text-decoration: underline; text-underline-offset: 3px; min-height: 36px; }
+.an-more { background: none; border: 0; color: var(--text-secondary); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; padding: 10px 0 0; text-decoration: none; min-height: 36px; }
 .an-dates { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .an-dates label { font-size: 12.5px; color: var(--text-secondary); font-weight: 600; }
 .an-dates input, .an-dates .df-field { padding: 7px 10px; font-size: 13px; min-height: 38px; }
@@ -219,7 +219,7 @@ export const AN_CSS = `
 .an-row.mine { box-shadow: inset 3px 0 0 var(--ov-till); padding-left: 12px; }
 .an-row-top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
 .an-row-name { font-weight: 700; color: var(--text-primary); min-width: 0; overflow-wrap: anywhere; text-decoration: none; display: inline-block; padding: 4px 0; }
-a.an-row-name:hover { text-decoration: underline; text-underline-offset: 3px; }
+a.an-row-name:hover { color: var(--brand-ink); }
 .an-row-fig { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--text-primary); }
 .an-row-meta { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2px 12px; font-size: 12.5px; color: var(--text-muted); }
 .an-row-meta > span { white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }

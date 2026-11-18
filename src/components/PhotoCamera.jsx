@@ -247,7 +247,7 @@ export default function PhotoCamera({ title = 'Take a photo', onFile, onClose, o
               {onPhoneCamera && <button type="button" className="btn-secondary" style={{ background: '#fff', color: '#000' }} onClick={way(onPhoneCamera)}>Phone camera</button>}
               {onGallery && <button type="button" className="btn-secondary" style={{ background: '#fff', color: '#000' }} onClick={way(onGallery)}>Choose a photo</button>}
             </div>
-            {cameraWorksHere() && <button type="button" onClick={() => start(facing)} style={{ background: 'none', border: 0, color: '#fff', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px' }}>Try the camera again</button>}
+            {cameraWorksHere() && <button type="button" onClick={() => start(facing)} style={{ background: 'none', border: 0, color: '#fff', textDecoration: 'none', fontWeight: 600, cursor: 'pointer', fontSize: '13px' }}>Try the camera again</button>}
           </div>
         )}
       </div>

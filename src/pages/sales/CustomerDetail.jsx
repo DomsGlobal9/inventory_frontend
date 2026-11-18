@@ -150,7 +150,7 @@ export default function CustomerDetail() {
         <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           {/* CRM on: notes, timeline and what they looked at online are there. */}
           {crm.on && (
-            <a href={crm.customerUrl(customer.id)} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', textDecoration: 'none' }}>
+            <a href={crm.customerUrl(customer.id)} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', textDecoration: 'none', fontWeight: 600 }}>
               <ExternalLink size={15} /> Open in CRM
             </a>
           )}
@@ -179,7 +179,7 @@ export default function CustomerDetail() {
                   ? <span>{formatPhone(customer.phone)}</span>
                   : (
                     <span style={{ color: 'var(--accent-warning, #f59e0b)' }}>
-                      No phone yet{can('customer:update') && <> — <button type="button" onClick={() => setEditing(true)} style={{ background: 'none', border: 'none', padding: 0, color: 'inherit', textDecoration: 'underline', cursor: 'pointer', font: 'inherit' }}>add one</button></>}
+                      No phone yet{can('customer:update') && <> — <button type="button" onClick={() => setEditing(true)} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--brand-ink)', textDecoration: 'none', fontWeight: 600, cursor: 'pointer', font: 'inherit' }}>add one</button></>}
                     </span>
                   )}
               </div>

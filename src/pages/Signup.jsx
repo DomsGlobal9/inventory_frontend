@@ -94,7 +94,8 @@ const plainLink = {
   color: 'var(--text-muted)',
   fontSize: '13px',
   fontFamily: 'inherit',
-  textDecoration: 'underline',
+  textDecoration: 'none',
+  fontWeight: 600,
   cursor: 'pointer',
   flex: '0 0 auto'
 };

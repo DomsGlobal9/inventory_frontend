@@ -415,7 +415,7 @@ export default function ActiveAudit() {
                             ) : rowState === 'error' ? (
                               <button
                                 onClick={() => handleSaveItem(item.id)}
-                                style={{ fontSize: '10px', color: 'var(--accent-danger, #ef4444)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
+                                style={{ fontSize: '10px', color: 'var(--accent-danger, #ef4444)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'none', fontWeight: 600 }}
                                 title="This count did not reach the server. Click to try again."
                               >
                                 not saved - retry

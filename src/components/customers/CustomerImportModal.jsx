@@ -273,7 +273,7 @@ const CSS = `
 .ci-cols th { color: var(--text-secondary); font-weight: 600; font-size: 11.5px; position: static; background: none; }
 .ci-need { color: var(--brand-ink); font-weight: 600; }
 .ci-link { display: inline-flex; align-items: center; gap: 6px; border: 0; background: none; padding: 4px 0; color: var(--brand-ink); font: inherit; font-weight: 600; cursor: pointer; }
-.ci-link:hover { text-decoration: underline; }
+.ci-link:hover { color: var(--brand-ink); }
 .ci-drop { margin: 12px 0; border: 1.5px dashed var(--border-focus); border-radius: 10px; padding: 24px 16px; text-align: center; color: var(--text-secondary);
   display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; background: var(--bg-input); }
 .ci-drop b { color: var(--text-primary); font-size: 14px; }

@@ -283,8 +283,8 @@ export default function Offers() {
                   >
                     <td style={{ padding: '16px 20px' }}>
                       <Link to={`/offers/${offer.id}`} style={{ fontWeight: 500, color: 'var(--text-primary)', textDecoration: 'none' }}
-                        onMouseEnter={e => { e.currentTarget.style.textDecoration = 'underline'; }}
-                        onMouseLeave={e => { e.currentTarget.style.textDecoration = 'none'; }}>
+                        onMouseEnter={e => { e.currentTarget.style.color = 'var(--brand-ink)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.color = ''; }}>
                         {offer.name}
                       </Link>
                       <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>

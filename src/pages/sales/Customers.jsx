@@ -10,8 +10,7 @@ import { formatPhone } from '../../utils/phone';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { CUSTOMER_STATUS, StatusPill } from '../../components/sales/labels';
 import { rowLink } from '../../components/common/rowLink';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
+import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import CustomerFilters, { ActiveCustomerFilters } from '../../components/sales/CustomerFilters';
 
@@ -97,30 +96,8 @@ export default function Customers() {
     </nav>
   );
 
-  // Groups: filter the list by one, and put ticked customers in one (an existing group or a new name).
-  const canGroup = can('customer:update');
-  const queryClient = useQueryClient();
+  // Groups: filter the list by one. Putting customers in a group is ScaleEzy CRM's (18 Nov 2026).
   const { data: groups = [] } = useQuery({ queryKey: ['customer-groups'], queryFn: async () => (await api.get('/customer-groups')).data || [] });
-  const [picked, setPicked] = useState(() => new Set());
-  const [target, setTarget] = useState('');
-  // A new list: ticks made on the old one do not carry over. The page and sort are the same list.
-  useEffect(() => { setPicked(new Set()); }, [search, group, filters.bought, filters.source, filters.phone, filters.offers, filters.added]);
-  const toggle = (id) => setPicked(s => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
-  const addToGroup = useMutation({
-    mutationFn: async () => (await api.post('/customer-groups/members', { group: target, customerIds: [...picked] })).data,
-    onSuccess: (r) => {
-      const rest = [
-        r.alreadyIn && `${r.alreadyIn} already in it`,
-        r.full && `${r.full} already in 20 groups, the most a customer can have`,
-        r.notFound && `${r.notFound} no longer here`
-      ].filter(Boolean);
-      toast.success(`${r.added} added to ${r.name}${rest.length ? ` (${rest.join(', ')})` : ''}.`);
-      setPicked(new Set()); setTarget('');
-      queryClient.invalidateQueries({ queryKey: ['customer-groups'] });
-      queryClient.invalidateQueries({ queryKey: ['customers'] });
-    },
-    onError: (e) => toast.error(e?.message || 'Those customers could not be added.')
-  });
   const getStatusBadge = (status) => <StatusPill map={CUSTOMER_STATUS} value={status} />;
 
   return (
@@ -170,22 +147,6 @@ export default function Customers() {
           onClearAll={() => setAddress(Object.fromEntries(FILTER_KEYS.filter(k => k !== 'sort').map(k => [k, ''])))} />
       </div>
 
-      {picked.size > 0 && (
-        <form onSubmit={(e) => { e.preventDefault(); if (target.trim()) addToGroup.mutate(); }}
-          style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '12px', padding: '10px 14px', borderRadius: '12px', background: 'var(--bg-hover)' }}>
-          <span style={{ fontSize: '14px', fontWeight: 500 }}>{picked.size} chosen</span>
-          <input className="input-field" value={target} maxLength={40} placeholder="New or existing group"
-            aria-label="Add to which group" onChange={e => setTarget(e.target.value)} style={{ width: '200px' }} />
-          {/* Existing groups as chips, in place of the browser's own suggestion list: a new name can still be typed. */}
-          {groups.filter(g => g.name.toLowerCase().includes(target.trim().toLowerCase()) && g.name !== target).slice(0, 6).map(g => (
-            <button key={g.key} type="button" onClick={() => setTarget(g.name)} className="btn-secondary"
-              style={{ padding: '4px 10px', fontSize: '12px', borderRadius: '999px' }}>{g.name}</button>
-          ))}
-          <button type="submit" className="btn-primary" disabled={!target.trim() || addToGroup.isPending}>Add to group</button>
-          <button type="button" className="btn-secondary" onClick={() => setPicked(new Set())}>Clear</button>
-        </form>
-      )}
-
       {narrow ? (
         <div style={{ display: 'grid', gap: 10 }}>
           {isLoading ? <div style={{ padding: 32, textAlign: 'center', color: 'var(--text-secondary)' }}>Loading customers...</div>
@@ -220,13 +181,6 @@ export default function Customers() {
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border-light)', backgroundColor: 'var(--bg-hover)' }}>
-                {canGroup && (
-                  <th style={{ padding: '16px 0 16px 24px', width: '1%' }}>
-                    <input type="checkbox" aria-label="Choose every customer shown"
-                      checked={!!customers?.length && customers.every(c => picked.has(c.id))}
-                      onChange={e => setPicked(e.target.checked ? new Set((customers ?? []).map(c => c.id)) : new Set())} />
-                  </th>
-                )}
                 <th style={{ padding: '16px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px' }}>CUSTOMER CODE</th>
                 <th style={{ padding: '16px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px' }}>NAME</th>
                 <th style={{ padding: '16px 24px', fontWeight: '500', color: 'var(--text-secondary)', fontSize: '13px' }}>CONTACT</th>
@@ -237,9 +191,9 @@ export default function Customers() {
             </thead>
             <tbody>
               {isLoading ? (
-                <tr><td colSpan={canGroup ? 7 : 6} style={{ padding: '48px', textAlign: 'center', color: 'var(--text-secondary)' }}>Loading customers...</td></tr>
-              ) : isError ? (<LoadFailed what="customers" error={error} onRetry={refetch} colSpan={canGroup ? 7 : 6} />) : customers?.length === 0 ? (
-                <tr><td colSpan={canGroup ? 7 : 6} style={{ padding: '48px', textAlign: 'center', color: 'var(--text-secondary)' }}>No customers found.</td></tr>
+                <tr><td colSpan={6} style={{ padding: '48px', textAlign: 'center', color: 'var(--text-secondary)' }}>Loading customers...</td></tr>
+              ) : isError ? (<LoadFailed what="customers" error={error} onRetry={refetch} colSpan={6} />) : customers?.length === 0 ? (
+                <tr><td colSpan={6} style={{ padding: '48px', textAlign: 'center', color: 'var(--text-secondary)' }}>No customers found.</td></tr>
               ) : (
                 customers?.map(customer => (
                   <tr
@@ -247,11 +201,6 @@ export default function Customers() {
                     style={{ borderBottom: '1px solid var(--border-light)' }}
                     {...rowLink(() => navigate(`/customers/${customer.id}`), { label: `Open ${customer.name}` })}
                   >
-                    {canGroup && (
-                      <td style={{ padding: '16px 0 16px 24px' }}>
-                        <input type="checkbox" aria-label={`Choose ${customer.name}`} checked={picked.has(customer.id)} onChange={() => toggle(customer.id)} />
-                      </td>
-                    )}
                     <td style={{ padding: '16px 24px', fontWeight: '500' }}>{customer.customerCode}</td>
                     <td style={{ padding: '16px 24px' }}>
                       <div style={{ fontWeight: '500' }}>{customer.name}</div>

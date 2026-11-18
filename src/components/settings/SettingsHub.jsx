@@ -57,7 +57,6 @@ export const GROUPS = [
   ] },
   { id: 'CUSTOMERS', label: 'Customers', icon: MessageCircle, links: [
     { label: 'WhatsApp', section: 'WHATSAPP' },
-    { label: 'Customer groups', section: 'GROUPS' },
     { label: 'Loyalty points', section: 'LOYALTY' },
     { label: 'Gift vouchers', section: 'GIFT_VOUCHERS' }
   ] },

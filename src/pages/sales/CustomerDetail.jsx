@@ -186,7 +186,7 @@ export default function CustomerDetail() {
             </div>
           </div>
 
-          <CustomerGroupsCard customer={customer} canEdit={can('customer:update')} />
+          <CustomerGroupsCard customer={customer} />
 
           <CustomerPointsCard customerId={customer.id} />
           <StoreCreditCard customerId={customer.id} />

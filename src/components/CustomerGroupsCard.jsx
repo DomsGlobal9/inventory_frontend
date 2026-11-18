@@ -1,115 +1,34 @@
-import React, { useState, useEffect } from 'react';
-import { X, Plus, Loader2 } from 'lucide-react';
-import toast from 'react-hot-toast';
-import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query';
-import { api } from '../lib/api';
+import React from 'react';
+import { useCrm } from '../hooks/useCrm';
 
 /**
- * The groups a customer is in -- VIP, STAFF, WHOLESALE.
+ * The groups a customer is in -- VIP, STAFF, WHOLESALE. Read only.
  *
- * This is what an offer "for some groups" checks, so it sits on the customer rather than on the
- * offer: a shop decides once that Meena is a VIP, and every VIP offer after that simply reaches her.
- * Suggestions come from the groups other customers are already in, so "VIP" is not also typed as
- * "V.I.P" and "vip customers" by three different people.
+ * Offers for a group still reach everyone in it, at the till and online, so the groups are shown here.
+ * Since 18 Nov 2026 they are made and changed only in ScaleEzy CRM (the owner: "customer grps also should
+ * in crm only"); CRM keeps Inventory's copy up to date. With CRM on, the card opens the customer in CRM.
  */
-export default function CustomerGroupsCard({ customer, canEdit }) {
-  const queryClient = useQueryClient();
-  const [text, setText] = useState('');
-  /*
-   * The list as this card last saved it, not only as the page last loaded it.
-   *
-   * Each save sends the WHOLE list. Built from the customer prop alone, adding VIP and then STAFF
-   * before the page had reloaded the customer sent the old list plus STAFF -- and VIP was gone. The
-   * save finishes before the reload does, so the button was already enabled again in that gap.
-   */
-  const loaded = JSON.stringify(customer.tags ?? []);
-  const [tags, setTags] = useState(customer.tags ?? []);
-  useEffect(() => { setTags(JSON.parse(loaded)); }, [loaded]);
-
-  const { data: options } = useQuery({
-    queryKey: ['offers', 'options'],
-    queryFn: () => api.get('/offers/options').then(r => r?.data ?? r),
-    staleTime: 5 * 60 * 1000,
-    enabled: canEdit,
-    retry: false
-  });
-
-  const save = useMutation({
-    mutationFn: (next) => api.patch(`/customers/${customer.id}`, { tags: next }),
-    onMutate: (next) => {
-      // A reload still on its way from the previous save carries the list before this one; landing
-      // afterwards it would put that older list back on screen, and the next add would send it.
-      queryClient.cancelQueries({ queryKey: ['customers', customer.id] });
-      const before = tags;
-      setTags(next);
-      return { before };
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['customers'] });
-      queryClient.invalidateQueries({ queryKey: ['offers', 'options'] });
-    },
-    onError: (e, _next, ctx) => {
-      if (ctx?.before) setTags(ctx.before);
-      toast.error(e?.message || 'Could not change the groups.');
-    }
-  });
-
-  const has = (t) => tags.some(x => x.toLowerCase() === t.trim().toLowerCase());
-  const add = (t) => {
-    const tag = t.trim().replace(/\s+/g, ' ');
-    if (!tag || has(tag)) { setText(''); return; }
-    if (tag.length > 40) return toast.error('Keep a group name under 40 characters.');
-    save.mutate([...tags, tag]);
-    setText('');
-  };
-  const suggestions = (options?.customerTags ?? [])
-    .filter(t => !has(t.value) && (!text || t.value.toLowerCase().includes(text.trim().toLowerCase())))
-    .slice(0, 6);
-
+export default function CustomerGroupsCard({ customer }) {
+  const crm = useCrm();
+  const tags = customer.tags ?? [];
+  const inCrm = crm.customerUrl(customer.id);
   return (
     <div className="card" style={{ padding: '24px' }}>
-      <h3 style={{ margin: '0 0 4px', fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-        Groups {save.isPending && <Loader2 size={14} className="animate-spin" />}
-      </h3>
+      <h3 style={{ margin: '0 0 4px', fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>Groups</h3>
       <p style={{ margin: '0 0 14px', fontSize: '12px', color: 'var(--text-secondary)' }}>Offers for a group reach everyone in it.</p>
-
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
         {tags.length === 0 && <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>In no groups</span>}
         {tags.map(t => (
-          <span key={t} style={{ display: 'inline-flex', alignItems: 'center', flexWrap: 'nowrap', whiteSpace: 'nowrap', gap: '2px', padding: '2px 2px 2px 10px', borderRadius: '999px', background: 'var(--bg-input)', fontSize: '13px' }}>
-            {t}
-            {canEdit && (
-              <button type="button" aria-label={`Remove from ${t}`} disabled={save.isPending}
-                onClick={() => save.mutate(tags.filter(x => x !== t))}
-                // A full touch target on a phone, without making the pill two lines tall.
-                style={{ border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px', margin: '-6px 0', borderRadius: '999px', color: 'var(--text-secondary)' }}>
-                <X size={13} />
-              </button>
-            )}
-          </span>
+          <span key={t} style={{ display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap', padding: '2px 10px', borderRadius: '999px', background: 'var(--bg-input)', fontSize: '13px' }}>{t}</span>
         ))}
       </div>
-
-      {canEdit && (
-        <>
-          <form onSubmit={(e) => { e.preventDefault(); add(text); }} style={{ display: 'flex', gap: '6px', marginTop: '12px' }}>
-            <input className="input-field" value={text} onChange={e => setText(e.target.value)} placeholder="Add to a group, e.g. VIP"
-              aria-label="Add to a group" maxLength={40} style={{ flex: 1, minWidth: 0 }} />
-            <button type="submit" className="btn-secondary" aria-label="Add group" disabled={!text.trim() || save.isPending} style={{ padding: '6px 10px' }}>
-              <Plus size={15} />
-            </button>
-          </form>
-          {suggestions.length > 0 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
-              {suggestions.map(s => (
-                <button key={s.value} type="button" onClick={() => add(s.value)} disabled={save.isPending}
-                  style={{ border: '1px dashed var(--border-focus)', background: 'transparent', borderRadius: '999px', padding: '3px 10px', fontSize: '12px', cursor: 'pointer', color: 'var(--text-secondary)' }}>
-                  + {s.value} <span style={{ opacity: 0.6 }}>{s.count}</span>
-                </button>
-              ))}
-            </div>
-          )}
-        </>
+      <p style={{ margin: '14px 0 0', fontSize: '12px', color: 'var(--text-secondary)' }}>
+        {inCrm ? 'Groups are made and changed in ScaleEzy CRM.' : 'Groups are made and changed in ScaleEzy CRM. To change them, ask ScaleEzy to switch CRM on for your shop.'}
+      </p>
+      {inCrm && (
+        <a href={inCrm} target="_blank" rel="noreferrer" className="btn-secondary" style={{ display: 'inline-block', marginTop: '10px', fontSize: '13px', padding: '6px 12px' }}>
+          Change groups in CRM
+        </a>
       )}
     </div>
   );

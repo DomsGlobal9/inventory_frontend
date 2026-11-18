@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Gift, Cake, Heart, Hourglass, MessageCircle } from 'lucide-react';
 import { useLoyaltySettings, useSaveLoyaltySettings, useCampaignOverview } from '../../hooks/useCampaigns';
 import { usePermission } from '../../hooks/usePermission';
+import { useCrm } from '../../hooks/useCrm';
 import PageLoader from '../PageLoader';
 import PicturePicker from '../campaigns/PicturePicker';
 
@@ -45,6 +45,7 @@ export default function LoyaltySettings() {
   const save = useSaveLoyaltySettings();
   const { can } = usePermission();
   // A picture on the wishes: only for those who may send campaigns, and only once WhatsApp can send pictures.
+  const crm = useCrm();
   const mayPicture = can('campaign:send');
   const overview = useCampaignOverview({ enabled: mayPicture });
   const pictures = mayPicture && !!overview.data?.features?.picture;
@@ -143,7 +144,7 @@ export default function LoyaltySettings() {
           <MessageCircle size={16} /> Automatic WhatsApp messages
         </div>
         <p style={{ margin: '0 0 16px', fontSize: '13px', color: 'var(--text-secondary)' }}>
-          Sent from your shop's own number, from 10 am, only to customers who agreed to offers — each ends with "Reply STOP". They show under <Link to="/campaigns">Campaigns → Automatic messages</Link>.
+          Sent from your shop's own number, from 10 am, only to customers who agreed to offers. Each ends with "Reply STOP".{crm.on ? ' Offers and festival messages are made in CRM, under Messages.' : ''}
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div>

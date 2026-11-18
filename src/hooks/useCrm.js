@@ -20,6 +20,8 @@ export function useCrm() {
   return {
     on,
     profileMoved: on && user?.crmMoved?.profile === true,
+    /** Messages in CRM: WhatsApp campaigns live there only (18 Nov 2026). */
+    messagesUrl: on ? `${CRM_APP}/messages` : null,
     /** This customer's page in CRM, found by their Inventory id. */
     customerUrl: (inventoryCustomerId) => (on && inventoryCustomerId ? `${CRM_APP}/customers/from/inventory/${encodeURIComponent(inventoryCustomerId)}` : null)
   };

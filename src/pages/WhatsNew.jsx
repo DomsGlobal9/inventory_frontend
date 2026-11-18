@@ -127,7 +127,7 @@ const FEATURES = [
     to: '/settings?section=POS', can: 'admin:locations' },
   { art: 'whatsapp', area: 'customers', when: 'Sep 2026', title: 'Offers on WhatsApp',
     body: 'Send an offer to your customers, or a group of them, from your shop\'s own WhatsApp number. Birthday and anniversary wishes go by themselves. Only customers who agreed get messages, a few each day.',
-    steps: ['Settings, WhatsApp: link your shop\'s number.', 'Tick "Agrees to offers on WhatsApp" for customers who said yes.', 'Campaigns, New campaign: write the offer and choose who gets it.'],
+    steps: ['Settings, WhatsApp: link your shop\'s number.', 'Tick "Agrees to offers on WhatsApp" for customers who said yes.', 'In ScaleEzy CRM, Messages: write the offer and choose who gets it.'],
     to: '/campaigns', can: 'campaign:view' },
   { art: 'shelves', area: 'stock', when: 'Sep 2026', title: 'Find any piece on its shelf',
     body: 'Tell ScaleEzy your racks and shelves and print a label for each. Scan a price tag or type a name to see which shelf it is on, and put away, move, pick and count shelf by shelf.',

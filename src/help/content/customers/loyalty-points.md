@@ -98,7 +98,7 @@ While the return is still open, its page already says how the refund splits, for
 - **Birthday gift**: in **Settings → Birthday and anniversary wishes**, tick **Birthday wishes** and type how many points to give. Customers with a birthday saved on their page get them once a year, on the day.
 - **Lapsing**: points lapse when a customer has not bought or used points for the months you chose. Tick **Remind customers before their points lapse** to send a WhatsApp a week before.
 
-See [WhatsApp campaigns](/help/campaigns/whatsapp-campaigns) for the wishes and reminders.
+Offers and festival messages to your customers are sent from ScaleEzy CRM, under Messages.
 
 :::faq Can a customer spend their points at the till?
 Yes. The cashier types their phone number on the bill, and the till shows their points and how much of this bill the points can pay, following **Can use points from** and **Points can pay up to**. See *Paying with points at the till* above.

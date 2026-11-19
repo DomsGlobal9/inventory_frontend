@@ -3,8 +3,7 @@ import { api } from '../lib/api';
 
 /**
  * A customer's yes to WhatsApp offers, and loyalty points. What a points payment may be is decided on the
- * server; these hooks only carry requests. Campaigns themselves are made and sent in ScaleEzy CRM only
- * (18 Nov 2026), so their hooks are gone.
+ * server; these hooks only carry requests.
  */
 
 const LOYALTY = ['loyalty'];
@@ -12,17 +11,16 @@ const LOYALTY = ['loyalty'];
 // ── A customer's yes to offers ──────────────────────────────────────────────────────────────
 
 export const useOffersConsent = (customerId) => useQuery({
-  queryKey: ['campaigns', 'consent', customerId],
-  queryFn: async () => (await api.get(`/campaigns/consent/${customerId}`)).data,
+  queryKey: ['offers-consent', customerId],
+  queryFn: async () => (await api.get(`/offers-consent/${customerId}`)).data,
   enabled: !!customerId
 });
 
 export const useSetOffersConsent = (customerId) => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (agreed) => (await api.put(`/campaigns/consent/${customerId}`, { agreed })).data,
-    onSuccess: (data) => qc.setQueryData(['campaigns', 'consent', customerId], data),
-    onSettled: () => qc.invalidateQueries({ queryKey: ['campaigns', 'overview'] })
+    mutationFn: async (agreed) => (await api.put(`/offers-consent/${customerId}`, { agreed })).data,
+    onSuccess: (data) => qc.setQueryData(['offers-consent', customerId], data),
   });
 };
 

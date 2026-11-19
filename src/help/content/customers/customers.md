@@ -132,10 +132,6 @@ Your role cannot see customers. Stock room staff and inventory managers do not h
 Your role can see customers but not change them. Ask your shop owner.
 :::
 
-:::faq A VIP customer did not get my campaign
-Campaigns are sent from ScaleEzy CRM. In CRM, check whether their group has **No offer messages** switched on.
-:::
-
 :::faq "An offer is only for …" when merging or deleting a group
 In ScaleEzy CRM, a group that a running offer is only for cannot be merged or deleted. In Inventory, change the offer to the other group, or archive it, then try again in CRM.
 :::

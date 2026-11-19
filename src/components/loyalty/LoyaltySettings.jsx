@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Gift, Hourglass, MessageCircle } from 'lucide-react';
-import { useLoyaltySettings, useSaveLoyaltySettings } from '../../hooks/useCampaigns';
-import { useCrm } from '../../hooks/useCrm';
+import { useLoyaltySettings, useSaveLoyaltySettings } from '../../hooks/useLoyalty';
 import PageLoader from '../PageLoader';
 
 /**
  * Settings → Loyalty points: how customers earn and spend points, the birthday gift, and the two
  * WhatsApp messages about points (a week before they lapse, and after a sale).
  *
- * Birthday and anniversary WISHES, like campaigns, are ScaleEzy CRM's for every shop (18 Nov 2026, the
- * owner), so they are not set here. The birthday gift points are still given by Inventory.
+ * The birthday gift points are given by Inventory; the wishes themselves are not set here.
  *
  * The example line under the numbers is worked out from what is typed, so an owner sees what
  * "1 point per ₹100, worth ₹1" actually gives a customer before saving it.
@@ -41,7 +39,6 @@ const Num = ({ id, label, value, onChange, prefix, suffix, min = 0, max, step = 
 export default function LoyaltySettings() {
   const { data, isLoading } = useLoyaltySettings();
   const save = useSaveLoyaltySettings();
-  const crm = useCrm();
   const [f, setF] = useState(null);
 
   useEffect(() => {
@@ -142,11 +139,6 @@ export default function LoyaltySettings() {
             </Toggle>
           )}
         </div>
-        <p style={{ margin: '14px 0 0', fontSize: '13px', color: 'var(--text-secondary)' }}>
-          {crm.on
-            ? 'Birthday and anniversary wishes, offers and festival messages are made in CRM, under Messages.'
-            : 'Birthday and anniversary wishes, offers and festival messages are part of ScaleEzy CRM. To send them, ask ScaleEzy to switch CRM on for your shop.'}
-        </p>
       </div>
 
       <div>

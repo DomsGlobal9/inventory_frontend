@@ -8,11 +8,12 @@ import PageGuide from '../../components/admin/PageGuide';
  * Look up one short link by its code and, if it is being used for something it should not be,
  * switch it off for everybody.
  *
- * Deliberately a lookup and not a list. Every short link belongs to a shop's campaign and points
- * at that shop's own page; listing them all would put every client's marketing on one screen for
- * an admin who was only asked about one complaint. So: a code in, one link out, and the switch.
+ * Deliberately a lookup and not a list. Every short link belongs to one shop (its reel links, and the
+ * WhatsApp campaigns sent before campaigns moved to ScaleEzy CRM) and points at that shop's own page;
+ * listing them all would put every client's marketing on one screen for an admin who was only asked
+ * about one complaint. So: a code in, one link out, and the switch.
  *
- * The switch is the platform's, not the shop's. A shop turning its own campaign's links off is a
+ * The switch is the platform's, not the shop's. A shop turning its own links off is a
  * different state (DISABLED_BY_SHOP) and this screen will not undo it -- an admin who "helpfully"
  * re-enabled a link the owner had pulled would be overriding the owner on the owner's own offer.
  */
@@ -23,6 +24,8 @@ const STATE = {
   DISABLED_BY_SHOP:     { label: 'Switched off by the shop', color: 'var(--accent-gold)',             bg: 'rgba(226, 193, 113, 0.12)' },
   EXPIRED:              { label: 'Ended',                    color: 'var(--text-muted)',              bg: 'var(--bg-hover)' }
 };
+
+const MADE_BY = { campaigns: 'A WhatsApp campaign, sent before campaigns moved to ScaleEzy CRM', 'reel-links': 'A reel link' };
 
 const TARGET = { WHATSAPP: 'Chat with the shop', EXTERNAL: 'A web page', PRODUCT: 'A product page', SHOP: 'The shop page', CAMPAIGN: 'A campaign page' };
 
@@ -147,7 +150,7 @@ export default function ShortLinksPage() {
           </Field>
           <Field label="Where it goes" mono>{link.target}</Field>
           <Field label="Kind">{TARGET[link.targetType] ?? link.targetType}</Field>
-          <Field label="Made by">{link.ownerModule === 'campaigns' ? 'A WhatsApp campaign' : link.ownerModule}{link.isTest ? ' (a test send)' : ''}</Field>
+          <Field label="Made by">{MADE_BY[link.ownerModule] ?? link.ownerModule}{link.isTest ? ' (a test send)' : ''}</Field>
           <Field label="Made">{when(link.createdAt)}</Field>
           <Field label="Works until">{when(link.expiresAt)}</Field>
           <Field label="Taps">
@@ -213,10 +216,10 @@ export default function ShortLinksPage() {
       )}
 
       <PageGuide title="About Short links">
-        <p>Every WhatsApp campaign gives each customer their own short link, so the shop can see who tapped. This screen is for when one of them is reported.</p>
+        <p>Short links are made by a shop's reel links, and were made for each customer of a WhatsApp campaign sent before campaigns moved to ScaleEzy CRM. This screen is for when one of them is reported.</p>
         <ul style={{ paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '8px', margin: 0 }}>
           <li><strong>Switched off by ScaleEzy:</strong> the platform's own block. Only this screen sets it, and only this screen lifts it.</li>
-          <li><strong>Switched off by the shop:</strong> the owner pressed "Switch links off" on their campaign. Not ours to undo.</li>
+          <li><strong>Switched off by the shop:</strong> the owner switched the links off themselves. Not ours to undo.</li>
           <li><strong>Ended:</strong> past the day it was made to work until (90 days by default). Nothing to do.</li>
           <li><strong>No customer is named here.</strong> A link carries an unguessable tag for the shop's own counting, never a phone number or a name, and no addresses or locations are kept.</li>
         </ul>

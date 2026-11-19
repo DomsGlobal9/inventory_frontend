@@ -8,7 +8,7 @@ import ShopBanners from './ShopBanners';
 import ShopIcon from './ShopIcon';
 import { useLocationContext } from '../../contexts/LocationContext';
 import { useWhatsAppOverview } from '../../hooks/useWhatsApp';
-import { useLoyaltySettings } from '../../hooks/useCampaigns';
+import { useLoyaltySettings } from '../../hooks/useLoyalty';
 
 /**
  * Settings -> Online shop: the owner claims an address, says which stores sell online, and opens

@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Gift, MessageCircle, Cake, Heart, Plus, Minus, Ban } from 'lucide-react';
-import { useCustomerPoints, useAdjustPoints, useOffersConsent, useSetOffersConsent } from '../../hooks/useCampaigns';
+import { useCustomerPoints, useAdjustPoints, useOffersConsent, useSetOffersConsent } from '../../hooks/useLoyalty';
 import { useUpdateCustomer } from '../../hooks/useCustomers';
 import { usePermission } from '../../hooks/usePermission';
 import { useCrm } from '../../hooks/useCrm';
@@ -55,7 +55,7 @@ export function CustomerOffersCard({ customer }) {
     try {
       await update.mutateAsync({ id: customer.id, data: { birthday: days.birthday, anniversary: days.anniversary } });
       // The dates are read back with the offers answer, so that is what must be asked again.
-      await qc.invalidateQueries({ queryKey: ['campaigns', 'consent', customer.id] });
+      await qc.invalidateQueries({ queryKey: ['offers-consent', customer.id] });
       setDays(null);
       toast.success('Saved.');
     } catch (e) { toast.error(e?.message || 'Could not save the dates.'); }

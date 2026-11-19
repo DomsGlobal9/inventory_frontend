@@ -18,7 +18,6 @@ import StockValuePage from './pages/analytics/StockValuePage';
 import StockOnHandPage from './pages/analytics/StockOnHandPage';
 import RunningLowPage from './pages/analytics/RunningLowPage';
 import Offers from './pages/Offers';
-import CampaignsMoved from './pages/campaigns/CampaignsMoved';
 import CounterReturn from './pages/sales/CounterReturn';
 import ReelLinks from './pages/reel-links/ReelLinks';
 import ReelLinkEdit from './pages/reel-links/ReelLinkEdit';
@@ -221,9 +220,6 @@ function App() {
               bookmarks that already point at it still land on the day book itself. */}
           <Route path="/offers" element={<Guard permission="offer:view"><Offers /></Guard>} />
           <Route path="/offers/:id" element={<Guard permission="offer:view"><OfferDetail /></Guard>} />
-          {/* Campaigns live in ScaleEzy CRM (18 Nov 2026): old links say so and show the way there. */}
-          <Route path="/campaigns" element={<CampaignsMoved />} />
-          <Route path="/campaigns/:id" element={<CampaignsMoved />} />
           <Route path="/reel-links" element={<Guard permission="reel_link:view"><ReelLinks /></Guard>} />
           <Route path="/reel-links/new" element={<Guard permission="reel_link:manage"><ReelLinkEdit /></Guard>} />
           <Route path="/reel-links/:id" element={<Guard permission="reel_link:view"><ReelLinkEdit /></Guard>} />

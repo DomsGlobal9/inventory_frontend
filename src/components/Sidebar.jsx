@@ -23,7 +23,6 @@ const NAV_ITEMS = [
   { name: 'Purchase Orders', path: '/inventory/purchase-orders', icon: FileText, permission: 'purchase_order:view' },
   { name: 'Offers', path: '/offers', icon: Tag, permission: 'offer:view' },
   { name: 'Customers', path: '/customers', icon: Users, permission: 'customer:view' },
-  // Campaigns live in ScaleEzy CRM only (18 Nov 2026, the owner); an old /campaigns link explains that.
   // The pieces from an Instagram reel, behind one link to the online shop (PLAN-reel-links.md).
   { name: 'Reel links', path: '/reel-links', icon: Clapperboard, permission: 'reel_link:view' },
   // The day book lives inside Settings rather than in this list. It is something you open to

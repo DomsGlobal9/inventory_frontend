@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { useReelLinks, useReelOverview, useSwitchReelLink } from '../../hooks/useReelLinks';
+import { useReelLinks, useReelOverview, useSwitchReelLink, useDeleteReelLink } from '../../hooks/useReelLinks';
 import { usePermission } from '../../hooks/usePermission';
 import PageLoader from '../../components/PageLoader';
+import ConfirmModal from '../../components/ConfirmModal';
 import { RL_CSS, ReelSwitch, QrDialog, ReelVideoDialog, instagramPlayer, copy, reelParts } from './shared';
 
 /**
@@ -20,6 +21,9 @@ export default function ReelLinks() {
   const [q, setQ] = useState('');
   const [qr, setQr] = useState(null);
   const [playing, setPlaying] = useState(null);
+  // Delete straight from the wall (20 Nov, the owner: "there is option to off but no remove or delete").
+  const [deleting, setDeleting] = useState(null);
+  const remove = useDeleteReelLink();
 
   const rows = list.data ?? [];
   const shown = useMemo(() => {
@@ -103,7 +107,7 @@ export default function ReelLinks() {
                 <small>{rows.length ? 'Pick the pieces your next reel shows' : 'Make one when you post your next reel'}</small>
               </div>
             )}
-            {shown.map(r => <ReelCard key={r.id} r={r} manage={manage} onOpen={() => navigate(`/reel-links/${r.id}`)} onQr={setQr} onPlay={setPlaying} />)}
+            {shown.map(r => <ReelCard key={r.id} r={r} manage={manage} onOpen={() => navigate(`/reel-links/${r.id}`)} onQr={setQr} onPlay={setPlaying} onDelete={setDeleting} />)}
           </div>
           {rows.length > 0 && shown.length === 0 && <p className="rl-note">No reel has "{q}" in its title.</p>}
           {rows.length > 0 && <p className="rl-note">Opens count people only. Link-preview robots from Instagram and WhatsApp are left out.</p>}
@@ -111,12 +115,24 @@ export default function ReelLinks() {
       )}
       <QrDialog url={qr?.url} name={qr?.code} title={qr?.title} onClose={() => setQr(null)} />
       {playing && <ReelVideoDialog reelUrl={playing.reelUrl} title={playing.title} onClose={() => setPlaying(null)} />}
+      <ConfirmModal
+        isOpen={!!deleting}
+        onClose={() => setDeleting(null)}
+        title={deleting ? `Delete ${reelParts(deleting.title).rest}?` : 'Delete this reel link?'}
+        message="It goes from your list and your bio page. Anyone who opens the link sees that the look is no longer available, with your new arrivals."
+        confirmText="Delete"
+        confirmStyle="danger"
+        onConfirm={async () => {
+          try { await remove.mutateAsync(deleting.id); toast.success('Reel link deleted'); setDeleting(null); }
+          catch (e) { toast.error(e?.message || 'It could not be deleted.'); throw e; }
+        }}
+      />
     </div>
   );
 }
 
 /** One reel: its pieces as a collage, its title, how it is doing, on / off, and the link to copy. */
-function ReelCard({ r, manage, onOpen, onQr, onPlay }) {
+function ReelCard({ r, manage, onOpen, onQr, onPlay, onDelete }) {
   const switcher = useSwitchReelLink(r.id);
   const link = r.shortUrl || r.pageUrl;
   const { number, rest } = reelParts(r.title);
@@ -148,10 +164,11 @@ function ReelCard({ r, manage, onOpen, onQr, onPlay }) {
           <span style={r.active && r.soldOut ? { color: 'var(--accent-warning)' } : undefined}>{meta}</span>
           {manage && <ReelSwitch on={r.active} disabled={switcher.isPending} onChange={flip} label={r.active ? `Switch off ${r.title}` : `Switch on ${r.title}`} />}
         </div>
-        {link && (
-          <div className="rl-reel-acts" onClick={(e) => e.stopPropagation()}>
-            <button type="button" className="btn-secondary" onClick={() => copy(link)}>Copy link</button>
-            <button type="button" className="btn-secondary" onClick={() => onQr({ url: link, code: r.code, title: r.title })}>QR</button>
+        {(link || manage) && (
+          <div className="rl-reel-acts" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+            {link && <button type="button" className="btn-secondary" onClick={() => copy(link)}>Copy link</button>}
+            {link && <button type="button" className="btn-secondary" onClick={() => onQr({ url: link, code: r.code, title: r.title })}>QR</button>}
+            {manage && <button type="button" className="btn-secondary rl-reel-del" aria-label={`Delete ${r.title}`} onClick={() => onDelete(r)}>Delete</button>}
           </div>
         )}
       </div>

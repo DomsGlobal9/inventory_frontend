@@ -209,6 +209,7 @@ export const RL_CSS = `
 .rl-reel-meta { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text-secondary); min-height: 22px; }
 .rl-reel-meta span:first-child { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rl-reel-acts { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.rl-reel-acts .rl-reel-del { grid-column: 1 / -1; color: var(--accent-danger); }
 .rl-newreel { border: 1.5px solid var(--border-focus); background: var(--bg-hover); border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 320px; color: var(--brand-ink); font-weight: 700; cursor: pointer; text-align: center; padding: 16px; }
 .rl-newreel .plus { font-size: 34px; line-height: 1; font-weight: 400; }
 .rl-newreel small { color: var(--text-secondary); font-weight: 500; }

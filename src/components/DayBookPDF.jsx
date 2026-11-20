@@ -17,6 +17,13 @@ import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
  */
 const money = (v) => `Rs. ${Number(v || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
 const num = (v) => Number(v || 0).toLocaleString('en-IN');
+// Pieces and lengths told apart, as on the Day Book screen (20 Nov 2026).
+const hasLengths = (sp) => !!sp && ((sp.metres || 0) > 0 || (sp.kilograms || 0) > 0);
+const qty = (units, sp) => !hasLengths(sp) ? num(units) : [
+  sp.pieces > 0 ? `${num(sp.pieces)} pcs` : null,
+  sp.metres > 0 ? `${Number(sp.metres).toLocaleString('en-IN', { maximumFractionDigits: 2 })} m` : null,
+  sp.kilograms > 0 ? `${Number(sp.kilograms).toLocaleString('en-IN', { maximumFractionDigits: 3 })} kg` : null
+].filter(Boolean).join(' · ');
 const signed = (v) => (Number(v) >= 0 ? '+' : '') + num(v);
 
 const styles = StyleSheet.create({
@@ -92,11 +99,11 @@ function Table({ head, rows, widths, align = [] }) {
   );
 }
 
-function Figure({ label, units, value, note, bold }) {
+function Figure({ label, units, split, value, note, bold }) {
   return (
     <View style={styles.figure}>
       <Text style={styles.figLabel}>{label}</Text>
-      <Text style={[styles.figUnits, bold ? { fontSize: 16 } : {}]}>{num(units)}</Text>
+      <Text style={[styles.figUnits, bold ? { fontSize: 16 } : {}]}>{qty(units, split)}</Text>
       <Text style={styles.figValue}>{money(value)}</Text>
       {note ? <Text style={styles.figNote}>{note}</Text> : null}
     </View>
@@ -158,9 +165,9 @@ export default function DayBookPDF({ day, heading, businessName, locationName, g
                 note={d.opening.source === 'derived' ? 'worked back from today' : null}
               />
               <Text style={styles.operator}>+</Text>
-              <Figure label="Came in" units={d.stockIn?.totalUnits} value={d.stockIn?.totalValue} />
+              <Figure label="Came in" units={d.stockIn?.totalUnits} split={d.stockIn?.split} value={d.stockIn?.totalValue} />
               <Text style={styles.operator}>-</Text>
-              <Figure label="Went out" units={d.stockOut?.totalUnits} value={d.stockOut?.totalValue} />
+              <Figure label="Went out" units={d.stockOut?.totalUnits} split={d.stockOut?.split} value={d.stockOut?.totalValue} />
               <Text style={styles.operator}>=</Text>
               <Figure label="Closing stock" units={d.closing.units} value={d.closing.value} bold />
             </View>
@@ -182,7 +189,7 @@ export default function DayBookPDF({ day, heading, businessName, locationName, g
           <Section title="Sales dispatched" subtitle="Counted when the goods actually left, not when the order was written.">
             <View style={styles.statRow}>
               <View style={styles.stat}><Text style={styles.statLabel}>Dispatches</Text><Text style={styles.statValue}>{num(d.sales.dispatchCount)}</Text></View>
-              <View style={styles.stat}><Text style={styles.statLabel}>Units sent</Text><Text style={styles.statValue}>{num(d.sales.unitsDispatched)}</Text></View>
+              <View style={styles.stat}><Text style={styles.statLabel}>Units sent</Text><Text style={styles.statValue}>{qty(d.sales.unitsDispatched, d.sales.dispatchedSplit)}</Text></View>
               <View style={styles.stat}><Text style={styles.statLabel}>Billed</Text><Text style={styles.statValue}>{money(d.sales.revenue)}</Text></View>
               {d.sales.gstCollected > 0 ? <View style={styles.stat}><Text style={styles.statLabel}>GST in it</Text><Text style={styles.statValue}>{money(d.sales.gstCollected)}</Text></View> : null}
               {d.sales.returns?.value > 0 ? <View style={styles.stat}><Text style={styles.statLabel}>Returned</Text><Text style={styles.statValue}>-{money(d.sales.returns.value)}</Text></View> : null}
@@ -221,21 +228,21 @@ export default function DayBookPDF({ day, heading, businessName, locationName, g
           </View>
         ) : null}
 
-        <Section title="Stock that came in" subtitle={`${num(d.stockIn?.totalUnits)} units, ${money(d.stockIn?.totalValue)}`}>
+        <Section title="Stock that came in" subtitle={`${hasLengths(d.stockIn?.split) ? qty(0, d.stockIn.split) : `${num(d.stockIn?.totalUnits)} units`}, ${money(d.stockIn?.totalValue)}`}>
           <Table
             head={['Reason', 'Units', 'Value']}
             widths={['60%', '18%', '22%']}
             align={['left', 'right', 'right']}
-            rows={(d.stockIn?.lines || []).map(l => [l.label || l.reason, num(l.units), money(l.value)])}
+            rows={(d.stockIn?.lines || []).map(l => [l.label || l.reason, qty(l.units, l.split), money(l.value)])}
           />
         </Section>
 
-        <Section title="Stock that went out" subtitle={`${num(d.stockOut?.totalUnits)} units, ${money(d.stockOut?.totalValue)}`}>
+        <Section title="Stock that went out" subtitle={`${hasLengths(d.stockOut?.split) ? qty(0, d.stockOut.split) : `${num(d.stockOut?.totalUnits)} units`}, ${money(d.stockOut?.totalValue)}`}>
           <Table
             head={['Reason', 'Units', 'Value']}
             widths={['60%', '18%', '22%']}
             align={['left', 'right', 'right']}
-            rows={(d.stockOut?.lines || []).map(l => [l.label || l.reason, num(l.units), money(l.value)])}
+            rows={(d.stockOut?.lines || []).map(l => [l.label || l.reason, qty(l.units, l.split), money(l.value)])}
           />
         </Section>
 

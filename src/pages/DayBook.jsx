@@ -27,6 +27,14 @@ import DateField from '../components/common/DateField';
  */
 const money = (v) => `₹${Number(v || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
 const num = (v) => Number(v || 0).toLocaleString('en-IN');
+// Units told apart (20 Nov 2026): a unit is a piece, a centimetre of cloth or a gram, so a fabric shop's "681 units"
+// is shown as "6 pcs · 6.75 m". A shop that sells pieces only sees the plain number, as before.
+const hasLengths = (sp) => !!sp && ((sp.metres || 0) > 0 || (sp.kilograms || 0) > 0);
+const qty = (units, sp) => !hasLengths(sp) ? num(units) : [
+  sp.pieces > 0 ? `${num(sp.pieces)} pcs` : null,
+  sp.metres > 0 ? `${Number(sp.metres).toLocaleString('en-IN', { maximumFractionDigits: 2 })} m` : null,
+  sp.kilograms > 0 ? `${Number(sp.kilograms).toLocaleString('en-IN', { maximumFractionDigits: 3 })} kg` : null
+].filter(Boolean).join(' · ');
 
 /** Yesterday, as a YYYY-MM-DD key, without dragging in a date library. */
 const shiftKey = (key, days) => {
@@ -132,11 +140,11 @@ export default function DayBook() {
     `*${heading}*`,
     '',
     `Opening stock: ${num(d.opening?.units)} units`,
-    `In: +${num(d.stockIn.totalUnits)}   Out: -${num(d.stockOut.totalUnits)}`,
+    `In: +${qty(d.stockIn.totalUnits, d.stockIn.split)}   Out: -${qty(d.stockOut.totalUnits, d.stockOut.split)}`,
     `Closing stock: ${num(d.closing?.units)} units (${money(d.closing?.value)})`,
     '',
     d.sales.dispatchCount
-      ? `Sales: ${d.sales.dispatchCount} dispatch(es), ${num(d.sales.unitsDispatched)} units, ${money(d.sales.revenue)}`
+      ? `Sales: ${d.sales.dispatchCount} dispatch(es), ${hasLengths(d.sales.dispatchedSplit) ? qty(0, d.sales.dispatchedSplit) : `${num(d.sales.unitsDispatched)} units`}, ${money(d.sales.revenue)}`
       : 'No sales dispatched.',
     d.sales.gstCollected > 0 ? `GST in it: ${money(d.sales.gstCollected)}` : '',
     d.sales.returns?.value > 0 ? `Returned: ${num(d.sales.returns.units)} units, ${money(d.sales.returns.value)}` : '',
@@ -306,11 +314,12 @@ export default function DayBook() {
             <Figure label="Opening stock" units={d.opening.units} value={d.opening.value}
               note={d.opening.source === 'derived' ? 'worked back from today' : null} />
             <Operator symbol="+" />
-            <Figure label="Came in" units={d.stockIn.totalUnits} value={d.stockIn.totalValue} tone="in" />
+            <Figure label="Came in" units={d.stockIn.totalUnits} split={d.stockIn.split} value={d.stockIn.totalValue} tone="in" />
             <Operator symbol="−" />
-            <Figure label="Went out" units={d.stockOut.totalUnits} value={d.stockOut.totalValue} tone="out" />
+            <Figure label="Went out" units={d.stockOut.totalUnits} split={d.stockOut.split} value={d.stockOut.totalValue} tone="out" />
             <Operator symbol="=" />
-            <Figure label="Closing stock" units={d.closing.units} value={d.closing.value} strong />
+            <Figure label="Closing stock" units={d.closing.units} value={d.closing.value} strong
+              note={hasLengths(d.stockIn.split) || hasLengths(d.stockOut.split) ? 'pieces and cm of cloth together' : null} />
           </div>
 
           {/* Three states, not two. `balanced` is null when there is no independent record to
@@ -356,7 +365,7 @@ export default function DayBook() {
         <Panel title="Sales dispatched" subtitle="Counted when the goods actually left, not when the order was written.">
           <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap', padding: '18px 20px' }}>
             <Stat label="Dispatches" value={num(d.sales.dispatchCount)} />
-            <Stat label="Units sent" value={num(d.sales.unitsDispatched)} />
+            <Stat label={hasLengths(d.sales.dispatchedSplit) ? 'Sent' : 'Units sent'} value={qty(d.sales.unitsDispatched, d.sales.dispatchedSplit)} />
             <Stat label="Billed" value={money(d.sales.revenue)} />
             {/* Shown only where they exist: a shop that charges no GST and had nothing come back
                 sees the same three figures it always did. */}
@@ -454,9 +463,9 @@ export default function DayBook() {
       {/* ── In and out, by reason ───────────────────────────────────────── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(320px, 100%), 1fr))', gap: '16px', marginBottom: '16px' }}>
         <ReasonPanel title="Stock that came in" icon={TrendingUp} tone="in"
-          lines={d?.stockIn?.lines || []} totalUnits={d?.stockIn?.totalUnits} totalValue={d?.stockIn?.totalValue} />
+          lines={d?.stockIn?.lines || []} totalUnits={d?.stockIn?.totalUnits} split={d?.stockIn?.split} totalValue={d?.stockIn?.totalValue} />
         <ReasonPanel title="Stock that went out" icon={TrendingDown} tone="out"
-          lines={d?.stockOut?.lines || []} totalUnits={d?.stockOut?.totalUnits} totalValue={d?.stockOut?.totalValue} />
+          lines={d?.stockOut?.lines || []} totalUnits={d?.stockOut?.totalUnits} split={d?.stockOut?.split} totalValue={d?.stockOut?.totalValue} />
       </div>
 
       {/* ── Transfers ───────────────────────────────────────────────────── */}
@@ -465,7 +474,7 @@ export default function DayBook() {
           subtitle="Your total stock does not change — it just sits somewhere else.">
           <div style={{ padding: '18px 20px', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '15px', color: 'var(--text-primary)' }}>
             <ArrowLeftRight size={16} color="var(--accent-gold)" />
-            {num(d.transfers.unitsMoved)} units moved
+            {hasLengths(d.transfers.split) ? `${qty(0, d.transfers.split)} moved` : `${num(d.transfers.unitsMoved)} units moved`}
           </div>
         </Panel>
       )}
@@ -529,7 +538,7 @@ export default function DayBook() {
 
 /* ── small building blocks ─────────────────────────────────────────────── */
 
-function Figure({ label, units, value, note, strong, tone }) {
+function Figure({ label, units, split, value, note, strong, tone }) {
   const color = tone === 'in' ? 'var(--accent-success)'
     : tone === 'out' ? 'var(--accent-warning)'
     : 'var(--text-primary)';
@@ -539,7 +548,7 @@ function Figure({ label, units, value, note, strong, tone }) {
         {label}
       </div>
       <div style={{ fontSize: strong ? '26px' : '22px', fontWeight: strong ? 700 : 600, color, lineHeight: 1.1 }}>
-        {tone === 'in' ? '+' : tone === 'out' ? '−' : ''}{num(units)}
+        {tone === 'in' ? '+' : tone === 'out' ? '−' : ''}{qty(units, split)}
       </div>
       <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>{money(value)}</div>
       {note && <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '3px' }}>{note}</div>}
@@ -573,7 +582,7 @@ function Panel({ title, subtitle, children }) {
   );
 }
 
-function ReasonPanel({ title, icon: Icon, tone, lines, totalUnits, totalValue }) {
+function ReasonPanel({ title, icon: Icon, tone, lines, totalUnits, split, totalValue }) {
   const color = tone === 'in' ? 'var(--accent-success)' : 'var(--accent-warning)';
   return (
     <div className="glass-panel" style={{ padding: 0, overflow: 'hidden' }}>
@@ -582,7 +591,7 @@ function ReasonPanel({ title, icon: Icon, tone, lines, totalUnits, totalValue })
           <Icon size={16} color={color} /> {title}
         </h3>
         <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: '16px', fontWeight: 600, color }}>{num(totalUnits)}</div>
+          <div style={{ fontSize: '16px', fontWeight: 600, color }}>{qty(totalUnits, split)}</div>
           <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{money(totalValue)}</div>
         </div>
       </div>
@@ -596,7 +605,7 @@ function ReasonPanel({ title, icon: Icon, tone, lines, totalUnits, totalValue })
             {lines.map(l => (
               <tr key={l.reason} style={{ borderTop: '1px solid var(--border-light)' }}>
                 <td style={{ padding: '11px 20px', fontSize: '14px', color: 'var(--text-primary)' }}>{l.label}</td>
-                <td style={{ padding: '11px 12px', textAlign: 'right', fontWeight: 500, color }}>{num(l.units)}</td>
+                <td style={{ padding: '11px 12px', textAlign: 'right', fontWeight: 500, color }}>{qty(l.units, l.split)}</td>
                 <td style={{ padding: '11px 20px', textAlign: 'right', fontSize: '13px', color: 'var(--text-secondary)' }}>{money(l.value)}</td>
               </tr>
             ))}

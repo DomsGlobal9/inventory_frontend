@@ -4,6 +4,7 @@ import { Loader2, Building2, Users, Package, AlertTriangle, IndianRupee, Chevron
 import { useAdminClients } from '../../hooks/admin/useAdminConsole';
 import PageGuide from '../../components/admin/PageGuide';
 import BoutiqueJoinRequests from '../../components/admin/BoutiqueJoinRequests';
+import PartnerAppKeys from '../../components/admin/PartnerAppKeys';
 
 const ONBOARDING_STYLE = {
   NOT_STARTED: { label: 'Not Started', color: 'var(--text-secondary)', bg: 'var(--bg-input)' },
@@ -51,6 +52,9 @@ export default function ClientsPage() {
 
       {/* Boutique clients asking to join, from the boutique app (16 Nov). Nothing shows when none are waiting. */}
       <BoutiqueJoinRequests />
+
+      {/* Keys for partner apps that sell from a boutique's shop (Shop API v1, 20 Nov 2026). */}
+      <PartnerAppKeys />
 
       {!isLoading && (
         <div style={{ position: 'relative', maxWidth: '420px' }}>

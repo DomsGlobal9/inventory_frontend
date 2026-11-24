@@ -124,7 +124,17 @@ export default function OnboardingPage() {
         </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(400px, 100%), 1fr))', gap: '24px', alignItems: 'stretch' }}>
+      {/* 24 Nov: the form takes the room and the credentials box beside it only what it needs (it used to stretch to
+          the form's full height around "Awaiting Creation"); on a narrow screen the box goes under the form. */}
+      <div className="onb-grid">
+        <style>{`
+          .onb-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; align-items: start; }
+          .onb-side { position: sticky; top: 16px; }
+          .onb-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+          .onb-three { display: grid; grid-template-columns: 1.2fr 1fr 0.8fr; gap: 16px; }
+          @media (max-width: 1100px) { .onb-grid { grid-template-columns: minmax(0, 1fr); } .onb-side { position: static; } }
+          @media (max-width: 640px) { .onb-two, .onb-three { grid-template-columns: minmax(0, 1fr); } }
+        `}</style>
         {/* Create new client */}
         <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '14px', boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.05)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-light)', background: 'var(--bg-input)', display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -135,31 +145,35 @@ export default function OnboardingPage() {
           <div style={{ padding: '24px' }}>
             <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }} noValidate>
               <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.06em' }}>SHOP</div>
-              <Field label="Shop name *" hint={'This generates the permanent Workspace ID (e.g. "lakshmi-silks").'}>
-                <input type="text" required value={form.companyName} onChange={set('companyName')} placeholder="e.g. Lakshmi Silks" className="input-field" style={INPUT} />
-              </Field>
-              <Field label="Shop phone" hint="Printed on bills and purchase orders. Blank = the owner's mobile.">
-                <input type="tel" value={form.shopPhone} onChange={set('shopPhone')} placeholder="040 2345 6789" className="input-field" style={INPUT} />
-              </Field>
+              <div className="onb-two">
+                <Field label="Shop name *" hint="Makes the permanent Workspace ID, e.g. lakshmi-silks.">
+                  <input type="text" required value={form.companyName} onChange={set('companyName')} placeholder="e.g. Lakshmi Silks" className="input-field" style={INPUT} />
+                </Field>
+                <Field label="Shop phone" hint="On bills and purchase orders. Blank = owner's mobile.">
+                  <input type="tel" value={form.shopPhone} onChange={set('shopPhone')} placeholder="040 2345 6789" className="input-field" style={INPUT} />
+                </Field>
+              </div>
               <Field label="Address">
                 <input type="text" value={form.address} onChange={set('address')} placeholder="12-4-56, Main Bazaar" className="input-field" style={INPUT} />
               </Field>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '16px' }}>
+              <div className="onb-three">
                 <Field label="City"><input type="text" value={form.city} onChange={set('city')} placeholder="Vijayawada" className="input-field" style={INPUT} /></Field>
                 <Field label="State">
-                  <Select value={form.stateCode} onChange={set('stateCode')} className="input-field" style={INPUT}>
+                  <Select value={form.stateCode} onChange={set('stateCode')} aria-label="State">
                     <option value="">Choose…</option>
                     {GST_STATES.map(([code, name]) => <option key={code} value={code}>{name}</option>)}
                   </Select>
                 </Field>
                 <Field label="PIN"><input type="text" inputMode="numeric" maxLength={6} value={form.pin} onChange={set('pin')} placeholder="520001" className="input-field" style={INPUT} /></Field>
               </div>
-              <Field label="First store name" hint="Blank = Main Store. More stores can be added in Settings.">
-                <input type="text" value={form.storeName} onChange={set('storeName')} placeholder="Main Store" className="input-field" style={INPUT} />
-              </Field>
-              <Field label="GSTIN (optional)" hint="GST is optional. Leave blank if the shop is not GST registered.">
-                <input type="text" value={form.gstin} onChange={set('gstin')} placeholder="37ABCDE1234F1Z5" maxLength={15} className="input-field" style={{ ...INPUT, textTransform: 'uppercase' }} />
-              </Field>
+              <div className="onb-two">
+                <Field label="First store name" hint="Blank = Main Store. More in Settings.">
+                  <input type="text" value={form.storeName} onChange={set('storeName')} placeholder="Main Store" className="input-field" style={INPUT} />
+                </Field>
+                <Field label="GSTIN (optional)" hint="Blank if the shop is not GST registered.">
+                  <input type="text" value={form.gstin} onChange={set('gstin')} placeholder="37ABCDE1234F1Z5" maxLength={15} className="input-field" style={{ ...INPUT, textTransform: 'uppercase' }} />
+                </Field>
+              </div>
 
               <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.06em', marginTop: '4px' }}>WHAT THE SHOP SELLS</div>
               <div role="radiogroup" aria-label="What the shop sells" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '8px' }}>
@@ -188,13 +202,13 @@ export default function OnboardingPage() {
               )}
 
               <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.06em', marginTop: '4px' }}>OWNER (LOGS IN FIRST)</div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
+              <div className="onb-three">
                 <Field label="Name *"><input type="text" required value={form.adminName} onChange={set('adminName')} placeholder="Lakshmi Narayanan" className="input-field" style={INPUT} /></Field>
                 <Field label="Email *"><input type="email" autoCapitalize="none" autoCorrect="off" spellCheck={false} required value={form.adminEmail} onChange={set('adminEmail')} placeholder="owner@lakshmisilks.in" className="input-field" style={INPUT} /></Field>
+                <Field label="Mobile (WhatsApp) *" hint="Login help and the Day Book.">
+                  <input type="tel" required value={form.ownerPhone} onChange={set('ownerPhone')} placeholder="98480 22338" className="input-field" style={INPUT} />
+                </Field>
               </div>
-              <Field label="Mobile (WhatsApp) *" hint="For login help and the nightly Day Book on WhatsApp.">
-                <input type="tel" required value={form.ownerPhone} onChange={set('ownerPhone')} placeholder="98480 22338" className="input-field" style={INPUT} />
-              </Field>
               
               <button
                 type="submit" disabled={onboardMutation.isPending}
@@ -217,23 +231,17 @@ export default function OnboardingPage() {
         </div>
 
         {/* Result / send credentials */}
-        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '14px', boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.05)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-light)', background: 'var(--bg-input)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div className="onb-side" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '14px', boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.05)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-light)', background: 'var(--bg-input)', display: 'flex', alignItems: 'center', gap: '10px' }}>
             <KeyRound size={18} color="var(--accent-gold)" />
             <h3 style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '15px', margin: 0 }}>Generated Credentials</h3>
           </div>
-          
-          <div style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: result ? 'flex-start' : 'center' }}>
+
+          <div style={{ padding: '20px' }}>
             {!result ? (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', color: 'var(--text-muted)', textAlign: 'center' }}>
-                <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'var(--bg-input)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <KeyRound size={28} style={{ opacity: 0.5 }} />
-                </div>
-                <div>
-                  <div style={{ fontSize: '15px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '4px' }}>Awaiting Creation</div>
-                  <div style={{ fontSize: '13px' }}>Fill in the form to generate a new client's login credentials.</div>
-                </div>
-              </div>
+              <p style={{ margin: 0, fontSize: '13px', lineHeight: 1.5, color: 'var(--text-muted)' }}>
+                The owner's login appears here once you create the client: the Workspace ID, their email and a temporary password to share.
+              </p>
             ) : (
               <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', color: 'var(--accent-success)', background: 'rgba(16, 185, 129, 0.1)', padding: '12px 16px', borderRadius: '8px' }}>

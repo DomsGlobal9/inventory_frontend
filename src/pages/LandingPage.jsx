@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, Navigate } from 'react-router-dom';
-import { ArrowRight, Plus, Minus, LayoutDashboard, UserRound, ShoppingBag, Gift, MessageCircle, MapPin, SlidersHorizontal, Receipt } from 'lucide-react';
+import { ArrowRight, Plus, Minus } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '../context/AuthContext';
 import Humaaan from '../components/landing/Humaaan';
@@ -588,21 +588,6 @@ const FEATURES = [
 ];
 
 /**
- * What has been added since the features above were written (Sep--Oct 2026), one short card each.
- * Only what is built and working: a card here is a promise a shopkeeper will test on day one.
- */
-const NEW_FEATURES = [
-  { icon: LayoutDashboard, title: 'A dashboard for each store', body: 'The stock value of the store you are in with its last 30 days, sales by day and month split between the till and online, top sellers, what suppliers still have to deliver, and what to restock first. Each person sees only what their role allows.' },
-  { icon: UserRound, title: 'Know a customer as they walk in', body: 'Type their number, or they scan the QR at your door. You see their sizes, the colours they buy, what they usually spend, what is in the store today in their size and colour, and what others who bought the same pieces went on to buy.' },
-  { icon: ShoppingBag, title: 'Your own online shop', body: 'A shop page for your catalogue that you share as a link. Shoppers pick a colour, see how many are left, and pay online or when it arrives. Orders land in the same Orders list as the counter.' },
-  { icon: Receipt, title: 'Billing counter connected', body: 'Walk-in bills are made on the ScaleEzy billing counter and update your stock and orders here, returns and exchanges included.' },
-  { icon: Gift, title: 'Gift vouchers and loyalty points', body: 'Sell gift vouchers and give points on what customers buy. Both are spent at the billing counter, and every voucher and point is accounted for.' },
-  { icon: MessageCircle, title: 'Offers on WhatsApp', body: 'Send an offer to your customers, or a group of them, from your shop’s own WhatsApp number. Birthday and anniversary wishes go by themselves. Only customers who agreed get messages, a few each day.' },
-  { icon: MapPin, title: 'Find any piece on its shelf', body: 'Tell ScaleEzy your racks and shelves and print a label for each. Scan a price tag or type a name to see which shelf it is on, and put away, move, pick and count shelf by shelf.' },
-  { icon: SlidersHorizontal, title: 'Find products in seconds', body: 'Search by name, code, barcode or colour, and filter by type, colour, price, fabric, brand and stock. Pick Blue and the photos show the blue ones.' }
-];
-
-/**
  * What drifts around the closing panel.
  *
  * The things a clothing shop actually handles -- a garment, a spool, a price tag, a parcel, a
@@ -769,9 +754,6 @@ export default function LandingPage() {
         padding: 11px 6px; color: var(--text-secondary);
       }
       .lp-cta { padding: 11px 16px; font-size: 13.5px; }
-      /* Three links pushed Get Started off a phone's edge. What's new is still a tap away on a phone:
-         the "See everything that's new" button in the New section. */
-      .lp-wn-link { display: none !important; }
     }
 
     @keyframes lpFloat {
@@ -847,7 +829,6 @@ export default function LandingPage() {
           <BrandLockup size="md" />
         </Link>
         <div style={{ display: 'flex', gap: '16px' }}>
-          <Link to="/whats-new" className="lp-login lp-wn-link" style={{ whiteSpace: 'nowrap' }}>What's new</Link>
           <Link to="/login" className="lp-login" style={{ whiteSpace: 'nowrap' }}>Log In</Link>
           <Link to="/signup" className="lp-cta" style={{
             whiteSpace: 'nowrap', borderRadius: '999px', fontWeight: 700, textDecoration: 'none',
@@ -968,44 +949,6 @@ export default function LandingPage() {
         )}
         </React.Fragment>
       ))}
-
-      {/* ── New in ScaleEzy ─────────────────────────────────────────────── */}
-      <section id="new" style={{ padding: 'clamp(56px, 9vw, 104px) 0', borderTop: '1px solid var(--border-light)', scrollMarginTop: '80px' }}>
-        <div style={shell}>
-          <div style={{ maxWidth: '640px' }}>
-          <p style={{ fontSize: '12px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--brand-ink)', margin: '0 0 16px', fontWeight: 600 }}>
-            New in ScaleEzy
-          </p>
-          <h2 style={{ fontSize: 'clamp(26px, 3.6vw, 40px)', fontWeight: 500, lineHeight: 1.16, letterSpacing: '-0.015em', color: 'var(--text-primary)', margin: '0 0 12px', maxWidth: '22ch' }}>
-            From the stockroom to the customer's phone
-          </h2>
-          <p style={{ fontSize: 'clamp(15px, 1.8vw, 17px)', color: 'var(--text-secondary)', lineHeight: 1.68, margin: '0 0 40px', maxWidth: '60ch' }}>
-            What shops asked for this season, all in the same app and the same stock.
-          </p>
-          </div>
-          <div style={{ display: 'grid', gap: '16px', gridTemplateColumns: 'repeat(auto-fill, minmax(min(260px, 100%), 1fr))' }}>
-            {NEW_FEATURES.slice(0, 4).map(({ icon: Icon, title, body }, i) => (
-              <motion.div key={title}
-                initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.1 }} transition={{ duration: 0.35, delay: (i % 4) * 0.05 }}
-                style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '16px', padding: '22px', display: 'grid', gap: '10px', alignContent: 'start' }}>
-                <span style={{ width: 40, height: 40, borderRadius: 12, display: 'grid', placeItems: 'center', background: 'color-mix(in srgb, var(--brand) 22%, transparent)', color: 'var(--brand-ink)' }}>
-                  <Icon size={20} aria-hidden="true" />
-                </span>
-                <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.3 }}>{title}</h3>
-                <p style={{ margin: 0, fontSize: '14.5px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>{body}</p>
-              </motion.div>
-            ))}
-          </div>
-          <Link to="/whats-new" style={{
-            display: 'inline-flex', alignItems: 'center', gap: '9px', marginTop: '28px',
-            padding: '13px 26px', borderRadius: '999px', fontSize: '15.5px', fontWeight: 700,
-            background: 'var(--brand-solid)', color: 'var(--brand-on-solid)', textDecoration: 'none'
-          }}>
-            See everything that's new <ArrowRight size={16} />
-          </Link>
-        </div>
-      </section>
 
       {/* ── FAQ ─────────────────────────────────────────────────────────── */}
       <section style={{ padding: 'clamp(56px, 9vw, 104px) 0', borderTop: '1px solid var(--border-light)' }}>

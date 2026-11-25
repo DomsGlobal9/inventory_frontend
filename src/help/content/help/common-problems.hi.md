@@ -49,7 +49,7 @@ ScaleEzy पासवर्ड रीसेट का ईमेल नहीं 
 ## बिक्री
 
 :::faq दुकान पर आए ग्राहक का बिल कहाँ बनाऊँ?
-ScaleEzy POS टिल पर, Inventory में नहीं। **Settings → POS (billing counter)** में टिल जोड़ें; उस पर बना हर बिल अपने-आप **Orders** में दिखता है, स्टॉक घटाता है और Day Book तक पहुँचता है। [पूरा जवाब](/help/settings/pos-billing-counter#walk-in-bills-are-made-on-the-till)
+ScaleEzy POS टिल पर, Inventory में नहीं। ScaleEzy आपकी दुकान के लिए टिल चालू करता है; उस पर बना हर बिल **Orders** में दिखता है, स्टॉक घटाता है और अपने-आप Day Book तक पहुँचता है। [पूरा जवाब](/help/settings/pos-billing-counter#walk-in-bills-are-made-on-the-till)
 :::
 
 :::faq मुझे ऑर्डर नहीं मिल रहा

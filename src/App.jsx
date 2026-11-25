@@ -54,7 +54,6 @@ import PurchaseOrders from './pages/PurchaseOrders';
 import PurchaseOrderDetails from './pages/PurchaseOrderDetails';
 import Customers from './pages/sales/Customers';
 import CustomerDetail from './pages/sales/CustomerDetail';
-import WhatsNew from './pages/WhatsNew';
 import GiftVouchers from './pages/sales/GiftVouchers';
 import SalesOrders from './pages/sales/SalesOrders';
 import SalesOrderDetail from './pages/sales/SalesOrderDetail';
@@ -103,8 +102,8 @@ function App() {
           {/* Public. Records a signup enquiry as a lead -- it creates no account and no
               workspace, so it sits outside every auth boundary by design. */}
           <Route path="/signup" element={<Signup />} />
-          {/* Public, part of the landing site: what is new, for visitors and staff alike (pages/WhatsNew). */}
-          <Route path="/whats-new" element={<WhatsNew />} />
+          {/* What's new was removed (25 Nov 2026, the owner): an old link lands on the home page. */}
+          <Route path="/whats-new" element={<Navigate to="/" replace />} />
 
           {/* Public user guide: anyone can read it, signed in or not. */}
           <Route path="/help" element={<Suspense fallback={null}><HelpLayout /></Suspense>}>

@@ -33,7 +33,7 @@ const api = axios.create({
  * a broken screen instead of being asked to sign in. Add a path only when the page genuinely
  * works with nobody logged in.
  */
-// /whats-new is part of the landing site: a visitor opening it straight from a link must not be sent to Log in.
+// /whats-new was removed (25 Nov 2026) and now forwards to the home page; kept here so an old link is not sent to Log in.
 const PUBLIC_PATHS = ['/', '/login', '/signup', '/whats-new'];
 
 const STORAGE_KEY = 'scaleezy_auth_user';

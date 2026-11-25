@@ -49,7 +49,7 @@ ScaleEzy ಪಾಸ್‌ವರ್ಡ್ ರೀಸೆಟ್ ಇಮೇಲ್ ಕ�
 ## ಮಾರಾಟ
 
 :::faq ಅಂಗಡಿಗೆ ಬರುವ ಗ್ರಾಹಕರ ಬಿಲ್ ಎಲ್ಲಿ ಮಾಡುವುದು?
-ScaleEzy POS ಟಿಲ್‌ನಲ್ಲಿ, Inventory ಯಲ್ಲಿ ಅಲ್ಲ. **Settings → POS (billing counter)** ನಲ್ಲಿ ಟಿಲ್ ಜೋಡಿಸಿ; ಅದು ಮಾಡುವ ಪ್ರತಿ ಬಿಲ್ **Orders** ನಲ್ಲಿ ಕಾಣುತ್ತದೆ, ಸ್ಟಾಕ್ ಕಡಿಮೆ ಮಾಡುತ್ತದೆ ಮತ್ತು ತಾನಾಗಿಯೇ Day Book ಗೆ ಸೇರುತ್ತದೆ. [ಪೂರ್ತಿ ಉತ್ತರ](/help/settings/pos-billing-counter#walk-in-bills-are-made-on-the-till)
+ScaleEzy POS ಟಿಲ್‌ನಲ್ಲಿ, Inventory ಯಲ್ಲಿ ಅಲ್ಲ. ScaleEzy ನಿಮ್ಮ ಅಂಗಡಿಗೆ ಟಿಲ್ ಆನ್ ಮಾಡುತ್ತದೆ; ಅದರಲ್ಲಿ ಮಾಡಿದ ಪ್ರತಿ ಬಿಲ್ **Orders** ನಲ್ಲಿ ಕಾಣುತ್ತದೆ, ಸ್ಟಾಕ್ ಕಡಿಮೆ ಮಾಡುತ್ತದೆ ಮತ್ತು ತಾನಾಗಿಯೇ Day Book ತಲುಪುತ್ತದೆ. [ಪೂರ್ಣ ಉತ್ತರ](/help/settings/pos-billing-counter#walk-in-bills-are-made-on-the-till)
 :::
 
 :::faq ಆರ್ಡರ್ ಸಿಗುತ್ತಿಲ್ಲ

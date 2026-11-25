@@ -15,7 +15,7 @@ import LoyaltySettings from '../components/loyalty/LoyaltySettings';
 import GiftVoucherSettings from '../components/giftVouchers/GiftVoucherSettings';
 import OnlineShopSettings from '../components/settings/OnlineShopSettings';
 import ShopPayments from '../components/settings/ShopPayments';
-import PosTills from '../components/settings/PosTills';
+import PosTills, { usePosState } from '../components/settings/PosTills';
 import SettingsHub, { groupOf } from '../components/settings/SettingsHub';
 import ReturnRulesPanel from '../components/sales/ReturnRulesPanel';
 import FabricsPanel from '../components/settings/FabricsPanel';
@@ -46,7 +46,8 @@ const SETTINGS_DOMAINS = [
   // server guards all of it with admin:online_shop, so the menu does too.
   { id: 'PAYMENTS', label: 'Payments', icon: CreditCard, permission: 'admin:online_shop' },
   // The till's key. Same guard as Connected websites on the server (admin:locations).
-  { id: 'POS', label: 'POS (billing counter)', icon: Monitor, permission: 'admin:locations' },
+  // Only for a shop with POS: switched on by ScaleEzy from the Platform Console (or a till connected by hand earlier).
+  { id: 'POS', label: 'POS (billing counter)', icon: Monitor, permission: 'admin:locations', needsPos: true },
   { id: 'WHATSAPP', label: 'WhatsApp', icon: MessageCircle, permission: 'whatsapp:manage' },
   { id: 'LOYALTY', label: 'Loyalty points', icon: Gift, permission: 'loyalty:manage' },
   { id: 'GIFT_VOUCHERS', label: 'Gift vouchers', icon: Gift, permission: 'voucher:view' },
@@ -102,7 +103,9 @@ export default function Settings() {
   const logistics = useLogistics(can('dispatch:create'));
   // The Boutique section is there only for a shop that uses the ScaleEzy Boutique (turned on by ScaleEzy).
   const boutiqueLink = useBoutiqueLink(can('*'));
-  const canOpen = (id) => { const d = SETTINGS_DOMAINS.find(x => x.id === id); return !!d && can(d.permission) && (!d.needsLogistics || logistics.data?.on === true) && (!d.needsBoutique || boutiqueLink.data?.linked === true); };
+  // The POS section likewise: nothing about POS shows until ScaleEzy switches it on for the shop (25 Nov 2026).
+  const posState = usePosState(can('admin:locations'));
+  const canOpen = (id) => { const d = SETTINGS_DOMAINS.find(x => x.id === id); return !!d && can(d.permission) && (!d.needsLogistics || logistics.data?.on === true) && (!d.needsBoutique || boutiqueLink.data?.linked === true) && (!d.needsPos || posState.data?.show === true); };
   const activeDomain = asked && canOpen(asked) ? asked : null;
   const open = (section, nextPart) => setSearchParams(nextPart ? { section, part: nextPart } : { section });
   const back = () => setSearchParams({});

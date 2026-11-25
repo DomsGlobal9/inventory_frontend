@@ -49,7 +49,7 @@ ScaleEzy பாஸ்வேர்ட் ரீசெட் மின்னஞ்
 ## விற்பனை
 
 :::faq நேரில் வரும் வாடிக்கையாளருக்கு பில் எங்கே போடுவது?
-ScaleEzy POS டில்லில், Inventory-யில் அல்ல. **Settings → POS (billing counter)**-இல் டில்லை இணையுங்கள்; அது போடும் ஒவ்வொரு பில்லும் **Orders**-இல் தெரியும், ஸ்டாக்கைக் குறைக்கும், தானாகவே Day Book-க்கு வந்துவிடும். [முழுப் பதில்](/help/settings/pos-billing-counter#walk-in-bills-are-made-on-the-till)
+ScaleEzy POS டில்லில், Inventory-இல் அல்ல. ScaleEzy உங்கள் கடைக்கு டில்லை இயக்குகிறது; அதில் போடப்படும் ஒவ்வொரு பில்லும் **Orders**-இல் தெரியும், ஸ்டாக்கைக் குறைக்கும், தானாகவே Day Book-ஐ அடையும். [முழு பதில்](/help/settings/pos-billing-counter#walk-in-bills-are-made-on-the-till)
 :::
 
 :::faq ஒரு ஆர்டரைக் கண்டுபிடிக்க முடியவில்லை

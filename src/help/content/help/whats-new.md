@@ -8,6 +8,10 @@ keywords: updates release changes new features announcements latest
 
 ## November 2026
 
+### The POS till is switched on by ScaleEzy
+
+Nothing to set up by hand any more: ScaleEzy switches the POS till on for your shop, and the owner gets an email with a sign-in link to choose a password and PIN. There is no till key to make or paste. Until POS is on for your shop, Inventory shows nothing about it. See [Your POS till](/help/settings/pos-billing-counter).
+
 ### The Customer card has moved to ScaleEzy CRM
 
 Knowing a customer as they walk in now happens in ScaleEzy CRM, on the **Shop floor**: type their number, or they scan the door QR, and see their sizes, colours, usual spend and what fits them in your store. Who is waiting, who is with whom, and the door QR to print are there too. Inventory no longer has a Customer card or Door QR screen; your customers, bills and stock stay in Inventory.

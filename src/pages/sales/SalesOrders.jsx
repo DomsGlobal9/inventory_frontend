@@ -186,7 +186,8 @@ export default function SalesOrders() {
         </div>
         {/* Walk-in bills are made on the POS till (New sale left Inventory on 6 Oct 2026). The note
             says so where the button was, and whether this store has a till yet. */}
-        {can('sales_order:counter_sale') && !phone && <BillsAtPosNote storeName={storeName} linked={billsAtPos} />}
+        {/* Only for a shop that bills at POS: a shop without POS sees nothing about it (25 Nov 2026). */}
+        {can('sales_order:counter_sale') && !phone && billsAtPos && <BillsAtPosNote storeName={storeName} linked />}
       </div>
 
       <div className="pf-sticky">

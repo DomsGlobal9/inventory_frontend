@@ -49,7 +49,7 @@ Click in the box first, then scan again: the scanner types where the cursor is. 
 ## Selling
 
 :::faq Where do I make a walk-in bill?
-On the ScaleEzy POS till, not in Inventory. Connect the till in **Settings → POS (billing counter)**; every bill it makes shows up in **Orders**, takes the stock out and reaches the Day Book by itself. [Full answer](/help/settings/pos-billing-counter#walk-in-bills-are-made-on-the-till)
+On the ScaleEzy POS till, not in Inventory. ScaleEzy switches the till on for your shop; every bill it makes shows up in **Orders**, takes the stock out and reaches the Day Book by itself. [Full answer](/help/settings/pos-billing-counter#walk-in-bills-are-made-on-the-till)
 :::
 
 :::faq I can't find an order

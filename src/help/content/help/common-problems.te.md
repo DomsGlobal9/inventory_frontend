@@ -49,7 +49,7 @@ ScaleEzy పాస్‌వర్డ్ రీసెట్ ఈమెయిల్
 ## అమ్మకం
 
 :::faq వాక్-ఇన్ బిల్ ఎక్కడ చేయాలి?
-ScaleEzy POS టిల్ మీద, Inventory లో కాదు. **Settings → POS (billing counter)** లో టిల్ కనెక్ట్ చేయండి; అది చేసే ప్రతి బిల్ **Orders** లో కనిపిస్తుంది, స్టాక్ తీసేస్తుంది, తనంతట తానే డే బుక్‌లోకి చేరుతుంది. [పూర్తి జవాబు](/help/settings/pos-billing-counter#walk-in-bills-are-made-on-the-till)
+ScaleEzy POS టిల్‌లో, Inventory లో కాదు. ScaleEzy మీ షాప్ కోసం టిల్‌ను ఆన్ చేస్తుంది; దానిలో చేసిన ప్రతి బిల్లు **Orders** లో కనిపిస్తుంది, స్టాక్ తగ్గిస్తుంది, తనంతట తానే Day Book కి చేరుతుంది. [పూర్తి సమాధానం](/help/settings/pos-billing-counter#walk-in-bills-are-made-on-the-till)
 :::
 
 :::faq నాకు ఒక ఆర్డర్ దొరకడం లేదు

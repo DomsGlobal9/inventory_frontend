@@ -1,11 +1,11 @@
 ---
-title: Connect your POS till
-summary: Link the ScaleEzy POS at your billing counter to this Inventory, so every bill takes stock out here and reaches the Day Book by itself. Make the key, paste it in the till, and replace or disconnect it later.
+title: Your POS till
+summary: ScaleEzy switches the POS on for your shop, so every bill made at your counter takes stock out here and reaches the Day Book by itself. Nothing to set up by hand.
 for: The owner, admins and inventory managers
 minutes: 3
 app: /settings?section=POS
 appLabel: POS (billing counter)
-keywords: pos till billing counter point of sale connect till key till key paste inventory link replace key disconnect new sale moved walk-in bills bills at the pos left out bill not added scaleezy pos counter sending to inventory has stopped refused bill
+keywords: pos till billing counter point of sale switched on by scaleezy welcome link email sign in password pin new sale moved walk-in bills bills at the pos left out bill not added scaleezy pos counter sending to inventory has stopped refused bill
 ---
 
 The **ScaleEzy POS** is the till at your billing counter. Every walk-in bill is made on it, not in Inventory. Connect it once, and from then on every bill made on the till:
@@ -14,57 +14,40 @@ The **ScaleEzy POS** is the till at your billing counter. Every walk-in bill is 
 - shows up in **Orders**, marked **POS till**,
 - and counts in the **Day Book**, with its GST.
 
-You make a **key** here and paste it into the till. Only people who can add and change stores see this. In the ready roles, that is the owner, **ADMIN** and **INVENTORY_MANAGER**.
+POS is switched on **by ScaleEzy**, for your shop. Nothing is set up by hand: there is no key to make, copy or paste.
+
+1. You ask ScaleEzy to switch POS on (or your Boutique app's administrator does it there).
+2. The owner gets an **email** with a sign-in link. They open it, choose a password and a 4-number PIN, and the till opens with your products, prices, GST and stock already in it.
+3. From then on every bill made on the till reaches Inventory by itself.
+
+Until POS is switched on for your shop, Inventory shows nothing about it.
 
 :::tip How to use the till itself
-The till has its own guide, for cashiers, managers and owners: [ScaleEzy POS Help](https://pos-frontend-gamma-amber.vercel.app/help). This page is about connecting the till to Inventory.
+The till has its own guide, for cashiers, managers and owners: [ScaleEzy POS Help](https://pos.scaleezy.com/help). This page is about what you see of the till in Inventory.
 :::
 
-## 1. Open POS (billing counter)
+## What you see in Settings
 
-1. In the menu on the left, click [[1]] **Settings**.
-2. Under **Money**, click [[2]] **POS (billing counter)**.
+Once POS is on, **Settings → POS (billing counter)** shows:
 
-![The Settings page. Settings is marked 1 in the menu and POS (billing counter), under Money, is marked 2.](1-open.webp "A till is not a website, so it is not under Connected websites.")
+- **Status**: on, switched on by ScaleEzy.
+- **Bill at**: the till's address, to open on the counter's computer or tablet.
+- **Signing in**: the email or phone the owner signs in with. Staff are added on the till's own Staff screen.
+- **Counters**: which store each counter sells from, and when its last bill came in.
+- **Bills not added to Inventory**, if any (see [below](#bills-not-added-to-inventory)).
 
-## 2. Make a key for the till
+Only people who can add and change stores see it. In the ready roles, that is the owner, **ADMIN** and **INVENTORY_MANAGER**.
 
-1. [[1]] In **Sells from**, choose the store the counter sells from. Its stock goes down with each bill.
-2. [[2]] Give the till a name if you like, for example *Main counter*.
-3. Press [[3]] **Create key**.
-
-![Connect a till. Sells from is marked 1, Name (optional) 2 and Create key 3.](2-connect.webp "Two counters in one store? Make a key for each.")
-
-## 3. Copy the key, then paste it in the till
-
-The key appears **only this once**.
-
-1. Press [[2]] **Copy**. The key [[1]] is now copied.
-2. On the till, open **More → Settings → Inventory link**, paste the key, and press **Connect**.
-3. On the till, press **Refresh items from Inventory**. Your products, prices, GST and stock arrive on the till.
-4. Back here, press **I have copied it**. The key disappears for good.
-
-![The key, shown once. The key is marked 1 and Copy is marked 2. The steps for the till are written under it.](3-key-once.webp "Lost the key? Use Replace key below; there is no way to see it again.")
-
-## 4. Your tills
-
-Every connected till is listed with its store, the start of its key, and when the last bill came in from that store.
-
-- [[1]] **Replace key** makes a new key. The old key stops working at once. The till stops sending bills until you paste the new key in it. Bills it already sent are safe.
-- [[2]] **Disconnect** stops the key for good.
-
-Both ask first.
-
-![A connected till, Main counter at Main Store. Replace key is marked 1 and Disconnect is marked 2.](4-your-tills.webp "No bills yet changes to Connected after the first bill.")
+To add a counter, turn POS off, or when the owner cannot sign in, contact ScaleEzy. The till's key is made and changed automatically.
 
 ## Walk-in bills are made on the till
 
 Inventory has no counter bill of its own. Every walk-in bill, for every store, is made on the ScaleEzy POS till, so a store never has two lists of bill numbers. In **Orders**, where the New sale button used to be, each store shows a note instead:
 
-- [[1]] A store with a connected till: *Main Store bills at the POS. Make the sale on the till. It shows up here, takes the stock out and reaches the Day Book on its own.*
-- A store with no till yet: *Walk-in bills are made on the ScaleEzy POS till. Connect a till in Settings → POS (billing counter), and every bill it makes shows up here on its own.*
+- [[1]] A store with a till: *Main Store bills at the POS. Make the sale on the till. It shows up here, takes the stock out and reaches the Day Book on its own.*
+- A shop without POS sees no note.
 
-![Sales Orders. Where the New sale button used to be, a note is marked 1: Main Store bills at the POS. Make the sale on the till. It shows up here, takes the stock out and reaches the Day Book on its own.](6-new-sale-steps-aside.webp "A store with no till yet shows the note that says to connect one.")
+![Sales Orders. Where the New sale button used to be, a note is marked 1: Main Store bills at the POS. Make the sale on the till. It shows up here, takes the stock out and reaches the Day Book on its own.](6-new-sale-steps-aside.webp "A shop without POS sees no note.")
 
 People whose role includes counter sales see the note, on a computer or tablet.
 
@@ -118,12 +101,8 @@ Those bills are listed here, with the store, the day, the reason and who did it.
 
 ## Common problems
 
-:::faq The till says the key is not right
-The key was replaced or disconnected here, or a website key was pasted by mistake. Make a new key with **Create key**, or press **Replace key** on the till's line, and paste it in the till again.
-:::
-
-:::faq "That is a website key, not a till key"
-Keys from **Connected websites** only work for websites. Make the till's key here, in **POS (billing counter)**.
+:::faq The till says it is not connected to Inventory
+Contact ScaleEzy. They switch POS on again for your shop, which gives the till a fresh connection by itself.
 :::
 
 :::faq Where did New sale go?
@@ -141,5 +120,5 @@ The owner opens **More → Inventory link** on the till, which says which bill a
 :::
 
 :::faq I don't see POS (billing counter) in Settings
-Only people who can add and change stores see it. Ask your owner.
+It shows only once ScaleEzy has switched POS on for your shop, and only to people who can add and change stores. Ask your owner, or ScaleEzy.
 :::

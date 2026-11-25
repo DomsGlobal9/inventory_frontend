@@ -70,7 +70,8 @@ const STEPS = [
     // The first useful thing to do differs by what the person is allowed to do.
     byPermission: [
       ['product:create', 'Add your products first: Products → Add Product. Then your stock has something to sit against.'],
-      ['sales_order:counter_sale', 'Walk-in bills are made on the ScaleEzy POS till. Connect it in Settings → POS (billing counter); every bill it makes shows up in Orders by itself.'],
+      // No POS words here: a shop without POS sees nothing about it (25 Nov 2026).
+      ['sales_order:counter_sale', 'Every order, from your counter and your online shop, shows up in Orders by itself.'],
       ['shelf:putaway', 'Put today\'s delivery away: Shelves → Put away. Scan the tag, then the shelf label.'],
       ['inventory:view', 'Look at your stock: Inventory shows what is in this store right now.'],
     ],

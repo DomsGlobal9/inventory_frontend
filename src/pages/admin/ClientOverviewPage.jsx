@@ -6,6 +6,7 @@ import { useAdminClient, useAssumeClient } from '../../hooks/admin/useAdminConso
 import ClientDangerZone from '../../components/admin/ClientDangerZone';
 import ClientServiceKeys from '../../components/admin/ClientServiceKeys';
 import ClientBoutiqueModule from '../../components/admin/ClientBoutiqueModule';
+import ClientPosModule from '../../components/admin/ClientPosModule';
 import UserPasswordManager from '../../components/admin/UserPasswordManager';
 import { formatINR } from '../../utils/formatUtils';
 import { useGoBack } from '../../hooks/useGoBack';
@@ -303,6 +304,7 @@ export default function ClientOverviewPage() {
           ordinary ones eventually gets clicked by someone reaching for the one beside it. */}
       <ClientServiceKeys clientId={clientId} />
       <ClientBoutiqueModule clientId={clientId} />
+      <ClientPosModule clientId={clientId} />
 
       <ClientDangerZone clientId={clientId} suspended={data?.userCount > 0 && data?.activeUserCount === 0} />
 

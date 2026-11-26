@@ -70,9 +70,10 @@ export const useStartPhotoJobs = (productId) => {
       queryClient.invalidateQueries({ queryKey: JOBS_KEY(productId) });
       // Each refusal on its own line. Rolling them into one sentence hides which colour had
       // which problem, which is the only part the shop can do anything about.
-      for (const r of result?.refused ?? []) toast.error(`${r.colour}: ${r.why}`);
+      // An id per colour and reason: a double tap, or the same answer twice, never stacks a second message.
+      for (const r of result?.refused ?? []) toast.error(`${r.colour}: ${r.why}`, { id: `photo-refused-${productId}-${r.colour}-${r.why}` });
     },
-    onError: (error) => toast.error(error?.message || 'Those photographs could not be started.')
+    onError: (error) => toast.error(error?.message || 'Those photographs could not be started.', { id: `photo-start-failed-${productId}` })
   });
 };
 

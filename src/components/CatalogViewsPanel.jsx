@@ -203,21 +203,22 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
     const name = colourName ?? target?.name;
     if (!name) return;
     const colour = colours.find(c => c.name === name);
+    // A refusal (a limit reached, for one) is said once, by the start hook; nothing more is shown here.
     const result = await start.mutateAsync({
       productId,
       kind,
       colours: [name],
       ...(sourceImageId ? { sourceImageId } : {}),
       ...(isSaree ? { extraSourceImageIds: extrasOf(colour) } : {})
-    });
+    }).catch(() => null);
+    if (!result) return;
     // One message for one press (the same id, so a double tap never shows it twice); a refusal is said once.
     if (result?.made?.length) {
       toast.success(kind === 'SHOTS'
         ? 'We are making the 3 product photos. You can carry on -- we will tell you when they are ready.'
         : 'We are making them. You can carry on -- we will tell you when they are ready.', { id: `photos-${productId}-${name}` });
-    } else if (result?.refused?.length) {
-      toast.error(`${result.refused[0].colour}: ${result.refused[0].why}`, { id: `photos-${productId}-${name}` });
     }
+    // Refusals are said by the start hook (useStartPhotoJobs), once each: not repeated here.
   };
 
   /*
@@ -369,7 +370,10 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
               Pipeline......", which is a sentence written for whoever built it -- a saree shop
               owner should not be reading about pipelines on their own product screen.
             */}
-            {job.kind === 'SHOTS'
+            {/* Waiting because the studio was busy or a daily limit was reached: its own sentence says when it tries again. */}
+            {job.status === 'QUEUED' && job.notBefore && job.message
+              ? `${job.colourName}: ${job.message}`
+              : job.kind === 'SHOTS'
               ? (job.status === 'QUEUED' ? `The ${job.colourName} product photos are next in line…` : `Making the ${job.colourName} product photos…`)
               : job.status === 'QUEUED'
                 ? `The ${job.colourName} views are next in line…`

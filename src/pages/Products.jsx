@@ -135,6 +135,12 @@ export default function Products() {
     setShotsBusy(true);
     try {
       const r = await startProductShots(sareesSelected.map(p => p.id));
+      // A limit reached stops the whole press: said once, in its own words.
+      if (r?.stopped) {
+        toast.error(r.made ? `Started ${r.made}. ${r.stopped}` : r.stopped, { id: 'product-shots', duration: 8000 });
+        if (r.made) setSelected(new Set());
+        return;
+      }
       const notMade = (r?.results ?? []).filter(x => x.made === 0);
       // One message for the whole press, never one per saree.
       const made = r?.made ?? 0;

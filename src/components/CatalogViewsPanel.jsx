@@ -40,27 +40,53 @@ import Select from './common/Select';
  * two cannot disagree about what still needs doing.
  */
 /** "Use this photo": shown only when a colour has more than one to choose between. */
-function PhotoChoice({ colour, chosen, onChoose }) {
+/** What a photo is, in a word the shop recognises: the uploader's slot where it has one. */
+const SLOT_WORD = { saree: 'Saree', 'full-dress': 'Full dress', folded: 'Folded', pallu: 'Pallu', border: 'Border' };
+const MAX_EXTRAS = 3;
+
+/**
+ * Which photos of a colour to work from (26 Nov 2026). Tap a photo to make it the MAIN one (the whole saree). For a
+ * saree, every other photo of it has an "Also use" tick: the studio copies the pallu and border from those instead of
+ * guessing them (up to 3). The ticks start on, so the default is the most the studio can use.
+ */
+function PhotoChoice({ colour, chosen, onChoose, isSaree = false, extras = [], onToggleExtra }) {
   const photos = photosToChooseFrom(colour);
   if (photos.length < 2) return null;
+  const full = extras.length >= MAX_EXTRAS;
   return (
     <div style={{ marginBottom: '12px' }}>
       <div id={`photo-choice-${colour.name}`} style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '6px' }}>
-        Which photo of the {colour.name} one to use
+        {isSaree
+          ? <>Tap the photo that shows the <b>whole saree</b> to make it the main one. Tick &ldquo;Also use&rdquo; on photos of its pallu or border, so they are copied, not guessed.</>
+          : <>Which photo of the {colour.name} one to use</>}
       </div>
-      <div role="radiogroup" aria-labelledby={`photo-choice-${colour.name}`} style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
         {photos.map((image, index) => {
           const on = image.id === chosen;
+          const also = !on && extras.includes(image.id);
+          const word = SLOT_WORD[image.slot] ?? `Photo ${index + 1}`;
           return (
-            <button key={image.id} type="button" role="radio" aria-checked={on} aria-label={`Use photo ${index + 1}`} onClick={() => onChoose(colour.name, image.id)}
-              style={{ position: 'relative', width: '64px', height: '84px', padding: 0, borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', background: 'var(--bg-hover)', border: on ? '2px solid var(--brand-deep, #164B1E)' : '1px solid var(--border-light)' }}>
-              <img src={image.url} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-              {on && (
-                <span aria-hidden="true" style={{ position: 'absolute', top: '4px', right: '4px', width: '18px', height: '18px', borderRadius: '50%', background: 'var(--brand-deep, #164B1E)', color: '#fff', display: 'grid', placeItems: 'center' }}>
-                  <Check size={12} />
-                </span>
+            <div key={image.id} style={{ display: 'grid', gap: '4px', justifyItems: 'center', width: '72px' }}>
+              <button type="button" role="radio" aria-checked={on} aria-label={`Make ${word} the main photo`} onClick={() => onChoose(colour.name, image.id)}
+                style={{ position: 'relative', width: '64px', height: '84px', padding: 0, borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', background: 'var(--bg-hover)', border: on ? '2px solid var(--brand-deep, #164B1E)' : also ? '2px solid var(--brand-lime, #A6D92B)' : '1px solid var(--border-light)' }}>
+                <img src={image.url} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                {on && (
+                  <span style={{ position: 'absolute', left: 0, right: 0, bottom: 0, background: 'var(--brand-deep, #164B1E)', color: '#fff', fontSize: '10px', fontWeight: 600, textAlign: 'center', padding: '2px 0' }}>Main</span>
+                )}
+              </button>
+              <span style={{ fontSize: '11px', color: 'var(--text-secondary)', textAlign: 'center', lineHeight: 1.2 }}>{word}</span>
+              {isSaree && !on && (
+                <button type="button" role="checkbox" aria-checked={also} aria-label={`Also use ${word}`}
+                  disabled={!also && full} title={!also && full ? `At most ${MAX_EXTRAS} extra photos` : undefined}
+                  onClick={() => onToggleExtra?.(colour.name, image.id)}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', padding: 0, fontSize: '11px', cursor: !also && full ? 'not-allowed' : 'pointer', color: 'var(--text-primary)', opacity: !also && full ? 0.5 : 1 }}>
+                  <span aria-hidden="true" style={{ width: '13px', height: '13px', borderRadius: '3px', border: '1.5px solid var(--brand-deep, #164B1E)', background: also ? 'var(--brand-deep, #164B1E)' : 'transparent', display: 'grid', placeItems: 'center', color: '#fff' }}>
+                    {also && <Check size={10} />}
+                  </span>
+                  Also use
+                </button>
               )}
-            </button>
+            </div>
           );
         })}
       </div>
@@ -95,6 +121,23 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
     return photos.some(i => i.id === picked) ? picked : sourceForViews(colour)?.id;
   };
 
+  // A saree's extra photos (sent as sareeExtras): what the shop ticked, else every other photo of it, up to 3 --
+  // the same default the server uses. Always sent as a list, so the job uses exactly what the screen shows.
+  const isSaree = category === 'SAREE';
+  const [pickedExtras, setPickedExtras] = useState({});
+  const extrasOf = (colour) => {
+    if (!isSaree || !colour) return [];
+    const main = photoOf(colour) ?? sourceForViews(colour)?.id;
+    const photos = photosToChooseFrom(colour).filter(i => i.id !== main);
+    const picked = pickedExtras[colour.name];
+    return (picked ?? photos.slice(0, 3).map(i => i.id)).filter(id => photos.some(i => i.id === id));
+  };
+  const toggleExtra = (colourName, imageId) => {
+    const colour = colours.find(c => c.name === colourName);
+    const now = extrasOf(colour);
+    setPickedExtras(p => ({ ...p, [colourName]: now.includes(imageId) ? now.filter(id => id !== imageId) : [...now, imageId].slice(0, 3) }));
+  };
+
   /*
    * Colours whose four views are done, and can only be MADE AGAIN.
    *
@@ -123,18 +166,18 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
   const [redoArmed, setRedoArmed] = useState(false);
   const redoTarget = finished.find(c => c.name === redoName) ?? finished[0] ?? null;
 
-  /** Sets of views being made for this product right now. */
-  const mine = useMemo(() => (jobs?.active ?? []).filter(j => j.kind === 'VIEWS'), [jobs]);
+  /** Sets of views, and a saree's product photos, being made for this product right now. */
+  const mine = useMemo(() => (jobs?.active ?? []).filter(j => j.kind === 'VIEWS' || j.kind === 'SHOTS'), [jobs]);
 
   // A colour being made is no longer a candidate -- it is already happening -- but it must still
   // be reachable, or its progress would have nowhere to show.
   const target = candidates.find(c => c.name === chosen)
-    ?? colours.find(c => mine.some(j => j.colourName === c.name))
+    ?? colours.find(c => mine.some(j => j.kind === 'VIEWS' && j.colourName === c.name))
     ?? candidates[0]
     ?? null;
 
   const source = target ? sourceForViews(target) : null;
-  const job = target ? mine.find(j => j.colourName === target.name) : null;
+  const job = target ? mine.find(j => j.colourName === target.name && j.kind === 'VIEWS') : null;
 
   // How far a half-made colour got. Nought for one that has never been run.
   const madeSoFar = target ? viewsMadeFor(target.images).size : 0;
@@ -156,17 +199,24 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
 
   // colourName is passed explicitly, because "make them again" runs a colour that is deliberately
   // NOT the panel's current target -- a finished one.
-  const run = async (sourceImageId, colourName) => {
+  const run = async (sourceImageId, colourName, kind = 'VIEWS') => {
     const name = colourName ?? target?.name;
     if (!name) return;
+    const colour = colours.find(c => c.name === name);
     const result = await start.mutateAsync({
       productId,
-      kind: 'VIEWS',
+      kind,
       colours: [name],
-      ...(sourceImageId ? { sourceImageId } : {})
+      ...(sourceImageId ? { sourceImageId } : {}),
+      ...(isSaree ? { extraSourceImageIds: extrasOf(colour) } : {})
     });
+    // One message for one press (the same id, so a double tap never shows it twice); a refusal is said once.
     if (result?.made?.length) {
-      toast.success('We are making them. You can carry on -- we will tell you when they are ready.');
+      toast.success(kind === 'SHOTS'
+        ? 'We are making the 3 product photos. You can carry on -- we will tell you when they are ready.'
+        : 'We are making them. You can carry on -- we will tell you when they are ready.', { id: `photos-${productId}-${name}` });
+    } else if (result?.refused?.length) {
+      toast.error(`${result.refused[0].colour}: ${result.refused[0].why}`, { id: `photos-${productId}-${name}` });
     }
   };
 
@@ -221,7 +271,7 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
   // Someone who may not make photos sees the card only while a set is being made or with a recent
   // outcome -- never the "give us a flat-lay" invitation they have no button for.
   const news = mine.length > 0 || (jobs?.recent ?? []).some(j => j.kind === 'VIEWS');
-  if (!category || (canMake ? (!target && !redoTarget) : !news)) return null;
+  if (!category || (canMake ? (!target && !redoTarget && mine.length === 0) : !news)) return null;
 
   return (
     <div style={{
@@ -292,7 +342,7 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
         </div>
       )}
 
-      {canMake && !job && <PhotoChoice colour={target} chosen={photoOf(target)} onChoose={choosePhoto} />}
+      {canMake && !job && <PhotoChoice colour={target} chosen={photoOf(target)} onChoose={choosePhoto} isSaree={isSaree} extras={extrasOf(target)} onToggleExtra={toggleExtra} />}
 
       {canMake && !job && (
         <>
@@ -319,11 +369,15 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
               Pipeline......", which is a sentence written for whoever built it -- a saree shop
               owner should not be reading about pipelines on their own product screen.
             */}
-            {job.status === 'QUEUED'
-              ? `The ${job.colourName} views are next in line…`
-              : `Making the ${job.colourName} views…`}
+            {job.kind === 'SHOTS'
+              ? (job.status === 'QUEUED' ? `The ${job.colourName} product photos are next in line…` : `Making the ${job.colourName} product photos…`)
+              : job.status === 'QUEUED'
+                ? `The ${job.colourName} views are next in line…`
+                : `Making the ${job.colourName} views…`}
             <span style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)' }}>
-              {job.viewsDone} of {job.viewsTotal} views{job.productShots ? `, ${job.shotsDone ?? 0} of 3 product photos` : ''} done. <b>You can leave this page</b> &mdash; we
+              {job.kind === 'SHOTS'
+                ? `${job.shotsDone ?? 0} of 3 done.`
+                : `${(job.viewsDone ?? 0) + (job.productShots ? (job.shotsDone ?? 0) : 0)} of ${(job.viewsTotal ?? 3) + (job.productShots ? 3 : 0)} done.`} <b>You can leave this page</b> &mdash; we
               will tell you when they are ready.
             </span>
           </p>
@@ -377,8 +431,16 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
             </div>
           )}
 
-          <PhotoChoice colour={redoTarget} chosen={photoOf(redoTarget)} onChoose={choosePhoto} />
+          <PhotoChoice colour={redoTarget} chosen={photoOf(redoTarget)} onChoose={choosePhoto} isSaree={isSaree} extras={extrasOf(redoTarget)} onToggleExtra={toggleExtra} />
 
+          {/* A saree that has its views: just the 3 product photos, its views kept. Not charged by the studio. */}
+          {isSaree && !redoArmed && (
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 10px' }}>
+              {redoTarget.images.some(i => i.generated && ['closeup', 'folded', 'table'].includes(i.view))
+                ? 'Or keep these views and make new product photos (fabric close-up, folded, table scene). The old product photos are replaced. It does not use your allowance.'
+                : 'Or keep these views and add the 3 product photos without a model: a fabric close-up, the saree folded, and a table scene. It does not use your allowance.'}
+            </p>
+          )}
           {redoArmed ? (
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               <button type="button" className="btn btn-primary"
@@ -393,14 +455,28 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
               </button>
             </div>
           ) : (
-            <button type="button" className="btn" onClick={() => setRedoArmed(true)}
-              style={{ padding: '9px 16px', borderRadius: '8px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-              <RefreshCw size={15} /> MAKE THEM AGAIN
-            </button>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              {isSaree && (
+                <button type="button" className="btn btn-primary" onClick={() => run(photoOf(redoTarget), redoTarget.name, 'SHOTS')}
+                  disabled={start.isPending}
+                  style={{ padding: '9px 16px', borderRadius: '8px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                  <Camera size={15} /> {start.isPending ? 'STARTING…' : (redoTarget.images.some(i => i.generated && ['closeup', 'folded', 'table'].includes(i.view)) ? 'MAKE NEW PRODUCT PHOTOS' : 'ADD THE 3 PRODUCT PHOTOS')}
+                </button>
+              )}
+              <button type="button" className="btn" onClick={() => setRedoArmed(true)}
+                style={{ padding: '9px 16px', borderRadius: '8px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                <RefreshCw size={15} /> MAKE THEM AGAIN
+              </button>
+            </div>
           )}
         </div>
       )}
 
+      <PhotoJobOutcome
+        jobs={jobs?.recent}
+        kind="SHOTS"
+        doneText={(made) => `Product photos made: ${made.map(j => j.colourName).join(', ')}. They are after the views in the gallery.`}
+      />
       <PhotoJobOutcome
         jobs={jobs?.recent}
         kind="VIEWS"

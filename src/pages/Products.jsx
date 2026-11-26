@@ -6,6 +6,7 @@ import { Plus, Package, FileOutput, FileInput, FileSpreadsheet, LayoutGrid, List
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { useProductSearch, useBulkSetProductStatus, useBulkSetSellOnline } from '../hooks/useProducts';
+import { startProductShots } from '../services/photoJobs.service';
 import ProductFilters, { ActiveFilters, SortMenu, LIST_KEYS } from '../components/products/ProductFilters';
 import { useProduct } from '../context/ProductContext';
 import { rowLink } from '../components/common/rowLink';
@@ -126,6 +127,27 @@ export default function Products() {
   // Sell online (PLAN-sell-online.md): only published products have a choice; the server skips what cannot go online.
   const onlineSelected = liveSelected.filter(p => p.sellOnline !== false && p.sellInShop !== false);
   const tillOnlySelected = liveSelected.filter(p => p.sellOnline === false && p.sellInShop !== false);
+  // Sarees ticked: their 3 product photos can be made in one go (old sarees keep their views; 26 Nov 2026).
+  const sareesSelected = selectedProducts.filter(p => /saree/i.test(p.dressType || ''));
+  const [shotsBusy, setShotsBusy] = React.useState(false);
+  const runShots = async () => {
+    if (!sareesSelected.length || shotsBusy) return;
+    setShotsBusy(true);
+    try {
+      const r = await startProductShots(sareesSelected.map(p => p.id));
+      const notMade = (r?.results ?? []).filter(x => x.made === 0);
+      // One message for the whole press, never one per saree.
+      const made = r?.made ?? 0;
+      const head = made ? `Making product photos for ${made} ${made === 1 ? 'colour' : 'colours'}. We will tell you when they are ready.` : 'No product photos were started.';
+      const tail = notMade.length ? ` ${notMade.length} skipped: "${notMade[0].title ?? 'a product'}" -- ${notMade[0].refused?.[0]?.why ?? 'it could not be started.'}` : '';
+      (made ? toast.success : toast.error)(head + tail, { id: 'product-shots', duration: notMade.length ? 8000 : 5000 });
+      if (made) setSelected(new Set());
+    } catch (err) {
+      toast.error(err?.response?.data?.message || err?.message || 'The product photos could not be started.', { id: 'product-shots' });
+    } finally {
+      setShotsBusy(false);
+    }
+  };
 
   const runOnline = (on) => {
     const targets = on ? tillOnlySelected : onlineSelected;
@@ -370,6 +392,11 @@ export default function Products() {
             {can('reel_link:manage') && onlineSelected.length > 0 && (
               <button className="btn-secondary" onClick={() => setReelOpen(true)}>
                 Add {onlineSelected.length} to reel link
+              </button>
+            )}
+            {can('tryon:generate') && sareesSelected.length > 0 && (
+              <button className="btn-secondary" onClick={runShots} disabled={shotsBusy}>
+                {shotsBusy ? 'Starting…' : `Make product photos (${sareesSelected.length})`}
               </button>
             )}
             {onlineSelected.length > 0 && (

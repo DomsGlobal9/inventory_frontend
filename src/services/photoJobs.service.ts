@@ -12,7 +12,7 @@ import { api } from '../lib/api';
  * straight away, and none of them has to be waited on before the person does something else.
  */
 
-export type PhotoJobKind = 'VIEWS' | 'COLOUR';
+export type PhotoJobKind = 'VIEWS' | 'COLOUR' | 'SHOTS';
 export type PhotoJobStatus = 'QUEUED' | 'RUNNING' | 'DONE' | 'FAILED' | 'CANCELLED';
 
 export interface PhotoJob {
@@ -53,6 +53,12 @@ export async function startPhotoJobs(input: {
 }
 
 /** What is being made for one product now, and what was made recently. */
+/** The 3 product photos for many sarees at once (old sarees; their views are kept). One answer per product. */
+export async function startProductShots(productIds: string[]): Promise<{ made: number; results: { productId: string; title: string | null; made: number; refused: PhotoJobRefusal[] }[] }> {
+  const res: any = await api.post('/photo-jobs/product-shots', { productIds });
+  return res?.data ?? res;
+}
+
 export async function listPhotoJobs(productId: string): Promise<{ active: PhotoJob[]; recent: PhotoJob[] }> {
   const res: any = await api.get('/photo-jobs', { params: { productId } });
   return res?.data ?? res;

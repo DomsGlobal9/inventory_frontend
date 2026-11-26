@@ -12,7 +12,8 @@ import { X, Camera, Loader2, Flashlight } from 'lucide-react';
  *   The phone's own BarcodeDetector where it has one (Chrome on Android: the chip does the work); ZXing elsewhere
  *     (iPhone, desktop), loaded only the first time it is needed.
  *   The rear camera at 1280 x 720 with continuous focus; a torch button where the phone has one; a beep and a buzz.
- *   Every 4th try reads the whole picture instead, so a code held too close to fit the box is still read.
+ *   Every 4th try reads the whole picture instead, so a code held too close to fit the box is still read -- but
+ *     only a code that reaches into the box counts, so the next item's tag lying beside it is never read.
  * One code, then it closes (the search and the shelves look one thing up per scan).
  *
  * The camera is released on every exit path (a code, closing, an error, the component going away): a page that keeps
@@ -99,17 +100,29 @@ export default function BarcodeScanner({ onFound, onClose, title = 'Point at the
       const v = videoRef.current;
       if (!v || v.readyState < 2 || !v.videoWidth) return null;
       // Every 4th try reads the whole picture: a QR held too close to fit the box is still read (about 4 a second).
+      // Only a code that reaches into the box counts: one lying beside it (the next item's tag) is never read.
       const whole = ++tries % 4 === 0;
-      const b = whole ? { x: 0, y: 0, w: v.videoWidth, h: v.videoHeight } : boxInVideo(v);
-      // Only the box, at most 960 px wide: enough for a code's bars or squares, and quick to read.
+      const box = boxInVideo(v);
+      const b = whole ? { x: 0, y: 0, w: v.videoWidth, h: v.videoHeight } : box;
+      // At most 960 px wide: enough for a code's bars or squares, and quick to read.
       const scale = Math.min(1, 960 / b.w);
       canvas.width = Math.round(b.w * scale); canvas.height = Math.round(b.h * scale);
       ctx.drawImage(v, b.x, b.y, b.w, b.h, 0, 0, canvas.width, canvas.height);
+      // Does a code (its corner points, in canvas pixels) reach into the box?
+      const inBox = (pts) => {
+        if (!whole) return true;
+        if (!pts?.length) return false;
+        const xs = pts.map(p => p.x / scale), ys = pts.map(p => p.y / scale);
+        return Math.max(...xs) >= box.x && Math.min(...xs) <= box.x + box.w && Math.max(...ys) >= box.y && Math.min(...ys) <= box.y + box.h;
+      };
       if (detector) {
         const codes = await detector.detect(canvas);
-        return codes?.[0]?.rawValue ?? null;
+        return codes?.find(c => inBox(c.cornerPoints))?.rawValue ?? null;
       }
-      try { return reader.decodeFromCanvas(canvas).getText(); } catch { return null; }
+      try {
+        const r = reader.decodeFromCanvas(canvas);
+        return inBox((r.getResultPoints() ?? []).map(p => ({ x: p.getX(), y: p.getY() }))) ? r.getText() : null;
+      } catch { return null; }
     }
 
     async function tick() {

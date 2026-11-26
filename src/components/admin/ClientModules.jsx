@@ -9,7 +9,8 @@ import ConfirmModal from '../ConfirmModal';
  * Platform Console → client → Modules and Connections (26 Nov 2026, one-switch onboarding; the owner approved the
  * mockup in CRM's plan). One switch per module the client may have; every module it has connects to the others by
  * itself, and the checklist below shows, in each module's own words, how far each has got. Replaces the separate
- * Boutique and Till (POS) boxes. The owner gets an email about every change.
+ * Boutique and Till (POS) boxes. The owner gets an email about every change. Boutique is not switched here (26 Nov
+ * 2026, the owner): boutiques are the Boutique app team's; a client linked to one shows it in the checklist only.
  */
 const MODULE_TEXT = {
   inventory: { hint: 'Products, stock, orders, online shop', on: 'The owner can use Inventory\'s screens: products, stock, orders and the online shop. POS and CRM are told at once and connect to it.', off: 'Inventory\'s screens close for this shop, the till\'s link to Inventory closes and Logistics goes off with it. Nothing is deleted; switching it on again brings everything back.' },
@@ -20,10 +21,6 @@ const MODULE_TEXT = {
 };
 const DOT = { ok: 'var(--accent-success, #2f7d3b)', warn: 'var(--accent-warning, #b7791f)', bad: 'var(--accent-danger, #b42318)' };
 const STATE_WORD = { ok: 'Done', warn: 'Needs a look', bad: 'Not working' };
-const WHO_RUNS = [
-  { value: false, label: 'Shared with the shop', hint: 'The boutique keeps its own items here. The shop\'s products stay the shop\'s.' },
-  { value: true, label: 'The boutique app runs the whole shop', hint: 'Every product here becomes the boutique\'s, by its SKU, priced in the boutique app.' }
-];
 
 function Switch({ on, label, disabled, onClick }) {
   return (
@@ -46,9 +43,6 @@ export default function ClientModules({ clientId }) {
     refetchInterval: (q) => (q.state.data?.groups ?? []).some(g => g.lines.some(l => /-told$/.test(l.key))) ? 5000 : 60000
   });
   const [ask, setAsk] = useState(null); // { module, on }
-  const [tenant, setTenant] = useState('');
-  const [handOver, setHandOver] = useState(false);
-  const [confirmHandOver, setConfirmHandOver] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
   const [ownerLink, setOwnerLink] = useState(null);
   const [copied, setCopied] = useState(false);
@@ -56,13 +50,12 @@ export default function ClientModules({ clientId }) {
   const refresh = () => { qc.invalidateQueries({ queryKey: mKey }); qc.invalidateQueries({ queryKey: cKey }); qc.invalidateQueries({ queryKey: ['admin', 'clients', clientId] }); };
   const fail = (e) => toast.error(e?.response?.data?.message ?? e?.message ?? 'That could not be changed just now. Please try again.');
   const set = useMutation({
-    mutationFn: async ({ module, on }) => (await api.put(`/admin/clients/${clientId}/modules`, { modules: { [module]: on }, ...(module === 'boutique' && on ? { boutique: { tenant: tenant.trim().toLowerCase(), handOver } } : {}) })).data,
-    onSuccess: (d, v) => { toast.success(`${labelOf(v.module)} is ${v.on ? 'on' : 'off'} for this client. The owner gets an email.`); setAsk(null); setTenant(''); setHandOver(false); refresh(); },
+    mutationFn: async ({ module, on }) => (await api.put(`/admin/clients/${clientId}/modules`, { modules: { [module]: on } })).data,
+    onSuccess: (d, v) => { toast.success(`${labelOf(v.module)} is ${v.on ? 'on' : 'off'} for this client. The owner gets an email.`); setAsk(null); refresh(); },
     onError: fail
   });
   const retry = useMutation({ mutationFn: async (module) => (await api.post(`/admin/clients/${clientId}/modules/${module}/retry`)).data, onSuccess: () => { toast.success('Asked again.'); setTimeout(refresh, 1500); }, onError: fail });
   const posLink = useMutation({ mutationFn: async (reset) => (await api.post(`/admin/clients/${clientId}/pos/owner-link`, reset ? { reset: true } : {})).data, onSuccess: (d) => { setOwnerLink(d?.ownerLink ?? null); toast.success(d?.ownerLink ? 'A new welcome link is ready' : 'Done'); }, onError: fail });
-  const hand = useMutation({ mutationFn: async () => (await api.post(`/admin/clients/${clientId}/boutique/hand-over`)).data, onSuccess: () => { toast.success('The boutique app now runs the whole shop.'); refresh(); }, onError: fail });
 
   const all = modules.data?.all ?? [];
   const labelOf = (m) => all.find(x => x.module === m)?.label ?? m;
@@ -81,7 +74,7 @@ export default function ClientModules({ clientId }) {
         <div style={{ padding: '14px 20px 18px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10 }}>
           {modules.isLoading ? <div style={{ color: 'var(--text-muted)', fontSize: 13 }}>Loading…</div>
             : modules.isError ? <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>The modules could not be read just now. <button type="button" className="btn-secondary" onClick={() => modules.refetch()}>Try again</button></div>
-            : all.map(m => (
+            : all.filter(m => m.module !== 'boutique').map(m => (
               <div key={m.module} data-module={m.module} style={{ border: `1px solid ${m.on ? 'var(--accent-gold)' : 'var(--border-light)'}`, borderRadius: 12, padding: '12px 14px', display: 'grid', gap: 6, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
                   <strong style={{ fontSize: 14 }}>{m.label}</strong>
@@ -137,48 +130,17 @@ export default function ClientModules({ clientId }) {
                     <button type="button" className="btn-secondary" aria-label="Copy the link" onClick={async () => { try { await navigator.clipboard.writeText(ownerLink); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch { toast.error('Select the link and copy it by hand.'); } }}>{copied ? <CheckCircle2 size={14} /> : <Copy size={14} />}</button>
                   </div>
                 )}
-                {g.module === 'boutique' && onNow('boutique') && (
-                  <div style={{ padding: '8px 0 2px' }}><button type="button" className="btn-secondary" disabled={hand.isPending} onClick={() => setConfirmHandOver(true)}>The boutique app runs the whole shop</button></div>
-                )}
               </div>
             ))}
         </div>
       </section>
 
-      {/* Switching a module: what will happen, in words, before it does. Boutique on needs the account. */}
-      <ConfirmModal isOpen={!!ask && !(ask.module === 'boutique' && ask.on)} onClose={() => setAsk(null)}
+      {/* Switching a module: what will happen, in words, before it does. */}
+      <ConfirmModal isOpen={!!ask} onClose={() => setAsk(null)}
         onConfirm={async () => { await set.mutateAsync(ask); }}
         title={ask ? `Switch ${labelOf(ask.module)} ${ask.on ? 'on' : 'off'}?` : ''}
         message={ask ? `${MODULE_TEXT[ask.module]?.[ask.on ? 'on' : 'off'] ?? ''} The owner gets an email about it.` : ''}
         confirmText={ask?.on ? 'Switch on' : 'Switch off'} confirmStyle={ask?.on ? undefined : 'danger'} />
-      {ask?.module === 'boutique' && ask.on && (
-        <div role="dialog" aria-modal="true" aria-labelledby="btq-on-title" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', display: 'grid', placeItems: 'center', padding: 16, zIndex: 50 }}>
-          <form onSubmit={(e) => { e.preventDefault(); set.mutate(ask); }} style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 20, width: 'min(460px, 100%)', display: 'grid', gap: 12 }}>
-            <h3 id="btq-on-title" style={{ margin: 0, fontSize: 16 }}>Switch the Boutique module on</h3>
-            <label style={{ display: 'grid', gap: 6, fontSize: 13 }}>
-              <span style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>Boutique app account</span>
-              <input className="input-field" value={tenant} onChange={e => setTenant(e.target.value)} maxLength={63} placeholder="lakshmi-boutique" autoFocus />
-            </label>
-            <div role="radiogroup" aria-label="Who runs the shop's products" style={{ display: 'grid', gap: 8 }}>
-              {WHO_RUNS.map(o => (
-                <button key={String(o.value)} type="button" role="radio" aria-checked={handOver === o.value} onClick={() => setHandOver(o.value)}
-                  style={{ textAlign: 'left', padding: '10px 12px', borderRadius: 10, cursor: 'pointer', color: 'var(--text-primary)', background: handOver === o.value ? 'var(--bg-hover)' : 'transparent', border: `1px solid ${handOver === o.value ? 'var(--accent-gold)' : 'var(--border-light)'}` }}>
-                  <span style={{ display: 'block', fontWeight: 600, fontSize: 13 }}>{o.label}</span>
-                  <span style={{ display: 'block', fontSize: 11.5, color: 'var(--text-muted)' }}>{o.hint}</span>
-                </button>
-              ))}
-            </div>
-            <p style={{ margin: 0, fontSize: 12.5, color: 'var(--text-secondary)' }}>The owner gets an email about it.</p>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-              <button type="button" className="btn-secondary" onClick={() => setAsk(null)} disabled={set.isPending}>Cancel</button>
-              <button type="submit" className="btn-primary" disabled={set.isPending || !tenant.trim()} style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>{set.isPending && <Loader2 size={14} className="animate-spin" />} Switch on</button>
-            </div>
-          </form>
-        </div>
-      )}
-      <ConfirmModal isOpen={confirmHandOver} onClose={() => setConfirmHandOver(false)} onConfirm={async () => { await hand.mutateAsync(); }}
-        title="Let the boutique app run the whole shop?" message="Every product here becomes the boutique's, by its SKU, priced in the boutique app."
-        confirmText="Hand it over" />
       <ConfirmModal isOpen={confirmReset} onClose={() => setConfirmReset(false)} onConfirm={async () => { await posLink.mutateAsync(true); }}
         title="Reset the owner's POS password?" message="Their old password stops working, and the new welcome link lets them choose a new one. Any earlier link stops working."
         confirmText="Reset and make link" />

@@ -20,7 +20,6 @@ const MODULE_CHOICES = [
   { value: 'inventory', label: 'Inventory', hint: 'Products, stock, orders, online shop' },
   { value: 'pos', label: 'POS', hint: 'Billing at the counter' },
   { value: 'crm', label: 'CRM', hint: 'Customers, follow-ups, offers' },
-  { value: 'boutique', label: 'Boutique', hint: 'The Boutique app runs on ScaleEzy' },
   { value: 'logistics', label: 'Logistics', hint: 'Couriers for online orders (needs Inventory)' }
 ];
 // What the shop sells (PLAN-onboarding-setup.md). '' = the owner chooses at first sign-in.

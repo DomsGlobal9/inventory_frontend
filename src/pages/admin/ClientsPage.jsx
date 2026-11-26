@@ -4,7 +4,6 @@ import { Loader2, Building2, Users, Package, AlertTriangle, IndianRupee, Chevron
 import { useAdminClients } from '../../hooks/admin/useAdminConsole';
 import PageGuide from '../../components/admin/PageGuide';
 import BoutiqueJoinRequests from '../../components/admin/BoutiqueJoinRequests';
-import PartnerAppKeys from '../../components/admin/PartnerAppKeys';
 
 const ONBOARDING_STYLE = {
   NOT_STARTED: { label: 'Not Started', color: 'var(--text-secondary)', bg: 'var(--bg-input)' },
@@ -180,9 +179,6 @@ export default function ClientsPage() {
           <li><strong>Impersonate:</strong> Click on any client to jump into their specific dashboard as if you were them.</li>
         </ul>
       </PageGuide>
-      {/* Keys for OTHER partner apps (Shop API v1). The Boutique app needs none since 26 Nov 2026: it sends its own signed
-          pass. A one-time thing, so below the clients. */}
-      <div style={{ marginTop: 8 }}><PartnerAppKeys /></div>
     </div>
   );
 }

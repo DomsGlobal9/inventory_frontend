@@ -118,7 +118,7 @@ export const SECTIONS = [
       ta: 'உங்கள் வாடிக்கையாளர்கள், அவர்களின் ஆர்டர்கள், குழுக்கள்.',
       kn: 'ನಿಮ್ಮ ಗ್ರಾಹಕರು, ಅವರ ಆರ್ಡರ್‌ಗಳು ಮತ್ತು ಗುಂಪುಗಳು.'
     },
-    pages: ['customers', 'loyalty-points', 'gift-vouchers'] },
+    pages: ['customers', 'import-customers', 'loyalty-points', 'gift-vouchers'] },
   { id: 'online-shop', title: 'Online shop', icon: 'Globe',
     blurb: 'Your own shop on the web: open it, share the link, and take orders.',
     titles: { te: 'Online shop (ఆన్‌లైన్ షాప్)', hi: 'Online shop (ऑनलाइन दुकान)', ta: 'Online shop (ஆன்லைன் கடை)', kn: 'Online shop (ಆನ್‌ಲೈನ್ ಅಂಗಡಿ)' },

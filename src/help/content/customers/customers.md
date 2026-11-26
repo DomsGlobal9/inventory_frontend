@@ -12,6 +12,8 @@ Customers are found by their **phone number**. One number belongs to one custome
 
 You do not have to add every customer here by hand. A bill made on the [ScaleEzy POS till](/help/settings/pos-billing-counter) with the customer's phone number on it saves the customer here by itself.
 
+To add many customers at once from Excel, see [Import customers from a sheet](/help/customers/import-customers).
+
 ## 1. Open Customers
 
 1. In the menu on the left, click [[1]] **Customers**.

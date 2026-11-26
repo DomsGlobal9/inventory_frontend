@@ -12,6 +12,7 @@ import { COUNTER_PHONE_QUERY } from '../../hooks/useCounterSale';
 import { ORDER_STATUS as STATUS } from '../../components/sales/labels';
 import { rowLink } from '../../components/common/rowLink';
 import { useTillLocations } from '../../hooks/useTillLocations';
+import { useUpiClaims } from '../../hooks/useOnlineShop';
 import OrdersTabs from '../../components/sales/OrdersTabs';
 import BillsAtPosNote from '../../components/sales/BillsAtPosNote';
 
@@ -42,7 +43,10 @@ const whereFrom = (order) => order.atCounter ? 'Counter'
  * An online-shop order paid on delivery shows its due: it hid behind "—" while the filter called it
  * Not paid (23 Oct).
  */
-const paymentPill = (order) => {
+const paymentPill = (order, upi) => {
+  // Paid by UPI straight to the shop, not yet confirmed (26 Nov 2026): the owner's next step, named.
+  if (upi?.status === 'TO_CHECK' && order.status !== 'CANCELLED') return <Pill label="UPI · to check" color="245, 158, 11" />;
+  if (upi?.status === 'NOT_RECEIVED' && order.status !== 'CANCELLED') return <Pill label="UPI · not found" color="220, 38, 38" />;
   if (order.sourceSystem === 'SHOPIFY') {
     // Cash on delivery: the money is still to collect until Shopify marks the order paid (28 Oct).
     // Every other Shopify order is paid on Shopify, and older ones carry no payments here at all.
@@ -73,6 +77,9 @@ export default function SalesOrders() {
   const narrow = useMediaQuery('(max-width: 760px)');
   const phone = useMediaQuery(COUNTER_PHONE_QUERY);
   const { billsAtPos, storeName } = useTillLocations();
+  // UPI payments waiting for the owner (only fetched by those who may run the online shop).
+  const { data: upiWaiting } = useUpiClaims(undefined, can('admin:online_shop'));
+  const upiBy = new Map((upiWaiting ?? []).map(c => [c.salesOrderId, c]));
   /*
    * Search, filters and sort live in the page address, as on Products: Back returns to the same
    * list, a refresh keeps it, and "this month, still due" can be sent as a link. Lists travel joined
@@ -235,7 +242,7 @@ export default function SalesOrders() {
                 </div>
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                   <Pill {...(STATUS[order.status] || STATUS.DRAFT)} />
-                  {paymentPill(order)}
+                  {paymentPill(order, upiBy.get(order.id))}
                   {keptPill(order)}
                 </div>
               </button>
@@ -281,7 +288,7 @@ export default function SalesOrders() {
                     </td>
                     <td style={{ ...td, textAlign: 'right', fontWeight: 500 }}>{formatINRExact(Number(order.total))}</td>
                     <td style={td}><div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}><Pill {...(STATUS[order.status] || STATUS.DRAFT)} />{keptPill(order)}</div></td>
-                    <td style={td}>{paymentPill(order) ?? <span style={{ color: 'var(--text-muted)' }}>—</span>}</td>
+                    <td style={td}>{paymentPill(order, upiBy.get(order.id)) ?? <span style={{ color: 'var(--text-muted)' }}>—</span>}</td>
                     <td style={{ ...td, textAlign: 'right' }}>
                       <button className="btn-secondary" onClick={() => navigate(`/orders/${order.id}`)} style={{ padding: '6px 12px', fontSize: 13 }}>View</button>
                     </td>

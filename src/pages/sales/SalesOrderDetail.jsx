@@ -37,6 +37,7 @@ import { makePdf } from '../../components/pdf/downloadPdf';
 import { logoAsPng } from '../../components/pdf/pdfLogo';
 import { useGoBack } from '../../hooks/useGoBack';
 import NotHere from '../../components/common/NotHere';
+import UpiCheck from '../../components/sales/UpiCheck';
 
 export default function SalesOrderDetail() {
   const { id } = useParams();
@@ -624,6 +625,9 @@ export default function SalesOrderDetail() {
               </div>
             );
           })()}
+
+          {/* Paid by UPI straight to the shop: the payment to check, and Payment received / Not received. */}
+          {order.channel === 'ONLINE' && <UpiCheck salesOrderId={order.id} />}
 
           {/* Money taken for this order, and paid back. Worked out from the rows, never stored twice.
               Also shown when money can still be recorded here (collectBlocked is null): a pay-on-delivery

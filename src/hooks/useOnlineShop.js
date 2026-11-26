@@ -209,3 +209,46 @@ export const useDisconnectPayments = () => usePaymentMutation(
   async () => (await api.delete('/online-shop/payments')).data,
   () => toast.success('Your Razorpay account is disconnected. Its keys are deleted.')
 );
+
+/* ── Pay by UPI (26 Nov 2026) ─────────────────────────────────────────────────────────────── */
+
+const UPI_KEY = ['online-shop', 'payments', 'upi'];
+
+/** How the shop takes UPI: DIRECT (its own UPI ID) or RAZORPAY; whether it is ready; a ₹1 test link. */
+export const useUpiSettings = () => useQuery({
+  queryKey: UPI_KEY,
+  queryFn: async () => (await api.get('/online-shop/payments/upi')).data
+});
+
+export const useSaveUpi = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (body) => (await api.put('/online-shop/payments/upi', body)).data,
+    onSuccess: (result) => {
+      qc.setQueryData(UPI_KEY, result);
+      // The online shop's "Pay by UPI" tick reads whether UPI is ready.
+      qc.invalidateQueries({ queryKey: ['online-shop'] });
+    }
+  });
+};
+
+/** UPI payments sent straight to the shop: waiting to be checked (no order), or one order's (with salesOrderId). */
+export const useUpiClaims = (salesOrderId, enabled = true) => useQuery({
+  enabled,
+  queryKey: [...UPI_KEY, 'claims', salesOrderId ?? 'all'],
+  queryFn: async () => (await api.get('/online-shop/upi-claims', { params: salesOrderId ? { salesOrderId } : {} })).data,
+  refetchInterval: 30_000
+});
+
+/** "Payment received" or "Not received" for one UPI payment. */
+export const useUpiDecision = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, received }) => (await api.post(`/online-shop/upi-claims/${id}/${received ? 'received' : 'not-received'}`)).data,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [...UPI_KEY, 'claims'] });
+      qc.invalidateQueries({ queryKey: ['salesOrders'] });
+      qc.invalidateQueries({ queryKey: ['sales-orders'] });
+    }
+  });
+};

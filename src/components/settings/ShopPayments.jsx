@@ -9,6 +9,7 @@ import {
 import { usePermission } from '../../hooks/usePermission';
 import { useAuth } from '../../context/AuthContext';
 import { holdsEverything } from '../../lib/authority';
+import UpiSetup from './UpiSetup';
 
 /**
  * Settings -> Online shop -> Payments: the shop connects its OWN Razorpay account
@@ -274,6 +275,13 @@ export default function ShopPayments() {
 
           <PaymentActivity />
         </>
+      )}
+
+      {/* UPI in the online shop: straight to the shop's UPI ID needs no Razorpay, so it is here whatever the above says. */}
+      {account && (
+        <div style={{ marginTop: '18px', paddingTop: '16px', borderTop: '1px solid var(--border-light)' }}>
+          <UpiSetup isOwner={isOwner} />
+        </div>
       )}
     </div>
   );

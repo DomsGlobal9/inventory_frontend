@@ -37,6 +37,9 @@ export default function OnlineShopSettings() {
   // a guess from what the keys look like. It decides whether "Online" can be switched on.
   const { data: payments } = useShopPayments();
   const payReady = !!payments?.readyForCustomers;
+  // Pay by UPI can be ticked once Settings → Payments has it set up (a UPI ID, or working Razorpay keys).
+  const upiReady = !!shop?.upiReady;
+  const upiWay = shop?.upiWay ?? 'DIRECT';
   const toPayments = <Link to="/settings?section=PAYMENTS">Settings → Razorpay account</Link>;
   const setOpen = useSetShopOpen();
   const { data: loyalty } = useLoyaltySettings();
@@ -58,6 +61,7 @@ export default function OnlineShopSettings() {
       acceptsOrders: !!shop.acceptsOrders,
       payOnDelivery: shop.payOnDelivery !== false,
       payOnline: !!shop.payOnline,
+      payByUpi: !!shop.payByUpi,
       deliveryFee: shop.deliveryFee ?? 0,
       freeDeliveryAbove: shop.freeDeliveryAbove ?? '',
       minOrderValue: shop.minOrderValue ?? '',
@@ -312,34 +316,44 @@ export default function OnlineShopSettings() {
         {form.acceptsOrders && (
           <div style={{ marginTop: '18px', paddingTop: '16px', borderTop: '1px solid var(--border-light)' }}>
             <span style={label}>How customers may pay</span>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '6px' }}>
-              <label style={{
-                display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '8px 12px', cursor: 'pointer',
-                border: '1px solid var(--border-light)', borderRadius: '8px',
-                background: form.payOnDelivery ? 'var(--bg-hover)' : 'transparent'
-              }}>
-                <input type="checkbox" checked={form.payOnDelivery} onChange={(e) => set('payOnDelivery', e.target.checked)} />
-                <span style={{ fontSize: '13px' }}>When it arrives <span style={{ color: 'var(--text-muted)' }}>(cash or UPI)</span></span>
-              </label>
-              {/*
-                Online, through the shop's own Razorpay account (Settings → Razorpay account, its own section).
-
-                It can be switched ON only once that account can take real money -- working LIVE
-                keys -- because the server refuses otherwise and a switch that says yes and then
-                refuses is worse than one that says why. Switching it OFF is always allowed.
-              */}
-              <label style={{
-                display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '8px 12px',
-                border: '1px solid var(--border-light)', borderRadius: '8px',
-                background: form.payOnline ? 'var(--bg-hover)' : 'transparent',
-                opacity: payReady || form.payOnline ? 1 : 0.55,
-                cursor: payReady || form.payOnline ? 'pointer' : 'not-allowed'
-              }} title={payReady || form.payOnline ? '' : 'Connect your Razorpay account in Settings → Razorpay account first.'}>
-                <input type="checkbox" checked={form.payOnline} disabled={!payReady && !form.payOnline}
-                  onChange={(e) => set('payOnline', e.target.checked)} />
-                <span style={{ fontSize: '13px' }}>Online <span style={{ color: 'var(--text-muted)' }}>(UPI, card — Razorpay)</span></span>
-              </label>
+            {/*
+              The three ways, each the shop's choice, shown at the checkout in this order (26 Nov 2026). Pay by UPI and
+              Pay now can be switched ON only once their setup can take money (Settings → Payments: a UPI ID, or working
+              Razorpay keys); OFF is always allowed. At least one must stay on while orders are taken.
+            */}
+            <div role="group" aria-label="How customers may pay" style={{ display: 'grid', gap: '8px', marginTop: '6px' }}>
+              {[
+                { key: 'payByUpi', title: 'Pay by UPI', note: upiReady ? (upiWay === 'RAZORPAY' ? 'A QR or their UPI app, through your Razorpay. Confirms itself.' : 'A QR or their UPI app, straight to your UPI ID. No fee; you confirm each payment.') : 'Set up UPI in Settings → Payments first.', ready: upiReady },
+                { key: 'payOnDelivery', title: 'Cash on delivery', note: 'Cash or UPI when the order arrives.', ready: true },
+                { key: 'payOnline', title: 'Pay now', note: payReady ? (form.payByUpi ? 'Card or net banking, through your Razorpay.' : 'UPI, card or net banking, through your Razorpay.') : 'Connect your Razorpay account in Settings → Payments first.', ready: payReady }
+              ].map(w => {
+                const on = !!form[w.key];
+                const can = w.ready || on;
+                return (
+                  <div key={w.key} role="checkbox" aria-checked={on} aria-disabled={!can || undefined} tabIndex={can ? 0 : -1}
+                    onClick={() => can && set(w.key, !on)}
+                    onKeyDown={(e) => { if (can && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); set(w.key, !on); } }}
+                    style={{
+                      display: 'flex', gap: '10px', alignItems: 'flex-start', padding: '9px 12px', borderRadius: '8px',
+                      border: `1px solid ${on ? 'var(--accent-primary, #164B1E)' : 'var(--border-light)'}`,
+                      background: on ? 'var(--bg-hover)' : 'transparent', cursor: can ? 'pointer' : 'not-allowed', opacity: can ? 1 : 0.55
+                    }}>
+                    <span aria-hidden="true" style={{ width: '16px', height: '16px', borderRadius: '4px', flex: 'none', marginTop: '1px', border: '1.5px solid var(--accent-primary, #164B1E)', background: on ? 'var(--accent-primary, #164B1E)' : 'transparent', display: 'grid', placeItems: 'center', color: '#fff' }}>
+                      {on && <Check size={11} />}
+                    </span>
+                    <span style={{ fontSize: '13px' }}>
+                      <b style={{ fontWeight: 600 }}>{w.title}</b>
+                      <span style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)' }}>{w.note}</span>
+                    </span>
+                  </div>
+                );
+              })}
             </div>
+            {!form.payByUpi && !form.payOnDelivery && !form.payOnline && (
+              <span role="alert" style={{ ...hint, marginBottom: 0, marginTop: '6px', display: 'block', color: 'var(--accent-danger, #b42318)' }}>
+                Tick at least one way to pay, or customers cannot order.
+              </span>
+            )}
             {!payReady && (
               <span style={{ ...hint, marginBottom: 0, marginTop: '6px', display: 'block' }}>
                 {payments?.connected && payments?.status === 'CONNECTED' && payments?.mode === 'TEST'

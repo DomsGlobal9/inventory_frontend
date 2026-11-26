@@ -7,6 +7,7 @@ import { UnsavedWorkProvider } from '../contexts/UnsavedWorkContext';
 
 import PageLoader from '../components/PageLoader';
 import NoAccess from './NoAccess';
+import NoInventoryHome from './NoInventoryHome';
 
 export default function ProtectedRoute({ requiredRole, requiredPermission }) {
   const { isAuthenticated, user, isLoading } = useAuth();
@@ -18,6 +19,13 @@ export default function ProtectedRoute({ requiredRole, requiredPermission }) {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;
+  }
+
+  // A client without the Inventory module (26 Nov 2026): its apps instead of Inventory's screens; Team members stays.
+  if (user && Array.isArray(user.modules) && !user.modules.includes('inventory')) {
+    const params = new URLSearchParams(location.search);
+    const team = location.pathname === '/settings' && ['USERS', 'ROLES'].includes(params.get('section') ?? '');
+    if (!team) return <NoInventoryHome />;
   }
 
   if (user) {

@@ -53,9 +53,6 @@ export default function ClientsPage() {
       {/* Boutique clients asking to join, from the boutique app (16 Nov). Nothing shows when none are waiting. */}
       <BoutiqueJoinRequests />
 
-      {/* Keys for partner apps that sell from a boutique's shop (Shop API v1, 20 Nov 2026). */}
-      <PartnerAppKeys />
-
       {!isLoading && (
         <div style={{ position: 'relative', maxWidth: '420px' }}>
           <Search size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
@@ -183,6 +180,9 @@ export default function ClientsPage() {
           <li><strong>Impersonate:</strong> Click on any client to jump into their specific dashboard as if you were them.</li>
         </ul>
       </PageGuide>
+      {/* Keys for OTHER partner apps (Shop API v1). The Boutique app needs none since 26 Nov 2026: it sends its own signed
+          pass. A one-time thing, so below the clients. */}
+      <div style={{ marginTop: 8 }}><PartnerAppKeys /></div>
     </div>
   );
 }

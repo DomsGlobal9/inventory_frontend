@@ -5,8 +5,7 @@ import { Loader2, ArrowLeft, LogIn, Users, Package, AlertTriangle, IndianRupee, 
 import { useAdminClient, useAssumeClient } from '../../hooks/admin/useAdminConsole';
 import ClientDangerZone from '../../components/admin/ClientDangerZone';
 import ClientServiceKeys from '../../components/admin/ClientServiceKeys';
-import ClientBoutiqueModule from '../../components/admin/ClientBoutiqueModule';
-import ClientPosModule from '../../components/admin/ClientPosModule';
+import ClientModules from '../../components/admin/ClientModules';
 import UserPasswordManager from '../../components/admin/UserPasswordManager';
 import { formatINR } from '../../utils/formatUtils';
 import { useGoBack } from '../../hooks/useGoBack';
@@ -303,8 +302,8 @@ export default function ClientOverviewPage() {
       {/* Last on the page, and visually separate. A destructive control sitting among the
           ordinary ones eventually gets clicked by someone reaching for the one beside it. */}
       <ClientServiceKeys clientId={clientId} />
-      <ClientBoutiqueModule clientId={clientId} />
-      <ClientPosModule clientId={clientId} />
+      {/* One-switch onboarding (26 Nov 2026): the Modules box and the Connections checklist replace the separate Boutique and Till (POS) boxes. */}
+      <ClientModules clientId={clientId} />
 
       <ClientDangerZone clientId={clientId} suspended={data?.userCount > 0 && data?.activeUserCount === 0} />
 

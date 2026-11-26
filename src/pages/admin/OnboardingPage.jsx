@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { GST_STATES } from '../../utils/gstStates';
 import { firstMissingField, missingFieldMessage } from '../../lib/formGuard';
 import toast from 'react-hot-toast';
-import { Loader2, UserPlus, Mail, Copy, CheckCircle2, Building2, User, KeyRound, AlertTriangle } from 'lucide-react';
+import { Check, Loader2, UserPlus, Mail, Copy, CheckCircle2, Building2, User, KeyRound, AlertTriangle } from 'lucide-react';
 import { useAdminClients, useOnboardClient } from '../../hooks/admin/useAdminConsole';
 import PageGuide from '../../components/admin/PageGuide';
 import Select from '../../components/common/Select';
@@ -14,7 +14,15 @@ const STEPS = [
 ];
 
 
-const EMPTY_FORM = { companyName: '', adminName: '', adminEmail: '', ownerPhone: '', shopPhone: '', address: '', city: '', stateCode: '', pin: '', storeName: '', gstin: '', sells: '', hasBoutique: false, boutiqueTenant: '' };
+const EMPTY_FORM = { companyName: '', adminName: '', adminEmail: '', ownerPhone: '', shopPhone: '', address: '', city: '', stateCode: '', pin: '', storeName: '', gstin: '', sells: '', modules: ['inventory'], boutiqueTenant: '' };
+// One-switch onboarding (26 Nov 2026): the modules the client bought. Each connects to the others by itself.
+const MODULE_CHOICES = [
+  { value: 'inventory', label: 'Inventory', hint: 'Products, stock, orders, online shop' },
+  { value: 'pos', label: 'POS', hint: 'Billing at the counter' },
+  { value: 'crm', label: 'CRM', hint: 'Customers, follow-ups, offers' },
+  { value: 'boutique', label: 'Boutique', hint: 'The Boutique app runs on ScaleEzy' },
+  { value: 'logistics', label: 'Logistics', hint: 'Couriers for online orders (needs Inventory)' }
+];
 // What the shop sells (PLAN-onboarding-setup.md). '' = the owner chooses at first sign-in.
 const SELLS = [
   { value: 'READY_MADE', label: 'Ready-made only', hint: 'Sarees, blouses, kurtis by the piece' },
@@ -75,7 +83,8 @@ export default function OnboardingPage() {
     const missing = firstMissingField(e.currentTarget);
     if (missing) { toast.error(missingFieldMessage(missing)); return; }
     try {
-      const created = await onboardMutation.mutateAsync(form);
+      const { boutiqueTenant, modules, ...rest } = form;
+      const created = await onboardMutation.mutateAsync({ ...rest, modules, ...(modules.includes('boutique') ? { boutiqueTenant } : {}) });
       setResult(created);
       setForm(EMPTY_FORM);
     } catch (error) {
@@ -175,7 +184,38 @@ export default function OnboardingPage() {
                 </Field>
               </div>
 
-              <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.06em', marginTop: '4px' }}>WHAT THE SHOP SELLS</div>
+              <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.06em', marginTop: '4px' }}>MODULES</div>
+              <div role="group" aria-label="The client's modules" data-testid="onboarding-modules" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '8px' }}>
+                {MODULE_CHOICES.map(o => {
+                  const on = form.modules.includes(o.value);
+                  const blocked = o.value === 'logistics' && !form.modules.includes('inventory');
+                  return (
+                    <button key={o.value} type="button" role="checkbox" aria-checked={on} disabled={blocked && !on}
+                      onClick={() => setForm(f => {
+                        let next = on ? f.modules.filter(m => m !== o.value) : [...f.modules, o.value];
+                        if (o.value === 'inventory' && on) next = next.filter(m => m !== 'logistics'); // Logistics goes with Inventory
+                        return { ...f, modules: next, ...(o.value === 'boutique' && on ? { boutiqueTenant: '' } : {}) };
+                      })}
+                      style={{ textAlign: 'left', padding: '10px 12px', borderRadius: '10px', cursor: blocked && !on ? 'default' : 'pointer', opacity: blocked && !on ? 0.55 : 1, color: 'var(--text-primary)', background: on ? 'var(--bg-hover)' : 'transparent', border: `1px solid ${on ? 'var(--accent-gold)' : 'var(--border-light)'}`, display: 'grid', gridTemplateColumns: '18px minmax(0, 1fr)', gap: '8px', alignItems: 'start' }}>
+                      <span aria-hidden="true" style={{ width: 16, height: 16, marginTop: 1, borderRadius: 4, border: `1.5px solid ${on ? 'var(--accent-gold)' : 'var(--border-light)'}`, background: on ? 'var(--accent-gold)' : 'transparent', display: 'grid', placeItems: 'center' }}>{on && <Check size={11} color="#fff" strokeWidth={3} />}</span>
+                      <span><span style={{ display: 'block', fontWeight: 600, fontSize: '13px' }}>{o.label}</span>
+                      <span style={{ display: 'block', fontSize: '11.5px', color: 'var(--text-muted)' }}>{o.hint}</span></span>
+                    </button>
+                  );
+                })}
+              </div>
+              {!form.modules.length && <p role="status" style={{ margin: 0, fontSize: '12px', color: 'var(--accent-danger)' }}>Choose at least one module.</p>}
+              {!form.modules.includes('inventory') && form.modules.length > 0 && (
+                <p data-testid="no-inventory-note" style={{ margin: 0, fontSize: '12px', color: 'var(--text-secondary)' }}>Without Inventory, the owner's ScaleEzy login opens {form.modules.filter(m => m !== 'boutique').map(m => MODULE_CHOICES.find(c => c.value === m)?.label).join(' and ') || 'their apps'}; Inventory's own screens stay closed.</p>
+              )}
+              {form.modules.includes('boutique') && (
+                <Field label="Boutique app account *" hint="The account in the Boutique app, e.g. lakshmi-boutique (letters, numbers and hyphens).">
+                  <input type="text" required autoCapitalize="none" spellCheck={false} value={form.boutiqueTenant} onChange={set('boutiqueTenant')} placeholder="lakshmi-boutique" className="input-field" style={INPUT} />
+                </Field>
+              )}
+
+              {form.modules.includes('inventory') && (<>
+                            <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.06em', marginTop: '4px' }}>WHAT THE SHOP SELLS</div>
               <div role="radiogroup" aria-label="What the shop sells" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '8px' }}>
                 {SELLS.map(o => {
                   const on = form.sells === o.value;
@@ -188,18 +228,10 @@ export default function OnboardingPage() {
                   );
                 })}
               </div>
-              <label style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', cursor: 'pointer', fontSize: '13px', color: 'var(--text-primary)' }}>
-                <input type="checkbox" checked={form.hasBoutique} onChange={(e) => setForm(f => ({ ...f, hasBoutique: e.target.checked, ...(e.target.checked ? {} : { boutiqueTenant: '' }) }))} style={{ marginTop: '3px' }} />
-                <span><strong>Client subscribes to the ScaleEzy Boutique module</strong><span style={{ display: 'block', fontSize: '11.5px', color: 'var(--text-muted)' }}>Stitching orders and tailoring. Boutique items and stock are shared with this store immediately.</span></span>
-              </label>
-              {form.hasBoutique && form.sells === 'READY_MADE' && (
+              {form.modules.includes('boutique') && form.sells === 'READY_MADE' && (
                 <p data-testid="boutique-sells-note" style={{ margin: 0, fontSize: '12px', color: 'var(--text-secondary)' }}>The boutique adds fabrics and materials, so this shop will be set to sell both garments and fabrics.</p>
               )}
-              {form.hasBoutique && (
-                <Field label="Boutique account *" hint="The boutique account identifier, e.g. lakshmi-boutique (letters, numbers and hyphens).">
-                  <input type="text" required autoCapitalize="none" spellCheck={false} value={form.boutiqueTenant} onChange={set('boutiqueTenant')} placeholder="lakshmi-boutique" className="input-field" style={INPUT} />
-                </Field>
-              )}
+              </>)}
 
               <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.06em', marginTop: '4px' }}>OWNER (LOGS IN FIRST)</div>
               <div className="onb-three">

@@ -138,7 +138,7 @@ export default function PartnerAppKeys() {
           <h2 id="app-keys-title" style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
             <KeyRound size={16} /> Partner app keys
           </h2>
-          <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--text-secondary)' }}>Apps that sell from a boutique's shop through Shop API v1. The Boutique app needs one key for every boutique; each call names its boutique and reaches only that boutique's shops.</p>
+          <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--text-secondary)' }}>Only for other apps that sell from a boutique's shop (Shop API v1). The Boutique app needs no key: it uses its own signed pass, which works for every boutique automatically.</p>
         </div>
         <button type="button" className="btn-secondary" onClick={() => setMaking(true)}>Make a key</button>
       </div>

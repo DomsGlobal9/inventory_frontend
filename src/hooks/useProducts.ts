@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery, keepPreviousData } from '@tanstack/react-query';
-import { getProducts, getProductById, createProduct, updateProduct, archiveProduct, trashProduct, restoreProduct, hardDeleteProduct, bulkSetProductStatus } from '../services/product.service';
+import { getProducts, getProductById, createProduct, updateProduct, archiveProduct, trashProduct, restoreProduct, hardDeleteProduct, bulkSetProductStatus, bulkSetSellOnline } from '../services/product.service';
 import { queryKeys } from '../lib/queryKeys';
 import { toast } from 'react-hot-toast';
 import { invalidateDerivedViews } from '../lib/invalidate';
@@ -250,6 +250,20 @@ export const useHardDeleteProduct = () => {
  * could not, so a merchant who selected a hundred products is told which ones did not go live
  * instead of being handed a single "done".
  */
+export const useBulkSetSellOnline = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ ids, on }: { ids: string[]; on: boolean }) => bulkSetSellOnline(ids, on),
+    onSuccess: (_d, vars) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.products });
+      vars.ids.forEach(id => queryClient.invalidateQueries({ queryKey: queryKeys.product(id) }));
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || error?.message || 'Could not change selling online for those products');
+    }
+  });
+};
+
 export const useBulkSetProductStatus = () => {
   const queryClient = useQueryClient();
 

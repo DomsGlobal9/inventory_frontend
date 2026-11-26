@@ -5,7 +5,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Plus, Package, FileOutput, FileInput, FileSpreadsheet, LayoutGrid, List, Search, Images } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { useProductSearch, useBulkSetProductStatus } from '../hooks/useProducts';
+import { useProductSearch, useBulkSetProductStatus, useBulkSetSellOnline } from '../hooks/useProducts';
 import ProductFilters, { ActiveFilters, SortMenu, LIST_KEYS } from '../components/products/ProductFilters';
 import { useProduct } from '../context/ProductContext';
 import { rowLink } from '../components/common/rowLink';
@@ -107,6 +107,7 @@ export default function Products() {
   const [reelOpen, setReelOpen] = React.useState(false);
   const [confirmState, setConfirmState] = React.useState({ isOpen: false });
   const bulkStatus = useBulkSetProductStatus();
+  const bulkOnline = useBulkSetSellOnline();
 
   // With a colour, price or stock filter on, each product carries only the colours that matched, so
   // the photo view shows the blue ones when Blue was picked rather than whichever colour comes first.
@@ -122,6 +123,34 @@ export default function Products() {
   const selectedProducts = products.filter(p => selected.has(p.id));
   const draftsSelected = selectedProducts.filter(p => p.status === 'DRAFT');
   const liveSelected = selectedProducts.filter(p => p.status === 'ACTIVE');
+  // Sell online (PLAN-sell-online.md): only published products have a choice; the server skips what cannot go online.
+  const onlineSelected = liveSelected.filter(p => p.sellOnline !== false && p.sellInShop !== false);
+  const tillOnlySelected = liveSelected.filter(p => p.sellOnline === false && p.sellInShop !== false);
+
+  const runOnline = (on) => {
+    const targets = on ? tillOnlySelected : onlineSelected;
+    if (!targets.length) return;
+    const n = targets.length, word = n === 1 ? 'product' : 'products';
+    const apply = () => bulkOnline.mutate({ ids: targets.map(p => p.id), on }, {
+      onSuccess: (res) => {
+        const r = res?.data ?? res;
+        const done = on ? `${r.changed} ${r.changed === 1 ? 'product now sells' : 'products now sell'} online.` : `${r.changed} ${r.changed === 1 ? 'product is' : 'products are'} now till only.`;
+        if (r?.skipped?.length) toast.error(`${done} ${r.skipped.length} skipped: "${r.skipped[0].title ?? 'a product'}". ${r.skipped[0].reason}`, { duration: 7000 });
+        else toast.success(done);
+        setSelected(new Set());
+        setConfirmState({ isOpen: false });
+      }
+    });
+    if (on) return apply();
+    setConfirmState({
+      isOpen: true,
+      title: `Stop selling ${n} ${word} online?`,
+      message: 'They leave your online shop, reel links and other websites now, and are archived on Shopify. They still sell at the till. You can switch them back on at any time.',
+      confirmText: 'Stop selling online',
+      confirmStyle: 'warning',
+      onConfirm: apply
+    });
+  };
 
   const toggleOne = (id) => setSelected(prev => {
     const next = new Set(prev);
@@ -205,6 +234,7 @@ export default function Products() {
         Category: p.category,
         BasePrice: p.basePrice,
         Status: p.status,
+        SellOnline: p.status !== 'ACTIVE' || p.sellInShop === false ? '' : p.sellOnline === false ? 'Till only' : 'Yes',
         VariantCount: p.variantSummary?.variantCount || 0,
         TotalUnits: p.variantSummary?.totalUnits || 0
       }));
@@ -337,9 +367,19 @@ export default function Products() {
           <div style={{ marginLeft: 'auto', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             <button className="btn-secondary" onClick={() => setSelected(new Set())}>Clear</button>
             {/* Only published pieces: a shopper could not see a draft. */}
-            {can('reel_link:manage') && liveSelected.length > 0 && (
+            {can('reel_link:manage') && onlineSelected.length > 0 && (
               <button className="btn-secondary" onClick={() => setReelOpen(true)}>
-                Add {liveSelected.length} to reel link
+                Add {onlineSelected.length} to reel link
+              </button>
+            )}
+            {onlineSelected.length > 0 && (
+              <button className="btn-secondary" onClick={() => runOnline(false)} disabled={bulkOnline.isPending}>
+                Stop selling {onlineSelected.length} online
+              </button>
+            )}
+            {tillOnlySelected.length > 0 && (
+              <button className="btn-secondary" onClick={() => runOnline(true)} disabled={bulkOnline.isPending}>
+                {bulkOnline.isPending ? 'Saving…' : `Sell ${tillOnlySelected.length} online`}
               </button>
             )}
             {liveSelected.length > 0 && (
@@ -437,6 +477,7 @@ export default function Products() {
                 <th>Stock Units</th>
                 <th>Base Price</th>
                 <th>Status</th>
+                <th>Online</th>
               </tr>
             </thead>
             <tbody>
@@ -489,6 +530,14 @@ export default function Products() {
                       {product.status}
                     </span>
                   </td>
+                  {/* Sell online (PLAN-sell-online.md): only a published product for sale has a choice. */}
+                  <td style={{ whiteSpace: 'nowrap', fontSize: '13px' }}>
+                    {product.status !== 'ACTIVE' || product.sellInShop === false
+                      ? <span style={{ color: 'var(--text-muted)' }}>—</span>
+                      : product.sellOnline === false
+                        ? <span style={{ color: 'var(--text-secondary)' }}>Till only</span>
+                        : <span style={{ color: 'var(--accent-success)', fontWeight: 500 }}>On</span>}
+                  </td>
                 </motion.tr>
               ))}
             </tbody>
@@ -530,7 +579,7 @@ export default function Products() {
       <AddToReelDialog
         isOpen={reelOpen}
         onClose={() => setReelOpen(false)}
-        productIds={liveSelected.map(p => p.id)}
+        productIds={onlineSelected.map(p => p.id)}
         onDone={() => setSelected(new Set())}
       />
 

@@ -22,6 +22,8 @@ export const FILTERS = [
   { k: 'kind', label: 'Kind' },
   // Materials (threads, beads, lining used for stitching) are kept but never sold (PLAN-boutique-sync.md).
   { k: 'use', label: 'Sale or material' },
+  // Till only, or online too (PLAN-sell-online.md).
+  { k: 'online', label: 'Sold online' },
   { k: 'craft', label: 'Craft' },
   { k: 'brand', label: 'Brand' },
   { k: 'stock', label: 'Stock' },
@@ -38,6 +40,7 @@ const NAMES = {
     SHOULDER_PADS: 'Shoulder pads', BONING: 'Boning', DECORATIVE_MOTIFS: 'Decorative motifs', BROOCH_KALGI: 'Brooch / Kalgi', OTHER: 'Other'
   },
   use: { SALE: 'For sale', MATERIAL: 'Materials (not for sale)' },
+  online: { ON: 'Sold online', OFF: 'Till only', NONE: 'Not on sale (draft or material)' },
   stock: { in: 'In stock', low: 'Running low', out: 'Sold out' },
   photos: { with: 'Has photos', without: 'No photos yet' }
 };

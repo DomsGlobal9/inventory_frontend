@@ -33,6 +33,12 @@ export const hardDeleteProduct = async (id: string) => {
 };
 
 /** Publish or unpublish a selection at once. See backend productService.bulkSetStatus. */
+/** "Sell online" on or off for many (PLAN-sell-online.md): { changed, unchanged, skipped:[{id,title,reason}] }. */
+export const bulkSetSellOnline = async (ids: string[], on: boolean) => {
+  const response: any = await api.post('/products/bulk-sell-online', { ids, on });
+  return response?.data ?? response;
+};
+
 export const bulkSetProductStatus = async (ids: string[], status: 'ACTIVE' | 'DRAFT') => {
   const response: any = await api.post('/products/bulk-status', { ids, status });
   return response?.data ?? response;

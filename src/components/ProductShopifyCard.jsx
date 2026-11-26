@@ -27,8 +27,12 @@ export default function ProductShopifyCard({ productId, canEdit, isService }) {
   const on = !!data.on;
   const adminUrl = data.shopifyProductId ? `https://${data.shopDomain}/admin/products/${data.shopifyProductId}` : null;
 
+  const tillOnly = !!data.tillOnly;
   let line;
-  if (matched) line = 'Made by hand in Shopify and matched by item code. Its price and stock follow this product; its title and photos stay as written in Shopify.';
+  // Till only (PLAN-sell-online.md): nothing of it is offered on Shopify while it stays so.
+  if (tillOnly && matched) line = 'Till only: shown as 0 in stock on Shopify. Choose "Till and online" above to sell it there again.';
+  else if (tillOnly) line = on ? 'Till only: archived on Shopify. Choose "Till and online" above and it goes back.' : 'Till only: not sent to Shopify. Choose "Till and online" above first.';
+  else if (matched) line = 'Made by hand in Shopify and matched by item code. Its price and stock follow this product; its title and photos stay as written in Shopify.';
   else if (!on) line = isService ? 'Services such as stitching are not sent to Shopify.' : 'Not on Shopify. Switch on to put it there with its photos, sizes, price and stock.';
   else if (data.status === 'FAILED') line = data.problem || 'Shopify did not accept it.';
   else if (data.status === 'PENDING') line = 'Sending to Shopify…';
@@ -49,7 +53,7 @@ export default function ProductShopifyCard({ productId, canEdit, isService }) {
             View in Shopify <ExternalLink size={13} />
           </a>
         )}
-        {!matched && !isService && (canEdit ? (
+        {!matched && !isService && !tillOnly && (canEdit ? (
           <button type="button" role="switch" aria-checked={on} aria-label="On Shopify" disabled={setOn.isPending} onClick={() => setOn.mutate(!on)}
             style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', color: on ? 'var(--accent-success, #16a34a)' : 'var(--text-secondary)' }}>
             {on ? 'On' : 'Off'}

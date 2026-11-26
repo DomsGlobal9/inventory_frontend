@@ -260,6 +260,7 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
           <>
             We take your photograph of the <b>{target.name}</b> one and make the three views a
             catalogue wants &mdash; front, left and right &mdash; on a model.{' '}
+            {category === 'SAREE' && <>With them come three product photos without a model: a fabric close-up, the saree folded, and a table scene.{' '}</>}
             {source.imageType === 'RAW_UPLOAD'
               ? 'Your flat-lay stays out of your shop.'
               : 'Your own photograph stays exactly where it is.'}{' '}
@@ -322,7 +323,7 @@ export default function CatalogViewsPanel({ productId, dressType, variants, imag
               ? `The ${job.colourName} views are next in line…`
               : `Making the ${job.colourName} views…`}
             <span style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)' }}>
-              {job.viewsDone} of {job.viewsTotal} done. <b>You can leave this page</b> &mdash; we
+              {job.viewsDone} of {job.viewsTotal} views{job.productShots ? `, ${job.shotsDone ?? 0} of 3 product photos` : ''} done. <b>You can leave this page</b> &mdash; we
               will tell you when they are ready.
             </span>
           </p>

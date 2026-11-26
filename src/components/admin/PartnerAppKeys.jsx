@@ -51,9 +51,11 @@ const Field = ({ label, children }) => (
 function MakeKey({ onClose }) {
   const qc = useQueryClient();
   const [form, setForm] = useState({ name: '', tenant: '' });
+  // The Boutique app serves every boutique with one key (26 Nov 2026); one boutique account is the exception.
+  const [forAll, setForAll] = useState(true);
   const [made, setMade] = useState(null);
   const make = useMutation({
-    mutationFn: async () => (await api.post('/admin/shop-app-keys', form)).data,
+    mutationFn: async () => (await api.post('/admin/shop-app-keys', forAll ? { name: form.name, allBoutiques: true } : form)).data,
     onSuccess: (k) => { setMade(k); qc.invalidateQueries({ queryKey: KEY }); },
     onError: (e) => toast.error(e?.message || 'The key could not be made. Try again.')
   });
@@ -62,7 +64,8 @@ function MakeKey({ onClose }) {
       <Modal title="Copy the key now" onClose={onClose}
         footer={<button type="button" className="btn-primary" onClick={onClose}>Done</button>}>
         <p style={{ margin: 0, fontSize: 14, color: 'var(--text-primary)' }}>
-          This is the only time the key is shown. Give it to the app team for <b>{made.name}</b> ({made.tenant}).
+          This is the only time the key is shown. Give it to the app team for <b>{made.name}</b> ({made.allBoutiques ? 'every boutique' : made.tenant}).
+          {made.allBoutiques && ' With every call the app also names the boutique it is calling for (X-Boutique-Tenant).'}
         </p>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <code data-testid="new-app-key" style={{ flex: 1, minWidth: 0, overflowWrap: 'anywhere', fontSize: 13, padding: '10px 12px', borderRadius: 8, background: 'var(--bg-input)', border: '1px solid var(--border-light)' }}>{made.key}</code>
@@ -80,8 +83,24 @@ function MakeKey({ onClose }) {
       footer={<><button type="button" className="btn-secondary" onClick={onClose} disabled={make.isPending}>Cancel</button>
         <button type="button" className="btn-primary" onClick={() => make.mutate()} disabled={make.isPending} style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
           {make.isPending && <Loader2 size={14} className="animate-spin" />} Make key</button></>}>
-      <Field label="App name"><input className="input-field" value={form.name} onChange={set('name')} maxLength={80} placeholder="Boutique app (Android)" /></Field>
-      <Field label="Boutique account"><input className="input-field" value={form.tenant} onChange={set('tenant')} maxLength={63} placeholder="swathy-reddy" /></Field>
+      <Field label="App name"><input className="input-field" value={form.name} onChange={set('name')} maxLength={80} placeholder="Boutique app" /></Field>
+      <div role="radiogroup" aria-label="Who the key is for" style={{ display: 'grid', gap: 8 }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>Who the key is for</span>
+        {[
+          { value: true, label: 'Every boutique', hint: 'The Boutique app itself: one key for all its boutiques. Each call names the boutique, and reaches only the shop of that boutique.' },
+          { value: false, label: 'One boutique account', hint: 'A separate app made for a single boutique.' }
+        ].map(o => {
+          const on = forAll === o.value;
+          return (
+            <button key={String(o.value)} type="button" role="radio" aria-checked={on} onClick={() => setForAll(o.value)}
+              style={{ textAlign: 'left', padding: '10px 12px', borderRadius: 10, cursor: 'pointer', color: 'var(--text-primary)', background: on ? 'var(--bg-hover)' : 'transparent', border: `1px solid ${on ? 'var(--accent-gold)' : 'var(--border-light)'}` }}>
+              <span style={{ display: 'block', fontWeight: 600, fontSize: 13 }}>{o.label}</span>
+              <span style={{ display: 'block', fontSize: 11.5, color: 'var(--text-muted)' }}>{o.hint}</span>
+            </button>
+          );
+        })}
+      </div>
+      {!forAll && <Field label="Boutique account"><input className="input-field" value={form.tenant} onChange={set('tenant')} maxLength={63} placeholder="swathy-reddy" /></Field>}
       <p style={{ margin: 0, fontSize: 13, color: 'var(--text-secondary)' }}>After you make it, the key is shown once. Copy it and give it to the app team.</p>
     </Modal>
   );
@@ -119,7 +138,7 @@ export default function PartnerAppKeys() {
           <h2 id="app-keys-title" style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
             <KeyRound size={16} /> Partner app keys
           </h2>
-          <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--text-secondary)' }}>Apps that sell from a boutique's shop through Shop API v1. A key reaches only the shops linked to its boutique account.</p>
+          <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--text-secondary)' }}>Apps that sell from a boutique's shop through Shop API v1. The Boutique app needs one key for every boutique; each call names its boutique and reaches only that boutique's shops.</p>
         </div>
         <button type="button" className="btn-secondary" onClick={() => setMaking(true)}>Make a key</button>
       </div>
@@ -143,7 +162,7 @@ export default function PartnerAppKeys() {
               {keys.map(k => (
                 <tr key={k.id} data-app-key={k.id} style={{ color: k.active ? undefined : 'var(--text-secondary)' }}>
                   <td style={{ ...cell, paddingLeft: 20 }}>{k.name}</td>
-                  <td style={cell}><code>{k.tenant}</code></td>
+                  <td style={cell}>{k.allBoutiques ? 'Every boutique' : <code>{k.tenant}</code>}</td>
                   <td style={cell}><code>{k.keyStartsWith}</code></td>
                   <td style={{ ...cell, color: 'var(--text-secondary)' }}>{ago(k.lastUsedAt)}</td>
                   <td style={{ ...cell, paddingRight: 20, textAlign: 'right' }}><Switch k={k} /></td>

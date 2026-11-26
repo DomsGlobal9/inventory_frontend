@@ -11,7 +11,10 @@ import { useUpdateProduct } from '../hooks/useProducts';
 export default function ProductSellOnlineCard({ product, canEdit }) {
   const update = useUpdateProduct();
   const queryClient = useQueryClient();
-  const online = product.sellOnline !== false;
+  const saved = product.sellOnline !== false;
+  // While the save is on its way (a few seconds on the live server), the choice shows at once and says so.
+  const [pending, setPending] = React.useState(null);
+  const online = pending ?? saved;
   const blocked = product.sellInShop === false
     ? 'A material: counted and used, not sold anywhere.'
     : product.status !== 'ACTIVE' ? 'Not published yet. Once published it sells at the till, and online unless you choose till only.' : null;
@@ -19,11 +22,13 @@ export default function ProductSellOnlineCard({ product, canEdit }) {
   // The same rule as "Sell online" in bulk: a product goes online only with a photo (a blank card sells nothing).
   const photographed = (product.variantSummary?.variantCount || 0) - (product.variantSummary?.variantsWithoutImages || 0);
   const hasPhoto = product.imageCount > 0 || photographed > 0;
-  const needsPhoto = !online && !hasPhoto;
+  const needsPhoto = !saved && !hasPhoto;
 
   const choose = (on) => {
     if (on === online || update.isPending || (on && needsPhoto)) return;
+    setPending(on);
     update.mutate({ id: product.id, data: { sellOnline: on } }, {
+      onSettled: () => setPending(null),
       onSuccess: () => {
         toast.success(on ? 'Now sold at the till and online.' : 'Now till only. It has left your online shop and websites.');
         queryClient.invalidateQueries({ predicate: q => JSON.stringify(q.queryKey).toLowerCase().includes('shopify') });
@@ -47,7 +52,10 @@ export default function ProductSellOnlineCard({ product, canEdit }) {
 
   return (
     <div className="glass-panel" style={{ padding: '14px 20px', flexShrink: 0 }}>
-      <div style={{ fontWeight: 600, fontSize: '14px', marginBottom: blocked ? '4px' : '6px' }}>Where it is sold</div>
+      <div style={{ fontWeight: 600, fontSize: '14px', marginBottom: blocked ? '4px' : '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        Where it is sold
+        {update.isPending && <span role="status" style={{ fontWeight: 400, fontSize: '12.5px', color: 'var(--text-secondary)' }}>Saving…</span>}
+      </div>
       {blocked ? (
         <div style={{ fontSize: '12.5px', color: 'var(--text-secondary)' }}>{blocked}</div>
       ) : (

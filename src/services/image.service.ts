@@ -54,7 +54,35 @@ export interface ImageOpts {
  * storage. The bytes go up once; registerImage then points as many variants at them as
  * the colour has sizes.
  */
-export async function putImageBytes(productId: string, file: File) {
+/*
+ * A big photograph made smaller before it goes up (27 Nov 2026). Seen live: 2 MB photos took 90 seconds each on a
+ * shop's connection (busy with a video call), and the upload was cut off part-way. Only files over 1.5 MB are
+ * touched; the longest side stays up to 3000 px at high quality -- plenty for the studio to copy a border or zari --
+ * and the smaller file is used only when it really is smaller. Anything the browser cannot redraw goes up as it was.
+ */
+const SHRINK_ABOVE = 1.5 * 1024 * 1024;
+const MAX_SIDE = 3000;
+export async function shrinkForUpload(file: File): Promise<File> {
+  if (!file?.type?.startsWith('image/') || file.type === 'image/gif' || file.size <= SHRINK_ABOVE) return file;
+  try {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, MAX_SIDE / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    canvas.getContext('2d')!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close?.();
+    const blob: Blob | null = await new Promise(r => canvas.toBlob(r, 'image/webp', 0.9));
+    canvas.width = 0; canvas.height = 0;
+    if (!blob || blob.type !== 'image/webp' || blob.size >= file.size) return file;
+    return new File([blob], file.name.replace(/\.[a-z0-9]+$/i, '') + '.webp', { type: 'image/webp', lastModified: Date.now() });
+  } catch {
+    return file;
+  }
+}
+
+export async function putImageBytes(productId: string, original: File) {
+  const file = await shrinkForUpload(original);
   const prepared: any = await api.post(`/products/${productId}/images/upload-url`, { fileName: file.name });
   const { storagePath, signedUrl, publicUrl } = prepared?.data ?? prepared;
 

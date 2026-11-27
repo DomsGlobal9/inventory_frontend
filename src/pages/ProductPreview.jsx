@@ -51,6 +51,9 @@ export default function ProductPreview() {
   // Which step of the publish sequence is running, so the button can name it instead of
   // spinning generically through work the user has no way to account for.
   const [phase, setPhase] = useState(null);
+  // "Saving photos 2 of 3" while they upload (27 Nov 2026: publishing used to leave first and upload behind, and a
+  // product was found live with no photos at all -- the tab had gone before a single upload started).
+  const [photoProgress, setPhotoProgress] = useState({ done: 0, total: 0 });
 
   const createMutation = useCreateProduct();
   const updateMutation = useUpdateProduct();
@@ -321,7 +324,7 @@ export default function ProductPreview() {
      *  - A colour with nothing is simply skipped. It is not an error and nothing is said
      *    about it here; the shop was already told on the photos step and can add it later.
      */
-    const persistImages = async (productId) => {
+    const persistImages = async (productId, onProgress = () => {}) => {
       // Which variant is which colour. Read back from the server rather than assumed,
       // because bulkCreateVariants renames a clashing SKU and skips what it cannot save --
       // so the variants that exist are not always the variants that were asked for.
@@ -340,6 +343,11 @@ export default function ProductPreview() {
       }
 
       let wanted = 0, done = 0;
+      // How many there are in all, told up front so the button can count them down.
+      const total = photoPayload.colours.reduce((n, c) => n + c.uploads.length
+        + VIEW_ORDER.filter(v => typeof c.generatedViews[v] === 'string' && c.generatedViews[v].startsWith('data:')).length, 0);
+      let tried = 0;
+      onProgress({ done: 0, total });
       /*
        * Colours whose photograph really reached storage.
        *
@@ -408,6 +416,7 @@ export default function ProductPreview() {
           } catch (err) {
             console.error(`Failed to upload the ${colour.name} photo:`, err);
           }
+          onProgress({ done: ++tried, total });
         }
 
         for (const { view, dataUrl } of generated) {
@@ -443,12 +452,11 @@ export default function ProductPreview() {
           } catch (err) {
             console.error(`Failed to upload the generated ${colour.name} ${view} view:`, err);
           }
+          onProgress({ done: ++tried, total });
         }
       }
 
-      if (wanted > 0 && done < wanted) {
-        toast.error(`${wanted - done} of ${wanted} photos did not upload \u2014 you can add them from the product's Photos tab.`);
-      }
+      // Photos that did not save are told by savePhotosThenLeave, once, with the way to add them.
 
       /*
        * The four catalog views, for every colour that asked for them.
@@ -527,6 +535,37 @@ export default function ProductPreview() {
       queryClient.invalidateQueries({ queryKey: ['images', productId] });
       queryClient.invalidateQueries({ queryKey: queryKeys.variants(productId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.product(productId) });
+      return { wanted, done };
+    };
+
+    /*
+     * Photos are saved BEFORE leaving this screen (27 Nov 2026), counted on the button, with the browser asked to
+     * warn if the tab is closed meanwhile. The button stays disabled throughout, so pressing it again cannot make a
+     * second product -- the reason the uploads were once moved behind the navigation. Any photo that did not save:
+     * straight to the product's Images tab, where it can be added at once, instead of a list that hides it.
+     */
+    const savePhotosThenLeave = async (productId, doneWords) => {
+      let result = { wanted: 0, done: 0 };
+      if (productId) {
+        setPhase('photos');
+        try {
+          result = await persistImages(productId, setPhotoProgress);
+        } catch (err) {
+          console.error('Image upload failed after the product was saved:', err);
+          result = { wanted: Math.max(1, result.wanted), done: 0 };
+        }
+      }
+      const missed = result.wanted - result.done;
+      if (missed > 0) {
+        toast.error(`${doneWords}, but ${missed} of ${result.wanted} photo${result.wanted === 1 ? '' : 's'} did not save. Add ${missed === 1 ? 'it' : 'them'} here on the Images tab.`, { duration: 12000 });
+      } else {
+        toast.success(doneWords);
+      }
+      setPhase(null);
+      setPhotoProgress({ done: 0, total: 0 });
+      setIsSubmitting(false);
+      resetProductData();
+      navigate(missed > 0 && productId ? `/products/${productId}?tab=images` : '/products');
     };
 
     if (productData.id) {
@@ -548,23 +587,7 @@ export default function ProductPreview() {
         { id: productData.id, data: payload },
         {
           onSuccess: () => {
-            // Not awaited, for the same reason as the create path below -- which was fixed
-            // while this one was left behind. The product is already saved and the mutation
-            // has already shown its success toast, but awaiting the uploads kept the button
-            // spinning behind that toast for as long as they took: signing a single upload
-            // measured ~13s here, so with a few images the screen sat on "PUBLISHING..."
-            // for minutes after saying it was done. Pressing publish again to escape is how
-            // a duplicate gets made.
-            const savedId = productData.id;
-            toast.success('Product updated');
-            setIsSubmitting(false);
-            resetProductData();
-            navigate('/products');
-
-            persistImages(savedId).catch(err => {
-              console.error('Image upload failed after the product was updated:', err);
-              toast.error('The product was saved, but its images could not be uploaded. Add them from the product page.');
-            });
+            void savePhotosThenLeave(productData.id, 'Product updated');
           },
           onError: () => { setPhase(null); setIsSubmitting(false); }
         }
@@ -629,30 +652,8 @@ export default function ProductPreview() {
             }
           }
 
-          // Images are NOT awaited. The product and its variants already exist, so nothing
-          // below changes whether the publish succeeded -- and each image costs three round
-          // trips, of which asking storage to sign the upload alone measured ~13s here. With
-          // several images that is minutes of a frozen "SAVING..." button on a screen the
-          // user cannot leave, after the success toast has already appeared. Pressing publish
-          // again to escape would create a duplicate product.
-          //
-          // So the user is released immediately and the uploads finish in the background.
-          // persistImages reports its own failures and works off a snapshot, so clearing the
-          // form underneath it is safe.
-          // The one confirmation, raised now that the product AND its variants exist. The
-          // create hook deliberately stays quiet so this cannot appear while work continues.
-          toast.success(publish ? 'Product published' : 'Draft saved');
-          setPhase(null);
-          setIsSubmitting(false);
-          resetProductData();
-          navigate('/products');
-
-          if (newProductId) {
-            persistImages(newProductId).catch(err => {
-              console.error('Image upload failed after the product was created:', err);
-              toast.error('The product was created, but its images could not be uploaded. Add them from the product page.');
-            });
-          }
+          // The one confirmation, raised only once the photos are saved too (see savePhotosThenLeave).
+          await savePhotosThenLeave(newProductId, publish ? 'Product published' : 'Draft saved');
         },
         onError: () => { setPhase(null); setIsSubmitting(false); }
       });
@@ -660,6 +661,13 @@ export default function ProductPreview() {
   };
 
   const isPending = isSubmitting || createMutation.isPending || updateMutation.isPending;
+  // Closing or reloading the tab while the product or its photos are saving: the browser asks first.
+  useEffect(() => {
+    if (!isPending) return undefined;
+    const ask = (e) => { e.preventDefault(); e.returnValue = ''; return ''; };
+    window.addEventListener('beforeunload', ask);
+    return () => window.removeEventListener('beforeunload', ask);
+  }, [isPending]);
   // A draft is a save-point, not a finished listing -- the whole reason to save one is that
   // the product ISN'T ready yet. So it only needs enough to identify the product, matching
   // how Shopify/Zoho let you park an incomplete item; the full checklist still gates
@@ -887,7 +895,7 @@ export default function ProductPreview() {
           </div>
 
           {/* Said here, where the saving happens, as well as under the name on step 1. */}
-          {sameName.length > 0 && (
+          {!isPending && sameName.length > 0 && (   /* not while saving: the product being saved is the one it would find */
             <div role="status" style={{ padding: '10px 12px', marginBottom: '16px', borderRadius: '4px', fontSize: '13px', lineHeight: 1.4, background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', color: 'var(--text-primary)' }}>
               You already have a product called "{sameName[0].title}"{sameName[0].productCode ? ` (${sameName[0].productCode})` : ''}. Saving adds a second one. Go back and change the name if it is not a different product.
             </div>
@@ -902,7 +910,9 @@ export default function ProductPreview() {
           >
             {isPending ? <Loader2 size={16} className="animate-spin" /> : null}
             {isPending
-              ? (phase === 'variants' ? 'ADDING VARIANTS...' : 'SAVING...')
+              ? (phase === 'variants' ? 'ADDING VARIANTS...'
+                : phase === 'photos' && photoProgress.total > 0 ? `SAVING PHOTOS ${Math.min(photoProgress.done + 1, photoProgress.total)} OF ${photoProgress.total}...`
+                : 'SAVING...')
               : (productData.id ? 'UPDATE PRODUCT' : 'PUBLISH PRODUCT')}
           </button>
 

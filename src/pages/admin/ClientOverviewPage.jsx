@@ -6,6 +6,7 @@ import { useAdminClient, useAssumeClient } from '../../hooks/admin/useAdminConso
 import ClientDangerZone from '../../components/admin/ClientDangerZone';
 import ClientServiceKeys from '../../components/admin/ClientServiceKeys';
 import ClientModules from '../../components/admin/ClientModules';
+import ClientSells from '../../components/admin/ClientSells';
 import UserPasswordManager from '../../components/admin/UserPasswordManager';
 import { formatINR } from '../../utils/formatUtils';
 import { useGoBack } from '../../hooks/useGoBack';
@@ -304,6 +305,8 @@ export default function ClientOverviewPage() {
       <ClientServiceKeys clientId={clientId} />
       {/* One-switch onboarding (26 Nov 2026): the Modules box and the Connections checklist replace the separate Boutique and Till (POS) boxes. */}
       <ClientModules clientId={clientId} />
+      {/* What they sell (27 Nov 2026): ScaleEzy's to set; the owner sees it and cannot change it. */}
+      <ClientSells clientId={clientId} />
 
       <ClientDangerZone clientId={clientId} suspended={data?.userCount > 0 && data?.activeUserCount === 0} />
 

@@ -44,7 +44,6 @@ export default function ShopSetup() {
   const body = useRef(null);
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
-  const [sells, setSells] = useState(null);
   const [cut, setCut] = useState(25);
   const [problem, setProblem] = useState('');
   const [busy, setBusy] = useState(false);
@@ -67,7 +66,6 @@ export default function ShopSetup() {
 
   useEffect(() => {
     if (!setup) return;
-    setSells(s => s ?? setup.sells ?? setup.suggested);
     setCut(setup.fabricMinCut ?? 25);
   }, [setup]);
 
@@ -96,10 +94,10 @@ export default function ShopSetup() {
       return;
     }
     if (step === 1) {
-      if (!sells) { setProblem('Please select the products your business sells.'); return; }
       setBusy(true);
       try {
-        await save.mutateAsync({ sells, ...(sells !== 'READY_MADE' ? { fabricMinCut: cut } : {}), finish: true });
+        // What the shop sells is set by ScaleEzy (27 Nov 2026): only the smallest cut is the owner's, for fabric.
+        await save.mutateAsync({ ...(setup.fabricsOn ? { fabricMinCut: cut } : {}), finish: true });
         setStep(2);
       } catch (e) {
         setProblem(e?.response?.data?.message ?? e?.message ?? 'The changes could not be saved. Please try again.');
@@ -147,24 +145,20 @@ export default function ShopSetup() {
 
             {step === 1 && (
               <>
-                <h2 className="ss-h">Which products does your business sell?</h2>
-                <p className="ss-sub">Your selection determines how products are added and displayed. It can be changed at any time under Settings, What you sell.</p>
-                {!setup.sells && setup.suggested && (
-                  <p className="ss-note">Based on your existing catalogue, <strong>{sellsLabel(setup.suggested)}</strong> has been pre-selected. You may change this selection.</p>
-                )}
-                <div className="ss-options" role="radiogroup" aria-label="Products your business sells">
-                  {SELLS_OPTIONS.map(o => {
-                    const on = sells === o.value;
+                <h2 className="ss-h">What your business sells</h2>
+                <p className="ss-sub">This decides how products are added and shown. ScaleEzy has set it for your shop; to change it, contact ScaleEzy.</p>
+                <div className="ss-options" aria-label="Products your business sells">
+                  {(() => {
+                    const o = SELLS_OPTIONS.find(x => x.value === setup.sells);
                     return (
-                      <button key={o.value} type="button" role="radio" aria-checked={on} className={`ss-option${on ? ' on' : ''}`} onClick={() => { setSells(o.value); setProblem(''); }}>
-                        <span className="ss-radio" aria-hidden="true" />
-                        <span className="ss-option-text"><span className="ss-option-title">{o.title}</span><span className="ss-option-line">{o.line}</span></span>
-                      </button>
+                      <div className="ss-option on" data-sells-shown>
+                        <span className="ss-option-text"><span className="ss-option-title">{o ? o.title : 'Not set yet'}</span><span className="ss-option-line">{o ? o.line : 'ScaleEzy sets this for your shop. Until then, the app goes by the products you already have.'}</span></span>
+                      </div>
                     );
-                  })}
+                  })()}
                 </div>
 
-                {sells && sells !== 'READY_MADE' && (
+                {setup.fabricsOn && (
                   <div className="ss-field">
                     <div>
                       <div className="ss-field-label">Minimum cut length</div>
@@ -178,7 +172,7 @@ export default function ShopSetup() {
                   </div>
                 )}
 
-                {sells && <Preview sells={sells} cut={cut} />}
+                {setup.sells && <Preview sells={setup.sells} cut={cut} />}
               </>
             )}
 

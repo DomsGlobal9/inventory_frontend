@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useFabrics, useSetFabrics } from '../../hooks/useFabrics';
-import { useShopSetup, useSaveSetup, SELLS_OPTIONS } from '../../hooks/useShopSetup';
+import { useShopSetup, SELLS_OPTIONS } from '../../hooks/useShopSetup';
 import { useAuth } from '../../context/AuthContext';
 import { holdsEverything } from '../../lib/authority';
 import { fromBase, toBase } from '../../lib/units';
@@ -10,8 +10,8 @@ import { useBoutiqueLink } from './BoutiquePanel';
 /**
  * Settings → What you sell (13 Nov 2026; PLAN-onboarding-setup.md, PLAN-fabrics.md).
  *
- * What the shop sells -- ready-made, fabrics or both -- is the owner's choice (also asked at first sign-in) and switches
- * everything by the metre on or off; going back to ready-made is refused, in words, while fabric is still on sale.
+ * What the shop sells -- ready-made, fabrics or both -- is set by ScaleEzy in the Platform Console (27 Nov 2026; at
+ * onboarding, or when the client asks). Shown here, not changed here; it switches everything by the metre on or off.
  * Below it, for a shop that sells fabric: the shortest length sold, the usual roll, and the online shop's quick lengths
  * (typed in metres, kept in centimetres).
  */
@@ -31,7 +31,6 @@ export default function FabricsPanel() {
   const { data: setup } = useShopSetup();
   const { data: boutique } = useBoutiqueLink();
   const save = useSetFabrics();
-  const saveSells = useSaveSetup();
   const [roll, setRoll] = useState('');
   const [quick, setQuick] = useState('');
   useEffect(() => {
@@ -54,42 +53,27 @@ export default function FabricsPanel() {
     if (!parts.length || parts.some(p => p === null || p < 1)) { toast.error('Give lengths in metres, like 1, 2.5, 5.5.'); return; }
     send({ fabricQuickLengths: parts }, 'Quick lengths saved');
   };
-  // What the shop sells. A shop never asked is shown its best guess, not chosen until the owner picks.
+  // What the shop sells: set by ScaleEzy. A shop not set yet shows that, and what the app goes by meanwhile.
   const sells = data.sells ?? null;
-  // With a boutique connected the shop also holds the boutique's fabrics, so ready-made only is not offered.
-  const boutiqueOn = !!boutique?.linked;
-  const pick = (v) => {
-    if (!isOwner || v === sells || saveSells.isPending) return;
-    saveSells.mutate({ sells: v }, { onSuccess: () => toast.success(`Updated: ${SELLS_OPTIONS.find(o => o.value === v)?.title}`), onError: failed });
-  };
+  const shown = SELLS_OPTIONS.find(o => o.value === sells) ?? null;
+  void boutique; void isOwner;
 
   const row = { display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'flex-start', padding: '14px 0', borderBottom: '1px solid var(--border-light, #e5e7eb)', flexWrap: 'wrap' };
   return (
     <div style={{ display: 'grid' }}>
       <h2 style={{ margin: '0 0 6px', fontSize: 18 }}>What you sell</h2>
       <p style={{ margin: '0 0 14px', color: 'var(--text-muted)', fontSize: 13 }}>
-        Your selection determines how products are added and displayed. With ready-made garments only, length-based
+        This decides how products are added and displayed. With ready-made garments only, length-based
         options remain hidden; fabrics are sold by the metre and accessories by the packet.
       </p>
 
-      <div role="radiogroup" aria-label="What you sell" style={{ border: '1px solid var(--border-light, #e5e7eb)', borderRadius: 10, overflow: 'hidden', maxWidth: 720 }}>
-        {SELLS_OPTIONS.map((o, i) => {
-          const on = sells === o.value;
-          const blocked = boutiqueOn && o.value === 'READY_MADE';
-          return (
-            <button key={o.value} type="button" role="radio" aria-checked={on} disabled={!isOwner || saveSells.isPending || blocked} onClick={() => pick(o.value)}
-              style={{ width: '100%', display: 'flex', gap: 14, alignItems: 'flex-start', textAlign: 'left', padding: '14px 16px', border: 0, borderTop: i ? '1px solid var(--border-light, #e5e7eb)' : 0, cursor: isOwner ? 'pointer' : 'default', color: 'var(--text-primary)',
-                background: on ? 'rgba(166, 217, 43, 0.1)' : 'transparent', boxShadow: on ? 'inset 3px 0 0 #164B1E' : 'none', opacity: (!isOwner || blocked) && !on ? 0.6 : 1 }}>
-              <span aria-hidden="true" style={{ width: 18, height: 18, borderRadius: '50%', flexShrink: 0, marginTop: 1, border: `1.5px solid ${on ? '#164B1E' : 'var(--text-muted)'}`, boxShadow: on ? 'inset 0 0 0 3px var(--bg-card), inset 0 0 0 9px #164B1E' : 'none' }} />
-              <span style={{ display: 'grid', gap: 2 }}><strong style={{ fontSize: 14 }}>{o.title}</strong><span style={{ fontSize: 12.5, color: 'var(--text-muted)' }}>{blocked ? 'Not available while your boutique is connected: it adds fabrics and materials to this shop.' : o.line}</span></span>
-            </button>
-          );
-        })}
+      <div data-sells-shown style={{ border: '1px solid var(--border-light, #e5e7eb)', borderRadius: 10, maxWidth: 720, padding: '14px 16px', display: 'flex', gap: 14, alignItems: 'flex-start', background: shown ? 'rgba(166, 217, 43, 0.1)' : 'transparent', boxShadow: shown ? 'inset 3px 0 0 #164B1E' : 'none' }}>
+        <span style={{ display: 'grid', gap: 2 }}>
+          <strong style={{ fontSize: 14 }}>{shown ? shown.title : 'Not set yet'}</strong>
+          <span style={{ fontSize: 12.5, color: 'var(--text-muted)' }}>{shown ? shown.line : 'ScaleEzy sets this for your shop. Until then, the app goes by the products you already have.'}</span>
+        </span>
       </div>
-      {!sells && setup?.suggested && (
-        <p style={{ margin: '10px 0 0', fontSize: 12.5, color: 'var(--text-muted)' }}>Not selected yet. Based on your existing catalogue, the suggested option is <strong>{SELLS_OPTIONS.find(o => o.value === setup.suggested)?.title}</strong>.</p>
-      )}
-      {!isOwner && <p style={{ margin: '10px 0 0', fontSize: 12.5, color: 'var(--text-muted)' }}>Only the account owner can change this setting.</p>}
+      <p style={{ margin: '10px 0 0', fontSize: 12.5, color: 'var(--text-muted)' }}>This is set by ScaleEzy for your shop. To change it, contact ScaleEzy.</p>
 
       {data.fabricsOn && (
         <div id="fabric-options">

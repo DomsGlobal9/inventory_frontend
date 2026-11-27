@@ -22,12 +22,11 @@ const MODULE_CHOICES = [
   { value: 'crm', label: 'CRM', hint: 'Customers, follow-ups, offers' },
   { value: 'logistics', label: 'Logistics', hint: 'Couriers for online orders (needs Inventory)' }
 ];
-// What the shop sells (PLAN-onboarding-setup.md). '' = the owner chooses at first sign-in.
+// What the shop sells: ScaleEzy's choice, required here for a client with Inventory (27 Nov 2026); the owner cannot change it.
 const SELLS = [
   { value: 'READY_MADE', label: 'Ready-made only', hint: 'Sarees, blouses, kurtis by the piece' },
   { value: 'FABRICS', label: 'Fabrics only', hint: 'Cloth by the metre, buttons by the packet' },
-  { value: 'BOTH', label: 'Both', hint: 'Garments and fabric side by side' },
-  { value: '', label: 'Owner to decide', hint: 'Asked at the owner\'s first sign-in' }
+  { value: 'BOTH', label: 'Both', hint: 'Garments and fabric side by side' }
 ];
 const INPUT = { width: '100%', padding: '12px 14px', borderRadius: '8px', border: '1px solid var(--border-light)', fontSize: '14px' };
 function Field({ label, hint, children }) {
@@ -81,6 +80,8 @@ export default function OnboardingPage() {
     // lib/formGuard. Same `required` fields, same rule, said in the app's own voice.
     const missing = firstMissingField(e.currentTarget);
     if (missing) { toast.error(missingFieldMessage(missing)); return; }
+    // ScaleEzy decides what the shop sells here; the owner cannot change it later (27 Nov 2026).
+    if (form.modules.includes('inventory') && !form.sells) { toast.error('Choose what the shop sells: ready-made, fabrics, or both.'); return; }
     try {
       const { boutiqueTenant, modules, ...rest } = form;
       const created = await onboardMutation.mutateAsync({ ...rest, modules, ...(modules.includes('boutique') ? { boutiqueTenant } : {}) });
@@ -214,12 +215,12 @@ export default function OnboardingPage() {
               )}
 
               {form.modules.includes('inventory') && (<>
-                            <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.06em', marginTop: '4px' }}>WHAT THE SHOP SELLS</div>
+                            <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.06em', marginTop: '4px' }}>WHAT THE SHOP SELLS *</div>
               <div role="radiogroup" aria-label="What the shop sells" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '8px' }}>
                 {SELLS.map(o => {
                   const on = form.sells === o.value;
                   return (
-                    <button key={o.value || 'owner'} type="button" role="radio" aria-checked={on} onClick={() => setForm(f => ({ ...f, sells: o.value }))}
+                    <button key={o.value} type="button" role="radio" aria-checked={on} onClick={() => setForm(f => ({ ...f, sells: o.value }))}
                       style={{ textAlign: 'left', padding: '10px 12px', borderRadius: '10px', cursor: 'pointer', color: 'var(--text-primary)', background: on ? 'var(--bg-hover)' : 'transparent', border: `1px solid ${on ? 'var(--accent-gold)' : 'var(--border-light)'}` }}>
                       <span style={{ display: 'block', fontWeight: 600, fontSize: '13px' }}>{o.label}</span>
                       <span style={{ display: 'block', fontSize: '11.5px', color: 'var(--text-muted)' }}>{o.hint}</span>

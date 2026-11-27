@@ -372,9 +372,6 @@ export default function ProductDetails() {
         <div className="glass-panel" style={{ padding: '20px' }}>
           <p style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>{isMeasured(product.soldBy) ? 'Price per metre' : 'Base Price'}</p>
           <h2 style={{ fontSize: '24px', margin: '8px 0 0' }}>{isMeasured(product.soldBy) ? formatPrice(product.basePrice, product.soldBy) : formatRupees(product.basePrice)}</h2>
-          {product.priceOwner === 'BOUTIQUE' && (
-            <p style={{ margin: '4px 0 0', fontSize: '13px', color: 'var(--text-muted)' }}>Price comes from your boutique. Change it there and it updates here.</p>
-          )}
           {product.sellInShop === false && (
             <p style={{ margin: '4px 0 0', fontSize: '13px', color: 'var(--text-muted)' }}>A material: counted and used, not sold in your shops.</p>
           )}
@@ -465,18 +462,18 @@ export default function ProductDetails() {
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '16px' }}>
                       <h3 style={{ margin: 0 }}>Product Overview</h3>
-                      {canEdit && !editing && product.priceOwner !== 'BOUTIQUE' && (
+                      {canEdit && !editing && (
                         <button className="btn-secondary" onClick={startEditing} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <Pencil size={14} /> Edit details
                         </button>
                       )}
-                      {/* A boutique's item is changed in the boutique app (16 Nov): name, price, unit, GST and colours. */}
-                      {product.priceOwner === 'BOUTIQUE' && (
-                        <p data-testid="boutique-managed" style={{ margin: 0, fontSize: '13px', color: 'var(--text-muted)', maxWidth: '320px', textAlign: 'right' }}>
-                          Managed in your boutique app. Change its name, price, colours and sizes there.
-                        </p>
-                      )}
                     </div>
+                    {/* A boutique item is changed here or in the boutique app (27 Nov 2026): both stay the same. */}
+                    {product.priceOwner === 'BOUTIQUE' && (
+                      <p data-testid="boutique-managed" style={{ margin: '-8px 0 16px', fontSize: '13px', color: 'var(--text-muted)' }}>
+                        Also in your boutique app. Changes you make here show there too.
+                      </p>
+                    )}
 
                     {editing ? <ProductOverviewEditor
                         product={product}

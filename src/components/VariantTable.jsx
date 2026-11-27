@@ -70,8 +70,8 @@ export default function VariantTable({ productId, productName, productCode, prod
   // drawn, showing an empty cost box to type into and "No cost data yet" as everyone's margin.
   const { can } = usePermission();
   const showCost = can('cost:view');
-  // A boutique-made product keeps the boutique's price: shown, never edited here (PLAN-boutique-sync.md).
-  const canEditPrice = can('product:update') && !priceFromBoutique;
+  // A boutique item is changed here too since 27 Nov 2026; the boutique app is told (priceFromBoutique only shows a note).
+  const canEditPrice = can('product:update');
   const canEditCost = can('product:update') && can('cost:manage');
   // Lets the expanded supplier row size itself to the part of the table you can see.
   const scrollRef = useVisibleRowWidth();
@@ -664,7 +664,7 @@ export default function VariantTable({ productId, productName, productCode, prod
           )}
 
           {/* Without this button the generator, and its Confirm, never open. */}
-          {can('product:create') && !priceFromBoutique && (
+          {can('product:create') && (
           <button
             className="btn-primary"
             onClick={() => {
@@ -1320,7 +1320,7 @@ export default function VariantTable({ productId, productName, productCode, prod
                         >
                           <Settings size={16} />
                         </button>}
-                        {can('product:delete') && !priceFromBoutique && <button
+                        {can('product:delete') && <button
                           onClick={() => setDeleteTarget({ id: v.id, sku: v.sku })}
                           style={{ color: 'var(--accent-danger)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px' }}
                           title="Delete Variant"

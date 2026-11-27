@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -50,6 +50,12 @@ export function CustomerOffersCard({ customer }) {
   const update = useUpdateCustomer();
   const qc = useQueryClient();
   const [days, setDays] = useState(null);   // { birthday, anniversary } while being changed
+  // The answer the box was changed to, waiting for the owner's "yes" (28 Nov 2026): a tick used to save at once, so a
+  // stray tap signed a customer up for offer messages before any warning could be read. Nothing is saved until confirmed.
+  const [asking, setAsking] = useState(null);   // true = asking to agree, false = asking to stop, null = not asking
+  // Set the instant "Yes" is pressed: the button only greys out after the next render, and a quick second press
+  // landed before it and saved twice (found by check-offers-consent.mjs, 28 Nov 2026).
+  const saving = useRef(false);
 
   if (!data) return null;
   const saveDays = async () => {
@@ -72,10 +78,11 @@ export function CustomerOffersCard({ customer }) {
         </p>
       ) : (
         <label style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', cursor: edit ? 'pointer' : 'default' }}>
-          <input type="checkbox" aria-label="Agrees to offers on WhatsApp" checked={data.agreed} disabled={!edit || setConsent.isPending || !customer.phone}
-            onChange={async (e) => {
-              try { await setConsent.mutateAsync(e.target.checked); } catch (err) { toast.error(err?.message || 'Could not save.'); }
-            }} style={{ width: '18px', height: '18px', marginTop: '2px' }} />
+          <input type="checkbox" aria-label="Agrees to offers on WhatsApp" checked={asking === null ? !!data.agreed : asking}
+            disabled={!edit || setConsent.isPending || !customer.phone}
+            // Only asks: the answer is saved by "Yes" below, never by the tick itself.
+            onChange={(e) => setAsking(e.target.checked === !!data.agreed ? null : e.target.checked)}
+            style={{ width: '18px', height: '18px', marginTop: '2px' }} />
           <span style={{ fontSize: '14px' }}>
             Agrees to offers on WhatsApp
             <span style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>
@@ -87,7 +94,34 @@ export function CustomerOffersCard({ customer }) {
           </span>
         </label>
       )}
-      {!data.stoppedAt && <TickWarning show={!!data.agreed}>Only tick this if the customer said yes. They will get offer messages on WhatsApp.</TickWarning>}
+      {!data.stoppedAt && asking !== null && (
+        <div role="alertdialog" aria-label={asking ? 'Confirm the customer agreed to offers' : 'Confirm stopping offers'} data-consent-ask
+          onKeyDown={(e) => { if (e.key === 'Escape' && !setConsent.isPending) setAsking(null); }}>
+          <TickWarning show style={{ marginBottom: '0' }}>
+            {asking
+              ? <><b>Did {customer.name || 'the customer'} say yes?</b> They will get offers and birthday wishes on WhatsApp from your shop's number. Only confirm if they agreed.</>
+              : <><b>Stop offers for {customer.name || 'this customer'}?</b> They will no longer get offers or birthday wishes on WhatsApp. Their bills still reach them.</>}
+          </TickWarning>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
+            <button type="button" className="btn-primary" autoFocus disabled={setConsent.isPending} style={{ padding: '6px 14px' }}
+              onClick={async () => {
+                if (saving.current) return;
+                saving.current = true;
+                try {
+                  await setConsent.mutateAsync(asking);
+                  toast.success(asking ? 'Saved: agrees to offers on WhatsApp.' : 'Saved: no offers on WhatsApp.');
+                  setAsking(null);
+                } catch (err) { toast.error(err?.message || 'Could not save. Please try again.'); }
+                finally { saving.current = false; }
+              }}>
+              {setConsent.isPending ? 'Saving…' : asking ? 'Yes, they agreed' : 'Yes, stop offers'}
+            </button>
+            <button type="button" className="btn-secondary" disabled={setConsent.isPending} style={{ padding: '6px 14px' }} onClick={() => setAsking(null)}>
+              {asking ? 'Cancel' : 'Keep offers'}
+            </button>
+          </div>
+        </div>
+      )}
 
       <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '14px' }}>
         {days ? (

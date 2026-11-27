@@ -15,7 +15,6 @@ import { queryKeys } from '../lib/queryKeys';
 import { useCatalogData } from '../hooks/useCatalogConfig';
 import { colorInfoFor } from '../utils/colorOptions';
 import { useLocationContext } from '../contexts/LocationContext';
-import { useMediaQuery } from '../hooks/useMediaQuery';
 import ImageLightbox from '../components/ImageLightbox';
 import { usePermission } from '../hooks/usePermission';
 import { isMeasured, toBase, storedPrice, priceProblem } from '../lib/units';
@@ -30,15 +29,7 @@ export default function ProductPreview() {
   const queryClient = useQueryClient();
   const { colors } = useCatalogData();
   const { can } = usePermission();
-  /*
-   * Once the three columns stack, their widths are no longer a column width -- they are the
-   * width of a card on a phone, and three different ones read as a ragged edge rather than
-   * a layout. The caps are what keep the images and the checklist from sprawling ACROSS a
-   * desktop; stacked, there is nothing to sprawl across, so they come off and every panel
-   * lines up on the same two edges.
-   */
-  const isNarrowScreen = useMediaQuery('(max-width: 768px)');
-  const columnCap = (cap) => (isNarrowScreen ? '100%' : cap);
+  // The page layout lives in index.css (.pp-grid): laid out for the room the page has, on every screen.
   const { currentLocation } = useLocationContext();
   const [applyToAllLocations, setApplyToAllLocations] = useState(false);
   const [lightboxSrc, setLightboxSrc] = useState(null);
@@ -496,6 +487,7 @@ export default function ProductPreview() {
       }
 
       if (askFor.length > 0) {
+        onProgress({ done: tried, total, stage: 'views' });
         try {
           const result = await startPhotoJobs({ productId, kind: 'VIEWS', colours: askFor });
           const started = result?.made?.length ?? 0;
@@ -661,6 +653,7 @@ export default function ProductPreview() {
   };
 
   const isPending = isSubmitting || createMutation.isPending || updateMutation.isPending;
+  const wantsViews = can('tryon:generate') && Object.values(productData.variantPhotos || {}).some(v => v?.wantViews === true);
   // Closing or reloading the tab while the product or its photos are saving: the browser asks first.
   useEffect(() => {
     if (!isPending) return undefined;
@@ -713,9 +706,18 @@ export default function ProductPreview() {
         flex-basis rather than a media query so each column asks for the width it actually
         needs and drops to its own row when the screen cannot give it.
       */}
-      <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
-      {/* Left: Product Images */}
-      <div style={{ flex: '1 1 300px', maxWidth: columnCap('400px'), minWidth: 0 }}>
+      {/*
+        27 Nov 2026: laid out for the room the page really has (a container query on the page, not the window).
+        The three wrapping columns needed ~1080px beside the menu; on a laptop they got ~960px, so the Publish box
+        fell to the bottom-left under the photos. Now:
+          wide     photos | details | publish (sticky)
+          laptop   photos + details stacked | publish (sticky)
+          phone    one column: photos, details, publish
+      */}
+      <div className="pp-wrap">
+      <div className="pp-grid">
+      {/* Photos */}
+      <div className="pp-photos">
         <div className="glass-panel" style={{ position: 'relative', height: '500px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
           {previewImages && previewImages.length > 0 ? (
             <>
@@ -749,8 +751,8 @@ export default function ProductPreview() {
         </div>
       </div>
 
-      {/* Center: Details */}
-      <div style={{ flex: '2 1 340px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: '32px' }}>
+      {/* Details */}
+      <div className="pp-details">
         <div style={{ borderBottom: '1px solid var(--border-light)', paddingBottom: '24px' }}>
           <span style={{ fontSize: '12px', color: 'var(--text-secondary)', letterSpacing: '0.1em' }}>
             {productData.category} &nbsp;•&nbsp; {productData.brand || 'No Brand'}
@@ -786,7 +788,7 @@ export default function ProductPreview() {
           <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>AVAILABLE SIZES</span>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '12px' }}>
             {productData.selectedSizes.length > 0 ? productData.selectedSizes.map(size => (
-              <div key={size} style={{ width: '40px', height: '32px', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>
+              <div key={size} style={{ minWidth: '40px', height: '32px', padding: '0 10px', whiteSpace: 'nowrap', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>
                 {size}
               </div>
             )) : <span style={{ color: 'var(--text-secondary)' }}>None selected</span>}
@@ -866,9 +868,10 @@ export default function ProductPreview() {
         </div>
       </div>
       
-      {/* Right Sidebar: Status & Checklist */}
-      <div style={{ flex: '1 1 280px', maxWidth: columnCap('300px'), minWidth: 0 }}>
-        <div className="glass-panel" style={{ padding: '24px', position: 'sticky', top: '24px' }}>
+      {/* Publish: status, checklist, the buttons -- and while saving, the steps */}
+      <div className="pp-aside">
+        <div className="glass-panel pp-box">
+          {isPending ? <SavingSteps phase={phase} progress={photoProgress} wantsViews={wantsViews} editing={!!productData.id} /> : <>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>STATUS</span>
             <span style={{ fontSize: '12px', backgroundColor: 'var(--bg-input)', padding: '4px 8px', borderRadius: '4px', border: '1px solid var(--border-light)' }}>DRAFT</span>
@@ -908,12 +911,7 @@ export default function ProductPreview() {
             disabled={isPending || !canPublish}
             title={!canPublish ? 'Complete the checklist above to publish' : undefined}
           >
-            {isPending ? <Loader2 size={16} className="animate-spin" /> : null}
-            {isPending
-              ? (phase === 'variants' ? 'ADDING VARIANTS...'
-                : phase === 'photos' && photoProgress.total > 0 ? `SAVING PHOTOS ${Math.min(photoProgress.done + 1, photoProgress.total)} OF ${photoProgress.total}...`
-                : 'SAVING...')
-              : (productData.id ? 'UPDATE PRODUCT' : 'PUBLISH PRODUCT')}
+            {productData.id ? 'UPDATE PRODUCT' : 'PUBLISH PRODUCT'}
           </button>
 
           {/* Publishing was previously the only way out of this screen, so a product that
@@ -936,11 +934,63 @@ export default function ProductPreview() {
           <p style={{ textAlign: 'center', fontSize: '10px', color: 'var(--text-muted)', marginTop: '16px' }}>
             NOTHING IS SAVED UNTIL YOU PRESS A BUTTON ABOVE
           </p>
+          </>}
         </div>
+      </div>
       </div>
       </div>
 
       <ImageLightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} />
+    </div>
+  );
+}
+
+/**
+ * While a product is being saved (27 Nov 2026): what is happening, step by step, in the box the owner pressed.
+ * Replaces the checklist and both buttons, so nothing looks pressable while it works.
+ */
+function SavingSteps({ phase, progress, wantsViews, editing }) {
+  const photosTotal = progress?.total ?? 0;
+  const order = ['save', 'variants', 'photos', 'views'];
+  const at = progress?.stage === 'views' ? 'views' : phase === 'photos' ? 'photos' : phase === 'variants' ? 'variants' : 'save';
+  const state = (key) => (order.indexOf(key) < order.indexOf(at) ? 'done' : key === at ? 'now' : 'next');
+  const steps = [
+    { key: 'save', label: editing ? 'Saving your changes' : 'Product saved' },
+    ...(editing ? [] : [{ key: 'variants', label: 'Sizes and colours added' }]),
+    ...(photosTotal > 0 ? [{ key: 'photos', label: 'Saving photos', count: `${Math.min(progress.done + (state('photos') === 'now' ? 1 : 0), photosTotal)} of ${photosTotal}` }] : []),
+    ...(wantsViews && photosTotal > 0 ? [{ key: 'views', label: 'Starting the catalog views' }] : [])
+  ];
+  const pct = photosTotal ? Math.round((Math.min(progress.done, photosTotal) / photosTotal) * 100) : 0;
+  return (
+    <div role="status" aria-live="polite">
+      <p style={{ fontSize: '16px', fontWeight: 600, margin: 0 }}>{editing ? 'Saving your product' : 'Publishing your product'}</p>
+      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '4px 0 18px' }}>Keep this page open until it&rsquo;s done.</p>
+      <div style={{ display: 'grid', gap: '12px' }}>
+        {steps.map(st => {
+          const s = state(st.key);
+          return (
+            <div key={st.key}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14px', color: s === 'next' ? 'var(--text-secondary)' : 'var(--text-primary)' }}>
+                {s === 'done' ? <CheckCircle size={18} color="var(--accent-gold)" />
+                  : s === 'now' ? <Loader2 size={18} className="animate-spin" />
+                  : <span style={{ width: 18, height: 18, borderRadius: '50%', border: '1.5px solid var(--border-light)', display: 'inline-block', flex: '0 0 18px' }} />}
+                <span>{st.label}</span>
+                {st.count && s !== 'next' ? <span style={{ marginLeft: 'auto', fontSize: '13px', color: 'var(--text-secondary)' }}>{st.count}</span> : null}
+              </div>
+              {st.key === 'photos' && s === 'now' ? (
+                <div style={{ height: 6, background: 'var(--bg-input)', borderRadius: 3, margin: '8px 0 0 28px', overflow: 'hidden' }}>
+                  <div style={{ width: `${Math.max(6, pct)}%`, height: 6, background: 'var(--accent-gold)', borderRadius: 3, transition: 'width .3s ease-out' }} />
+                </div>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+      {photosTotal > 0 ? (
+        <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '16px 0 0', paddingTop: '12px', borderTop: '1px solid var(--border-light)' }}>
+          Big photos are made smaller first. On a slow connection this can take a minute.
+        </p>
+      ) : null}
     </div>
   );
 }

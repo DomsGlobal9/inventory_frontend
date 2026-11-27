@@ -4,6 +4,7 @@ import {
   useRoles, usePermissionCatalogue, useCreateRole, useUpdateRole, useDeleteRole, useRoleImpact
 } from '../hooks/useRoles';
 import ConfirmModal from './ConfirmModal';
+import TickWarning from './common/TickWarning';
 
 /**
  * Deciding what a job is allowed to do.
@@ -238,6 +239,8 @@ export default function RoleManager() {
           )}
         </>
       )}
+
+      <TickWarning show={!locked && !editing.isNew} style={{ margin: '0 0 14px' }}>Everyone with this role gets these permissions as soon as you save.</TickWarning>
 
       {groups.map(group => (
         <div key={group.group} style={{ marginBottom: 18 }}>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import TickWarning from '../components/common/TickWarning';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, ArrowLeft } from 'lucide-react';
@@ -474,6 +475,10 @@ export default function Measurements() {
 
         {/* ROW 3: Inventory Matrix Table */}
         <div style={{ display: 'flex', flexDirection: 'column', marginTop: '8px' }}>
+          {/* A service keeps no stock: said here, where the stock would be typed (27 Nov 2026). */}
+          <TickWarning show={!!productData.isService} style={{ margin: '0 0 12px' }}>
+            This product is marked <b>a service (no stock)</b> on step 1, so stock typed below is <b>not recorded</b>. If you keep it on a shelf, go back to step 1 and untick "This is a service".
+          </TickWarning>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
             <label className="input-label" style={{ marginBottom: 0 }}>
               {isFabric ? 'Stock by colour' : 'Stock by size and colour'} <span style={{color: 'var(--accent-gold)'}}>*</span>
@@ -493,6 +498,9 @@ export default function Measurements() {
                 {isFabric ? 'Different price per colour' : 'Different price per size or colour'}
               </label>
             )}
+            <TickWarning show={!!productData.perVariantPricing} style={{ flexBasis: '100%' }}>
+              Type a price for each {isFabric ? 'colour' : 'size and colour'} in the table below. Any left empty sells at the price above.
+            </TickWarning>
           </div>
           
           {(productData.selectedSizes.length === 0 || productData.selectedColors.length === 0) ? (

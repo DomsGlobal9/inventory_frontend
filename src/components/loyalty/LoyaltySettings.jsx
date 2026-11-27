@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import { Gift, Hourglass, MessageCircle } from 'lucide-react';
 import { useLoyaltySettings, useSaveLoyaltySettings } from '../../hooks/useLoyalty';
 import PageLoader from '../PageLoader';
+import TickWarning from '../common/TickWarning';
 
 /**
  * Settings → Loyalty points: how customers earn and spend points, the birthday gift, and the two
@@ -14,7 +15,8 @@ import PageLoader from '../PageLoader';
  * "1 point per ₹100, worth ₹1" actually gives a customer before saving it.
  */
 
-const Toggle = ({ id, checked, onChange, children, hint, name }) => (
+const Toggle = ({ id, checked, onChange, children, hint, name, warning }) => (
+  <>
   <label htmlFor={id} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', cursor: 'pointer' }}>
     <input id={id} type="checkbox" aria-label={name} aria-describedby={hint ? `${id}-hint` : undefined} checked={checked} onChange={(e) => onChange(e.target.checked)} style={{ marginTop: '3px', width: '18px', height: '18px' }} />
     <span>
@@ -22,6 +24,8 @@ const Toggle = ({ id, checked, onChange, children, hint, name }) => (
       {hint && <span id={`${id}-hint`} style={{ display: 'block', fontSize: '13px', color: 'var(--text-secondary)', marginTop: '2px' }}>{hint}</span>}
     </span>
   </label>
+  {warning && <TickWarning show={!!checked} style={{ marginLeft: '30px' }}>{warning}</TickWarning>}
+  </>
 );
 
 const Num = ({ id, label, value, onChange, prefix, suffix, min = 0, max, step = 1, width = '100px' }) => (
@@ -89,6 +93,7 @@ export default function LoyaltySettings() {
 
       <div style={section}>
         <Toggle id="l-enabled" name="Loyalty points" checked={f.enabled} onChange={set('enabled')}
+          warning="Customers start earning points on every bill; points they spend come off what they pay."
           hint="Off unless you switch it on. Customers earn points on what they pay, and can use them at the counter to pay part of a later bill.">
           <Gift size={16} style={{ verticalAlign: '-3px', marginRight: '6px' }} />Loyalty points
         </Toggle>
@@ -129,12 +134,14 @@ export default function LoyaltySettings() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {!f.enabled && <p style={{ margin: 0, fontSize: '14px' }}>Switch on loyalty points above to send these.</p>}
           {f.enabled && Number(f.expiryMonths) > 0 && (
-            <Toggle id="l-expiry-r" name="Remind customers before their points lapse" checked={f.expiryReminder} onChange={set('expiryReminder')} hint="A week before, so they come back and use them.">
+            <Toggle id="l-expiry-r" name="Remind customers before their points lapse" checked={f.expiryReminder} onChange={set('expiryReminder')}
+              warning="Customers with points get a WhatsApp message from your shop's number a week before they lapse." hint="A week before, so they come back and use them.">
               <Hourglass size={16} style={{ verticalAlign: '-3px', marginRight: '6px' }} />Remind customers before their points lapse
             </Toggle>
           )}
           {f.enabled && (
-            <Toggle id="l-after" name="Tell the customer their points after each sale" checked={f.notifyAfterSale} onChange={set('notifyAfterSale')} hint={'"Thank you! You earned 30 points. You now have 250." Goes to any customer who has not replied STOP.'}>
+            <Toggle id="l-after" name="Tell the customer their points after each sale" checked={f.notifyAfterSale} onChange={set('notifyAfterSale')}
+              warning="Every sale sends the customer a WhatsApp message from your shop's number." hint={'"Thank you! You earned 30 points. You now have 250." Goes to any customer who has not replied STOP.'}>
               Tell the customer their points after each sale
             </Toggle>
           )}

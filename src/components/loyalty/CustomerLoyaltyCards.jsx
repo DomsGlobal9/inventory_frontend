@@ -8,6 +8,7 @@ import { useUpdateCustomer } from '../../hooks/useCustomers';
 import { usePermission } from '../../hooks/usePermission';
 import { useCrm } from '../../hooks/useCrm';
 import Select from '../common/Select';
+import TickWarning from '../common/TickWarning';
 
 /**
  * Two cards on a customer's page: whether they hear about offers on WhatsApp (and their birthday
@@ -86,6 +87,7 @@ export function CustomerOffersCard({ customer }) {
           </span>
         </label>
       )}
+      {!data.stoppedAt && <TickWarning show={!!data.agreed}>Only tick this if the customer said yes. They will get offer messages on WhatsApp.</TickWarning>}
 
       <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '14px' }}>
         {days ? (

@@ -8,6 +8,7 @@ import {
 import ConfirmModal from '../ConfirmModal';
 import Select from '../common/Select';
 import DateField from '../common/DateField';
+import TickWarning from '../common/TickWarning';
 
 /**
  * Settings -> Online shop -> Banners: the pictures across the top of the shop, the way every shop
@@ -430,6 +431,9 @@ function AnnouncementBar() {
         <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-primary)' }}>
           <input type="checkbox" checked={form.active} onChange={(e) => set('active', e.target.checked)} /> Show it on the shop
         </label>
+        <TickWarning show={!!form.active} style={{ margin: 0 }}>
+          {form.showFrom ? 'Shoppers see this line at the top of every page from the start day, once you save.' : 'Shoppers see this line at the top of every page as soon as you save.'}
+        </TickWarning>
         <div>
           <button type="button" className="btn-primary" style={tiny} disabled={!changed || save.isPending}
             onClick={() => save.mutate(form)}>

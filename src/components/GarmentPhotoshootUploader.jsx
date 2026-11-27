@@ -667,6 +667,11 @@ export default function GarmentPhotoshootUploader({ colorCode = '', colorLabel }
                 <CheckCircle size={14} /> We will make these as soon as you publish.
               </span>
             )}
+            {wantViews && (
+              <span style={{ display: 'block', fontSize: '12px', color: '#B45309', marginTop: '6px' }}>
+                Each colour counts towards your shop's monthly photo limit.
+              </span>
+            )}
             {wantViews && missingSource && (
               <span style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', fontSize: '12px', color: '#B45309', marginTop: '8px' }}>
                 <AlertCircle size={14} style={{ flexShrink: 0, marginTop: '1px' }} />

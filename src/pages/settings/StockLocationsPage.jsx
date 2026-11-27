@@ -8,6 +8,7 @@ import { useLocationContext } from '../../contexts/LocationContext';
 import { usePermission } from '../../hooks/usePermission';
 import Select from '../../components/common/Select';
 import ConfirmModal from '../../components/ConfirmModal';
+import TickWarning from '../../components/common/TickWarning';
 import { typedPhone } from '../../utils/phone';
 
 
@@ -348,6 +349,7 @@ export default function StockLocationsPage() {
                   </span>
                 </label>
               </div>
+              <TickWarning show={!formData.active}>An inactive location stops selling at the till and online, and can't take in stock from purchase orders. Its stock is kept.</TickWarning>
 
               {formError && (
                 <p role="alert" style={{ margin: 0, padding: '10px 12px', borderRadius: '8px', fontSize: '13px', lineHeight: 1.5, color: 'var(--accent-danger)', background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.25)' }}>

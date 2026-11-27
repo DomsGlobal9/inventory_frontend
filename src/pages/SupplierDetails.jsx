@@ -27,6 +27,7 @@ import { typedPhone } from '../utils/phone';
 import { useQuery } from '@tanstack/react-query';
 import { useUpdateSupplier } from '../hooks/useSuppliers';
 import SupplierProductsPanel from '../components/SupplierProductsPanel';
+import TickWarning from '../components/common/TickWarning';
 import { api } from '../lib/api';
 import PageLoader from '../components/PageLoader';
 import { rowLink } from '../components/common/rowLink';
@@ -694,6 +695,7 @@ export default function SupplierDetails() {
                       Active Supplier (available for purchase orders)
                     </label>
                   </div>
+                  <TickWarning show={!editForm.isActive}>An inactive supplier can't be picked for new purchase orders. Past orders stay as they are.</TickWarning>
 
                   <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
                     <button

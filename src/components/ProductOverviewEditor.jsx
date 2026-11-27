@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import TickWarning from './common/TickWarning';
 import { api } from '../lib/api';
 import Select from './common/Select';
 
@@ -158,6 +159,7 @@ export default function ProductOverviewEditor({ product, saving, onCancel, onSav
               onChange={(e) => setForm((f) => ({ ...f, taxSlabbed: e.target.checked }))} />
             5% up to ₹2,500, 18% above
           </label>
+          <TickWarning show={!!form.taxSlabbed && !product.taxSlabbed}>GST will be worked out per piece: 5% when one piece sells for ₹2,500 or less, 18% above. Use it only for ready-made garments sold by the piece.</TickWarning>
         </div>
         <div>
           <label className="input-label">Service</label>
@@ -166,6 +168,13 @@ export default function ProductOverviewEditor({ product, saving, onCancel, onSav
               onChange={(e) => setForm((f) => ({ ...f, isService: e.target.checked }))} />
             This is a service (no stock)
           </label>
+          <TickWarning show={!!form.isService && !product.isService}>
+            {form.dressType ? <><b>{form.dressType}</b> is a product you sell from stock, so this is probably not what you want. </> : null}
+            Saving this stops counting stock for it: it leaves Inventory, and stock added to it is not recorded. Use it only for work you charge for, like fall &amp; pico or stitching.
+          </TickWarning>
+          <TickWarning show={!form.isService && !!product.isService}>
+            Saving this makes it a product with stock again: it shows in Inventory with 0 in stock until you add some.
+          </TickWarning>
         </div>
       </div>
 

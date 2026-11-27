@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import { MessageCircle, QrCode, KeyRound, Loader2, Unlink, Send, BookOpen, RefreshCw } from 'lucide-react';
 import ConfirmModal from '../ConfirmModal';
 import TimeField from '../common/TimeField';
+import TickWarning from '../common/TickWarning';
 import { typedPhone } from '../../utils/phone';
 import {
   useWhatsAppOverview, useLinkWhatsApp, useDisconnectWhatsApp, useSendWhatsAppTest,
@@ -316,6 +317,7 @@ function DayBookCard({ dayBook }) {
           <input type="checkbox" checked={enabled} onChange={e => setEnabled(e.target.checked)} />
           Send me the Day Book every night
         </label>
+        <TickWarning show={!!enabled} style={{ margin: '-6px 0 0' }}>Every night a WhatsApp message with the Day Book goes to the number below, at the time you set.</TickWarning>
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
           <div style={{ flex: '0 1 160px' }}>
             <label htmlFor="wa-daybook-time" className="input-label">Time</label>

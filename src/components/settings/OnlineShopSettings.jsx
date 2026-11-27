@@ -6,6 +6,7 @@ import { useOnlineShop, useChooseShopAddress, useSaveOnlineShop, useSetShopOpen,
 import { Link } from 'react-router-dom';
 import ShopBanners from './ShopBanners';
 import ShopIcon from './ShopIcon';
+import TickWarning from '../common/TickWarning';
 import { useLocationContext } from '../../contexts/LocationContext';
 import { useWhatsAppOverview } from '../../hooks/useWhatsApp';
 import { useLoyaltySettings } from '../../hooks/useLoyalty';
@@ -253,6 +254,7 @@ export default function OnlineShopSettings() {
             </span>
           </span>
         </label>
+        <TickWarning show={!!form.tryOn && !!shop.tryOnAvailable} style={{ margin: '8px 0 0 25px' }}>Every try-on a customer makes is taken from your shop's try-on allowance.</TickWarning>
         {/* Customers prove their WhatsApp number before a try-on, so you know who tried what -- only
             when your WhatsApp is connected (it sends the code). Without it try-ons still work, anonymous. */}
         {form.tryOn && whatsappReady && !whatsappLinked && (
@@ -271,6 +273,7 @@ export default function OnlineShopSettings() {
             </span>
           </span>
         </label>
+        <TickWarning show={!!form.hideOutOfStock} style={{ margin: '8px 0 0 25px' }}>Sold-out pieces disappear from your shop until you add stock again.</TickWarning>
 
         {/*
           Saying how few are left is the shop's call, not ours -- which is why it is a switch
@@ -312,6 +315,7 @@ export default function OnlineShopSettings() {
             </span>
           </span>
         </label>
+        <TickWarning show={!form.acceptsOrders} style={{ margin: '8px 0 0 25px' }}>Customers can only look and ask on WhatsApp; they can't order or pay in the shop.</TickWarning>
 
         {form.acceptsOrders && (
           <div style={{ marginTop: '18px', paddingTop: '16px', borderTop: '1px solid var(--border-light)' }}>
@@ -474,6 +478,7 @@ export default function OnlineShopSettings() {
               </span>
             </span>
           </label>
+          <TickWarning show={!!form.accounts && !!form.reviews} style={{ margin: '8px 0 0 25px' }}>Reviews from customers who received their order show on the product page straight away.</TickWarning>
           <label style={{ display: 'flex', gap: '9px', alignItems: 'flex-start', marginTop: '14px', cursor: form.accounts ? 'pointer' : 'not-allowed' }}>
             <input type="checkbox" checked={form.accounts && form.showBalances} disabled={!form.accounts}
               onChange={(e) => set('showBalances', e.target.checked)}
@@ -487,6 +492,7 @@ export default function OnlineShopSettings() {
               </span>
             </span>
           </label>
+          <TickWarning show={!!form.accounts && !!form.showBalances} style={{ margin: '8px 0 0 25px' }}>Signed-in customers will see their points and store credit balance in the shop.</TickWarning>
         </div>
       </div>
 

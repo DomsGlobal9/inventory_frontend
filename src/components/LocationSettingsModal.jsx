@@ -5,6 +5,7 @@ import { X, Loader2, Save } from 'lucide-react';
 import { api } from '../lib/api';
 import toast from 'react-hot-toast';
 import { hasPartPaise, PAISA_MESSAGE } from '../utils/money';
+import TickWarning from './common/TickWarning';
 
 export function LocationSettingsModal({ variant, onClose, onSaveSuccess }) {
   const [locations, setLocations] = useState([]);
@@ -109,6 +110,7 @@ export function LocationSettingsModal({ variant, onClose, onSaveSuccess }) {
                       <span style={{ fontSize: '13px' }}>Available</span>
                     </label>
                   </div>
+                  <TickWarning show={settings[loc.id]?.isAvailable === false} style={{ margin: '0 0 12px' }}>This item can't be sold from this location while it's off.</TickWarning>
                   
                   <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
                     <div style={{ flex: 1 }}>

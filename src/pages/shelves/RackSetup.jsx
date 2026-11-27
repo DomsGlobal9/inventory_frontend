@@ -15,6 +15,7 @@ import QuickCreate from '../../components/shelves/QuickCreate';
 import DescribeShop from '../../components/shelves/DescribeShop';
 import Select from '../../components/common/Select';
 import ConfirmModal from '../../components/ConfirmModal';
+import TickWarning from '../../components/common/TickWarning';
 
 const COLOURS = ['#dc2626', '#ea580c', '#ca8a04', '#16a34a', '#0891b2', '#2563eb', '#7c3aed', '#db2777', '#78716c', '#111827'];
 
@@ -268,6 +269,7 @@ function SpotEditor({ spot, locationId, siblings, onQuick, onAdded, onRemoved })
         <label className="sh-row sh-muted" style={{ gap: 8, cursor: 'pointer', width: 'fit-content' }}>
           <input type="checkbox" checked={form.isTemporary} onChange={(e) => setForm({ ...form, isTemporary: e.target.checked })} /> Temporary (a table or stand for a sale)
         </label>
+        <TickWarning show={!!form.isTemporary} style={{ margin: 0 }}>Remember to empty and remove it after the sale; pieces on it still count as stock.</TickWarning>
 
         <div className="sh-row" style={{ gap: 8, flexWrap: 'wrap', justifyContent: 'space-between', borderTop: '1px solid var(--border-light)', paddingTop: 12 }}>
           <div className="sh-row" style={{ gap: 8, flexWrap: 'wrap' }}>

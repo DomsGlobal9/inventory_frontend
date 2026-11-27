@@ -1,4 +1,5 @@
 import React from 'react';
+import TickWarning from '../components/common/TickWarning';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -265,6 +266,7 @@ export default function GeneralInfo() {
               />
               Priced by the piece: 5% up to ₹2,500, 18% above
             </label>
+            <TickWarning show={!!productData.taxSlabbed}>GST will be worked out per piece: 5% when one piece sells for ₹2,500 or less, 18% above. Use it only for ready-made garments sold by the piece.</TickWarning>
           </div>}
 
           {isFabric ? (
@@ -278,6 +280,10 @@ export default function GeneralInfo() {
               />
               This is a service (no stock)
             </label>
+            <TickWarning show={!!productData.isService}>
+              {productData.dressType ? <><b>{productData.dressType}</b> is a product you sell from stock, so this is probably not what you want. </> : null}
+              This product will keep no stock: it will not show in Inventory, and any stock you add is not recorded. Use this only for work you charge for, like fall &amp; pico or stitching. A saree, or anything you keep on a shelf, is not a service.
+            </TickWarning>
             <p style={{ margin: '4px 0 0 24px', fontSize: '12px', color: 'var(--text-muted)' }}>A service such as fall &amp; pico or stitching: sold at the till for its price, with no stock counted. Put its SAC code in the HSN box.</p>
           </div>}
         </div>

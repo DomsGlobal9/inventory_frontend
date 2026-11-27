@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import TickWarning from './common/TickWarning';
 import { isMeasured, formatQty, pricePerUnit, storedPrice, priceProblem } from '../lib/units';
 import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
@@ -946,6 +947,7 @@ export default function VariantTable({ productId, productName, productCode, prod
                 <input type="checkbox" checked={applyToAllLocations} onChange={(e) => setApplyToAllLocations(e.target.checked)} />
                 {applyToAllLocations ? 'Stock at every location' : `Stock at ${currentLocation?.name || 'selected location'} only`}
               </label>
+              <TickWarning show={applyToAllLocations}>The stock you type is added at every location, so the total is multiplied by the number of locations.</TickWarning>
             </div>
             <button
               className="btn-primary"

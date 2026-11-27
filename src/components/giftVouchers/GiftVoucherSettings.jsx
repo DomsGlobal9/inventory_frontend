@@ -6,6 +6,7 @@ import { useGiftVoucherSettings, useSaveGiftVoucherSettings } from '../../hooks/
 import { usePermission } from '../../hooks/usePermission';
 import PageLoader from '../PageLoader';
 import LoadFailed from '../LoadFailed';
+import TickWarning from '../common/TickWarning';
 
 /**
  * Settings → Gift vouchers: on or off, how long a voucher lasts, and the smallest and largest.
@@ -53,6 +54,7 @@ export default function GiftVoucherSettings() {
           <span style={{ display: 'block', fontSize: '13px', color: 'var(--text-secondary)' }}>Vouchers already sold can always be used, even if this is switched off.</span>
         </span>
       </label>
+      <TickWarning show={!!f.enabled} style={{ margin: '-8px 0 0' }}>Cashiers can sell vouchers. Money taken for a voucher is owed to the customer until they spend it.</TickWarning>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '14px' }}>
         <div>
           <label htmlFor="gv-months" style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '6px' }}>Valid for (months)</label>

@@ -1,4 +1,5 @@
 import React from 'react';
+import TickWarning from '../common/TickWarning';
 import { fromBase, toBase, unitOf } from '../../lib/units';
 import { whatOf, useFabricDefault } from './WhatAreYouAdding';
 
@@ -77,10 +78,12 @@ export default function HowItIsSold({ value, onChange }) {
             <span>Cut cloth can be returned</span>
           </label>
         )}
+        {measured && <TickWarning show={!!value.cutReturnable} style={{ flexBasis: '100%' }}>Customers will be able to return cut lengths of this cloth. Most shops do not take cut cloth back.</TickWarning>}
         <label style={{ display: 'flex', gap: 8, alignItems: 'center', minHeight: 32 }}>
           <input type="checkbox" checked={value.sellInShop !== false} onChange={e => set({ sellInShop: e.target.checked })} />
           <span>Sell it in my shops</span>
         </label>
+        <TickWarning show={value.sellInShop === false} style={{ flexBasis: '100%' }}>This won't be sold anywhere: not at the till, not online, not on Shopify. It is only counted.</TickWarning>
       </div>
       <div style={{ fontSize: 12.5, color: 'var(--text-secondary)' }}>
         {value.sellInShop === false

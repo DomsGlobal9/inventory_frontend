@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import TickWarning from '../components/common/TickWarning';
 import { useNavigate } from 'react-router-dom';
 import { Image as ImageIcon, CheckCircle, Loader2, ArrowLeft, Eye } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -30,7 +31,7 @@ export default function ProductPreview() {
   const { colors } = useCatalogData();
   const { can } = usePermission();
   // The page layout lives in index.css (.pp-grid): laid out for the room the page has, on every screen.
-  const { currentLocation } = useLocationContext();
+  const { currentLocation, locations } = useLocationContext();
   const [applyToAllLocations, setApplyToAllLocations] = useState(false);
   const [lightboxSrc, setLightboxSrc] = useState(null);
   // Covers the WHOLE publish sequence, not just the create request. createMutation.isPending
@@ -839,6 +840,9 @@ export default function ProductPreview() {
                   ? 'Stock these units at every location'
                   : `Stock these units at ${currentLocation?.name || 'the selected location'} only`}
               </label>
+              <TickWarning show={applyToAllLocations && (locations?.length ?? 2) > 1}>
+                Each of your {locations?.length ? `${locations.length} locations` : 'locations'} gets these {totalUnits} units, so the total stock becomes {locations?.length ? totalUnits * locations.length : 'that many times more'}.
+              </TickWarning>
             </div>
           )}
           <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '16px' }}>

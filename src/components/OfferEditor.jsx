@@ -6,6 +6,7 @@ import { describeOffer, SCOPE_OPTIONS, DEPARTMENT_LABEL } from '../utils/offerSu
 import Select from './common/Select';
 import DateField from './common/DateField';
 import TimeField from './common/TimeField';
+import TickWarning from './common/TickWarning';
 
 /**
  * Writing one offer.
@@ -768,6 +769,7 @@ export default function OfferEditor({ offer, onClose, onSave }) {
               <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px' }}>
                 <input type="checkbox" checked={form.hoursOn} onChange={set('hoursOn')} /> Only at certain hours
               </label>
+              <TickWarning show={!!form.hoursOn}>Outside these hours customers pay the full price.</TickWarning>
               {form.hoursOn && (
                 <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <div role="group" aria-label="Days" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
@@ -849,6 +851,7 @@ export default function OfferEditor({ offer, onClose, onSave }) {
                     <label style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingTop: '9px', cursor: 'pointer', fontSize: '14px' }}>
                       <input type="checkbox" checked={form.stackable} onChange={set('stackable')} /> Can combine with other offers
                     </label>
+                    <TickWarning show={!!form.stackable}>Customers can get this and other offers on the same bill, so the discounts add up.</TickWarning>
                   </Field>
                 </div>
               </div>
